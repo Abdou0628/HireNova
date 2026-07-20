@@ -13,20 +13,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Resume {
+  id               String   @id @default(cuid())
+ fullName         String
+  email            String
+  phone            String?
+  location         String?
+  linkedin         String?
+  website          String?
+  targetJob        String
+  industry         String?
+  language         String   @default("fr")
+  experience       String?
+  education        String?
+  skills           String?
+  languages        String?
+  summary          String?
+  templateStyle    String   @default("modern")
+  generatedContent String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

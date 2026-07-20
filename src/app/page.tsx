@@ -1,31 +1,20 @@
 'use client'
 
+import { useCVStore } from '@/store/cv-store'
+import Landing from '@/components/cv/landing'
+import CVForm from '@/components/cv/form'
+import Generating from '@/components/cv/generating'
+import Preview from '@/components/cv/preview'
+
 export default function Home() {
+  const { step } = useCVStore()
+
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      gap: '2rem',
-      padding: '1rem'
-    }}>
-      <div style={{
-        position: 'relative',
-        width: '6rem',
-        height: '6rem'
-      }}>
-        <img
-          src="/logo.svg"
-          alt="Z.ai Logo"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }}
-        />
-      </div>
-    </div>
+    <>
+      {step === 'landing' && <Landing />}
+      {step === 'form' && <CVForm />}
+      {step === 'generating' && <Generating />}
+      {step === 'preview' && <Preview />}
+    </>
   )
 }
