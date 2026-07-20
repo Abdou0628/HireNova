@@ -12,6 +12,7 @@ type TranslationKey =
   | 'fullName'
   | 'email'
   | 'phone'
+  | 'address'
   | 'location'
   | 'linkedin'
   | 'website'
@@ -71,6 +72,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'Nom complet',
     email: 'Adresse e-mail',
     phone: 'Téléphone',
+    address: 'Adresse complète',
     location: 'Ville / Pays',
     linkedin: 'LinkedIn (optionnel)',
     website: 'Site web (optionnel)',
@@ -139,6 +141,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'Full Name',
     email: 'Email Address',
     phone: 'Phone',
+    address: 'Full Address',
     location: 'City / Country',
     linkedin: 'LinkedIn (optional)',
     website: 'Website (optional)',
@@ -207,6 +210,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'الاسم الكامل',
     email: 'البريد الإلكتروني',
     phone: 'الهاتف',
+    address: 'العنوان الكامل',
     location: 'المدينة / البلد',
     linkedin: 'لينكد إن (اختياري)',
     website: 'الموقع الإلكتروني (اختياري)',

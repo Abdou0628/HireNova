@@ -17,6 +17,7 @@ interface CVDocumentProps {
     fullName: string
     email: string
     phone: string
+    address: string
     location: string
     linkedin: string
     website: string
@@ -73,8 +74,9 @@ function ModernTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
+  const fullAddress = [address, location].filter(Boolean).join(', ')
 
   return (
     <div className="flex min-h-[297mm] w-full flex-col bg-white sm:flex-row sm:min-h-0">
@@ -103,7 +105,7 @@ function ModernTemplate({
         <div className="mt-6 space-y-2 border-b border-emerald-700 pb-5 text-[11px] leading-relaxed text-emerald-100">
           <ContactItem icon={Mail} value={email} />
           <ContactItem icon={Phone} value={phone} />
-          <ContactItem icon={MapPin} value={location} />
+          <ContactItem icon={MapPin} value={fullAddress} />
           <ContactItem icon={Linkedin} value={linkedin} />
           <ContactItem icon={Globe} value={website} />
         </div>
@@ -236,8 +238,9 @@ function ClassicTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
+  const fullAddress = [address, location].filter(Boolean).join(', ')
 
   return (
     <div className="min-h-[297mm] w-full bg-white px-8 py-7 print:min-h-0">
@@ -263,7 +266,7 @@ function ClassicTemplate({
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-stone-600">
           <ContactItem icon={Mail} value={email} />
           <ContactItem icon={Phone} value={phone} />
-          <ContactItem icon={MapPin} value={location} />
+          <ContactItem icon={MapPin} value={fullAddress} />
           <ContactItem icon={Linkedin} value={linkedin} />
           <ContactItem icon={Globe} value={website} />
         </div>
@@ -382,8 +385,9 @@ function CreativeTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
+  const fullAddress = [address, location].filter(Boolean).join(', ')
 
   return (
     <div className="min-h-[297mm] w-full bg-white print:min-h-0">
@@ -493,7 +497,7 @@ function CreativeTemplate({
             <div className="mt-3 space-y-2 text-[11px] text-stone-600">
               <ContactItem icon={Mail} value={email} />
               <ContactItem icon={Phone} value={phone} />
-              <ContactItem icon={MapPin} value={location} />
+              <ContactItem icon={MapPin} value={fullAddress} />
               <ContactItem icon={Linkedin} value={linkedin} />
               <ContactItem icon={Globe} value={website} />
             </div>

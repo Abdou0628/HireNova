@@ -317,6 +317,16 @@ export default function CVForm() {
                         />
                       </div>
                       <div>
+                        <Label htmlFor="address">{t(language, 'address')}</Label>
+                        <Input
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) => updateFormData({ address: e.target.value })}
+                          placeholder={language === 'fr' ? '123 Rue Mohammed V' : language === 'en' ? '123 Main Street' : 'شارع محمد الخامس 123'}
+                          className="mt-1.5"
+                        />
+                      </div>
+                      <div>
                         <Label htmlFor="location">{t(language, 'location')}</Label>
                         <Input
                           id="location"

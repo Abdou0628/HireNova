@@ -8,6 +8,7 @@ export interface FormData {
   fullName: string
   email: string
   phone: string
+  address: string
   location: string
   linkedin: string
   website: string
@@ -64,6 +65,7 @@ const initialFormData: FormData = {
   fullName: '',
   email: '',
   phone: '',
+  address: '',
   location: '',
   linkedin: '',
   website: '',
