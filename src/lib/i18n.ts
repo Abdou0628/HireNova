@@ -15,6 +15,10 @@ type TranslationKey =
   | 'location'
   | 'linkedin'
   | 'website'
+  | 'photo'
+  | 'photoPlaceholder'
+  | 'photoRemove'
+  | 'photoNote'
   | 'targetJob'
   | 'industry'
   | 'experience'
@@ -70,6 +74,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     location: 'Ville / Pays',
     linkedin: 'LinkedIn (optionnel)',
     website: 'Site web (optionnel)',
+    photo: 'Photo de profil',
+    photoPlaceholder: 'Cliquez ou glissez une photo ici',
+    photoRemove: 'Supprimer',
+    photoNote: 'Recommandé pour les CV en français et arabe. Non recommandé pour les CV en anglais (pratique anti-discrimination).',
     targetJob: 'Poste visé',
     industry: 'Secteur d\'activité',
     experience: 'Expérience professionnelle',
@@ -134,6 +142,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     location: 'City / Country',
     linkedin: 'LinkedIn (optional)',
     website: 'Website (optional)',
+    photo: 'Profile Photo',
+    photoPlaceholder: 'Click or drag a photo here',
+    photoRemove: 'Remove',
+    photoNote: 'Not recommended for English resumes (anti-discrimination practice). Recommended for French and Arabic CVs.',
     targetJob: 'Target Position',
     industry: 'Industry',
     experience: 'Work Experience',
@@ -198,6 +210,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     location: 'المدينة / البلد',
     linkedin: 'لينكد إن (اختياري)',
     website: 'الموقع الإلكتروني (اختياري)',
+    photo: 'الصورة الشخصية',
+    photoPlaceholder: 'انقر أو اسحب صورة هنا',
+    photoRemove: 'إزالة',
+    photoNote: 'يُنصح بها للسير الذاتية بالفرنسية والعربية. غير موصى بها للسير الذاتية بالإنجليزية.',
     targetJob: 'الوظيفة المستهدفة',
     industry: 'قطاع النشاط',
     experience: 'الخبرة المهنية',

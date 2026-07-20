@@ -21,6 +21,7 @@ interface CVDocumentProps {
     linkedin: string
     website: string
     targetJob: string
+    photo: string
   }
   generatedCV: {
     summary: string
@@ -72,23 +73,32 @@ function ModernTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob } = formData
+  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
 
   return (
     <div className="flex min-h-[297mm] w-full flex-col bg-white sm:flex-row sm:min-h-0">
       {/* ── Sidebar ── */}
       <aside className="w-full bg-emerald-900 px-5 py-7 text-white sm:w-[30%] sm:min-h-[297mm] print:min-h-0">
-        {/* Name */}
-        <h1 className="text-xl font-bold leading-tight tracking-tight">
-          {fullName}
-        </h1>
-        {targetJob && (
-          <p className="mt-1 text-xs font-medium tracking-wide text-emerald-200">
-            {targetJob}
-          </p>
-        )}
+        {/* Photo + Name */}
+        <div className="flex flex-col items-center text-center">
+          {photo && (
+            <img
+              src={photo}
+              alt=""
+              className="w-24 h-24 rounded-full object-cover border-3 border-emerald-600 mb-3"
+            />
+          )}
+            <h1 className="text-xl font-bold leading-tight tracking-tight">
+            {fullName}
+          </h1>
+          {targetJob && (
+            <p className="mt-1 text-xs font-medium tracking-wide text-emerald-200">
+              {targetJob}
+            </p>
+          )}
 
+        </div>
         {/* Contact */}
         <div className="mt-6 space-y-2 border-b border-emerald-700 pb-5 text-[11px] leading-relaxed text-emerald-100">
           <ContactItem icon={Mail} value={email} />
@@ -226,17 +236,28 @@ function ClassicTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob } = formData
+  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
 
   return (
     <div className="min-h-[297mm] w-full bg-white px-8 py-7 print:min-h-0">
       {/* Header */}
-      <header className="border-b-2 border-stone-800 pb-4 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-stone-900">{fullName}</h1>
-        {targetJob && (
-          <p className="mt-1 text-sm font-medium text-stone-500">{targetJob}</p>
-        )}
+      <header className="border-b-2 border-stone-800 pb-4">
+        <div className="flex items-center justify-center gap-5">
+          {photo && (
+            <img
+              src={photo}
+              alt=""
+              className="w-20 h-20 rounded-full object-cover border-2 border-stone-300"
+            />
+          )}
+          <div className="text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-stone-900">{fullName}</h1>
+            {targetJob && (
+              <p className="mt-1 text-sm font-medium text-stone-500">{targetJob}</p>
+            )}
+          </div>
+        </div>
 
         {/* Contact row */}
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-stone-600">
@@ -361,17 +382,28 @@ function CreativeTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, location, linkedin, website, targetJob } = formData
+  const { fullName, email, phone, location, linkedin, website, targetJob, photo } = formData
   const { summary, experience, education, skills, languages } = generatedCV
 
   return (
     <div className="min-h-[297mm] w-full bg-white print:min-h-0">
       {/* ── Gradient Header ── */}
       <header className="bg-gradient-to-r from-emerald-800 to-teal-600 px-8 py-8 text-white">
-        <h1 className="text-2xl font-extrabold tracking-tight">{fullName}</h1>
-        {targetJob && (
-          <p className="mt-1 text-sm font-medium text-emerald-100">{targetJob}</p>
-        )}
+        <div className="flex items-center gap-5">
+          {photo && (
+            <img
+              src={photo}
+              alt=""
+              className="w-20 h-20 rounded-full object-cover border-3 border-white/30"
+            />
+          )}
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">{fullName}</h1>
+            {targetJob && (
+              <p className="mt-1 text-sm font-medium text-emerald-100">{targetJob}</p>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* ── Two-column body ── */}

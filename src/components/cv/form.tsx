@@ -18,6 +18,9 @@ import {
   FileText,
   Palette,
   Globe,
+  Camera,
+  X,
+  Info,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -229,6 +232,57 @@ export default function CVForm() {
                 {/* Step 1: Personal Info */}
                 {formStep === 0 && (
                   <div className="space-y-4">
+                    {/* Photo Upload */}
+                    <div>
+                      <Label>{t(language, 'photo')}</Label>
+                      <div className="mt-1.5">
+                        {formData.photo ? (
+                          <div className="relative inline-block">
+                            <img
+                              src={formData.photo}
+                              alt="Photo"
+                              className="w-24 h-24 rounded-full object-cover border-2 border-emerald-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateFormData({ photo: '' })}
+                              className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer shadow-sm"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (!file) return
+                                if (file.size > 5 * 1024 * 1024) {
+                                  toast.error(language === 'fr' ? 'Image trop volumineuse (max 5 Mo)' : language === 'en' ? 'Image too large (max 5 MB)' : 'الصورة كبيرة جداً (الحد الأقصى 5 ميغابايت)')
+                                  return
+                                }
+                                const reader = new FileReader()
+                                reader.onload = () => {
+                                  updateFormData({ photo: reader.result as string })
+                                }
+                                reader.readAsDataURL(file)
+                              }}
+                            />
+                            <Camera className="w-8 h-8 text-muted-foreground/40 group-hover:text-emerald-500 transition-colors" />
+                            <span className="text-xs text-muted-foreground/60 mt-1.5 group-hover:text-emerald-600 transition-colors">
+                              {t(language, 'photoPlaceholder')}
+                            </span>
+                          </label>
+                        )}
+                      </div>
+                      <div className="flex items-start gap-1.5 mt-2">
+                        <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                        <p className="text-xs text-muted-foreground">{t(language, 'photoNote')}</p>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
                         <Label htmlFor="fullName">{t(language, 'fullName')} *</Label>
