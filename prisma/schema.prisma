@@ -29,6 +29,10 @@ model Resume {
   skills           String?
   languages        String?
   summary          String?
+  softSkills       String?
+  dateOfBirth      String?
+  birthPlace       String?
+  birthCountry     String?
   templateStyle    String   @default("modern")
   generatedContent String?
   createdAt        DateTime @default(now())

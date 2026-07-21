@@ -105,3 +105,26 @@ Work Log:
 Stage Summary:
 - ALL features verified working end-to-end
 - Production-ready
+
+---
+Task ID: 9
+Agent: Main
+Task: Add date/place of birth with country and soft skills fields
+
+Work Log:
+- Updated Prisma schema: added dateOfBirth, birthPlace, birthCountry, softSkills fields
+- Updated Zustand store: added 4 new fields to FormData interface and initialFormData
+- Updated i18n translations: added 7 new keys (dateOfBirth, birthPlace, birthCountry, birthCountryPlaceholder, softSkills, softSkillsPlaceholder, personalInfo) in FR/EN/AR
+- Updated form.tsx Step 1: added "Informations de naissance" section with date picker, birth place input, birth country input (below website field, separated by a border)
+- Updated form.tsx Step 4: added soft skills textarea before summary field
+- Updated cv-document.tsx: added formatDate helper, birth info display in contact area (all 3 templates), soft skills section (all 3 templates with template-specific styling)
+- Updated API route: added new fields to AI prompt, softSkills in JSON output format, DB save
+- Pushed DB schema with db:push
+- Lint passes cleanly
+- Browser verified: birth info fields visible in Step 1, soft skills field visible in Step 4, zero console errors
+
+Stage Summary:
+- 4 new optional fields added: dateOfBirth, birthPlace, birthCountry, softSkills
+- Birth info displayed in CV contact area with CalendarDays icon (formatted date + place + country)
+- Soft skills displayed as a dedicated section in all 3 templates (AI can also generate soft skills via JSON)
+- All 3 languages supported for new field labels

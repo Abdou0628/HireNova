@@ -55,6 +55,13 @@ type TranslationKey =
   | 'languageLabel'
   | 'required'
   | 'errorFillFields'
+  | 'dateOfBirth'
+  | 'birthPlace'
+  | 'birthCountry'
+  | 'birthCountryPlaceholder'
+  | 'softSkills'
+  | 'softSkillsPlaceholder'
+  | 'personalInfo'
   | 'footerText'
   | 'footerMadeWith'
 
@@ -123,6 +130,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     templateCreative: 'Créatif',
     templateLabel: 'Modèle',
     languageLabel: 'Langue du CV',
+    dateOfBirth: 'Date de naissance',
+    birthPlace: 'Lieu de naissance',
+    birthCountry: 'Pays de naissance',
+    birthCountryPlaceholder: 'Maroc, France, Algérie...',
+    softSkills: 'Soft Skills / Savoir-être (optionnel)',
+    softSkillsPlaceholder: 'Listez vos soft skills séparés par des virgules (ex: leadership, communication, résolution de problèmes, adaptabilité...)',
+    personalInfo: 'Informations de naissance',
     required: 'Ce champ est requis',
     errorFillFields: 'Veuillez remplir tous les champs obligatoires',
     footerText: 'Tous droits réservés',
@@ -192,6 +206,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     templateCreative: 'Creative',
     templateLabel: 'Template',
     languageLabel: 'Resume Language',
+    dateOfBirth: 'Date of Birth',
+    birthPlace: 'Place of Birth',
+    birthCountry: 'Country of Birth',
+    birthCountryPlaceholder: 'Morocco, France, Algeria...',
+    softSkills: 'Soft Skills (optional)',
+    softSkillsPlaceholder: 'List your soft skills separated by commas (e.g. leadership, communication, problem-solving, adaptability...)',
+    personalInfo: 'Birth Information',
     required: 'This field is required',
     errorFillFields: 'Please fill in all required fields',
     footerText: 'All rights reserved',
@@ -260,6 +281,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     templateCreative: 'إبداعي',
     templateLabel: 'القالب',
     languageLabel: 'لغة السيرة الذاتية',
+    dateOfBirth: 'تاريخ الميلاد',
+    birthPlace: 'مكان الميلاد',
+    birthCountry: 'بلد الميلاد',
+    birthCountryPlaceholder: 'المغرب، فرنسا، الجزائر...',
+    softSkills: 'المهارات الشخصية (اختياري)',
+    softSkillsPlaceholder: 'اذكر مهاراتك الشخصية مفصولة بفواصل (مثال: القيادة، التواصل، حل المشكلات، التكيف...)',
+    personalInfo: 'معلومات الميلاد',
     required: 'هذا الحقل مطلوب',
     errorFillFields: 'يرجى ملء جميع الحقول المطلوبة',
     footerText: 'جميع الحقوق محفوظة',

@@ -10,7 +10,21 @@ import {
   GraduationCap,
   Code2,
   Languages,
+  CalendarDays,
+  HeartHandshake,
 } from 'lucide-react'
+
+/* Format date from YYYY-MM-DD to a readable format */
+function formatDate(dateStr: string, lang: string): string {
+  if (!dateStr) return ''
+  const date = new Date(dateStr + 'T00:00:00')
+  if (isNaN(date.getTime())) return dateStr
+  return date.toLocaleDateString(lang === 'ar' ? 'ar-MA' : lang === 'en' ? 'en-US' : 'fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
 
 interface CVDocumentProps {
   formData: {
@@ -23,9 +37,14 @@ interface CVDocumentProps {
     website: string
     targetJob: string
     photo: string
+    dateOfBirth: string
+    birthPlace: string
+    birthCountry: string
+    softSkills: string
   }
   generatedCV: {
     summary: string
+    softSkills?: string[]
     experience: Array<{
       title: string
       company: string
@@ -74,9 +93,11 @@ function ModernTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
-  const { summary, experience, education, skills, languages } = generatedCV
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, 'fr'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   return (
     <div className="flex min-h-[297mm] w-full flex-col bg-white sm:flex-row sm:min-h-0">
@@ -106,6 +127,7 @@ function ModernTemplate({
           <ContactItem icon={Mail} value={email} />
           <ContactItem icon={Phone} value={phone} />
           <ContactItem icon={MapPin} value={fullAddress} />
+          {birthInfo && <ContactItem icon={CalendarDays} value={birthInfo} />}
           <ContactItem icon={Linkedin} value={linkedin} />
           <ContactItem icon={Globe} value={website} />
         </div>
@@ -119,6 +141,26 @@ function ModernTemplate({
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded bg-emerald-800 px-2 py-0.5 text-[10px] font-medium text-emerald-100"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Soft Skills */}
+        {displaySoftSkills.length > 0 && (
+          <div className="mt-6">
+            <h2 className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-emerald-200">
+              <HeartHandshake className="h-3.5 w-3.5" />
+              Soft Skills
+            </h2>
+            <div className="flex flex-wrap gap-1.5">
+              {displaySoftSkills.map((skill) => (
                 <span
                   key={skill}
                   className="rounded bg-emerald-800 px-2 py-0.5 text-[10px] font-medium text-emerald-100"
@@ -238,9 +280,11 @@ function ClassicTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
-  const { summary, experience, education, skills, languages } = generatedCV
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   return (
     <div className="min-h-[297mm] w-full bg-white px-8 py-7 print:min-h-0">
@@ -267,6 +311,7 @@ function ClassicTemplate({
           <ContactItem icon={Mail} value={email} />
           <ContactItem icon={Phone} value={phone} />
           <ContactItem icon={MapPin} value={fullAddress} />
+          {birthInfo && <ContactItem icon={CalendarDays} value={birthInfo} />}
           <ContactItem icon={Linkedin} value={linkedin} />
           <ContactItem icon={Globe} value={website} />
         </div>
@@ -356,6 +401,25 @@ function ClassicTemplate({
 
       <div className="my-4 h-px bg-stone-200" />
 
+      {/* Soft Skills */}
+      {displaySoftSkills.length > 0 && (
+        <section>
+          <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
+            Soft Skills
+          </h2>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600">
+            {displaySoftSkills.map((skill) => (
+              <span key={skill} className="flex items-center gap-1">
+                <HeartHandshake className="h-3 w-3 text-emerald-600" />
+                <span>{skill}</span>
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div className="my-4 h-px bg-stone-200" />
+
       {/* Languages */}
       {languages.length > 0 && (
         <section>
@@ -385,9 +449,11 @@ function CreativeTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo } = formData
-  const { summary, experience, education, skills, languages } = generatedCV
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   return (
     <div className="min-h-[297mm] w-full bg-white print:min-h-0">
@@ -498,6 +564,7 @@ function CreativeTemplate({
               <ContactItem icon={Mail} value={email} />
               <ContactItem icon={Phone} value={phone} />
               <ContactItem icon={MapPin} value={fullAddress} />
+              {birthInfo && <ContactItem icon={CalendarDays} value={birthInfo} />}
               <ContactItem icon={Linkedin} value={linkedin} />
               <ContactItem icon={Globe} value={website} />
             </div>
@@ -514,6 +581,25 @@ function CreativeTemplate({
                   <span
                     key={skill}
                     className="rounded-full border border-emerald-600/30 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Soft Skills */}
+          {displaySoftSkills.length > 0 && (
+            <section className="mb-6">
+              <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
+                Soft Skills
+              </h2>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {displaySoftSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full border border-teal-600/30 bg-teal-50 px-2.5 py-0.5 text-[10px] font-semibold text-teal-800"
                   >
                     {skill}
                   </span>

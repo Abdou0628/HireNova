@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
       skills,
       languages,
       summary,
+      softSkills,
+      dateOfBirth,
+      birthPlace,
+      birthCountry,
       language,
     } = body
 
@@ -56,6 +60,9 @@ ${phone ? `- Téléphone : ${phone}` : ''}
 ${location ? `- Localisation : ${location}` : ''}
 ${linkedin ? `- LinkedIn : ${linkedin}` : ''}
 ${website ? `- Site web : ${website}` : ''}
+${dateOfBirth ? `- Date de naissance : ${dateOfBirth}` : ''}
+${birthPlace ? `- Lieu de naissance : ${birthPlace}` : ''}
+${birthCountry ? `- Pays de naissance : ${birthCountry}` : ''}
 
 POSTE VISÉ : ${targetJob}
 ${industry ? `SECTEUR : ${industry}` : ''}
@@ -71,6 +78,9 @@ ${skills || 'Aucune information fournie - suggère des compétences pertinentes 
 
 LANGUES :
 ${languages || 'Aucune information fournie'}
+
+${softSkills ? `SOFT SKILLS / SAVOIR-ÊTRE :
+${softSkills}` : ''}
 
 ${summary ? `RÉSUMÉ SOUHAITÉ PAR LE CANDIDAT : ${summary}` : ''}
 
@@ -96,6 +106,7 @@ INSTRUCTIONS DE FORMATAGE :
     }
   ],
   "skills": ["Compétence 1", "Compétence 2", "Compétence 3"],
+  "softSkills": ["Soft Skill 1", "Soft Skill 2", "Soft Skill 3"],
   "languages": [
     {"name": "Français", "level": "Natif"}
   ]
@@ -168,6 +179,10 @@ RÈGLES :
         skills,
         languages,
         summary: summary || null,
+        softSkills: softSkills || null,
+        dateOfBirth: dateOfBirth || null,
+        birthPlace: birthPlace || null,
+        birthCountry: birthCountry || null,
         language,
         generatedContent: JSON.stringify(generatedCV),
       },

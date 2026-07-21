@@ -21,6 +21,9 @@ import {
   Camera,
   X,
   Info,
+  CalendarDays,
+  MapPinned,
+  HeartHandshake,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -357,6 +360,46 @@ export default function CVForm() {
                         />
                       </div>
                     </div>
+
+                    {/* Birth Information */}
+                    <div className="mt-6 pt-5 border-t border-stone-100">
+                      <Label className="flex items-center gap-2 text-sm font-semibold text-stone-700 mb-3">
+                        <CalendarDays className="w-4 h-4 text-emerald-600" />
+                        {t(language, 'personalInfo')}
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="dateOfBirth">{t(language, 'dateOfBirth')}</Label>
+                          <Input
+                            id="dateOfBirth"
+                            type="date"
+                            value={formData.dateOfBirth}
+                            onChange={(e) => updateFormData({ dateOfBirth: e.target.value })}
+                            className="mt-1.5"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="birthPlace">{t(language, 'birthPlace')}</Label>
+                          <Input
+                            id="birthPlace"
+                            value={formData.birthPlace}
+                            onChange={(e) => updateFormData({ birthPlace: e.target.value })}
+                            placeholder={language === 'fr' ? 'Casablanca' : language === 'en' ? 'Casablanca' : 'الدار البيضاء'}
+                            className="mt-1.5"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <Label htmlFor="birthCountry">{t(language, 'birthCountry')}</Label>
+                          <Input
+                            id="birthCountry"
+                            value={formData.birthCountry}
+                            onChange={(e) => updateFormData({ birthCountry: e.target.value })}
+                            placeholder={t(language, 'birthCountryPlaceholder')}
+                            className="mt-1.5"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -432,6 +475,16 @@ export default function CVForm() {
                         value={formData.languages}
                         onChange={(e) => updateFormData({ languages: e.target.value })}
                         placeholder={t(language, 'languagesPlaceholder')}
+                        className="mt-1.5 min-h-[80px] resize-y"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="softSkills">{t(language, 'softSkills')}</Label>
+                      <Textarea
+                        id="softSkills"
+                        value={formData.softSkills}
+                        onChange={(e) => updateFormData({ softSkills: e.target.value })}
+                        placeholder={t(language, 'softSkillsPlaceholder')}
                         className="mt-1.5 min-h-[80px] resize-y"
                       />
                     </div>

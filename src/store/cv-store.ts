@@ -20,6 +20,10 @@ export interface FormData {
   languages: string
   summary: string
   photo: string
+  dateOfBirth: string
+  birthPlace: string
+  birthCountry: string
+  softSkills: string
 }
 
 export interface GeneratedCV {
@@ -77,6 +81,10 @@ const initialFormData: FormData = {
   languages: '',
   summary: '',
   photo: '',
+  dateOfBirth: '',
+  birthPlace: '',
+  birthCountry: '',
+  softSkills: '',
 }
 
 export const useCVStore = create<CVStore>((set) => ({
