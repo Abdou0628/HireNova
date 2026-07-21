@@ -7,12 +7,14 @@ const langMap: Record<string, string> = {
   fr: 'français',
   en: 'anglais',
   ar: 'arabe',
+  es: 'espagnol',
 }
 
 const langInstructions: Record<string, string> = {
   fr: `Rédige le CV entièrement en français. Utilise le "vous" de politesse si nécessaire. Le style doit être professionnel et concis. Utilise des verbes d'action au passé composé pour l'expérience.`,
   en: `Write the entire resume in English. Use a professional and concise style. Use action verbs in past tense for experience descriptions.`,
   ar: `اكتب السيرة الذاتية بالكامل باللغة العربية. استخدم أسلوباً احترافياً ومختصراً. استخدم أفعال الحركة في الماضي لوصف الخبرات.`,
+  es: `Escribe el currículum completo en español. Usa un estilo profesional y conciso. Usa verbos de acción en pasado para las descripciones de experiencia.`,
 }
 
 export async function POST(request: NextRequest) {

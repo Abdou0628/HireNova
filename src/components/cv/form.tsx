@@ -26,6 +26,7 @@ import {
   HeartHandshake,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { countries, findCountryByDial } from '@/lib/countries'
 
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
 const stepTitles = ['step1Title', 'step2Title', 'step3Title', 'step4Title'] as const
@@ -40,6 +41,7 @@ const languages: { id: CVLanguage; flag: string }[] = [
   { id: 'fr', flag: '🇫🇷' },
   { id: 'en', flag: '🇬🇧' },
   { id: 'ar', flag: '🇸🇦' },
+  { id: 'es', flag: '🇪🇸' },
 ]
 
 export default function CVForm() {
@@ -59,6 +61,30 @@ export default function CVForm() {
   } = useCVStore()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [phoneCountryCode, setPhoneCountryCode] = useState<string>('')
+
+  function handlePhoneCountryChange(code: string) {
+    setPhoneCountryCode(code)
+    const country = countries.find((c) => c.code === code)
+    if (country) {
+      // Remove any existing dial code from phone, prepend new one
+      const currentNumber = formData.phone.replace(/^[+\d\s\-()]+/, '').trim()
+      updateFormData({ phone: currentNumber ? `${country.dial} ${currentNumber}` : country.dial })
+    }
+  }
+
+  function handlePhoneNumberChange(number: string) {
+    const country = countries.find((c) => c.code === phoneCountryCode)
+    const dial = country?.dial || ''
+    const cleaned = number.replace(/[^\d\s]/g, '').trim()
+    updateFormData({ phone: dial ? `${dial} ${cleaned}` : cleaned })
+  }
+
+  function getPhoneNumberOnly(): string {
+    const country = countries.find((c) => c.code === phoneCountryCode)
+    const dial = country?.dial || ''
+    return formData.phone.startsWith(dial) ? formData.phone.slice(dial.length).trim() : formData.phone.replace(/^[+\d\s\-()]+/, '').trim()
+  }
 
   const slideVariants = {
     enter: (direction: number) => ({ x: direction > 0 ? 300 : -300, opacity: 0 }),
@@ -308,16 +334,30 @@ export default function CVForm() {
                           className="mt-1.5"
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="phone">{t(language, 'phone')}</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => updateFormData({ phone: e.target.value })}
-                          placeholder="+212 600 000 000"
-                          className="mt-1.5"
-                        />
+                      <div className="sm:col-span-2">
+                        <Label>{t(language, 'phone')}</Label>
+                        <div className="mt-1.5 flex gap-2">
+                          <select
+                            value={phoneCountryCode}
+                            onChange={(e) => handlePhoneCountryChange(e.target.value)}
+                            className="h-9 w-[180px] shrink-0 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 appearance-none cursor-pointer"
+                            aria-label={t(language, 'phoneCountry')}
+                          >
+                            <option value="">{t(language, 'phoneCountryPlaceholder')}</option>
+                            {countries.map((c) => (
+                              <option key={c.code} value={c.code}>
+                                {c.flag} {c.dial} {c.name}
+                              </option>
+                            ))}
+                          </select>
+                          <Input
+                            type="tel"
+                            value={getPhoneNumberOnly()}
+                            onChange={(e) => handlePhoneNumberChange(e.target.value)}
+                            placeholder={language === 'fr' ? '600 000 000' : language === 'en' ? '600 000 000' : language === 'ar' ? '600 000 000' : '600 000 000'}
+                            className="flex-1"
+                          />
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="address">{t(language, 'address')}</Label>
@@ -325,7 +365,7 @@ export default function CVForm() {
                           id="address"
                           value={formData.address}
                           onChange={(e) => updateFormData({ address: e.target.value })}
-                          placeholder={language === 'fr' ? '123 Rue Mohammed V' : language === 'en' ? '123 Main Street' : 'شارع محمد الخامس 123'}
+                          placeholder={language === 'fr' ? '123 Rue Mohammed V' : language === 'en' ? '123 Main Street' : language === 'ar' ? 'شارع محمد الخامس 123' : 'Calle Ejemplo 123'}
                           className="mt-1.5"
                         />
                       </div>
@@ -335,7 +375,7 @@ export default function CVForm() {
                           id="location"
                           value={formData.location}
                           onChange={(e) => updateFormData({ location: e.target.value })}
-                          placeholder={language === 'fr' ? 'Casablanca, Maroc' : language === 'en' ? 'London, UK' : 'الدار البيضاء، المغرب'}
+                          placeholder={language === 'fr' ? 'Casablanca, Maroc' : language === 'en' ? 'London, UK' : language === 'ar' ? 'الدار البيضاء، المغرب' : 'Madrid, España'}
                           className="mt-1.5"
                         />
                       </div>
@@ -384,7 +424,7 @@ export default function CVForm() {
                             id="birthPlace"
                             value={formData.birthPlace}
                             onChange={(e) => updateFormData({ birthPlace: e.target.value })}
-                            placeholder={language === 'fr' ? 'Casablanca' : language === 'en' ? 'Casablanca' : 'الدار البيضاء'}
+                            placeholder={language === 'fr' ? 'Casablanca' : language === 'en' ? 'Casablanca' : language === 'ar' ? 'الدار البيضاء' : 'Madrid'}
                             className="mt-1.5"
                           />
                         </div>

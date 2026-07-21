@@ -1,4 +1,4 @@
-export type CVLanguage = 'fr' | 'en' | 'ar'
+export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 
 type TranslationKey =
   | 'siteTitle'
@@ -12,6 +12,9 @@ type TranslationKey =
   | 'fullName'
   | 'email'
   | 'phone'
+  | 'phoneCountry'
+  | 'phoneCountryPlaceholder'
+  | 'phoneNumber'
   | 'address'
   | 'location'
   | 'linkedin'
@@ -79,6 +82,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'Nom complet',
     email: 'Adresse e-mail',
     phone: 'Téléphone',
+    phoneCountry: 'Pays',
+    phoneCountryPlaceholder: 'Choisir le pays...',
+    phoneNumber: 'Numéro de téléphone',
     address: 'Adresse complète',
     location: 'Ville / Pays',
     linkedin: 'LinkedIn (optionnel)',
@@ -155,6 +161,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'Full Name',
     email: 'Email Address',
     phone: 'Phone',
+    phoneCountry: 'Country',
+    phoneCountryPlaceholder: 'Select country...',
+    phoneNumber: 'Phone number',
     address: 'Full Address',
     location: 'City / Country',
     linkedin: 'LinkedIn (optional)',
@@ -231,6 +240,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     fullName: 'الاسم الكامل',
     email: 'البريد الإلكتروني',
     phone: 'الهاتف',
+    phoneCountry: 'البلد',
+    phoneCountryPlaceholder: 'اختر البلد...',
+    phoneNumber: 'رقم الهاتف',
     address: 'العنوان الكامل',
     location: 'المدينة / البلد',
     linkedin: 'لينكد إن (اختياري)',
@@ -292,6 +304,85 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     errorFillFields: 'يرجى ملء جميع الحقول المطلوبة',
     footerText: 'جميع الحقوق محفوظة',
     footerMadeWith: 'بدعم من',
+  },
+  es: {
+    siteTitle: 'CV Genius IA',
+    siteSubtitle: 'Genera un currículum profesional en 60 segundos',
+    siteDescription:
+      'Nuestra IA redacta un currículum optimizado para ATS, perfectamente adaptado a tu puesto objetivo. Disponible en francés, inglés, árabe y español.',
+    cta: 'Crear mi currículum gratis',
+    step1Title: 'Información personal',
+    step2Title: 'Objetivos profesionales',
+    step3Title: 'Experiencia y Formación',
+    step4Title: 'Habilidades y Resumen',
+    fullName: 'Nombre completo',
+    email: 'Correo electrónico',
+    phone: 'Teléfono',
+    phoneCountry: 'País',
+    phoneCountryPlaceholder: 'Seleccionar país...',
+    phoneNumber: 'Número de teléfono',
+    address: 'Dirección completa',
+    location: 'Ciudad / País',
+    linkedin: 'LinkedIn (opcional)',
+    website: 'Sitio web (opcional)',
+    photo: 'Foto de perfil',
+    photoPlaceholder: 'Haz clic o arrastra una foto aquí',
+    photoRemove: 'Eliminar',
+    photoNote: 'Recomendado para currículums en francés, árabe y español. No recomendado para currículums en inglés (práctica anti-discriminación).',
+    targetJob: 'Puesto objetivo',
+    industry: 'Sector de actividad',
+    experience: 'Experiencia profesional',
+    experiencePlaceholder:
+      'Describe tus puestos anteriores (ej: Desarrollador Web en ABC Corp de 2020 a 2023 - responsabilidades, proyectos, resultados...)',
+    education: 'Formación',
+    educationPlaceholder:
+      'Describe tus títulos (ej: Máster en Informática en la Universidad X de 2016 a 2020...)',
+    skills: 'Habilidades',
+    skillsPlaceholder:
+      'Lista tus habilidades técnicas y humanas separadas por comas (ej: JavaScript, React, gestión de proyectos, trabajo en equipo...)',
+    languages: 'Idiomas hablados',
+    languagesPlaceholder:
+      'Lista tus idiomas con nivel (ej: Español - nativo, Inglés - fluido, Francés - intermedio...)',
+    summary: 'Resumen profesional (opcional)',
+    summaryPlaceholder:
+      'Un párrafo corto que describa tu perfil, fortalezas y ambiciones profesionales...',
+    next: 'Siguiente',
+    previous: 'Anterior',
+    generate: 'Generar mi currículum con IA',
+    generating: 'La IA está redactando tu currículum...',
+    generatingSubtitle:
+      'Analizando tu información y creando contenido optimizado',
+    downloadPdf: 'Descargar PDF',
+    startOver: 'Crear otro currículum',
+    previewTitle: '¡Tu currículum está listo!',
+    feature1Title: 'IA Avanzada',
+    feature1Desc:
+      'Nuestra IA analiza tu información y genera contenido profesional optimizado para cada sección de tu currículum.',
+    feature2Title: 'Multilingüe',
+    feature2Desc:
+      'Crea tu currículum en francés, inglés, árabe o español. La IA adapta el vocabulario y el estilo a cada idioma.',
+    feature3Title: 'Optimizado para ATS',
+    feature3Desc:
+      'Tus currículums están estructurados para superar los filtros automáticos de los software de reclutamiento.',
+    feature4Title: '3 Plantillas',
+    feature4Desc:
+      'Elige entre 3 diseños profesionales: Moderno, Clásico o Creativo.',
+    templateModern: 'Moderno',
+    templateClassic: 'Clásico',
+    templateCreative: 'Creativo',
+    templateLabel: 'Plantilla',
+    languageLabel: 'Idioma del currículum',
+    dateOfBirth: 'Fecha de nacimiento',
+    birthPlace: 'Lugar de nacimiento',
+    birthCountry: 'País de nacimiento',
+    birthCountryPlaceholder: 'Marruecos, Francia, Argelia...',
+    softSkills: 'Soft Skills / Habilidades blandas (opcional)',
+    softSkillsPlaceholder: 'Lista tus soft skills separados por comas (ej: liderazgo, comunicación, resolución de problemas, adaptabilidad...)',
+    personalInfo: 'Información de nacimiento',
+    required: 'Este campo es obligatorio',
+    errorFillFields: 'Por favor, completa todos los campos obligatorios',
+    footerText: 'Todos los derechos reservados',
+    footerMadeWith: 'Desarrollado por',
   },
 }
 

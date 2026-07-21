@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 export type AppStep = 'landing' | 'form' | 'generating' | 'preview'
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
-export type CVLanguage = 'fr' | 'en' | 'ar'
+export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 
 export interface FormData {
   fullName: string

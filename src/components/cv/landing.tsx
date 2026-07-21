@@ -12,6 +12,7 @@ const flagEmoji: Record<CVLanguage, string> = {
   fr: '🇫🇷',
   en: '🇬🇧',
   ar: '🇸🇦',
+  es: '🇪🇸',
 }
 
 const features = [

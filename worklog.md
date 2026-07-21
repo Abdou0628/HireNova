@@ -128,3 +128,26 @@ Stage Summary:
 - Birth info displayed in CV contact area with CalendarDays icon (formatted date + place + country)
 - Soft skills displayed as a dedicated section in all 3 templates (AI can also generate soft skills via JSON)
 - All 3 languages supported for new field labels
+
+---
+Task ID: 10
+Agent: Main
+Task: Phone country selector + Spanish language support
+
+Work Log:
+- Created src/lib/countries.ts with 49 countries (flag, name, dial code) covering Africa, Europe, Americas, Asia/Oceania
+- Replaced simple phone input with a combo: native <select> for country (flag + code + name) + Input for number only
+- Phone state management: handlePhoneCountryChange prepends dial code, handlePhoneNumberChange reassembles full phone, getPhoneNumberOnly extracts the local number
+- Added 'es' to CVLanguage type in store and i18n
+- Added full Spanish translations (~70 keys) in i18n.ts
+- Added Spanish to API route (langMap: 'espagnol', langInstructions for Spanish)
+- Added 🇪🇸ES flag to landing.tsx flagEmoji record and form.tsx languages array
+- Added phoneCountry, phoneCountryPlaceholder, phoneNumber i18n keys in FR/EN/AR/ES
+- Lint clean, zero console errors
+- Browser verified: 4 languages on landing, phone selector with 49 countries visible, Spanish form labels correct
+
+Stage Summary:
+- Phone input now has a country selector dropdown (49 countries with flags and dial codes)
+- Spanish (🇪🇸) is now the 4th supported language — full UI translation + AI CV generation
+- Phone number stored as "+212 600 123 456" format in formData
+- Country names in dropdown are in French (the app's default language)
