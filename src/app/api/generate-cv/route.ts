@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import type { GeneratedCV } from '@/store/cv-store'
+
+const FREE_MONTHLY_LIMIT = 2
+
+async function checkUsageLimit(userId?: string): Promise<{ allowed: boolean; remaining: number }> {
+  if (!userId) return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
+  const user = await db.user.findUnique({ where: { id: userId } })
+  if (!user) return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
+  if (user.plan === 'pro' || user.plan === 'lifetime') return { allowed: true, remaining: Infinity }
+  const currentMonth = new Date().getMonth()
+  if (user.lastResetMonth !== currentMonth) {
+    await db.user.update({ where: { id: userId }, data: { cvCountThisMonth: 0, lastResetMonth: currentMonth } })
+    return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
+  }
+  const remaining = FREE_MONTHLY_LIMIT - user.cvCountThisMonth
+  return { allowed: remaining > 0, remaining }
+}
 
 const langMap: Record<string, string> = {
   fr: 'français',
@@ -40,6 +58,17 @@ export async function POST(request: NextRequest) {
       birthCountry,
       language,
     } = body
+
+    // Check usage limit for authenticated users
+    const session = await getServerSession(authOptions)
+    const userId = session?.user?.id as string | undefined
+    const usage = await checkUsageLimit(userId)
+    if (!usage.allowed) {
+      return NextResponse.json(
+        { error: `Limite mensuelle atteinte (${FREE_MONTHLY_LIMIT} CVs). Passez au plan Pro pour des générations illimitées.`, code: 'LIMIT_REACHED' },
+        { status: 403 }
+      )
+    }
 
     if (!fullName || !email || !targetJob) {
       return NextResponse.json(
@@ -168,6 +197,7 @@ RÈGLES :
     // Save to database
     await db.resume.create({
       data: {
+        userId: userId || null,
         fullName,
         email,
         phone: phone || null,
@@ -190,7 +220,15 @@ RÈGLES :
       },
     })
 
-    return NextResponse.json({ success: true, cv: generatedCV })
+    // Increment usage counter for free users
+    if (userId && usage.remaining !== Infinity) {
+      await db.user.update({
+        where: { id: userId },
+        data: { cvCountThisMonth: { increment: 1 } },
+      })
+    }
+
+    return NextResponse.json({ success: true, cv: generatedCV, remaining: usage.remaining === Infinity ? -1 : usage.remaining - 1 })
   } catch (error) {
     console.error('Error generating CV:', error)
     return NextResponse.json(

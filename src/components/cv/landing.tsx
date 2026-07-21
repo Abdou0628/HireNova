@@ -1,12 +1,18 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, Palette, ArrowRight, FileText, Star } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { useCVStore } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
-import type { CVLanguage } from '@/lib/i18n'
+import type { CVLanguage, TranslationKey } from '@/lib/i18n'
+import ProfileButton from '@/components/auth/profile-button'
+import AuthModal from '@/components/auth/auth-modal'
+import { useSession } from 'next-auth/react'
 
 const flagEmoji: Record<CVLanguage, string> = {
   fr: '🇫🇷',
@@ -19,17 +25,68 @@ const features = [
   { icon: Sparkles, titleKey: 'feature1Title' as const, descKey: 'feature1Desc' as const },
   { icon: Globe, titleKey: 'feature2Title' as const, descKey: 'feature2Desc' as const },
   { icon: Shield, titleKey: 'feature3Title' as const, descKey: 'feature3Desc' as const },
-  { icon: Palette, titleKey: 'feature4Title' as const, descKey: 'feature4Desc' as const },
+  { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
 ]
 
 const stats = [
-  { value: '50K+', label: { fr: 'CV générés', en: 'Resumes generated', ar: 'سير ذاتية تم إنشاؤها' } },
-  { value: '95%', label: { fr: 'Taux de satisfaction', en: 'Satisfaction rate', ar: 'معدل الرضا' } },
-  { value: '3', label: { fr: 'Langues', en: 'Languages', ar: 'لغات' } },
+  { value: '50K+', label: { fr: 'CV générés', en: 'Resumes generated', ar: 'سير ذاتية تم إنشاؤها', es: 'CV generados' } },
+  { value: '95%', label: { fr: 'Taux de satisfaction', en: 'Satisfaction rate', ar: 'معدل الرضا', es: 'Tasa de satisfacción' } },
+  { value: '4', label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+]
+
+interface PricingFeature {
+  key: TranslationKey
+  free: boolean | string
+  pro: boolean | string
+  lifetime: boolean | string
+}
+
+const pricingFeatures: PricingFeature[] = [
+  { key: 'pricingCv', free: '2/mo', pro: '∞', lifetime: '∞' },
+  { key: 'pricingTemplates', free: '1', pro: '3', lifetime: '3' },
+  { key: 'pricingPdf', free: true, pro: true, lifetime: true },
+  { key: 'pricingWord', free: false, pro: true, lifetime: true },
+  { key: 'pricingCoverLetter', free: false, pro: true, lifetime: true },
+  { key: 'pricingNoWatermark', free: false, pro: true, lifetime: true },
+  { key: 'pricingAtsScore', free: false, pro: false, lifetime: true },
+  { key: 'pricingPriority', free: false, pro: false, lifetime: true },
 ]
 
 export default function Landing() {
   const { setStep, language, setLanguage } = useCVStore()
+  const { data: session } = useSession()
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const [currency, setCurrency] = useState<'eur' | 'usd'>('eur')
+
+  const isUsd = currency === 'usd'
+
+  async function handleCheckout(planType: 'pro' | 'lifetime') {
+    if (!session?.user) {
+      setAuthMode('register')
+      setAuthModalOpen(true)
+      return
+    }
+    setCheckoutLoading(planType)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planType, currency }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        toast.error(data.error || 'Erreur')
+      }
+    } catch {
+      toast.error('Erreur de connexion')
+    } finally {
+      setCheckoutLoading(null)
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,21 +99,24 @@ export default function Landing() {
             </div>
             <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
           </div>
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
-              <button
-                key={lang}
-                onClick={() => setLanguage(lang)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  language === lang
-                    ? 'bg-white shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <span className="mr-1">{flagEmoji[lang]}</span>
-                <span className="hidden sm:inline">{lang.toUpperCase()}</span>
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+              {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    language === lang
+                      ? 'bg-white shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="mr-1">{flagEmoji[lang]}</span>
+                  <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+                </button>
+              ))}
+            </div>
+            <ProfileButton />
           </div>
         </div>
       </header>
@@ -77,9 +137,22 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-emerald-200">
+                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
                   <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                  <span>{language === 'fr' ? 'Gratuit et sans inscription' : language === 'en' ? 'Free and no sign-up required' : 'مجاني وبدون تسجيل'}</span>
+                  <span>{t(language, 'freeNoSignup')}</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.05 }}
+                className="mb-6"
+              >
+                <div className="inline-flex items-center gap-2 bg-white text-muted-foreground px-4 py-1.5 rounded-full text-xs font-medium border border-emerald-200 shadow-sm">
+                  <Languages className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>🇫🇷 🇬🇧 🇪🇸 🇸🇦</span>
+                  <span className="text-emerald-700">{t(language, 'availableLangs')}</span>
                 </div>
               </motion.div>
 
@@ -106,13 +179,25 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-4"
               >
                 <Button
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
                   onClick={() => setStep('form')}
                 >
+                  <FileText className="mr-2 w-5 h-5" />
                   {t(language, 'cta')}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
+                  onClick={() => setStep('clForm')}
+                >
+                  <PenLine className="mr-2 w-5 h-5" />
+                  {t(language, 'clCta')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </motion.div>
@@ -165,41 +250,245 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section className="py-16 sm:py-24">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+                {t(language, 'pricingTitle')}
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+                {t(language, 'pricingSubtitle')}
+              </p>
+              {/* Currency Toggle */}
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setCurrency('eur')}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                >
+                  EUR
+                </button>
+                <button
+                  onClick={() => setCurrency('usd')}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                >
+                  USD
+                </button>
+              </div>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
+              {/* Free Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6 sm:p-8">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {t(language, 'planFree')}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span className="text-4xl font-extrabold text-foreground">{t(language, 'planFreePrice')}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planFreeDesc')}</p>
+
+                    <div className="space-y-3 mb-8">
+                      {pricingFeatures.map((feature) => (
+                        <div key={feature.key} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+                          <span className={`font-medium ${feature.free === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                            {feature.free === false ? (
+                              <X className="w-4 h-4 text-stone-300" />
+                            ) : typeof feature.free === 'string' ? (
+                              feature.free
+                            ) : (
+                              <Check className="w-4 h-4 text-emerald-600" />
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      className="w-full bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
+                      onClick={() => setStep('form')}
+                    >
+                      {t(language, 'pricingStartFree')}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Pro Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="md:-mt-4"
+              >
+                <Card className="relative border-2 border-emerald-600 bg-white shadow-lg shadow-emerald-600/10">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      {t(language, 'planProPopular')}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-6 sm:p-8 pt-8">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <Crown className="w-5 h-5 text-emerald-600" />
+                      {t(language, 'planPro')}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
+
+                    <div className="space-y-3 mb-8">
+                      {pricingFeatures.map((feature) => (
+                        <div key={feature.key} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+                          <span className={`font-medium ${feature.pro === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                            {feature.pro === false ? (
+                              <X className="w-4 h-4 text-stone-300" />
+                            ) : typeof feature.pro === 'string' ? (
+                              feature.pro
+                            ) : (
+                              <Check className="w-4 h-4 text-emerald-600" />
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-emerald-600/20"
+                      onClick={() => handleCheckout('pro')}
+                      disabled={checkoutLoading === 'pro'}
+                    >
+                      {checkoutLoading === 'pro' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Crown className="mr-2 w-4 h-4" />}
+                      {checkoutLoading === 'pro' ? 'Chargement...' : t(language, 'planPro')}
+                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Lifetime Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-amber-500 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+                      <Zap className="w-3 h-3 mr-1" />
+                      {t(language, 'planLifetimeBest')}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-6 sm:p-8 pt-8">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-amber-500" />
+                      {t(language, 'planLifetime')}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
+
+                    <div className="space-y-3 mb-8">
+                      {pricingFeatures.map((feature) => (
+                        <div key={feature.key} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+                          <span className="font-medium text-foreground">
+                            {typeof feature.lifetime === 'string' ? (
+                              feature.lifetime
+                            ) : (
+                              <Check className="w-4 h-4 text-emerald-600" />
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      className="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
+                      onClick={() => handleCheckout('lifetime')}
+                      disabled={checkoutLoading === 'lifetime'}
+                    >
+                      {checkoutLoading === 'lifetime' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
+                      {checkoutLoading === 'lifetime' ? 'Chargement...' : t(language, 'planLifetime')}
+                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               className="text-center bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-12 lg:p-16"
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.6 }}
             >
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
-                {language === 'fr'
-                  ? 'Prêt à créer votre CV ?'
-                  : language === 'en'
-                    ? 'Ready to create your resume?'
-                    : 'مستعد لإنشاء سيرتك الذاتية؟'}
+                {t(language, 'ctaReadyTitle')}
               </h2>
               <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
-                {language === 'fr'
-                  ? 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.'
-                  : language === 'en'
-                    ? 'In less than 2 minutes, you\'ll have a professional resume ready to send.'
-                    : 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.'}
+                {t(language, 'ctaReadyDesc')}
               </p>
-              <Button
-                size="lg"
-                className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
-                onClick={() => setStep('form')}
-              >
-                {t(language, 'cta')}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button
+                  size="lg"
+                  className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
+                  onClick={() => setStep('form')}
+                >
+                  <FileText className="mr-2 w-5 h-5" />
+                  {t(language, 'cta')}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
+                  onClick={() => setStep('clForm')}
+                >
+                  <PenLine className="mr-2 w-5 h-5" />
+                  {t(language, 'clCta')}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
             </motion.div>
           </div>
         </section>
       </main>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
+      />
 
       {/* Footer */}
       <footer className="border-t py-8 px-4 sm:px-6 lg:px-8 mt-auto">

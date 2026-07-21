@@ -24,12 +24,20 @@ import {
   CalendarDays,
   MapPinned,
   HeartHandshake,
+  ImageIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Building2,
+  PenLine,
+  Zap,
+  UserCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { countries, findCountryByDial } from '@/lib/countries'
 
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
-const stepTitles = ['step1Title', 'step2Title', 'step3Title', 'step4Title'] as const
+const stepTitles = ['step1Title', 'step2TitleNew', 'step3Title', 'step4Title'] as const
 
 const templates: { id: TemplateStyle; labelKey: 'templateModern' | 'templateClassic' | 'templateCreative' }[] = [
   { id: 'modern', labelKey: 'templateModern' },
@@ -58,6 +66,10 @@ export default function CVForm() {
     setIsGenerating,
     setGeneratedCV,
     setError,
+    updateCLFormData,
+    setGeneratedCL,
+    setCLGenerating,
+    setCLError,
   } = useCVStore()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -123,8 +135,13 @@ export default function CVForm() {
     setStep('generating')
     setIsGenerating(true)
     setError(null)
+    setCLGenerating(formData.companyName.trim().length > 0)
+    setCLError(null)
+
+    const hasCompany = formData.companyName.trim().length > 0
 
     try {
+      // Generate CV
       const res = await fetch('/api/generate-cv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -132,19 +149,75 @@ export default function CVForm() {
       })
 
       const data = await res.json()
-
       if (!res.ok) {
+        if (data.code === 'LIMIT_REACHED') {
+          setStep('landing')
+          toast.error(data.error, { duration: 6000 })
+          return
+        }
         throw new Error(data.error || 'Erreur lors de la génération')
       }
 
-      setGeneratedCV(data.cv)
+      const generatedCV = data.cv
+      setGeneratedCV(generatedCV)
+
+      // If company name provided, auto-generate cover letter simultaneously
+      if (hasCompany) {
+        try {
+          // Auto-sync personal info to CL form data
+          updateCLFormData({
+            fullName: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            address: formData.address,
+            location: formData.location,
+            companyName: formData.companyName,
+            hiringManager: formData.hiringManager,
+            jobTitle: formData.targetJob,
+            tone: formData.clTone,
+          })
+
+          const clRes = await fetch('/api/generate-cover-letter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullName: formData.fullName,
+              email: formData.email,
+              phone: formData.phone,
+              address: formData.address,
+              location: formData.location,
+              companyName: formData.companyName,
+              hiringManager: formData.hiringManager,
+              jobTitle: formData.targetJob,
+              tone: formData.clTone,
+              language,
+              generatedCVSummary: generatedCV.summary,
+              generatedCVExperience: generatedCV.experience,
+              generatedCVEducation: generatedCV.education,
+              generatedCVSkills: generatedCV.skills,
+              generatedCVLanguages: generatedCV.languages,
+            }),
+          })
+
+          const clData = await clRes.json()
+          if (clRes.ok && clData.letter) {
+            setGeneratedCL(clData.letter)
+          }
+        } catch {
+          // CL generation failed silently - CV is still valid
+          setCLGenerating(false)
+        }
+      }
+
       setTimeout(() => {
         setStep('preview')
         setIsGenerating(false)
-      }, 1500)
+        setCLGenerating(false)
+      }, 1000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
       setIsGenerating(false)
+      setCLGenerating(false)
       setStep('form')
       toast.error(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
@@ -443,7 +516,7 @@ export default function CVForm() {
                   </div>
                 )}
 
-                {/* Step 2: Career Goals */}
+                {/* Step 2: Career Goals & Cover Letter */}
                 {formStep === 1 && (
                   <div className="space-y-4">
                     <div>
@@ -465,6 +538,80 @@ export default function CVForm() {
                         placeholder={language === 'fr' ? 'Technologie / IT' : language === 'en' ? 'Technology / IT' : 'التكنولوجيا / تكنولوجيا المعلومات'}
                         className="mt-1.5"
                       />
+                    </div>
+
+                    {/* Cover Letter section - separated visually */}
+                    <div className="relative mt-6">
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
+                      <div className="flex items-center gap-2 mt-4 mb-4">
+                        <PenLine className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-semibold text-emerald-700">
+                          {t(language, 'tabCoverLetter')}
+                        </span>
+                        <span className="text-xs text-muted-foreground bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          {language === 'fr' ? 'Optionnel' : language === 'en' ? 'Optional' : language === 'es' ? 'Opcional' : 'اختياري'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="companyName" className="text-sm font-medium">
+                            {t(language, 'companyNameForCl')}
+                          </Label>
+                          <Input
+                            id="companyName"
+                            value={formData.companyName}
+                            onChange={(e) => updateFormData({ companyName: e.target.value })}
+                            placeholder={t(language, 'companyNameForClPlaceholder')}
+                            className="mt-1.5"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {language === 'fr'
+                              ? "Renseignez le nom de l'entreprise pour générer automatiquement une lettre de motivation personnalisée en même temps que votre CV."
+                              : language === 'en'
+                                ? 'Enter the company name to automatically generate a personalized cover letter along with your resume.'
+                                : language === 'es'
+                                  ? 'Ingrese el nombre de la empresa para generar automáticamente una carta de motivación junto con su currículum.'
+                                  : 'أدخل اسم الشركة لإنشاء رسالة دافع مخصصة تلقائياً مع سيرتك الذاتية.'}
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="hiringManager" className="text-sm font-medium">
+                            {t(language, 'hiringManagerForCl')}
+                          </Label>
+                          <Input
+                            id="hiringManager"
+                            value={formData.hiringManager}
+                            onChange={(e) => updateFormData({ hiringManager: e.target.value })}
+                            placeholder={t(language, 'hiringManagerForClPlaceholder')}
+                            className="mt-1.5"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium">{t(language, 'clToneForCl')}</Label>
+                          <div className="grid grid-cols-3 gap-2 mt-1.5">
+                            {([
+                              { id: 'formal' as const, icon: UserCircle, labelKey: 'clToneFormal' as const },
+                              { id: 'semi-formal' as const, icon: Building2, labelKey: 'clToneSemiFormal' as const },
+                              { id: 'dynamic' as const, icon: Zap, labelKey: 'clToneDynamic' as const },
+                            ]).map((tone) => (
+                              <button
+                                key={tone.id}
+                                type="button"
+                                onClick={() => updateFormData({ clTone: tone.id })}
+                                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                                  formData.clTone === tone.id
+                                    ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                                    : 'border-muted bg-white text-muted-foreground hover:border-emerald-300'
+                                }`}
+                              >
+                                <tone.icon className="w-4 h-4" />
+                                <span className="text-xs font-medium">{t(language, tone.labelKey)}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -599,6 +746,45 @@ export default function CVForm() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Photo Position Selector - only show if user has a photo */}
+                    {formData.photo && (
+                      <div className="mt-6">
+                        <Label className="flex items-center gap-2 mb-3">
+                          <ImageIcon className="w-4 h-4 text-emerald-600" />
+                          {t(language, 'photoPosition')}
+                        </Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {(['left', 'center', 'right'] as const).map((pos) => {
+                            const key = pos === 'left' ? 'photoPositionLeft' : pos === 'center' ? 'photoPositionCenter' : 'photoPositionRight'
+                            const posIcon = pos === 'left' ? AlignLeft : pos === 'center' ? AlignCenter : AlignRight
+                            return (
+                              <button
+                                key={pos}
+                                onClick={() => updateFormData({ photoPosition: pos })}
+                                className={`relative rounded-xl border-2 p-4 transition-all cursor-pointer ${
+                                  formData.photoPosition === pos
+                                    ? 'border-emerald-600 bg-emerald-50'
+                                    : 'border-muted hover:border-emerald-300 bg-white'
+                                }`}
+                              >
+                                {formData.photoPosition === pos && (
+                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
+                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </div>
+                                )}
+                                <posIcon className={`w-5 h-5 mx-auto mb-2 ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`} />
+                                <div className={`text-xs font-bold uppercase tracking-wider ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`}>
+                                  {t(language, key)}
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </motion.div>

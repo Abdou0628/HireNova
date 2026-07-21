@@ -1,0 +1,681 @@
+     1→export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
+     2→
+     3→type TranslationKey =
+     4→  | 'siteTitle'
+     5→  | 'siteSubtitle'
+     6→  | 'siteDescription'
+     7→  | 'cta'
+     8→  | 'step1Title'
+     9→  | 'step2Title'
+    10→  | 'step3Title'
+    11→  | 'step4Title'
+    12→  | 'fullName'
+    13→  | 'email'
+    14→  | 'phone'
+    15→  | 'phoneCountry'
+    16→  | 'phoneCountryPlaceholder'
+    17→  | 'phoneNumber'
+    18→  | 'address'
+    19→  | 'location'
+    20→  | 'linkedin'
+    21→  | 'website'
+    22→  | 'photo'
+    23→  | 'photoPlaceholder'
+    24→  | 'photoRemove'
+    25→  | 'photoNote'
+    26→  | 'targetJob'
+    27→  | 'industry'
+    28→  | 'experience'
+    29→  | 'experiencePlaceholder'
+    30→  | 'education'
+    31→  | 'educationPlaceholder'
+    32→  | 'skills'
+    33→  | 'skillsPlaceholder'
+    34→  | 'languages'
+    35→  | 'languagesPlaceholder'
+    36→  | 'summary'
+    37→  | 'summaryPlaceholder'
+    38→  | 'next'
+    39→  | 'previous'
+    40→  | 'generate'
+    41→  | 'generating'
+    42→  | 'generatingSubtitle'
+    43→  | 'downloadPdf'
+    44→  | 'downloadWord'
+    45→  | 'downloadFormat'
+    46→  | 'startOver'
+    47→  | 'previewTitle'
+    48→  | 'feature1Title'
+    49→  | 'feature1Desc'
+    50→  | 'feature2Title'
+    51→  | 'feature2Desc'
+    52→  | 'feature3Title'
+    53→  | 'feature3Desc'
+    54→  | 'feature4Title'
+    55→  | 'feature4Desc'
+    56→  | 'templateModern'
+    57→  | 'templateClassic'
+    58→  | 'templateCreative'
+    59→  | 'templateLabel'
+    60→  | 'languageLabel'
+    61→  | 'required'
+    62→  | 'errorFillFields'
+    63→  | 'dateOfBirth'
+    64→  | 'birthPlace'
+    65→  | 'birthCountry'
+    66→  | 'birthCountryPlaceholder'
+    67→  | 'softSkills'
+    68→  | 'softSkillsPlaceholder'
+    69→  | 'personalInfo'
+    70→  | 'footerText'
+    71→  | 'footerMadeWith'
+    72→  | 'freeNoSignup'
+    73→  | 'ctaReadyTitle'
+    74→  | 'ctaReadyDesc'
+    75→  | 'photoPosition'
+    76→  | 'photoPositionLeft'
+    77→  | 'photoPositionCenter'
+    78→  | 'photoPositionRight'
+    79→  | 'availableLangs'
+    80→  | 'freeNoSignup'
+    81→  | 'ctaReadyTitle'
+    82→  | 'ctaReadyDesc'
+    83→  // Cover letter keys
+    84→  | 'clTitle'
+    85→  | 'clSubtitle'
+    86→  | 'clDescription'
+    87→  | 'clCta'
+    88→  | 'clBackToCv'
+    89→  | 'clCompanyName'
+    90→  | 'clCompanyNamePlaceholder'
+    91→  | 'clHiringManager'
+    92→  | 'clHiringManagerPlaceholder'
+    93→  | 'clJobTitle'
+    94→  | 'clJobTitlePlaceholder'
+    95→  | 'clJobReference'
+    96→  | 'clJobReferencePlaceholder'
+    97→  | 'clWhyCompany'
+    98→  | 'clWhyCompanyPlaceholder'
+    99→  | 'clKeyStrengths'
+   100→  | 'clKeyStrengthsPlaceholder'
+   101→  | 'clTone'
+   102→  | 'clToneFormal'
+   103→  | 'clToneSemiFormal'
+   104→  | 'clToneDynamic'
+   105→  | 'clAdditionalNotes'
+   106→  | 'clAdditionalNotesPlaceholder'
+   107→  | 'clGenerate'
+   108→  | 'clGenerating'
+   109→  | 'clGeneratingSubtitle'
+   110→  | 'clPreviewTitle'
+   111→  | 'clDownloadPdf'
+   112→  | 'clDownloadWord'
+   113→  | 'clStartOver'
+   114→  | 'clAlsoGenerate'
+   115→  | 'clStep1'
+   116→  | 'clStep2'
+   117→  | 'clFeatureTitle'
+   118→  | 'clFeatureDesc'
+   119→  | 'clReadyTitle'
+   120→  | 'clReadyDesc'
+   121→  | 'clAddress'
+   122→  | 'clCountry'
+   123→  | 'clCountryPlaceholder'
+   124→  | 'clLinkedToCv'
+   125→  | 'clLinkedToCvDesc'
+   126→  | 'clNoCvLinked'
+   127→  | 'clNoCvLinkedDesc'
+   128→
+   129→const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
+   130→  fr: {
+   131→    siteTitle: 'CV Genius IA',
+   132→    siteSubtitle: 'Générez un CV professionnel en 60 secondes',
+   133→    siteDescription:
+   134→      'Notre IA rédige un CV optimisé pour les ATS, parfaitement adapté à votre métier cible.',
+   135→    cta: 'Créer mon CV gratuitement',
+   136→    step1Title: 'Informations personnelles',
+   137→    step2Title: 'Projet professionnel',
+   138→    step3Title: 'Expérience & Formation',
+   139→    step4Title: 'Compétences & Résumé',
+   140→    fullName: 'Nom complet',
+   141→    email: 'Adresse e-mail',
+   142→    phone: 'Téléphone',
+   143→    phoneCountry: 'Pays',
+   144→    phoneCountryPlaceholder: 'Choisir le pays...',
+   145→    phoneNumber: 'Numéro de téléphone',
+   146→    address: 'Adresse complète',
+   147→    location: 'Ville / Pays',
+   148→    linkedin: 'LinkedIn (optionnel)',
+   149→    website: 'Site web (optionnel)',
+   150→    photo: 'Photo de profil',
+   151→    photoPlaceholder: 'Cliquez ou glissez une photo ici',
+   152→    photoRemove: 'Supprimer',
+   153→    photoNote: 'Recommandé pour les CV en français et arabe. Non recommandé pour les CV en anglais (pratique anti-discrimination).',
+   154→    targetJob: 'Poste visé',
+   155→    industry: 'Secteur d\'activité',
+   156→    experience: 'Expérience professionnelle',
+   157→    experiencePlaceholder:
+   158→      'Décrivez vos postes précédents (ex: Développeur Web chez ABC Corp de 2020 à 2023 - responsabilités, projets, résultats...)',
+   159→    education: 'Formation',
+   160→    educationPlaceholder:
+   161→      'Décrivez vos diplômes (ex: Master en Informatique à l\'Université X de 2016 à 2020...)',
+   162→    skills: 'Compétences',
+   163→    skillsPlaceholder:
+   164→      'Listez vos compétences techniques et humaines séparées par des virgules (ex: JavaScript, React, gestion de projet, travail d\'équipe...)',
+   165→    languages: 'Langues parlées',
+   166→    languagesPlaceholder:
+   167→      'Listez vos langues avec niveau (ex: Français - natif, Anglais - courant, Arabe - intermédiaire...)',
+   168→    summary: 'Résumé professionnel (optionnel)',
+   169→    summaryPlaceholder:
+   170→      'Un court paragraphe décrivant votre profil, vos forces et vos ambitions...',
+   171→    next: 'Suivant',
+   172→    previous: 'Précédent',
+   173→    generate: 'Générer mon CV avec l\'IA',
+   174→    generating: 'L\'IA rédige votre CV...',
+   175→    generatingSubtitle:
+   176→      'Analyse de vos informations et création du contenu optimisé',
+   177→    downloadPdf: 'Télécharger en PDF',
+   178→    downloadWord: 'Télécharger en Word',
+   179→    downloadFormat: 'Format de téléchargement',
+   180→    startOver: 'Créer un autre CV',
+   181→    previewTitle: 'Votre CV est prêt !',
+   182→    feature1Title: 'IA Avancée',
+   183→    feature1Desc:
+   184→      'Notre IA analyse vos informations et génère un contenu professionnel optimisé pour chaque section de votre CV.',
+   185→    feature2Title: 'Multilingue',
+   186→    feature2Desc:
+   187→      'Créez votre CV en français, anglais, espagnol ou arabe. L\'IA adapte le vocabulaire et le style à chaque langue.',
+   188→    feature3Title: 'Optimisé ATS',
+   189→    feature3Desc:
+   190→      'Vos CV sont structurés pour passer les filtres automatiques des logiciels de recrutement.',
+   191→    feature4Title: '3 Templates',
+   192→    feature4Desc:
+   193→      'Choisissez parmi 3 designs professionnels : Moderne, Classique ou Créatif.',
+   194→    templateModern: 'Moderne',
+   195→    templateClassic: 'Classique',
+   196→    templateCreative: 'Créatif',
+   197→    templateLabel: 'Modèle',
+   198→    languageLabel: 'Langue du CV',
+   199→    dateOfBirth: 'Date de naissance',
+   200→    birthPlace: 'Lieu de naissance',
+   201→    birthCountry: 'Pays de naissance',
+   202→    birthCountryPlaceholder: 'Maroc, France, Algérie...',
+   203→    softSkills: 'Soft Skills / Savoir-être (optionnel)',
+   204→    softSkillsPlaceholder: 'Listez vos soft skills séparés par des virgules (ex: leadership, communication, résolution de problèmes, adaptabilité...)',
+   205→    personalInfo: 'Informations de naissance',
+   206→    required: 'Ce champ est requis',
+   207→    errorFillFields: 'Veuillez remplir tous les champs obligatoires',
+   208→    footerText: 'Tous droits réservés',
+   209→    footerMadeWith: 'Propulsé par',
+   210→    freeNoSignup: 'Gratuit et sans inscription',
+   211→    ctaReadyTitle: 'Prêt à créer votre CV ?',
+   212→    ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
+   213→    photoPosition: 'Position de la photo',
+   214→    photoPositionLeft: 'Gauche',
+   215→    photoPositionCenter: 'Centre',
+   216→    photoPositionRight: 'Droite',
+   217→    availableLangs: 'Disponible en français, anglais, espagnol et arabe',
+   218→    freeNoSignup: 'Gratuit et sans inscription',
+   219→    ctaReadyTitle: 'Prêt à créer votre CV ?',
+   220→    ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
+   221→    // Cover letter
+   222→    clTitle: 'Lettre de Motivation',
+   223→    clSubtitle: 'Générez une lettre de motivation persuasive en 30 secondes',
+   224→    clDescription: 'Notre IA rédige une lettre de motivation personnalisée, parfaitement adaptée à l\'offre d\'emploi visée. Disponible en français, anglais, arabe et espagnol.',
+   225→    clCta: 'Créer ma lettre de motivation',
+   226→    clBackToCv: 'Retour au CV',
+   227→    clCompanyName: 'Nom de l\'entreprise',
+   228→    clCompanyNamePlaceholder: 'Ex: Google, Renault, Société Générale...',
+   229→    clHiringManager: 'Nom du recruteur (optionnel)',
+   230→    clHiringManagerPlaceholder: 'Ex: M. Dupont, Mme Martin...',
+   231→    clJobTitle: 'Intitulé du poste',
+   232→    clJobTitlePlaceholder: 'Ex: Développeur Full-Stack, Chef de projet...',
+   233→    clJobReference: 'Référence de l\'offre (optionnel)',
+   234→    clJobReferencePlaceholder: 'Ex: REF-2024-123...',
+   235→    clWhyCompany: 'Pourquoi cette entreprise ? (optionnel)',
+   236→    clWhyCompanyPlaceholder: 'Ex: J\'apprécie votre engagement en matière d\'innovation et de développement durable...',
+   237→    clKeyStrengths: 'Points forts à mettre en avant (optionnel)',
+   238→    clKeyStrengthsPlaceholder: 'Ex: 5 ans d\'expérience en gestion de projet, certification PMP...',
+   239→    clTone: 'Ton de la lettre',
+   240→    clToneFormal: 'Formel',
+   241→    clToneSemiFormal: 'Semi-formel',
+   242→    clToneDynamic: 'Dynamique',
+   243→    clAdditionalNotes: 'Notes supplémentaires (optionnel)',
+   244→    clAdditionalNotesPlaceholder: 'Toute information supplémentaire que vous souhaitez inclure...',
+   245→    clGenerate: 'Générer ma lettre de motivation avec l\'IA',
+   246→    clGenerating: "L'IA rédige votre lettre de motivation...",
+   247→    clGeneratingSubtitle: 'Analyse du poste et création du contenu personnalisé',
+   248→    clPreviewTitle: 'Votre lettre de motivation est prête !',
+   249→    clDownloadPdf: 'Télécharger en PDF',
+   250→    clDownloadWord: 'Télécharger en Word',
+   251→    clStartOver: 'Créer une autre lettre',
+   252→    clAlsoGenerate: 'Générer aussi une lettre de motivation',
+   253→    clStep1: 'Vos informations',
+   254→    clStep2: 'Le poste visé',
+   255→    clFeatureTitle: 'Lettre de Motivation IA',
+   256→    clFeatureDesc: 'Générez une lettre de motivation personnalisée et persuasive, adaptée à chaque offre d\'emploi.',
+   257→    clReadyTitle: 'Prêt à créer votre lettre ?',
+   258→    clReadyDesc: 'En moins d\'une minute, vous aurez une lettre de motivation professionnelle prête à envoyer.',
+   259→    clAddress: 'Adresse physique (optionnel)',
+   260→    clCountry: 'Pays',
+   261→    clCountryPlaceholder: 'Choisir le pays...',
+   262→    clLinkedToCv: 'CV lié détecté',
+   263→    clLinkedToCvDesc: 'Votre CV généré sera utilisé automatiquement pour personnaliser cette lettre de motivation.',
+   264→    clNoCvLinked: 'Aucun CV lié',
+   265→    clNoCvLinkedDesc: 'Créez d\'abord un CV pour que la lettre de motivation soit automatiquement enrichie avec vos expériences et compétences.',
+   266→  }
+   267→  en: {
+   268→    siteTitle: 'CV Genius AI',
+   269→    siteSubtitle: 'Generate a professional resume in 60 seconds',
+   270→    siteDescription:
+   271→      'Our AI writes an ATS-optimized resume, perfectly tailored to your target role.',
+   272→    cta: 'Create my free resume',
+   273→    step1Title: 'Personal Information',
+   274→    step2Title: 'Career Goals',
+   275→    step3Title: 'Experience & Education',
+   276→    step4Title: 'Skills & Summary',
+   277→    fullName: 'Full Name',
+   278→    email: 'Email Address',
+   279→    phone: 'Phone',
+   280→    phoneCountry: 'Country',
+   281→    phoneCountryPlaceholder: 'Select country...',
+   282→    phoneNumber: 'Phone number',
+   283→    address: 'Full Address',
+   284→    location: 'City / Country',
+   285→    linkedin: 'LinkedIn (optional)',
+   286→    website: 'Website (optional)',
+   287→    photo: 'Profile Photo',
+   288→    photoPlaceholder: 'Click or drag a photo here',
+   289→    photoRemove: 'Remove',
+   290→    photoNote: 'Not recommended for English resumes (anti-discrimination practice). Recommended for French and Arabic CVs.',
+   291→    targetJob: 'Target Position',
+   292→    industry: 'Industry',
+   293→    experience: 'Work Experience',
+   294→    experiencePlaceholder:
+   295→      'Describe your previous roles (e.g. Web Developer at ABC Corp from 2020 to 2023 - responsibilities, projects, results...)',
+   296→    education: 'Education',
+   297→    educationPlaceholder:
+   298→      'Describe your degrees (e.g. Master\'s in Computer Science at University X from 2016 to 2020...)',
+   299→    skills: 'Skills',
+   300→    skillsPlaceholder:
+   301→      'List your technical and soft skills separated by commas (e.g. JavaScript, React, project management, teamwork...)',
+   302→    languages: 'Spoken Languages',
+   303→    languagesPlaceholder:
+   304→      'List your languages with level (e.g. French - native, English - fluent, Arabic - intermediate...)',
+   305→    summary: 'Professional Summary (optional)',
+   306→    summaryPlaceholder:
+   307→      'A short paragraph describing your profile, strengths, and career ambitions...',
+   308→    next: 'Next',
+   309→    previous: 'Previous',
+   310→    generate: 'Generate my resume with AI',
+   311→    generating: 'AI is writing your resume...',
+   312→    generatingSubtitle:
+   313→      'Analyzing your information and creating optimized content',
+   314→    downloadPdf: 'Download PDF',
+   315→    downloadWord: 'Download Word',
+   316→    downloadFormat: 'Download format',
+   317→    startOver: 'Create another resume',
+   318→    previewTitle: 'Your resume is ready!',
+   319→    feature1Title: 'Advanced AI',
+   320→    feature1Desc:
+   321→      'Our AI analyzes your information and generates professional, optimized content for each section of your resume.',
+   322→    feature2Title: 'Multilingual',
+   323→    feature2Desc:
+   324→      'Create your resume in French, English, Spanish, or Arabic. The AI adapts vocabulary and style to each language.',
+   325→    feature3Title: 'ATS Optimized',
+   326→    feature3Desc:
+   327→      'Your resumes are structured to pass automatic filters of recruitment software.',
+   328→    feature4Title: '3 Templates',
+   329→    feature4Desc:
+   330→      'Choose from 3 professional designs: Modern, Classic, or Creative.',
+   331→    templateModern: 'Modern',
+   332→    templateClassic: 'Classic',
+   333→    templateCreative: 'Creative',
+   334→    templateLabel: 'Template',
+   335→    languageLabel: 'Resume Language',
+   336→    dateOfBirth: 'Date of Birth',
+   337→    birthPlace: 'Place of Birth',
+   338→    birthCountry: 'Country of Birth',
+   339→    birthCountryPlaceholder: 'Morocco, France, Algeria...',
+   340→    softSkills: 'Soft Skills (optional)',
+   341→    softSkillsPlaceholder: 'List your soft skills separated by commas (e.g. leadership, communication, problem-solving, adaptability...)',
+   342→    personalInfo: 'Birth Information',
+   343→    required: 'This field is required',
+   344→    errorFillFields: 'Please fill in all required fields',
+   345→    footerText: 'All rights reserved',
+   346→    footerMadeWith: 'Powered by',
+   347→    freeNoSignup: 'Free and no sign-up required',
+   348→    ctaReadyTitle: 'Ready to create your resume?',
+   349→    ctaReadyDesc: 'In less than 2 minutes, you\'ll have a professional resume ready to send.',
+   350→    photoPosition: 'Photo Position',
+   351→    photoPositionLeft: 'Left',
+   352→    photoPositionCenter: 'Center',
+   353→    photoPositionRight: 'Right',
+   354→    availableLangs: 'Available in French, English, Spanish, and Arabic',
+   355→    freeNoSignup: 'Free and no sign-up required',
+   356→    ctaReadyTitle: 'Ready to create your resume?',
+   357→    ctaReadyDesc: "In less than 2 minutes, you'll have a professional resume ready to send.",
+   358→    // Cover letter
+   359→    clTitle: 'Cover Letter',
+   360→    clSubtitle: 'Generate a persuasive cover letter in 30 seconds',
+   361→    clDescription: 'Our AI writes a personalized cover letter, perfectly tailored to the job posting. Available in French, English, Arabic, and Spanish.',
+   362→    clCta: 'Create my cover letter',
+   363→    clBackToCv: 'Back to CV',
+   364→    clCompanyName: 'Company Name',
+   365→    clCompanyNamePlaceholder: 'E.g. Google, Renault, Société Générale...',
+   366→    clHiringManager: 'Hiring Manager (optional)',
+   367→    clHiringManagerPlaceholder: 'E.g. Mr. Smith, Ms. Johnson...',
+   368→    clJobTitle: 'Job Title',
+   369→    clJobTitlePlaceholder: 'E.g. Full-Stack Developer, Project Manager...',
+   370→    clJobReference: 'Job Reference (optional)',
+   371→    clJobReferencePlaceholder: 'E.g. REF-2024-123...',
+   372→    clWhyCompany: 'Why this company? (optional)',
+   373→    clWhyCompanyPlaceholder: 'E.g. I appreciate your commitment to innovation and sustainability...',
+   374→    clKeyStrengths: 'Key strengths to highlight (optional)',
+   375→    clKeyStrengthsPlaceholder: 'E.g. 5 years of project management experience, PMP certification...',
+   376→    clTone: 'Letter Tone',
+   377→    clToneFormal: 'Formal',
+   378→    clToneSemiFormal: 'Semi-formal',
+   379→    clToneDynamic: 'Dynamic',
+   380→    clAdditionalNotes: 'Additional notes (optional)',
+   381→    clAdditionalNotesPlaceholder: 'Any additional information you want to include...',
+   382→    clGenerate: 'Generate my cover letter with AI',
+   383→    clGenerating: 'AI is writing your cover letter...',
+   384→    clGeneratingSubtitle: 'Analyzing the position and creating personalized content',
+   385→    clPreviewTitle: 'Your cover letter is ready!',
+   386→    clDownloadPdf: 'Download PDF',
+   387→    clDownloadWord: 'Download Word',
+   388→    clStartOver: 'Create another letter',
+   389→    clAlsoGenerate: 'Also generate a cover letter',
+   390→    clStep1: 'Your Information',
+   391→    clStep2: 'Target Position',
+   392→    clFeatureTitle: 'AI Cover Letter',
+   393→    clFeatureDesc: 'Generate a personalized and persuasive cover letter, tailored to each job posting.',
+   394→    clReadyTitle: 'Ready to create your letter?',
+   395→    clReadyDesc: 'In less than a minute, you\'ll have a professional cover letter ready to send.',
+   396→    clAddress: 'Physical Address (optional)',
+   397→    clCountry: 'Country',
+   398→    clCountryPlaceholder: 'Select country...',
+   399→    clLinkedToCv: 'Linked CV detected',
+   400→    clLinkedToCvDesc: 'Your generated CV will automatically be used to personalize this cover letter.',
+   401→    clNoCvLinked: 'No CV linked',
+   402→    clNoCvLinkedDesc: 'Create a CV first so the cover letter is automatically enriched with your experience and skills.',
+   403→  }
+   404→  ar: {
+   405→    siteTitle: 'CV Genious الذكاء الاصطناعي',
+   406→    siteSubtitle: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
+   407→    siteDescription:
+   408→      'يكتب الذكاء الاصطناعي لدينا سيرة ذاتية محسنة لأنظمة ATS، مصممة خصيصاً للوظيفة المستهدفة.',
+   409→    cta: 'أنشئ سيرتي الذاتية مجاناً',
+   410→    step1Title: 'المعلومات الشخصية',
+   411→    step2Title: 'الأهداف المهنية',
+   412→    step3Title: 'الخبرة والتعليم',
+   413→    step4Title: 'المهارات والملخص',
+   414→    fullName: 'الاسم الكامل',
+   415→    email: 'البريد الإلكتروني',
+   416→    phone: 'الهاتف',
+   417→    phoneCountry: 'البلد',
+   418→    phoneCountryPlaceholder: 'اختر البلد...',
+   419→    phoneNumber: 'رقم الهاتف',
+   420→    address: 'العنوان الكامل',
+   421→    location: 'المدينة / البلد',
+   422→    linkedin: 'لينكد إن (اختياري)',
+   423→    website: 'الموقع الإلكتروني (اختياري)',
+   424→    photo: 'الصورة الشخصية',
+   425→    photoPlaceholder: 'انقر أو اسحب صورة هنا',
+   426→    photoRemove: 'إزالة',
+   427→    photoNote: 'يُنصح بها للسير الذاتية بالفرنسية والعربية. غير موصى بها للسير الذاتية بالإنجليزية.',
+   428→    targetJob: 'الوظيفة المستهدفة',
+   429→    industry: 'قطاع النشاط',
+   430→    experience: 'الخبرة المهنية',
+   431→    experiencePlaceholder:
+   432→      'صف وظائفك السابقة (مثال: مطور ويب في شركة ABC من 2020 إلى 2023 - المسؤوليات، المشاريع، النتائج...)',
+   433→    education: 'التعليم',
+   434→    educationPlaceholder:
+   435→      'صف شهاداتك (مثال: ماجستير في علوم الكمبيوتر من جامعة X من 2016 إلى 2020...)',
+   436→    skills: 'المهارات',
+   437→    skillsPlaceholder:
+   438→      'اذكر مهاراتك التقنية والشخصية مفصولة بفواصل (مثال: جافاسكريبت، رياكت، إدارة المشاريع، العمل الجماعي...)',
+   439→    languages: 'اللغات',
+   440→    languagesPlaceholder:
+   441→      'اذكر لغاتك مع المستوى (مثال: الفرنسية - لغة أم، الإنجليزية - بطلاقة، العربية - متوسط...)',
+   442→    summary: 'الملخص المهني (اختياري)',
+   443→    summaryPlaceholder:
+   444→      'فقرة قصيرة تصف ملفك الشخصي ونقاط قوتك وطموحاتك المهنية...',
+   445→    next: 'التالي',
+   446→    previous: 'السابق',
+   447→    generate: 'أنشئ سيرتي الذاتية بالذكاء الاصطناعي',
+   448→    generating: 'الذكاء الاصطناعي يكتب سيرتك الذاتية...',
+   449→    generatingSubtitle: 'تحليل معلوماتك وإنشاء محتوى محسن',
+   450→    downloadPdf: 'تحميل PDF',
+   451→    downloadWord: 'تحميل Word',
+   452→    downloadFormat: 'صيغة التحميل',
+   453→    startOver: 'إنشاء سيرة ذاتية أخرى',
+   454→    previewTitle: 'سيرتك الذاتية جاهزة!',
+   455→    feature1Title: 'ذكاء اصطناعي متقدم',
+   456→    feature1Desc:
+   457→      'يحلل الذكاء الاصطناعي لدينا معلوماتك وينشئ محتوى احترافياً محسناً لكل قسم من سيرتك الذاتية.',
+   458→    feature2Title: 'متعدد اللغات',
+   459→    feature2Desc:
+   460→      'أنشئ سيرتك الذاتية بالفرنسية أو الإنجليزية أو الإسبانية أو العربية. يتكيف الذكاء الاصطناعي مع المفردات والأسلوب لكل لغة.',
+   461→    feature3Title: 'محسن لـ ATS',
+   462→    feature3Desc:
+   463→      'سيرك الذاتية منظمة لتجاوز الفلاتر التلقائية لبرامج التوظيف.',
+   464→    feature4Title: '3 قوالب',
+   465→    feature4Desc:
+   466→      'اختر من بين 3 تصميمات احترافية: عصري، كلاسيكي، أو إبداعي.',
+   467→    templateModern: 'عصري',
+   468→    templateClassic: 'كلاسيكي',
+   469→    templateCreative: 'إبداعي',
+   470→    templateLabel: 'القالب',
+   471→    languageLabel: 'لغة السيرة الذاتية',
+   472→    dateOfBirth: 'تاريخ الميلاد',
+   473→    birthPlace: 'مكان الميلاد',
+   474→    birthCountry: 'بلد الميلاد',
+   475→    birthCountryPlaceholder: 'المغرب، فرنسا، الجزائر...',
+   476→    softSkills: 'المهارات الشخصية (اختياري)',
+   477→    softSkillsPlaceholder: 'اذكر مهاراتك الشخصية مفصولة بفواصل (مثال: القيادة، التواصل، حل المشكلات، التكيف...)',
+   478→    personalInfo: 'معلومات الميلاد',
+   479→    required: 'هذا الحقل مطلوب',
+   480→    errorFillFields: 'يرجى ملء جميع الحقول المطلوبة',
+   481→    footerText: 'جميع الحقوق محفوظة',
+   482→    footerMadeWith: 'بدعم من',
+   483→    freeNoSignup: 'مجاني وبدون تسجيل',
+   484→    ctaReadyTitle: 'مستعد لإنشاء سيرتك الذاتية؟',
+   485→    ctaReadyDesc: 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.',
+   486→    photoPosition: 'موضع الصورة',
+   487→    photoPositionLeft: 'يسار',
+   488→    photoPositionCenter: 'وسط',
+   489→    photoPositionRight: 'يمين',
+   490→    availableLangs: 'متاح بالفرنسية والإنجليزية والإسبانية والعربية',
+   491→    freeNoSignup: 'مجاني وبدون تسجيل',
+   492→    ctaReadyTitle: 'مستعد لإنشاء سيرتك الذاتية؟',
+   493→    ctaReadyDesc: 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.',
+   494→    // Cover letter
+   495→    clTitle: 'رسالة الدافع',
+   496→    clSubtitle: 'أنشئ رسالة دافع مقنعة في 30 ثانية',
+   497→    clDescription: 'يكتب الذكاء الاصطناعي لدينا رسالة دافع مخصصة، مصممة بشكل مثالي للوظيفة المستهدفة. متاحة بالفرنسية والإنجليزية والعربية والإسبانية.',
+   498→    clCta: 'إنشاء رسالة الدافع الخاصة بي',
+   499→    clBackToCv: 'العودة إلى السيرة الذاتية',
+   500→    clCompanyName: 'اسم الشركة',
+   501→    clCompanyNamePlaceholder: 'مثال: Google, Renault, Société Générale...',
+   502→    clHiringManager: 'اسم المسؤول عن التوظيف (اختياري)',
+   503→    clHiringManagerPlaceholder: 'مثال: السيد دوبون، السيدة مارتين...',
+   504→    clJobTitle: 'المسمى الوظيفي',
+   505→    clJobTitlePlaceholder: 'مثال: مطور Full-Stack، مدير مشاريع...',
+   506→    clJobReference: 'مرجع العرض (اختياري)',
+   507→    clJobReferencePlaceholder: 'مثال: REF-2024-123...',
+   508→    clWhyCompany: 'لماذا هذه الشركة؟ (اختياري)',
+   509→    clWhyCompanyPlaceholder: 'مثال: أقدّر التزامكم بالابتكار والتنمية المستدامة...',
+   510→    clKeyStrengths: 'نقاط القوة المراد إبرازها (اختياري)',
+   511→    clKeyStrengthsPlaceholder: 'مثال: 5 سنوات خبرة في إدارة المشاريع، شهادة PMP...',
+   512→    clTone: 'نبرة الرسالة',
+   513→    clToneFormal: 'رسمي',
+   514→    clToneSemiFormal: 'شبه رسمي',
+   515→    clToneDynamic: 'ديناميكي',
+   516→    clAdditionalNotes: 'ملاحظات إضافية (اختياري)',
+   517→    clAdditionalNotesPlaceholder: 'أي معلومات إضافية تريد إضافتها...',
+   518→    clGenerate: 'إنشاء رسالة الدافع بالذكاء الاصطناعي',
+   519→    clGenerating: 'الذكاء الاصطناعي يكتب رسالة الدافع الخاصة بك...',
+   520→    clGeneratingSubtitle: 'تحليل المنصب وإنشاء محتوى مخصص',
+   521→    clPreviewTitle: 'رسالة الدافع جاهزة!',
+   522→    clDownloadPdf: 'تحميل PDF',
+   523→    clDownloadWord: 'تحميل Word',
+   524→    clStartOver: 'إنشاء رسالة أخرى',
+   525→    clAlsoGenerate: 'إنشاء أيضاً رسالة دافع',
+   526→    clStep1: 'معلوماتك',
+   527→    clStep2: 'المنصب المستهدف',
+   528→    clFeatureTitle: 'رسالة دافع بالذكاء الاصطناعي',
+   529→    clFeatureDesc: 'أنشئ رسالة دافع مخصصة ومقنعة، مصممة لكل عرض توظيف.',
+   530→    clReadyTitle: 'مستعد لإنشاء رسالتك؟',
+   531→    clReadyDesc: 'في أقل من دقيقة، ستكون لديك رسالة دافع احترافية جاهزة للإرسال.',
+   532→    clAddress: 'العنوان الفعلي (اختياري)',
+   533→    clCountry: 'البلد',
+   534→    clCountryPlaceholder: 'اختر البلد...',
+   535→    clLinkedToCv: 'تم ربط السيرة الذاتية',
+   536→    clLinkedToCvDesc: 'سيتم استخدام سيرتك الذاتية المُنشأة تلقائياً لتخصيص رسالة الدافع هذه.',
+   537→    clNoCvLinked: 'لم يتم ربط سيرة ذاتية',
+   538→    clNoCvLinkedDesc: 'أنشئ سيرة ذاتية أولاً لتتم إثراء رسالة الدافع تلقائياً بخبراتك ومهاراتك.',
+   539→  }
+   540→  es: {
+   541→    siteTitle: 'CV Genius IA',
+   542→    siteSubtitle: 'Genera un currículum profesional en 60 segundos',
+   543→    siteDescription:
+   544→      'Nuestra IA redacta un currículum optimizado para ATS, perfectamente adaptado a tu puesto objetivo.',
+   545→    cta: 'Crear mi currículum gratis',
+   546→    step1Title: 'Información personal',
+   547→    step2Title: 'Objetivos profesionales',
+   548→    step3Title: 'Experiencia y Formación',
+   549→    step4Title: 'Habilidades y Resumen',
+   550→    fullName: 'Nombre completo',
+   551→    email: 'Correo electrónico',
+   552→    phone: 'Teléfono',
+   553→    phoneCountry: 'País',
+   554→    phoneCountryPlaceholder: 'Seleccionar país...',
+   555→    phoneNumber: 'Número de teléfono',
+   556→    address: 'Dirección completa',
+   557→    location: 'Ciudad / País',
+   558→    linkedin: 'LinkedIn (opcional)',
+   559→    website: 'Sitio web (opcional)',
+   560→    photo: 'Foto de perfil',
+   561→    photoPlaceholder: 'Haz clic o arrastra una foto aquí',
+   562→    photoRemove: 'Eliminar',
+   563→    photoNote: 'Recomendado para currículums en francés, árabe y español. No recomendado para currículums en inglés (práctica anti-discriminación).',
+   564→    targetJob: 'Puesto objetivo',
+   565→    industry: 'Sector de actividad',
+   566→    experience: 'Experiencia profesional',
+   567→    experiencePlaceholder:
+   568→      'Describe tus puestos anteriores (ej: Desarrollador Web en ABC Corp de 2020 a 2023 - responsabilidades, proyectos, resultados...)',
+   569→    education: 'Formación',
+   570→    educationPlaceholder:
+   571→      'Describe tus títulos (ej: Máster en Informática en la Universidad X de 2016 a 2020...)',
+   572→    skills: 'Habilidades',
+   573→    skillsPlaceholder:
+   574→      'Lista tus habilidades técnicas y humanas separadas por comas (ej: JavaScript, React, gestión de proyectos, trabajo en equipo...)',
+   575→    languages: 'Idiomas hablados',
+   576→    languagesPlaceholder:
+   577→      'Lista tus idiomas con nivel (ej: Español - nativo, Inglés - fluido, Francés - intermedio...)',
+   578→    summary: 'Resumen profesional (opcional)',
+   579→    summaryPlaceholder:
+   580→      'Un párrafo corto que describa tu perfil, fortalezas y ambiciones profesionales...',
+   581→    next: 'Siguiente',
+   582→    previous: 'Anterior',
+   583→    generate: 'Generar mi currículum con IA',
+   584→    generating: 'La IA está redactando tu currículum...',
+   585→    generatingSubtitle:
+   586→      'Analizando tu información y creando contenido optimizado',
+   587→    downloadPdf: 'Descargar PDF',
+   588→    downloadWord: 'Descargar Word',
+   589→    downloadFormat: 'Formato de descarga',
+   590→    startOver: 'Crear otro currículum',
+   591→    previewTitle: '¡Tu currículum está listo!',
+   592→    feature1Title: 'IA Avanzada',
+   593→    feature1Desc:
+   594→      'Nuestra IA analiza tu información y genera contenido profesional optimizado para cada sección de tu currículum.',
+   595→    feature2Title: 'Multilingüe',
+   596→    feature2Desc:
+   597→      'Crea tu currículum en francés, inglés, español o árabe. La IA adapta el vocabulario y el estilo a cada idioma.',
+   598→    feature3Title: 'Optimizado para ATS',
+   599→    feature3Desc:
+   600→      'Tus currículums están estructurados para superar los filtros automáticos de los software de reclutamiento.',
+   601→    feature4Title: '3 Plantillas',
+   602→    feature4Desc:
+   603→      'Elige entre 3 diseños profesionales: Moderno, Clásico o Creativo.',
+   604→    templateModern: 'Moderno',
+   605→    templateClassic: 'Clásico',
+   606→    templateCreative: 'Creativo',
+   607→    templateLabel: 'Plantilla',
+   608→    languageLabel: 'Idioma del currículum',
+   609→    dateOfBirth: 'Fecha de nacimiento',
+   610→    birthPlace: 'Lugar de nacimiento',
+   611→    birthCountry: 'País de nacimiento',
+   612→    birthCountryPlaceholder: 'Marruecos, Francia, Argelia...',
+   613→    softSkills: 'Soft Skills / Habilidades blandas (opcional)',
+   614→    softSkillsPlaceholder: 'Lista tus soft skills separados por comas (ej: liderazgo, comunicación, resolución de problemas, adaptabilidad...)',
+   615→    personalInfo: 'Información de nacimiento',
+   616→    required: 'Este campo es obligatorio',
+   617→    errorFillFields: 'Por favor, completa todos los campos obligatorios',
+   618→    footerText: 'Todos los derechos reservados',
+   619→    footerMadeWith: 'Desarrollado por',
+   620→    freeNoSignup: 'Gratis y sin registro',
+   621→    ctaReadyTitle: '¿Listo para crear tu currículum?',
+   622→    ctaReadyDesc: 'En menos de 2 minutos, tendrás un currículum profesional listo para enviar.',
+   623→    photoPosition: 'Posición de la foto',
+   624→    photoPositionLeft: 'Izquierda',
+   625→    photoPositionCenter: 'Centro',
+   626→    photoPositionRight: 'Derecha',
+   627→    availableLangs: 'Disponible en francés, inglés, español y árabe',
+   628→    freeNoSignup: 'Gratis y sin registro',
+   629→    ctaReadyTitle: '¿Listo para crear tu currículum?',
+   630→    ctaReadyDesc: 'En menos de 2 minutos, tendrás un currículum profesional listo para enviar.',
+   631→    // Cover letter
+   632→    clTitle: 'Carta de Motivación',
+   633→    clSubtitle: 'Genera una carta de motivación persuasiva en 30 segundos',
+   634→    clDescription: 'Nuestra IA redacta una carta de motivación personalizada, perfectamente adaptada a la oferta de empleo. Disponible en francés, inglés, árabe y español.',
+   635→    clCta: 'Crear mi carta de motivación',
+   636→    clBackToCv: 'Volver al CV',
+   637→    clCompanyName: 'Nombre de la empresa',
+   638→    clCompanyNamePlaceholder: 'Ej: Google, Renault, Société Générale...',
+   639→    clHiringManager: 'Nombre del reclutador (opcional)',
+   640→    clHiringManagerPlaceholder: 'Ej: Sr. García, Sra. López...',
+   641→    clJobTitle: 'Título del puesto',
+   642→    clJobTitlePlaceholder: 'Ej: Desarrollador Full-Stack, Director de proyectos...',
+   643→    clJobReference: 'Referencia de la oferta (opcional)',
+   644→    clJobReferencePlaceholder: 'Ej: REF-2024-123...',
+   645→    clWhyCompany: '¿Por qué esta empresa? (opcional)',
+   646→    clWhyCompanyPlaceholder: 'Ej: Valoro su compromiso con la innovación y la sostenibilidad...',
+   647→    clKeyStrengths: 'Puntos fuertes a destacar (opcional)',
+   648→    clKeyStrengthsPlaceholder: 'Ej: 5 años de experiencia en gestión de proyectos, certificación PMP...',
+   649→    clTone: 'Tono de la carta',
+   650→    clToneFormal: 'Formal',
+   651→    clToneSemiFormal: 'Semi-formal',
+   652→    clToneDynamic: 'Dinámico',
+   653→    clAdditionalNotes: 'Notas adicionales (opcional)',
+   654→    clAdditionalNotesPlaceholder: 'Cualquier información adicional que desees incluir...',
+   655→    clGenerate: 'Generar mi carta de motivación con IA',
+   656→    clGenerating: 'La IA está redactando tu carta de motivación...',
+   657→    clGeneratingSubtitle: 'Analizando el puesto y creando contenido personalizado',
+   658→    clPreviewTitle: '¡Tu carta de motivación está lista!',
+   659→    clDownloadPdf: 'Descargar PDF',
+   660→    clDownloadWord: 'Descargar Word',
+   661→    clStartOver: 'Crear otra carta',
+   662→    clAlsoGenerate: 'Generar también una carta de motivación',
+   663→    clStep1: 'Tu información',
+   664→    clStep2: 'Puesto objetivo',
+   665→    clFeatureTitle: 'Carta de Motivación IA',
+   666→    clFeatureDesc: 'Genera una carta de motivación personalizada y persuasiva, adaptada a cada oferta de empleo.',
+   667→    clReadyTitle: '¿Listo para crear tu carta?',
+   668→    clReadyDesc: 'En menos de un minuto, tendrás una carta de motivación profesional lista para enviar.',
+   669→    clAddress: 'Dirección física (opcional)',
+   670→    clCountry: 'País',
+   671→    clCountryPlaceholder: 'Seleccionar país...',
+   672→    clLinkedToCv: 'CV vinculado detectado',
+   673→    clLinkedToCvDesc: 'Tu currículum generado se usará automáticamente para personalizar esta carta de motivación.',
+   674→    clNoCvLinked: 'Ningún CV vinculado',
+   675→    clNoCvLinkedDesc: 'Crea primero un currículum para que la carta de motivación se enriquezca automáticamente con tu experiencia y habilidades.',
+   676→  }
+   677→}
+   678→
+   679→export function t(lang: CVLanguage, key: TranslationKey): string {
+   680→  return translations[lang]?.[key] ?? translations.fr[key] ?? key
+   681→}

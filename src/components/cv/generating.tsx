@@ -3,17 +3,25 @@
 import { motion } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
-import { FileText, Sparkles } from 'lucide-react'
+import { FileText, Sparkles, PenLine, CheckCircle2 } from 'lucide-react'
 
 export default function Generating() {
-  const { language } = useCVStore()
+  const { language, isCLGenerating } = useCVStore()
+  const generatingBoth = isCLGenerating
 
-  const steps = [
-    { label: language === 'fr' ? 'Analyse du profil' : language === 'en' ? 'Analyzing profile' : 'تحليل الملف الشخصي' },
-    { label: language === 'fr' ? 'Optimisation du contenu' : language === 'en' ? 'Optimizing content' : 'تحسين المحتوى' },
-    { label: language === 'fr' ? 'Rédaction des sections' : language === 'en' ? 'Writing sections' : 'كتابة الأقسام' },
-    { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : 'التنسيق النهائي' },
-  ]
+  const cvSteps = generatingBoth
+    ? [
+        { label: language === 'fr' ? 'Analyse du profil' : language === 'en' ? 'Analyzing profile' : language === 'es' ? 'Analizando perfil' : 'تحليل الملف الشخصي' },
+        { label: language === 'fr' ? 'Rédaction du CV' : language === 'en' ? 'Writing resume' : language === 'es' ? 'Redactando currículum' : 'كتابة السيرة الذاتية' },
+        { label: language === 'fr' ? 'Rédaction de la lettre de motivation' : language === 'en' ? 'Writing cover letter' : language === 'es' ? 'Redactando carta de motivación' : 'كتابة رسالة الدافع' },
+        { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : language === 'es' ? 'Formato final' : 'التنسيق النهائي' },
+      ]
+    : [
+        { label: language === 'fr' ? 'Analyse du profil' : language === 'en' ? 'Analyzing profile' : 'تحليل الملف الشخصي' },
+        { label: language === 'fr' ? 'Optimisation du contenu' : language === 'en' ? 'Optimizing content' : 'تحسين المحتوى' },
+        { label: language === 'fr' ? 'Rédaction des sections' : language === 'en' ? 'Writing sections' : 'كتابة الأقسام' },
+        { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : 'التنسيق النهائي' },
+      ]
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
@@ -30,7 +38,14 @@ export default function Generating() {
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <FileText className="w-12 h-12 text-emerald-600" />
+            {generatingBoth ? (
+              <div className="flex items-center gap-1">
+                <FileText className="w-10 h-10 text-emerald-600" />
+                <PenLine className="w-10 h-10 text-emerald-400" />
+              </div>
+            ) : (
+              <FileText className="w-12 h-12 text-emerald-600" />
+            )}
           </motion.div>
           <motion.div
             className="absolute -top-1 -right-1"
@@ -49,12 +64,16 @@ export default function Generating() {
           />
         </div>
 
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t(language, 'generating')}</h2>
-        <p className="text-muted-foreground mb-8">{t(language, 'generatingSubtitle')}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          {generatingBoth ? t(language, 'generatingBoth') : t(language, 'generating')}
+        </h2>
+        <p className="text-muted-foreground mb-8">
+          {generatingBoth ? t(language, 'generatingBothSubtitle') : t(language, 'generatingSubtitle')}
+        </p>
 
         {/* Animated steps */}
         <div className="space-y-3 max-w-xs mx-auto text-left">
-          {steps.map((step, i) => (
+          {cvSteps.map((step, i) => (
             <motion.div
               key={i}
               className="flex items-center gap-3"

@@ -37,6 +37,7 @@ interface CVDocumentProps {
     website: string
     targetJob: string
     photo: string
+    photoPosition: 'left' | 'center' | 'right'
     dateOfBirth: string
     birthPlace: string
     birthCountry: string
@@ -93,18 +94,24 @@ function ModernTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
   const birthInfo = [formatDate(dateOfBirth, 'fr'), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
+
+  const photoAlignmentClasses = {
+    left: 'items-start text-left',
+    center: 'items-center text-center',
+    right: 'items-end text-right',
+  }
 
   return (
     <div className="flex min-h-[297mm] w-full flex-col bg-white sm:flex-row sm:min-h-0">
       {/* ── Sidebar ── */}
       <aside className="w-full bg-emerald-900 px-5 py-7 text-white sm:w-[30%] sm:min-h-[297mm] print:min-h-0">
         {/* Photo + Name */}
-        <div className="flex flex-col items-center text-center">
+        <div className={`flex flex-col ${photoAlignmentClasses[photoPosition]}`}>
           {photo && (
             <img
               src={photo}
@@ -280,25 +287,37 @@ function ClassicTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
   const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
+  const headerLayoutClasses = {
+    left: 'flex-row',
+    center: 'flex-col items-center',
+    right: 'flex-row-reverse',
+  }
+
+  const nameAlignClasses = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  }
+
   return (
     <div className="min-h-[297mm] w-full bg-white px-8 py-7 print:min-h-0">
       {/* Header */}
       <header className="border-b-2 border-stone-800 pb-4">
-        <div className="flex items-center justify-center gap-5">
+        <div className={`flex items-center gap-5 ${headerLayoutClasses[photoPosition]}`}>
           {photo && (
             <img
               src={photo}
               alt=""
-              className="w-20 h-20 rounded-full object-cover border-2 border-stone-300"
+              className="w-20 h-20 rounded-full object-cover border-2 border-stone-300 shrink-0"
             />
           )}
-          <div className="text-center">
+          <div className={nameAlignClasses[photoPosition]}>
             <h1 className="text-2xl font-bold tracking-tight text-stone-900">{fullName}</h1>
             {targetJob && (
               <p className="mt-1 text-sm font-medium text-stone-500">{targetJob}</p>
@@ -449,25 +468,37 @@ function CreativeTemplate({
   formData,
   generatedCV,
 }: Omit<CVDocumentProps, 'template'>) {
-  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
+  const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
   const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
+  const headerLayoutClasses = {
+    left: 'flex-row',
+    center: 'flex-col items-center',
+    right: 'flex-row-reverse',
+  }
+
+  const nameAlignClasses = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  }
+
   return (
     <div className="min-h-[297mm] w-full bg-white print:min-h-0">
       {/* ── Gradient Header ── */}
       <header className="bg-gradient-to-r from-emerald-800 to-teal-600 px-8 py-8 text-white">
-        <div className="flex items-center gap-5">
+        <div className={`flex items-center gap-5 ${headerLayoutClasses[photoPosition]}`}>
           {photo && (
             <img
               src={photo}
               alt=""
-              className="w-20 h-20 rounded-full object-cover border-3 border-white/30"
+              className="w-20 h-20 rounded-full object-cover border-3 border-white/30 shrink-0"
             />
           )}
-          <div>
+          <div className={nameAlignClasses[photoPosition]}>
             <h1 className="text-2xl font-extrabold tracking-tight">{fullName}</h1>
             {targetJob && (
               <p className="mt-1 text-sm font-medium text-emerald-100">{targetJob}</p>

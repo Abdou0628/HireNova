@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 
-export type AppStep = 'landing' | 'form' | 'generating' | 'preview'
+export type AppStep = 'landing' | 'form' | 'generating' | 'preview' | 'clForm' | 'clGenerating' | 'clPreview'
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
+export type PhotoPosition = 'left' | 'center' | 'right'
 
 export interface FormData {
   fullName: string
@@ -24,6 +25,11 @@ export interface FormData {
   birthPlace: string
   birthCountry: string
   softSkills: string
+  photoPosition: PhotoPosition
+  // Cover letter fields collected in CV form
+  companyName: string
+  hiringManager: string
+  clTone: 'formal' | 'semi-formal' | 'dynamic'
 }
 
 export interface GeneratedCV {
@@ -44,6 +50,30 @@ export interface GeneratedCV {
   languages: Array<{ name: string; level: string }>
 }
 
+export interface CoverLetterFormData {
+  fullName: string
+  email: string
+  phone: string
+  address: string
+  country: string
+  location: string
+  companyName: string
+  hiringManager: string
+  jobTitle: string
+  jobReference: string
+  whyCompany: string
+  keyStrengths: string
+  tone: 'formal' | 'semi-formal' | 'dynamic'
+  additionalNotes: string
+}
+
+export interface GeneratedCoverLetter {
+  subject: string
+  greeting: string
+  paragraphs: string[]
+  signOff: string
+}
+
 interface CVStore {
   step: AppStep
   formStep: number
@@ -53,6 +83,11 @@ interface CVStore {
   generatedCV: GeneratedCV | null
   isGenerating: boolean
   error: string | null
+  // Cover letter state
+  clFormData: CoverLetterFormData
+  generatedCL: GeneratedCoverLetter | null
+  isCLGenerating: boolean
+  clError: string | null
 
   setStep: (step: AppStep) => void
   setFormStep: (step: number) => void
@@ -62,6 +97,11 @@ interface CVStore {
   setGeneratedCV: (cv: GeneratedCV | null) => void
   setIsGenerating: (val: boolean) => void
   setError: (err: string | null) => void
+  updateCLFormData: (data: Partial<CoverLetterFormData>) => void
+  setGeneratedCL: (cl: GeneratedCoverLetter | null) => void
+  setIsCLGenerating: (val: boolean) => void
+  setCLError: (err: string | null) => void
+  resetCL: () => void
   reset: () => void
 }
 
@@ -85,6 +125,27 @@ const initialFormData: FormData = {
   birthPlace: '',
   birthCountry: '',
   softSkills: '',
+  photoPosition: 'center',
+  companyName: '',
+  hiringManager: '',
+  clTone: 'semi-formal',
+}
+
+const initialCLFormData: CoverLetterFormData = {
+  fullName: '',
+  email: '',
+  phone: '',
+  address: '',
+  country: '',
+  location: '',
+  companyName: '',
+  hiringManager: '',
+  jobTitle: '',
+  jobReference: '',
+  whyCompany: '',
+  keyStrengths: '',
+  tone: 'semi-formal',
+  additionalNotes: '',
 }
 
 export const useCVStore = create<CVStore>((set) => ({
@@ -96,6 +157,11 @@ export const useCVStore = create<CVStore>((set) => ({
   generatedCV: null,
   isGenerating: false,
   error: null,
+  // Cover letter
+  clFormData: { ...initialCLFormData },
+  generatedCL: null,
+  isCLGenerating: false,
+  clError: null,
 
   setStep: (step) => set({ step }),
   setFormStep: (formStep) => set({ formStep }),
@@ -106,6 +172,19 @@ export const useCVStore = create<CVStore>((set) => ({
   setGeneratedCV: (generatedCV) => set({ generatedCV }),
   setIsGenerating: (isGenerating) => set({ isGenerating }),
   setError: (error) => set({ error }),
+  updateCLFormData: (data) =>
+    set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
+  setGeneratedCL: (generatedCL) => set({ generatedCL }),
+  setIsCLGenerating: (isCLGenerating) => set({ isCLGenerating }),
+  setCLError: (clError) => set({ clError }),
+  resetCL: () =>
+    set({
+      step: 'landing',
+      clFormData: { ...initialCLFormData },
+      generatedCL: null,
+      isCLGenerating: false,
+      clError: null,
+    }),
   reset: () =>
     set({
       step: 'landing',
@@ -115,5 +194,9 @@ export const useCVStore = create<CVStore>((set) => ({
       generatedCV: null,
       isGenerating: false,
       error: null,
+      clFormData: { ...initialCLFormData },
+      generatedCL: null,
+      isCLGenerating: false,
+      clError: null,
     }),
 }))
