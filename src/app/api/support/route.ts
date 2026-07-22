@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { name, email, subject, message } = body
+
+    if (!name || !email || !subject || !message) {
+      return NextResponse.json({ error: 'Tous les champs sont requis' }, { status: 400 })
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
+    }
+
+    if (message.length < 10) {
+      return NextResponse.json({ error: 'Le message doit contenir au moins 10 caractères' }, { status: 400 })
+    }
+
+    const session = await getServerSession(authOptions)
+    let userId: string | undefined
+
+    if (session?.user?.id) {
+      const user = await db.user.findUnique({ where: { id: session.user.id } })
+      if (user) userId = user.id
+    }
+
+    const ticket = await db.supportTicket.create({
+      data: {
+        userId,
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        subject: subject.trim(),
+        message: message.trim(),
+      },
+    })
+
+    return NextResponse.json({ success: true, ticketId: ticket.id })
+  } catch (error) {
+    console.error('Support ticket error:', error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}

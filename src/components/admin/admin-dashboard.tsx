@@ -18,6 +18,10 @@ import {
   UserX,
   Globe,
   ArrowUpRight,
+  Star,
+  MessageSquare,
+  CheckCircle,
+  Clock,
 } from 'lucide-react'
 import {
   Dialog,
@@ -218,6 +222,8 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  const [tickets, setTickets] = useState<Array<Record<string, unknown>>>([])
+  const [satData, setSatData] = useState<Record<string, unknown> | null>(null)
 
   const fetchStats = useCallback(async () => {
     try {
@@ -253,14 +259,23 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   useEffect(() => {
     if (isOpen) {
       setLoading(true)
-      Promise.all([fetchStats(), fetchUsers(1, '', '')]).finally(() => setLoading(false))
+      Promise.all([
+        fetchStats(),
+        fetchUsers(1, '', ''),
+        fetch('/api/admin/support').then(r => r.ok ? r.json().then(d => setTickets(d.tickets || [])) : null),
+        fetch('/api/admin/satisfaction').then(r => r.ok ? r.json().then(d => setSatData(d)) : null),
+      ]).finally(() => setLoading(false))
     }
   }, [isOpen, fetchStats, fetchUsers])
 
   const handleRefresh = async () => {
     setLoading(true)
-    await fetchStats()
-    await fetchUsers(page, search, planFilter)
+    await Promise.all([
+      fetchStats(),
+      fetchUsers(page, search, planFilter),
+      fetch('/api/admin/support').then(r => r.ok ? r.json().then(d => setTickets(d.tickets || [])) : null),
+      fetch('/api/admin/satisfaction').then(r => r.ok ? r.json().then(d => setSatData(d)) : null),
+    ])
     setLoading(false)
   }
 
@@ -335,6 +350,14 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                 <TabsTrigger value="revenue" className="gap-1.5 text-xs sm:text-sm">
                   <DollarSign className="w-3.5 h-3.5" />
                   Revenus
+                </TabsTrigger>
+                <TabsTrigger value="support" className="gap-1.5 text-xs sm:text-sm">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Support
+                </TabsTrigger>
+                <TabsTrigger value="satisfaction" className="gap-1.5 text-xs sm:text-sm">
+                  <Star className="w-3.5 h-3.5" />
+                  Satisfaction
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -911,6 +934,125 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                {/* Support Tab */}
+                <TabsContent value="support" className="mt-0 space-y-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-emerald-600" />
+                        Tickets de support ({tickets.length})
+                      </CardTitle>
+                      <CardDescription>Réclamations et demandes des utilisateurs</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {tickets.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-8">Aucun ticket de support pour le moment</p>
+                      ) : (
+                        <ScrollArea className="max-h-[400px]">
+                          <div className="space-y-3">
+                            {tickets.map((t: any) => (
+                              <div key={t.id} className="p-3 rounded-xl border space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium">{t.name}</span>
+                                    <Badge
+                              variant={t.status === 'open' ? 'destructive' : t.status === 'resolved' ? 'default' : 'secondary'}
+                              className="text-xs gap-1"
+                            >
+                              {t.status === 'open' ? <Clock className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                              {t.status === 'open' ? 'Ouvert' : t.status === 'resolved' ? 'Résolu' : 'Fermé'}
+                            </Badge>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">{formatDate(t.createdAt)}</span>
+                                </div>
+                                <p className="text-sm font-medium">{t.subject}</p>
+                                <p className="text-xs text-muted-foreground">{t.email}</p>
+                                <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-lg">{t.message}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Satisfaction Tab */}
+                <TabsContent value="satisfaction" className="mt-0 space-y-6">
+                  {satData ? (
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <StatCard icon={Star} label="Note moyenne" value={`${satData.avgRating}/5`} color="amber" />
+                        <StatCard icon={Users} label="Total avis" value={satData.totalRatings} color="emerald" />
+                        <StatCard icon={Calendar} label="Avis (30j)" value={satData.recentCount} sub={`Moy: ${satData.recentAvg}/5`} color="blue" />
+                        <StatCard icon={FileText} label="Avis CVs" value={satData.cvCount} sub={`Lettres: ${satData.clCount}`} color="emerald" />
+                      </div>
+
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm font-semibold">Distribution des notes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {([5, 4, 3, 2, 1] as const).map((star) => {
+                              const count = (satData.ratingCounts as Record<number, number>)[star] || 0
+                              const maxCount = Math.max(...Object.values(satData.ratingCounts as Record<number, number>), 1)
+                              const pct = satData.totalRatings > 0 ? (count / satData.totalRatings) * 100 : 0
+                              return (
+                                <div key={star} className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1 w-16 justify-end">
+                                    <span className="text-sm font-medium">{star}</span>
+                                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                  </div>
+                                  <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                                      style={{ width: `${(count / maxCount) * 100}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs text-muted-foreground w-16 text-right">{pct.toFixed(0)}% ({count})</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {(satData.ratings as Array<Record<string, unknown>>).length > 0 && (
+                        <Card>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-semibold">Derniers avis</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ScrollArea className="max-h-[250px]">
+                              <div className="space-y-2">
+                                {(satData.ratings as Array<Record<string, unknown>>).slice(0, 20).map((r: any) => (
+                                  <div key={r.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex">
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                          <Star key={i} className={`w-3 h-3 ${i < r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} />
+                                        ))}
+                                      </div>
+                                      <Badge variant="outline" className="text-xs">{r.type === 'cv' ? 'CV' : 'Lettre'}</Badge>
+                                    </div>
+                                    <div className="text-right">
+                                      {r.comment && <p className="text-xs text-muted-foreground max-w-[200px] truncate">{r.comment}</p>}
+                                      <p className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-8">Aucun avis pour le moment</p>
+                  )}
                 </TabsContent>
               </div>
             </ScrollArea>

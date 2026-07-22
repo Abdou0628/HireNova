@@ -28,6 +28,32 @@ model User {
 
   resumes      Resume[]
   coverLetters CoverLetter[]
+  satisfactionRatings SatisfactionRating[]
+  supportTickets      SupportTicket[]
+}
+
+model SatisfactionRating {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String   // cv | cover_letter
+  itemId    String?
+  rating    Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("open") // open | resolved | closed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model Resume {

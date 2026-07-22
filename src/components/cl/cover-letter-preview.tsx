@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
@@ -8,10 +8,17 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Download, RotateCcw, FileText, CheckCircle2, PenLine, FileDown, ChevronDown } from 'lucide-react'
 import CoverLetterDocument from './cover-letter-document'
+import SatisfactionPrompt from '@/components/support/satisfaction-prompt'
 
 export default function CoverLetterPreview() {
   const { clFormData, generatedCL, language, setStep, resetCL, reset, generatedCV, formData } = useCVStore()
   const clRef = useRef<HTMLDivElement>(null)
+  const [showSatisfaction, setShowSatisfaction] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSatisfaction(true), 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
   function handleDownloadPDF() {
     const printWindow = window.open('', '_blank')
@@ -191,10 +198,17 @@ export default function CoverLetterPreview() {
 
       {/* Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 bg-white">
-        <div className="max-w-4xl mx-auto text-center text-sm text-muted-foreground">
-          {t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span>
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
+          <p>{t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span></p>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
         </div>
       </footer>
+
+      <SatisfactionPrompt
+        open={showSatisfaction}
+        onClose={() => setShowSatisfaction(false)}
+        type="cover_letter"
+      />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import CVDocument from './cv-document'
 import CoverLetterDocument from '@/components/cl/cover-letter-document'
+import SatisfactionPrompt from '@/components/support/satisfaction-prompt'
 
 type PreviewTab = 'cv' | 'cl'
 
@@ -43,6 +44,14 @@ export default function Preview() {
   const cvRef = useRef<HTMLDivElement>(null)
   const clRef = useRef<HTMLDivElement>(null)
   const hasCL = !!generatedCL
+  const [showSatisfaction, setShowSatisfaction] = useState(false)
+  const [satisfactionType, setSatisfactionType] = useState<'cv' | 'cover_letter'>('cv')
+
+  useEffect(() => {
+    // Show satisfaction 3 seconds after preview loads
+    const timer = setTimeout(() => setShowSatisfaction(true), 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
   function handleDownloadPDF(type: 'cv' | 'cl') {
     const ref = type === 'cv' ? cvRef : clRef
@@ -330,10 +339,17 @@ export default function Preview() {
 
       {/* Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 bg-white">
-        <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          {t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span>
+        <div className="max-w-5xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
+          <p>{t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span></p>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
         </div>
       </footer>
+
+      <SatisfactionPrompt
+        open={showSatisfaction}
+        onClose={() => setShowSatisfaction(false)}
+        type={satisfactionType}
+      />
     </div>
   )
 }
