@@ -20,9 +20,9 @@ model User {
   cvCountThisMonth Int      @default(0)
   clCountThisMonth Int      @default(0)
   lastResetMonth   Int      @default(0)
-  stripeCustomerId String?
-  stripePriceId    String?
-  stripeSubId      String?
+  lsCustomerId  String?
+  lsVariantId   String?
+  lsSubId       String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

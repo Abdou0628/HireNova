@@ -93,3 +93,28 @@ Stage Summary:
 - Checkout flow: authenticated user → POST /api/stripe/checkout with planType → creates Stripe customer if needed → returns checkout URL
 - Webhook flow: Stripe events → POST /api/stripe/webhook → signature verification → updates User record in Prisma
 - 0 lint errors, dev server running with no issues
+---
+Task ID: 1
+Agent: Main Agent
+Task: Replace Stripe integration with LemonSqueezy (compatible with Morocco)
+
+Work Log:
+- Read existing Stripe integration files (stripe.ts, checkout/route.ts, webhook/route.ts, landing.tsx, profile-button.tsx, schema.prisma, .env)
+- Installed @lemonsqueezy/lemonsqueezy.js SDK (v4.0.0)
+- Removed stripe npm package
+- Updated prisma schema: renamed stripeCustomerId→lsCustomerId, stripePriceId→lsVariantId, stripeSubId→lsSubId
+- Ran db:push to sync schema changes
+- Created src/lib/lemonsqueezy.ts with VARIANTS config (EUR/USD × pro/lifetime), getPlans(), STORE_ID
+- Created src/app/api/checkout/route.ts: LemonSqueezy checkout session creation with createCheckout API
+- Created src/app/api/webhook/route.ts: handles order_created, subscription_created, subscription_updated, subscription_cancelled, subscription_expired
+- Updated landing.tsx: changed fetch URL from /api/stripe/checkout to /api/checkout
+- Updated .env with LemonSqueezy environment variables
+- Deleted src/lib/stripe.ts and src/app/api/stripe/ directory
+- Ran lint (clean), verified page loads correctly with browser
+
+Stage Summary:
+- Stripe fully replaced with LemonSqueezy across the entire codebase
+- No remaining Stripe references in src/ directory
+- Checkout flow: user clicks plan → /api/checkout → LemonSqueezy hosted checkout page → redirect back
+- Webhook flow: LemonSqueezy sends events → /api/webhook → update user plan in DB
+- All 4 pricing variants supported (Pro EUR/USD, Lifetime EUR/USD)
