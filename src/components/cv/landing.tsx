@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2 } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -28,10 +28,27 @@ const features = [
   { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
 ]
 
-const stats = [
-  { value: '50K+', label: { fr: 'CV générés', en: 'Resumes generated', ar: 'سير ذاتية تم إنشاؤها', es: 'CV generados' } },
-  { value: '95%', label: { fr: 'Taux de satisfaction', en: 'Satisfaction rate', ar: 'معدل الرضا', es: 'Tasa de satisfacción' } },
-  { value: '4', label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+function StatCounter() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then((r) => r.json())
+      .then((data) => setCount(data.total || 0))
+      .catch(() => {})
+  }, [])
+
+  return (
+    <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
+      {count}
+    </div>
+  )
+}
+
+const staticStats = [
+  { value: '4', icon: Languages, label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+  { value: '3', icon: LayoutTemplate, label: { fr: 'Templates', en: 'Templates', ar: 'قوالب', es: 'Plantillas' } },
+  { value: '2', icon: Download, label: { fr: 'Formats (PDF, Word)', en: 'Formats (PDF, Word)', ar: 'صيغ (PDF, Word)', es: 'Formatos (PDF, Word)' } },
 ]
 
 interface PricingFeature {
@@ -204,12 +221,16 @@ export default function Landing() {
 
             {/* Stats */}
             <motion.div
-              className="mt-16 grid grid-cols-3 gap-4 max-w-lg mx-auto"
+              className="mt-16 grid grid-cols-4 gap-4 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              {stats.map((stat) => (
+              <div className="text-center">
+                <StatCounter />
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
+              </div>
+              {staticStats.map((stat) => (
                 <div key={stat.value} className="text-center">
                   <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{stat.value}</div>
                   <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label[language]}</div>
