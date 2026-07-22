@@ -1,26 +1,53 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
 import {
-  X,
   Users,
   FileText,
   PenLine,
+  DollarSign,
   Crown,
   Zap,
   TrendingUp,
   Calendar,
-  BarChart3,
+  Search,
+  ChevronLeft,
+  ChevronRight,
   RefreshCw,
   Shield,
+  UserX,
+  Globe,
+  ArrowUpRight,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useSession } from 'next-auth/react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 
-interface AdminData {
+interface AdminDashboardProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+interface AdminStats {
   overview: {
     totalUsers: number
     proUsers: number
@@ -67,22 +94,68 @@ interface AdminData {
   }>
 }
 
-interface AdminDashboardProps {
-  isOpen: boolean
-  onClose: () => void
+interface AdminUser {
+  id: string
+  email: string
+  name: string | null
+  plan: string
+  cvCountThisMonth: number
+  clCountThisMonth: number
+  lsCustomerId: string | null
+  lsVariantId: string | null
+  lsSubId: string | null
+  createdAt: string
+  updatedAt: string
+  _count: {
+    resumes: number
+    coverLetters: number
+  }
 }
 
-function MetricCard({ icon: Icon, label, value, subValue, color }: { icon: React.ElementType; label: string; value: string | number; subValue?: string; color: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trend,
+  color = 'emerald',
+}: {
+  icon: React.ElementType
+  label: string
+  value: string | number
+  sub?: string
+  trend?: string
+  color?: 'emerald' | 'amber' | 'blue' | 'rose'
+}) {
+  const colorMap = {
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    amber: 'bg-amber-50 text-amber-600 border-amber-200',
+    blue: 'bg-sky-50 text-sky-600 border-sky-200',
+    rose: 'bg-rose-50 text-rose-600 border-rose-200',
+  }
+  const iconBg = {
+    emerald: 'bg-emerald-100 text-emerald-700',
+    amber: 'bg-amber-100 text-amber-700',
+    blue: 'bg-sky-100 text-sky-700',
+    rose: 'bg-rose-100 text-rose-700',
+  }
+
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className={`border ${colorMap[color]} transition-all hover:shadow-md`}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium">{label}</p>
-            <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1">{typeof value === 'number' ? value.toLocaleString('fr-FR') : value}</p>
-            {subValue && <p className="text-xs text-muted-foreground mt-1">{subValue}</p>}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{value}</p>
+            {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+            {trend && (
+              <div className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                <ArrowUpRight className="w-3 h-3" />
+                {trend}
+              </div>
+            )}
           </div>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+          <div className={`p-2.5 rounded-xl ${iconBg[color]}`}>
             <Icon className="w-5 h-5" />
           </div>
         </div>
@@ -91,367 +164,759 @@ function MetricCard({ icon: Icon, label, value, subValue, color }: { icon: React
   )
 }
 
-function MiniBarChart({ data }: { data: Record<string, number> }) {
-  const entries = Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]))
-  const maxVal = Math.max(...entries.map(([, v]) => v), 1)
-
+function PlanBadge({ plan }: { plan: string }) {
+  if (plan === 'pro') {
+    return (
+      <Badge className="bg-emerald-600 text-white border-0 gap-1">
+        <Crown className="w-3 h-3" />
+        Pro
+      </Badge>
+    )
+  }
+  if (plan === 'lifetime') {
+    return (
+      <Badge className="bg-amber-500 text-white border-0 gap-1">
+        <Zap className="w-3 h-3" />
+        Lifetime
+      </Badge>
+    )
+  }
   return (
-    <div className="flex items-end gap-1.5 h-32">
-      {entries.map(([date, count]) => {
-        const height = Math.max((count / maxVal) * 100, 4)
-        const day = date.split('-').slice(1).join('/')
-        return (
-          <div key={date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-            <span className="text-[10px] font-semibold text-foreground">{count}</span>
-            <div
-              className="w-full bg-emerald-500 rounded-t-sm transition-all hover:bg-emerald-600"
-              style={{ height: `${height}%` }}
-            />
-            <span className="text-[9px] text-muted-foreground truncate w-full text-center">{day}</span>
-          </div>
-        )
-      })}
-      {entries.length === 0 && (
-        <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-          Aucune donnée
-        </div>
-      )}
-    </div>
+    <Badge variant="secondary" className="gap-1">
+      <UserX className="w-3 h-3" />
+      Free
+    </Badge>
   )
 }
 
-function PlanChart({ data }: { data: { free: number; pro: number; lifetime: number } }) {
-  const total = data.free + data.pro + data.lifetime || 1
-  const freePct = Math.round((data.free / total) * 100)
-  const proPct = Math.round((data.pro / total) * 100)
-  const lifetimePct = 100 - freePct - proPct
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
-  return (
-    <div className="space-y-3">
-      {/* Visual bar */}
-      <div className="flex h-4 rounded-full overflow-hidden bg-muted">
-        <div className="bg-stone-400 transition-all" style={{ width: `${freePct}%` }} />
-        <div className="bg-emerald-500 transition-all" style={{ width: `${proPct}%` }} />
-        <div className="bg-amber-500 transition-all" style={{ width: `${lifetimePct}%` }} />
-      </div>
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-stone-400" />
-          <span className="text-muted-foreground">Free: <strong className="text-foreground">{data.free}</strong> ({freePct}%)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-emerald-500" />
-          <span className="text-muted-foreground">Pro: <strong className="text-foreground">{data.pro}</strong> ({proPct}%)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-amber-500" />
-          <span className="text-muted-foreground">Lifetime: <strong className="text-foreground">{data.lifetime}</strong> ({lifetimePct}%)</span>
-        </div>
-      </div>
-    </div>
-  )
+function formatShortDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+  })
 }
 
 export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
-  const { data: session } = useSession()
-  const [data, setData] = useState<AdminData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cvs'>('overview')
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [totalUsers, setTotalUsers] = useState(0)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [planFilter, setPlanFilter] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [usersLoading, setUsersLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState('overview')
 
-  async function fetchStats() {
-    setLoading(true)
+  const fetchStats = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/stats')
       if (res.ok) {
-        setData(await res.json())
+        const data = await res.json()
+        setStats(data)
       }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false)
+    } catch (err) {
+      console.error('Failed to fetch admin stats:', err)
     }
-  }
+  }, [])
+
+  const fetchUsers = useCallback(async (p: number, s: string, pf: string) => {
+    setUsersLoading(true)
+    try {
+      const params = new URLSearchParams({ page: p.toString(), limit: '15' })
+      if (s) params.set('search', s)
+      if (pf) params.set('plan', pf)
+      const res = await fetch(`/api/admin/users?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        setUsers(data.users)
+        setTotalUsers(data.pagination.total)
+      }
+    } catch (err) {
+      console.error('Failed to fetch users:', err)
+    } finally {
+      setUsersLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (isOpen) fetchStats()
-  }, [isOpen])
+    if (isOpen) {
+      setLoading(true)
+      Promise.all([fetchStats(), fetchUsers(1, '', '')]).finally(() => setLoading(false))
+    }
+  }, [isOpen, fetchStats, fetchUsers])
 
-  if (!isOpen) return null
+  const handleRefresh = async () => {
+    setLoading(true)
+    await fetchStats()
+    await fetchUsers(page, search, planFilter)
+    setLoading(false)
+  }
 
-  const o = data?.overview
-  const l30 = data?.last30days
+  const handleSearch = (val: string) => {
+    setSearch(val)
+    setPage(1)
+    fetchUsers(1, val, planFilter)
+  }
+
+  const handlePlanFilter = (pf: string) => {
+    setPlanFilter(pf === planFilter ? '' : pf)
+    setPage(1)
+    fetchUsers(1, search, pf === planFilter ? '' : pf)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+    fetchUsers(newPage, search, planFilter)
+  }
+
+  const totalPages = Math.ceil(totalUsers / 15)
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 40, scale: 0.97 }}
-        className="fixed inset-2 sm:inset-4 lg:inset-6 z-[101] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b bg-gradient-to-r from-emerald-600 to-teal-600">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-5xl w-[95vw] sm:w-full max-h-[90vh] overflow-hidden p-0 gap-0 rounded-2xl">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-3">
-            <Shield className="w-5 h-5 text-white" />
+            <div className="p-2 rounded-xl bg-emerald-100">
+              <Shield className="w-5 h-5 text-emerald-700" />
+            </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Dashboard Admin</h2>
-              <p className="text-xs text-emerald-100">CV Genius IA — {session?.user?.email}</p>
+              <DialogTitle className="text-lg font-bold">Dashboard Admin</DialogTitle>
+              <p className="text-xs text-muted-foreground">CV Genius IA — Abdellah Bazhani</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={fetchStats}
-              disabled={loading}
-              className="text-white hover:bg-white/20 cursor-pointer"
-            >
-              <RefreshCw className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-              Rafraîchir
-            </Button>
-            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20 cursor-pointer">
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="gap-2 text-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Actualiser
+          </Button>
+        </DialogHeader>
 
-        {/* Tabs */}
-        <div className="flex border-b px-4 sm:px-6 bg-muted/30">
-          {([['overview', BarChart3, 'Vue d\'ensemble'], ['users', Users, 'Utilisateurs'], ['cvs', FileText, 'Documents']] as const).map(
-            ([tab, Icon, label]) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
-                  activeTab === tab
-                    ? 'border-emerald-600 text-emerald-700'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            )
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          {!data ? (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
-              <RefreshCw className={`w-6 h-6 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Chargement des données...
+        {loading && !stats ? (
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-28 rounded-xl" />
+              ))}
             </div>
-          ) : (
-            <>
-              {/* OVERVIEW TAB */}
-              {activeTab === 'overview' && (
-                <div className="space-y-6">
-                  {/* Revenue Highlight */}
-                  <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
-                    <CardContent className="p-5 sm:p-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <TrendingUp className="w-5 h-5 text-emerald-600" />
-                        <h3 className="font-semibold text-foreground">Revenu estimé</h3>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Revenu mensuel (Pro)</p>
-                          <p className="text-2xl font-bold text-emerald-700">{o.monthlyRevenuePro.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Revenue Lifetime (total)</p>
-                          <p className="text-2xl font-bold text-amber-600">{o.totalRevenueLifetime.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
-                        </div>
-                        <div className="col-span-2 sm:col-span-1">
-                          <p className="text-xs text-muted-foreground">Revenue total estimé</p>
-                          <p className="text-2xl font-bold text-foreground">
-                            {(o.monthlyRevenuePro + o.totalRevenueLifetime).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+            <Skeleton className="h-64 rounded-xl" />
+          </div>
+        ) : stats ? (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+            <div className="px-6 pt-4">
+              <TabsList className="w-full justify-start bg-muted/50 rounded-lg">
+                <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  Vue d&apos;ensemble
+                </TabsTrigger>
+                <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm">
+                  <Users className="w-3.5 h-3.5" />
+                  Utilisateurs
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="gap-1.5 text-xs sm:text-sm">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Activité récente
+                </TabsTrigger>
+                <TabsTrigger value="revenue" className="gap-1.5 text-xs sm:text-sm">
+                  <DollarSign className="w-3.5 h-3.5" />
+                  Revenus
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-                  {/* Metrics Grid */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <MetricCard icon={Users} label="Utilisateurs" value={o.totalUsers} subValue={`${l30.newUsers} ce mois`} color="bg-blue-50 text-blue-600" />
-                    <MetricCard icon={Crown} label="Abonnés Pro" value={o.proUsers} color="bg-emerald-50 text-emerald-600" />
-                    <MetricCard icon={FileText} label="CVs générés" value={o.totalCVs} subValue={`${l30.newCVs} ce mois`} color="bg-violet-50 text-violet-600" />
-                    <MetricCard icon={PenLine} label="Lettres générées" value={o.totalCLs} subValue={`${l30.newCLs} ce mois`} color="bg-rose-50 text-rose-600" />
+            <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
+              <div className="p-6">
+                {/* Overview Tab */}
+                <TabsContent value="overview" className="mt-0 space-y-6">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard
+                      icon={Users}
+                      label="Utilisateurs"
+                      value={stats.overview.totalUsers}
+                      sub={`${stats.overview.proUsers} Pro · ${stats.overview.lifetimeUsers} Lifetime`}
+                      trend={stats.last30days.newUsers > 0 ? `+${stats.last30days.newUsers} ce mois` : undefined}
+                      color="emerald"
+                    />
+                    <StatCard
+                      icon={FileText}
+                      label="CVs générés"
+                      value={stats.overview.totalCVs}
+                      sub={stats.last30days.newCVs > 0 ? `+${stats.last30days.newCVs} ce mois` : undefined}
+                      color="blue"
+                    />
+                    <StatCard
+                      icon={PenLine}
+                      label="Lettres de motivation"
+                      value={stats.overview.totalCLs}
+                      sub={stats.last30days.newCLs > 0 ? `+${stats.last30days.newCLs} ce mois` : undefined}
+                      color="amber"
+                    />
+                    <StatCard
+                      icon={DollarSign}
+                      label="Revenus estimés/mois"
+                      value={`${stats.overview.estimatedMonthlyRevenue.toFixed(2)} €`}
+                      sub={`Lifetime total: ${stats.overview.totalRevenueLifetime.toFixed(2)} €`}
+                      color="emerald"
+                    />
                   </div>
 
-                  {/* Charts Row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  {/* Plan Distribution + Daily Signups */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Plan Distribution */}
                     <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-emerald-600" />
-                          Inscriptions (14 derniers jours)
-                        </CardTitle>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-semibold">Répartition des plans</CardTitle>
                       </CardHeader>
-                      <CardContent>
-                        <MiniBarChart data={data.dailySignups} />
+                      <CardContent className="space-y-4">
+                        {stats.overview.totalUsers === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">Aucun utilisateur inscrit</p>
+                        ) : (
+                          <>
+                            {/* Free */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="secondary">Free</Badge>
+                                  <span className="text-muted-foreground">{stats.planDistribution.free} utilisateurs</span>
+                                </div>
+                                <span className="font-medium">
+                                  {stats.overview.totalUsers > 0
+                                    ? Math.round((stats.planDistribution.free / stats.overview.totalUsers) * 100)
+                                    : 0}%
+                                </span>
+                              </div>
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-stone-400 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${stats.overview.totalUsers > 0 ? (stats.planDistribution.free / stats.overview.totalUsers) * 100 : 0}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Pro */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Badge className="bg-emerald-600 text-white border-0">Pro</Badge>
+                                  <span className="text-muted-foreground">{stats.planDistribution.pro} utilisateurs</span>
+                                </div>
+                                <span className="font-medium">
+                                  {stats.overview.totalUsers > 0
+                                    ? Math.round((stats.planDistribution.pro / stats.overview.totalUsers) * 100)
+                                    : 0}%
+                                </span>
+                              </div>
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-emerald-600 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${stats.overview.totalUsers > 0 ? (stats.planDistribution.pro / stats.overview.totalUsers) * 100 : 0}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Lifetime */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Badge className="bg-amber-500 text-white border-0">Lifetime</Badge>
+                                  <span className="text-muted-foreground">{stats.planDistribution.lifetime} utilisateurs</span>
+                                </div>
+                                <span className="font-medium">
+                                  {stats.overview.totalUsers > 0
+                                    ? Math.round((stats.planDistribution.lifetime / stats.overview.totalUsers) * 100)
+                                    : 0}%
+                                </span>
+                              </div>
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${stats.overview.totalUsers > 0 ? (stats.planDistribution.lifetime / stats.overview.totalUsers) * 100 : 0}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </CardContent>
                     </Card>
 
+                    {/* Daily Signups Chart (Simple) */}
                     <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                          <BarChart3 className="w-4 h-4 text-emerald-600" />
-                          Distribution des plans
-                        </CardTitle>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-semibold">Inscriptions (14 derniers jours)</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <PlanChart data={data.planDistribution} />
+                        {Object.keys(stats.dailySignups).length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">Aucune inscription récente</p>
+                        ) : (
+                          <div className="flex items-end gap-1 h-32">
+                            {Object.entries(stats.dailySignups)
+                              .sort(([a], [b]) => a.localeCompare(b))
+                              .map(([date, count]) => {
+                                const maxCount = Math.max(...Object.values(stats.dailySignups), 1)
+                                const height = Math.max((count / maxCount) * 100, 4)
+                                return (
+                                  <div
+                                    key={date}
+                                    className="flex-1 flex flex-col items-center gap-1 group relative"
+                                  >
+                                    <div className="absolute -top-8 bg-foreground text-background text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                                      {count} · {formatShortDate(date)}
+                                    </div>
+                                    <div
+                                      className="w-full bg-emerald-500 rounded-t-sm transition-all duration-300 hover:bg-emerald-600 min-h-[4px]"
+                                      style={{ height: `${height}%` }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {date.split('-')[2]}
+                                    </span>
+                                  </div>
+                                )
+                              })}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>
 
-                  {/* Last 30 days summary */}
+                  {/* Last 30 Days Summary */}
                   <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-semibold">Activité des 30 derniers jours</CardTitle>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Derniers 30 jours</CardTitle>
+                      <CardDescription>Résumé de l&apos;activité récente</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <p className="text-2xl font-bold text-blue-600">{l30.newUsers}</p>
-                          <p className="text-xs text-muted-foreground">Nouveaux utilisateurs</p>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center p-3 rounded-xl bg-emerald-50">
+                          <p className="text-2xl font-bold text-emerald-700">{stats.last30days.newUsers}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Nouveaux utilisateurs</p>
                         </div>
-                        <div>
-                          <p className="text-2xl font-bold text-violet-600">{l30.newCVs}</p>
-                          <p className="text-xs text-muted-foreground">CVs générés</p>
+                        <div className="text-center p-3 rounded-xl bg-sky-50">
+                          <p className="text-2xl font-bold text-sky-700">{stats.last30days.newCVs}</p>
+                          <p className="text-xs text-muted-foreground mt-1">CVs générés</p>
                         </div>
-                        <div>
-                          <p className="text-2xl font-bold text-rose-600">{l30.newCLs}</p>
-                          <p className="text-xs text-muted-foreground">Lettres générées</p>
+                        <div className="text-center p-3 rounded-xl bg-amber-50">
+                          <p className="text-2xl font-bold text-amber-700">{stats.last30days.newCLs}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Lettres générées</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-              )}
+                </TabsContent>
 
-              {/* USERS TAB */}
-              {activeTab === 'users' && (
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-foreground">Derniers utilisateurs inscrits</h3>
-                  <div className="overflow-x-auto rounded-xl border">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-muted/50">
-                          <th className="text-left p-3 font-medium text-muted-foreground">Nom</th>
-                          <th className="text-left p-3 font-medium text-muted-foreground">Email</th>
-                          <th className="text-left p-3 font-medium text-muted-foreground">Plan</th>
-                          <th className="text-left p-3 font-medium text-muted-foreground">CVs/CLs</th>
-                          <th className="text-left p-3 font-medium text-muted-foreground">Inscription</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.recentUsers.length === 0 ? (
-                          <tr><td colSpan={5} className="text-center p-8 text-muted-foreground">Aucun utilisateur inscrit</td></tr>
-                        ) : (
-                          data.recentUsers.map((u) => (
-                            <tr key={u.email} className="border-t hover:bg-muted/30">
-                              <td className="p-3 font-medium">{u.name || '—'}</td>
-                              <td className="p-3 text-muted-foreground">{u.email}</td>
-                              <td className="p-3">
-                                <Badge variant={u.plan !== 'free' ? 'default' : 'secondary'} className={`text-xs ${u.plan === 'pro' ? 'bg-emerald-600' : u.plan === 'lifetime' ? 'bg-amber-500' : ''}`}>
-                                  {u.plan}
-                                </Badge>
-                              </td>
-                              <td className="p-3 text-muted-foreground">{u.cvCountThisMonth} / {u.clCountThisMonth}</td>
-                              <td className="p-3 text-muted-foreground text-xs">{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* CVS TAB */}
-              {activeTab === 'cvs' && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-3">Derniers CVs générés</h3>
-                    <div className="overflow-x-auto rounded-xl border">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-muted/50">
-                            <th className="text-left p-3 font-medium text-muted-foreground">Nom</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Poste visé</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Langue</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Template</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.recentCVs.length === 0 ? (
-                            <tr><td colSpan={5} className="text-center p-8 text-muted-foreground">Aucun CV généré</td></tr>
-                          ) : (
-                            data.recentCVs.map((cv, i) => (
-                              <tr key={i} className="border-t hover:bg-muted/30">
-                                <td className="p-3 font-medium">{cv.fullName}</td>
-                                <td className="p-3 text-muted-foreground">{cv.targetJob}</td>
-                                <td className="p-3"><Badge variant="outline" className="text-xs">{cv.language.toUpperCase()}</Badge></td>
-                                <td className="p-3 text-muted-foreground">{cv.templateStyle}</td>
-                                <td className="p-3 text-muted-foreground text-xs">{new Date(cv.createdAt).toLocaleDateString('fr-FR')}</td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
+                {/* Users Tab */}
+                <TabsContent value="users" className="mt-0 space-y-4">
+                  {/* Search & Filter */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher par nom ou email..."
+                        value={search}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      {[{ key: '', label: 'Tous' }, { key: 'free', label: 'Free' }, { key: 'pro', label: 'Pro' }, { key: 'lifetime', label: 'Lifetime' }].map(
+                        (f) => (
+                          <Button
+                            key={f.key}
+                            variant={planFilter === f.key ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => handlePlanFilter(f.key)}
+                            className={`text-xs ${planFilter === f.key ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                          >
+                            {f.label}
+                          </Button>
+                        )
+                      )}
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-3">Dernières lettres de motivation</h3>
-                    <div className="overflow-x-auto rounded-xl border">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-muted/50">
-                            <th className="text-left p-3 font-medium text-muted-foreground">Nom</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Poste</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Entreprise</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Langue</th>
-                            <th className="text-left p-3 font-medium text-muted-foreground">Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.recentCLs.length === 0 ? (
-                            <tr><td colSpan={5} className="text-center p-8 text-muted-foreground">Aucune lettre générée</td></tr>
+                  {/* Users Table */}
+                  <Card className="overflow-hidden">
+                    <ScrollArea className="max-h-[400px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="text-xs font-semibold">Utilisateur</TableHead>
+                            <TableHead className="text-xs font-semibold">Plan</TableHead>
+                            <TableHead className="text-xs font-semibold text-center">CVs</TableHead>
+                            <TableHead className="text-xs font-semibold text-center">LM</TableHead>
+                            <TableHead className="text-xs font-semibold">Inscription</TableHead>
+                            <TableHead className="text-xs font-semibold">Statut LS</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {usersLoading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                              <TableRow key={i}>
+                                {Array.from({ length: 6 }).map((_, j) => (
+                                  <TableCell key={j}>
+                                    <Skeleton className="h-4 w-20" />
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            ))
+                          ) : users.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                                <p className="text-sm">Aucun utilisateur trouvé</p>
+                              </TableCell>
+                            </TableRow>
                           ) : (
-                            data.recentCLs.map((cl, i) => (
-                              <tr key={i} className="border-t hover:bg-muted/30">
-                                <td className="p-3 font-medium">{cl.fullName}</td>
-                                <td className="p-3 text-muted-foreground">{cl.jobTitle}</td>
-                                <td className="p-3 text-muted-foreground">{cl.companyName}</td>
-                                <td className="p-3"><Badge variant="outline" className="text-xs">{cl.language.toUpperCase()}</Badge></td>
-                                <td className="p-3 text-muted-foreground text-xs">{new Date(cl.createdAt).toLocaleDateString('fr-FR')}</td>
-                              </tr>
+                            users.map((user) => (
+                              <TableRow key={user.id}>
+                                <TableCell>
+                                  <div>
+                                    <p className="text-sm font-medium truncate max-w-[150px]">{user.name || '—'}</p>
+                                    <p className="text-xs text-muted-foreground truncate max-w-[150px]">{user.email}</p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <PlanBadge plan={user.plan} />
+                                </TableCell>
+                                <TableCell className="text-center text-sm font-medium">{user._count.resumes}</TableCell>
+                                <TableCell className="text-center text-sm font-medium">{user._count.coverLetters}</TableCell>
+                                <TableCell className="text-xs text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
+                                <TableCell>
+                                  {user.lsCustomerId ? (
+                                    <Badge variant="outline" className="text-emerald-600 border-emerald-300 text-xs">
+                                      Actif
+                                    </Badge>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
                             ))
                           )}
-                        </tbody>
-                      </table>
-                    </div>
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          {totalUsers} utilisateur{totalUsers > 1 ? 's' : ''} · Page {page}/{totalPages}
+                        </p>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={page <= 1}
+                            onClick={() => handlePageChange(page - 1)}
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={page >= totalPages}
+                            onClick={() => handlePageChange(page + 1)}
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                </TabsContent>
+
+                {/* Activity Tab */}
+                <TabsContent value="activity" className="mt-0 space-y-6">
+                  {/* Recent CVs */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-sky-600" />
+                        Derniers CVs générés
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {stats.recentCVs.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">Aucun CV généré pour le moment</p>
+                      ) : (
+                        <ScrollArea className="max-h-[250px]">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="text-xs font-semibold">Nom</TableHead>
+                                <TableHead className="text-xs font-semibold">Poste visé</TableHead>
+                                <TableHead className="text-xs font-semibold">Langue</TableHead>
+                                <TableHead className="text-xs font-semibold">Template</TableHead>
+                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {stats.recentCVs.map((cv, i) => (
+                                <TableRow key={i}>
+                                  <TableCell className="text-sm font-medium">{cv.fullName}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">{cv.targetJob}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline" className="text-xs gap-1">
+                                      <Globe className="w-3 h-3" />
+                                      {cv.language.toUpperCase()}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground capitalize">{cv.templateStyle}</TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">{formatDate(cv.createdAt)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Recent Cover Letters */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <PenLine className="w-4 h-4 text-amber-600" />
+                        Dernières lettres de motivation
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {stats.recentCLs.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">Aucune lettre générée pour le moment</p>
+                      ) : (
+                        <ScrollArea className="max-h-[250px]">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="text-xs font-semibold">Nom</TableHead>
+                                <TableHead className="text-xs font-semibold">Poste</TableHead>
+                                <TableHead className="text-xs font-semibold">Entreprise</TableHead>
+                                <TableHead className="text-xs font-semibold">Langue</TableHead>
+                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {stats.recentCLs.map((cl, i) => (
+                                <TableRow key={i}>
+                                  <TableCell className="text-sm font-medium">{cl.fullName}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">{cl.jobTitle}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">{cl.companyName}</TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline" className="text-xs gap-1">
+                                      <Globe className="w-3 h-3" />
+                                      {cl.language.toUpperCase()}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">{formatDate(cl.createdAt)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Recent Signups */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Users className="w-4 h-4 text-emerald-600" />
+                        Dernières inscriptions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {stats.recentUsers.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">Aucun utilisateur inscrit</p>
+                      ) : (
+                        <ScrollArea className="max-h-[250px]">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="text-xs font-semibold">Nom</TableHead>
+                                <TableHead className="text-xs font-semibold">Email</TableHead>
+                                <TableHead className="text-xs font-semibold">Plan</TableHead>
+                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {stats.recentUsers.map((u, i) => (
+                                <TableRow key={i}>
+                                  <TableCell className="text-sm font-medium">{u.name || '—'}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
+                                  <TableCell><PlanBadge plan={u.plan} /></TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">{formatDate(u.createdAt)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Revenue Tab */}
+                <TabsContent value="revenue" className="mt-0 space-y-6">
+                  {/* Revenue Overview */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+                      <CardContent className="p-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-xl bg-emerald-600">
+                            <Crown className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground font-medium">Revenus mensuels (Pro)</p>
+                            <p className="text-3xl font-bold text-emerald-700">
+                              {stats.overview.monthlyRevenuePro.toFixed(2)} €
+                            </p>
+                          </div>
+                        </div>
+                        <Separator className="my-3" />
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Abonnés Pro</span>
+                            <span className="font-medium">{stats.overview.proUsers}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Prix/unité</span>
+                            <span className="font-medium">6.99 €/mois</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Prix/unité (USD)</span>
+                            <span className="font-medium">$7.99/mois</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+                      <CardContent className="p-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-xl bg-amber-500">
+                            <Zap className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground font-medium">Revenus Lifetime</p>
+                            <p className="text-3xl font-bold text-amber-700">
+                              {stats.overview.totalRevenueLifetime.toFixed(2)} €
+                            </p>
+                          </div>
+                        </div>
+                        <Separator className="my-3" />
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Acheteurs Lifetime</span>
+                            <span className="font-medium">{stats.overview.lifetimeUsers}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Prix/unité</span>
+                            <span className="font-medium">29.99 €</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Prix/unité (USD)</span>
+                            <span className="font-medium">$34.99</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </motion.div>
-    </AnimatePresence>
+
+                  {/* Revenue Summary */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Résumé financier</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                          <span className="text-sm font-medium">Revenus mensuels estimés (abonnements Pro)</span>
+                          <span className="text-lg font-bold text-emerald-700">{stats.overview.monthlyRevenuePro.toFixed(2)} €</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                          <span className="text-sm font-medium">Total Lifetime (ventes ponctuelles)</span>
+                          <span className="text-lg font-bold text-amber-700">{stats.overview.totalRevenueLifetime.toFixed(2)} €</span>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                          <span className="text-sm font-semibold">Total estimé (mensuel + lifetime)</span>
+                          <span className="text-xl font-bold text-emerald-700">
+                            {(stats.overview.monthlyRevenuePro + stats.overview.totalRevenueLifetime).toFixed(2)} €
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 p-4 rounded-xl bg-muted/30 border">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          <strong className="text-foreground">Note :</strong> Ces chiffres sont des estimations basées sur les plans actifs dans la base de données.
+                          Pour les chiffres réels de revenus, frais et paiements, consultez votre dashboard LemonSqueezy.
+                          Les revenus LemonSqueezy sont disponibles après déduction de leurs frais (~5% + frais de paiement).
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Payment Structure Info */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Structure de prix</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium flex items-center gap-2">
+                            <Crown className="w-4 h-4 text-emerald-600" />
+                            Plan Pro (Mensuel)
+                          </h4>
+                          <div className="text-sm text-muted-foreground space-y-1 ml-6">
+                            <p>EUR: 6.99 €/mois</p>
+                            <p>USD: $7.99/mois</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-500" />
+                            Plan Lifetime (Unique)
+                          </h4>
+                          <div className="text-sm text-muted-foreground space-y-1 ml-6">
+                            <p>EUR: 29.99 €</p>
+                            <p>USD: $34.99</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </div>
+            </ScrollArea>
+          </Tabs>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   )
 }
