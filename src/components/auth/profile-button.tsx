@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,15 +18,18 @@ import { t } from '@/lib/i18n'
 import { useCVStore } from '@/store/cv-store'
 import type { CVLanguage } from '@/lib/i18n'
 import AuthModal from './auth-modal'
+import AdminDashboard from '@/components/admin/admin-dashboard'
 
 export default function ProfileButton() {
   const { data: session, status } = useSession()
   const { language } = useCVStore()
   const lang = language
   const [authOpen, setAuthOpen] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
 
   const user = session?.user
   const isLoggedIn = status === 'authenticated' && user
+  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
 
   const handleLogout = async () => {
     await signOut({ redirect: false })
@@ -135,6 +138,22 @@ export default function ProfileButton() {
             </>
           )}
 
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="px-3 py-2.5 text-sm font-semibold text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+                onSelect={(e) => {
+                  e.preventDefault()
+                  setAdminOpen(true)
+                }}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Dashboard Admin
+              </DropdownMenuItem>
+            </>
+          )}
+
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
@@ -152,6 +171,8 @@ export default function ProfileButton() {
         onClose={() => setAuthOpen(false)}
         initialMode="login"
       />
+
+      <AdminDashboard isOpen={adminOpen} onClose={() => setAdminOpen(false)} />
     </>
   )
 }
