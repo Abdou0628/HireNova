@@ -331,7 +331,7 @@ export default function Preview() {
       {/* Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 bg-white">
         <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          {t(language, 'footerText')} &copy; {new Date().getFullYear()} CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span>
+          {t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span>
         </div>
       </footer>
     </div>
