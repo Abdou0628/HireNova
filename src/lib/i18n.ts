@@ -199,7 +199,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     siteSubtitle: 'Générez un CV professionnel en 60 secondes',
     siteDescription:
       'Notre IA rédige un CV optimisé pour les ATS, parfaitement adapté à votre métier cible.',
-    cta: 'Créer mon CV gratuitement',
+    cta: 'Créer mon CV maintenant',
     step1Title: 'Informations personnelles',
     step2Title: 'Projet professionnel',
     step3Title: 'Expérience & Formation',
@@ -274,7 +274,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     errorFillFields: 'Veuillez remplir tous les champs obligatoires',
     footerText: 'Tous droits réservés',
     footerMadeWith: 'Propulsé par',
-    freeNoSignup: 'Gratuit et sans inscription',
+    freeNoSignup: 'Générez un CV pro en 60 secondes',
     ctaReadyTitle: 'Prêt à créer votre CV ?',
     ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
     photoPosition: 'Position de la photo',
@@ -282,7 +282,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Centre',
     photoPositionRight: 'Droite',
     availableLangs: 'Disponible en français, anglais, espagnol et arabe',
-    freeNoSignup: 'Gratuit et sans inscription',
+    freeNoSignup: 'Générez un CV pro en 60 secondes',
     ctaReadyTitle: 'Prêt à créer votre CV ?',
     ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
     // Cover letter
@@ -348,7 +348,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     cvAndClReady: 'Votre CV et lettre de motivation sont prêts !',
     // Pricing & Auth
     pricingTitle: 'Tarifs simples et transparents',
-    pricingSubtitle: 'Commencez gratuitement, passez à Pro quand vous en avez besoin',
+    pricingSubtitle: 'Choisissez le plan qui vous convient',
     planFree: 'Gratuit',
     planFreePrice: '0€',
     planFreeDesc: 'Pour découvrir notre outil',
@@ -403,7 +403,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     siteSubtitle: 'Generate a professional resume in 60 seconds',
     siteDescription:
       'Our AI writes an ATS-optimized resume, perfectly tailored to your target role.',
-    cta: 'Create my free resume',
+    cta: 'Create my resume now',
     step1Title: 'Personal Information',
     step2Title: 'Career Goals',
     step3Title: 'Experience & Education',
@@ -478,7 +478,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     errorFillFields: 'Please fill in all required fields',
     footerText: 'All rights reserved',
     footerMadeWith: 'Powered by',
-    freeNoSignup: 'Free and no sign-up required',
+    freeNoSignup: 'Generate a pro resume in 60 seconds',
     ctaReadyTitle: 'Ready to create your resume?',
     ctaReadyDesc: 'In less than 2 minutes, you\'ll have a professional resume ready to send.',
     photoPosition: 'Photo Position',
@@ -486,7 +486,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Center',
     photoPositionRight: 'Right',
     availableLangs: 'Available in French, English, Spanish, and Arabic',
-    freeNoSignup: 'Free and no sign-up required',
+    freeNoSignup: 'Generate a pro resume in 60 seconds',
     ctaReadyTitle: 'Ready to create your resume?',
     ctaReadyDesc: "In less than 2 minutes, you'll have a professional resume ready to send.",
     // Cover letter
@@ -552,7 +552,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     cvAndClReady: 'Your resume and cover letter are ready!',
     // Pricing & Auth
     pricingTitle: 'Simple & transparent pricing',
-    pricingSubtitle: 'Start for free, upgrade to Pro when you need it',
+    pricingSubtitle: 'Choose the plan that suits you',
     planFree: 'Free',
     planFreePrice: '$0',
     planFreeDesc: 'To discover our tool',
@@ -607,7 +607,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     siteSubtitle: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
     siteDescription:
       'يكتب الذكاء الاصطناعي لدينا سيرة ذاتية محسنة لأنظمة ATS، مصممة خصيصاً للوظيفة المستهدفة.',
-    cta: 'أنشئ سيرتي الذاتية مجاناً',
+    cta: 'أنشئ سيرتي الذاتية الآن',
     step1Title: 'المعلومات الشخصية',
     step2Title: 'الأهداف المهنية',
     step3Title: 'الخبرة والتعليم',
@@ -681,7 +681,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     errorFillFields: 'يرجى ملء جميع الحقول المطلوبة',
     footerText: 'جميع الحقوق محفوظة',
     footerMadeWith: 'بدعم من',
-    freeNoSignup: 'مجاني وبدون تسجيل',
+    freeNoSignup: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
     ctaReadyTitle: 'مستعد لإنشاء سيرتك الذاتية؟',
     ctaReadyDesc: 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.',
     photoPosition: 'موضع الصورة',
@@ -689,7 +689,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'وسط',
     photoPositionRight: 'يمين',
     availableLangs: 'متاح بالفرنسية والإنجليزية والإسبانية والعربية',
-    freeNoSignup: 'مجاني وبدون تسجيل',
+    freeNoSignup: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
     ctaReadyTitle: 'مستعد لإنشاء سيرتك الذاتية؟',
     ctaReadyDesc: 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.',
     // Cover letter
@@ -755,7 +755,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     cvAndClReady: 'سيرتك الذاتية ورسالة الدافع جاهزتان!',
     // Pricing & Auth
     pricingTitle: 'أسعار بسيطة وشفافة',
-    pricingSubtitle: 'ابدأ مجاناً، انتقل إلى Pro عندما تحتاجها',
+    pricingSubtitle: 'اختر الخطة المناسبة لك',
     planFree: 'مجاني',
     planFreePrice: '0$',
     planFreeDesc: 'لاكتشاف أداتنا',
@@ -810,7 +810,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     siteSubtitle: 'Genera un currículum profesional en 60 segundos',
     siteDescription:
       'Nuestra IA redacta un currículum optimizado para ATS, perfectamente adaptado a tu puesto objetivo.',
-    cta: 'Crear mi currículum gratis',
+    cta: 'Crear mi currículum ahora',
     step1Title: 'Información personal',
     step2Title: 'Objetivos profesionales',
     step3Title: 'Experiencia y Formación',
@@ -885,7 +885,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     errorFillFields: 'Por favor, completa todos los campos obligatorios',
     footerText: 'Todos los derechos reservados',
     footerMadeWith: 'Desarrollado por',
-    freeNoSignup: 'Gratis y sin registro',
+    freeNoSignup: 'Genera un CV pro en 60 segundos',
     ctaReadyTitle: '¿Listo para crear tu currículum?',
     ctaReadyDesc: 'En menos de 2 minutos, tendrás un currículum profesional listo para enviar.',
     photoPosition: 'Posición de la foto',
@@ -893,7 +893,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Centro',
     photoPositionRight: 'Derecha',
     availableLangs: 'Disponible en francés, inglés, español y árabe',
-    freeNoSignup: 'Gratis y sin registro',
+    freeNoSignup: 'Genera un CV pro en 60 segundos',
     ctaReadyTitle: '¿Listo para crear tu currículum?',
     ctaReadyDesc: 'En menos de 2 minutos, tendrás un currículum profesional listo para enviar.',
     // Cover letter
@@ -959,7 +959,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     cvAndClReady: '¡Tu currículum y carta de motivación están listos!',
     // Pricing & Auth
     pricingTitle: 'Precios simples y transparentes',
-    pricingSubtitle: 'Empieza gratis, pasa a Pro cuando lo necesites',
+    pricingSubtitle: 'Elige el plan que te convenga',
     planFree: 'Gratis',
     planFreePrice: '0€',
     planFreeDesc: 'Para descubrir nuestra herramienta',

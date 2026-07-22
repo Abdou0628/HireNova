@@ -36,20 +36,19 @@ const stats = [
 
 interface PricingFeature {
   key: TranslationKey
-  free: boolean | string
   pro: boolean | string
   lifetime: boolean | string
 }
 
 const pricingFeatures: PricingFeature[] = [
-  { key: 'pricingCv', free: '2/mo', pro: '∞', lifetime: '∞' },
-  { key: 'pricingTemplates', free: '1', pro: '3', lifetime: '3' },
-  { key: 'pricingPdf', free: true, pro: true, lifetime: true },
-  { key: 'pricingWord', free: false, pro: true, lifetime: true },
-  { key: 'pricingCoverLetter', free: false, pro: true, lifetime: true },
-  { key: 'pricingNoWatermark', free: false, pro: true, lifetime: true },
-  { key: 'pricingAtsScore', free: false, pro: false, lifetime: true },
-  { key: 'pricingPriority', free: false, pro: false, lifetime: true },
+  { key: 'pricingCv', pro: '∞', lifetime: '∞' },
+  { key: 'pricingTemplates', pro: '3', lifetime: '3' },
+  { key: 'pricingPdf', pro: true, lifetime: true },
+  { key: 'pricingWord', pro: true, lifetime: true },
+  { key: 'pricingCoverLetter', pro: true, lifetime: true },
+  { key: 'pricingNoWatermark', pro: true, lifetime: true },
+  { key: 'pricingAtsScore', pro: false, lifetime: true },
+  { key: 'pricingPriority', pro: false, lifetime: true },
 ]
 
 export default function Landing() {
@@ -283,59 +282,13 @@ export default function Landing() {
               </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
-              {/* Free Plan */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-6 sm:p-8">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      {t(language, 'planFree')}
-                    </h3>
-                    <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{t(language, 'planFreePrice')}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planFreeDesc')}</p>
-
-                    <div className="space-y-3 mb-8">
-                      {pricingFeatures.map((feature) => (
-                        <div key={feature.key} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
-                          <span className={`font-medium ${feature.free === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
-                            {feature.free === false ? (
-                              <X className="w-4 h-4 text-stone-300" />
-                            ) : typeof feature.free === 'string' ? (
-                              feature.free
-                            ) : (
-                              <Check className="w-4 h-4 text-emerald-600" />
-                            )}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Button
-                      className="w-full bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
-                      onClick={() => setStep('form')}
-                    >
-                      {t(language, 'pricingStartFree')}
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start max-w-4xl mx-auto">
               {/* Pro Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="md:-mt-4"
+                transition={{ duration: 0.5, delay: 0.1 }}
               >
                 <Card className="relative border-2 border-emerald-600 bg-white shadow-lg shadow-emerald-600/10">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -390,7 +343,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
               >
                 <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
