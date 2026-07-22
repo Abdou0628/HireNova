@@ -551,7 +551,7 @@ export default function CoverLetterForm() {
       {/* Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 bg-white mt-auto">
         <div className="max-w-3xl mx-auto text-center text-sm text-muted-foreground">
-          {t(language, 'footerText')} &copy; {new Date().getFullYear()} CV Genius IA
+          {t(language, 'footerText')} &copy; {new Date().getFullYear()} CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span>
         </div>
       </footer>
     </div>

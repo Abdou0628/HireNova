@@ -493,7 +493,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t py-8 px-4 sm:px-6 lg:px-8 mt-auto">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>{t(language, 'footerText')} &copy; {new Date().getFullYear()} CV Genius IA</p>
+          <p>{t(language, 'footerText')} &copy; {new Date().getFullYear()} CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span></p>
           <p className="flex items-center gap-1">
             {t(language, 'footerMadeWith')}{' '}
             <span className="text-emerald-600 font-semibold">Z.ai</span>
