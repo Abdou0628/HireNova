@@ -192,6 +192,17 @@ export type TranslationKey =
   | 'upgradeToPro'
   | 'pricingFeatureIncluded'
   | 'pricingFeatureExcluded'
+  // Paymob / Africa
+  | 'paymobLabel'
+  | 'paymobDesc'
+  | 'paymobProPrice'
+  | 'paymobLifetimePrice'
+  | 'paymobMonthly'
+  | 'paymobOneTime'
+  | 'paymobMethods'
+  | 'paymobCard'
+  | 'paymobWallet'
+  | 'paymobAfrica'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -394,6 +405,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     upgradeToPro: 'Passer à Pro',
     pricingFeatureIncluded: '✓',
     pricingFeatureExcluded: '✕',
+    paymobLabel: 'Payer avec Floos / Paymob',
+    paymobDesc: 'Carte bancaire, portefeuille mobile, CashPlus, etc.',
+    paymobProPrice: '70 MAD',
+    paymobLifetimePrice: '300 MAD',
+    paymobMonthly: '/mois',
+    paymobOneTime: 'une seule fois',
+    paymobMethods: 'Méthodes de paiement',
+    paymobCard: 'Carte CMI, Visa, Mastercard',
+    paymobWallet: 'Floos, CashPlus, MTN MoMo',
+    paymobAfrica: '🌍 Paiement pour l\'Afrique',
   },
   en: {
     siteTitle: 'CV Genius AI',
@@ -595,6 +616,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     upgradeToPro: 'Upgrade to Pro',
     pricingFeatureIncluded: '✓',
     pricingFeatureExcluded: '✕',
+    paymobLabel: 'Pay with Floos / Paymob',
+    paymobDesc: 'Bank card, mobile wallet, CashPlus, etc.',
+    paymobProPrice: '70 MAD',
+    paymobLifetimePrice: '300 MAD',
+    paymobMonthly: '/month',
+    paymobOneTime: 'one time',
+    paymobMethods: 'Payment methods',
+    paymobCard: 'CMI Card, Visa, Mastercard',
+    paymobWallet: 'Floos, CashPlus, MTN MoMo',
+    paymobAfrica: '🌍 Payment for Africa',
   },
   ar: {
     siteTitle: 'CV Genious الذكاء الاصطناعي',
@@ -795,6 +826,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     upgradeToPro: 'الترقية إلى Pro',
     pricingFeatureIncluded: '✓',
     pricingFeatureExcluded: '✕',
+    paymobLabel: 'ادفع عبر Floos / Paymob',
+    paymobDesc: 'بطاقة بنكية، محفظة هاتفية، CashPlus، إلخ.',
+    paymobProPrice: '70 MAD',
+    paymobLifetimePrice: '300 MAD',
+    paymobMonthly: '/شهر',
+    paymobOneTime: 'مرة واحدة',
+    paymobMethods: 'طرق الدفع',
+    paymobCard: 'بطاقة CMI، Visa، Mastercard',
+    paymobWallet: 'Floos، CashPlus، MTN MoMo',
+    paymobAfrica: '🌍 الدفع لأفريقيا',
   },
   es: {
     siteTitle: 'CV Genius IA',
@@ -996,6 +1037,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     upgradeToPro: 'Pasar a Pro',
     pricingFeatureIncluded: '✓',
     pricingFeatureExcluded: '✕',
+    paymobLabel: 'Pagar con Floos / Paymob',
+    paymobDesc: 'Tarjeta bancaria, billetera móvil, CashPlus, etc.',
+    paymobProPrice: '70 MAD',
+    paymobLifetimePrice: '300 MAD',
+    paymobMonthly: '/mes',
+    paymobOneTime: 'una sola vez',
+    paymobMethods: 'Métodos de pago',
+    paymobCard: 'Tarjeta CMI, Visa, Mastercard',
+    paymobWallet: 'Floos, CashPlus, MTN MoMo',
+    paymobAfrica: '🌍 Pago para África',
   }
 }
 

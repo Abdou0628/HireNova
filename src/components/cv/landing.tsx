@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, Wallet, CreditCard, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -74,9 +74,10 @@ export default function Landing() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<'eur' | 'usd'>('eur')
+  const [currency, setCurrency] = useState<'eur' | 'usd' | 'mad'>('eur')
 
   const isUsd = currency === 'usd'
+  const isMad = currency === 'mad'
 
   async function handleCheckout(planType: 'pro' | 'lifetime') {
     if (!session?.user) {
@@ -86,16 +87,32 @@ export default function Landing() {
     }
     setCheckoutLoading(planType)
     try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planType, currency }),
-      })
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
+      if (isMad) {
+        // Paymob/Floos for Africa
+        const res = await fetch('/api/paymob/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planType }),
+        })
+        const data = await res.json()
+        if (data.url) {
+          window.location.href = data.url
+        } else {
+          toast.error(data.error || 'Erreur')
+        }
       } else {
-        toast.error(data.error || 'Erreur')
+        // LemonSqueezy for EUR/USD
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planType, currency }),
+        })
+        const data = await res.json()
+        if (data.url) {
+          window.location.href = data.url
+        } else {
+          toast.error(data.error || 'Erreur')
+        }
       }
     } catch {
       toast.error('Erreur de connexion')
@@ -290,7 +307,7 @@ export default function Landing() {
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => setCurrency('eur')}
-                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd && !isMad ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
                   EUR
                 </button>
@@ -299,6 +316,12 @@ export default function Landing() {
                   className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
                   USD
+                </button>
+                <button
+                  onClick={() => setCurrency('mad')}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isMad ? "bg-amber-500 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                >
+                  🌍 MAD
                 </button>
               </div>
             </motion.div>
@@ -324,8 +347,8 @@ export default function Landing() {
                       {t(language, 'planPro')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobProPrice') : isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobMonthly') : isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
 
@@ -379,8 +402,8 @@ export default function Landing() {
                       {t(language, 'planLifetime')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobLifetimePrice') : isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobOneTime') : isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
 
@@ -412,6 +435,41 @@ export default function Landing() {
                 </Card>
               </motion.div>
             </div>
+
+            {/* Paymob / Africa Payment Info */}
+            {isMad && (
+              <motion.div
+                className="mt-8 max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
+                        <Wallet className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{t(language, 'paymobAfrica')}</h3>
+                        <p className="text-sm text-muted-foreground">{t(language, 'paymobLabel')}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">{t(language, 'paymobDesc')}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
+                        <CreditCard className="w-5 h-5 text-amber-600 shrink-0" />
+                        <span className="text-sm font-medium">{t(language, 'paymobCard')}</span>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
+                        <Smartphone className="w-5 h-5 text-amber-600 shrink-0" />
+                        <span className="text-sm font-medium">{t(language, 'paymobWallet')}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </div>
         </section>
 

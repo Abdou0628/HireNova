@@ -67,7 +67,7 @@ export default function LegalDialog({ open, onClose }: LegalDialogProps) {
             <div className="space-y-3 text-muted-foreground">
               <div>
                 <h4 className="font-semibold text-foreground mb-1">3.1. Accès au service</h4>
-                <p>L&rsquo;accès au service nécessite la création d&rsquo;un compte et le paiement d&rsquo;un abonnement (Plan Pro ou Plan Lifetime). Le service est accessible immédiatement après le paiement via notre partenaire LemonSqueezy.</p>
+                <p>L&rsquo;accès au service nécessite la création d&rsquo;un compte et le paiement d&rsquo;un abonnement (Plan Pro ou Plan Lifetime). Le service est accessible immédiatement après le paiement via nos partenaires de paiement : <strong>LemonSqueezy</strong> (EUR/USD, carte bancaire internationale, PayPal, Apple Pay, Google Pay) ou <strong>Paymob/Floos</strong> (MAD, carte CMI, portefeuilles mobiles africains).</p>
               </div>
               <div>
                 <h4 className="font-semibold text-foreground mb-1">3.2. Utilisation autorisée</h4>
@@ -83,7 +83,7 @@ export default function LegalDialog({ open, onClose }: LegalDialogProps) {
               </div>
               <div>
                 <h4 className="font-semibold text-foreground mb-1">3.5. Paiements et remboursements</h4>
-                <p>Les paiements sont traités par <strong>LemonSqueezy</strong>, notre partenaire de paiement agréé. Pour toute demande de remboursement, veuillez contacter le support via le bouton d&rsquo;aide sur le site ou par email à <a href="mailto:abdellahbazhani053@gmail.com" className="text-emerald-600 hover:underline">abdellahbazhani053@gmail.com</a>.</p>
+                <p>Les paiements sont traités par nos partenaires de paiement agréés : <strong>LemonSqueezy</strong> (pour EUR/USD) et <strong>Paymob/Floos</strong> (pour MAD/Afrique). Pour toute demande de remboursement, veuillez contacter le support via le bouton d&rsquo;aide sur le site ou par email à <a href="mailto:abdellahbazhani053@gmail.com" className="text-emerald-600 hover:underline">abdellahbazhani053@gmail.com</a>.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-foreground mb-1">3.6. Responsabilité</h4>

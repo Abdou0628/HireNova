@@ -23,6 +23,9 @@ model User {
   lsCustomerId  String?
   lsVariantId   String?
   lsSubId       String?
+  paymobOrderId    String?
+  paymobPaymentId  String?
+  paymobProvider   String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
