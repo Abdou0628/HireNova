@@ -13,8 +13,8 @@ export async function signIn(
   });
 }
 
-export async function signOut(options?: { redirectTo?: string }) {
+export async function signOut(options?: { redirect?: boolean }) {
   return nextAuthSignOut({
-    redirectTo: options?.redirectTo ?? "/",
+    redirect: options?.redirect ?? true,
   });
 }

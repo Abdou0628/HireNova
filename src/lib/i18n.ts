@@ -1,6 +1,6 @@
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 
-type TranslationKey =
+export type TranslationKey =
   | 'siteTitle'
   | 'siteSubtitle'
   | 'siteDescription'
@@ -282,9 +282,6 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Centre',
     photoPositionRight: 'Droite',
     availableLangs: 'Disponible en français, anglais, espagnol et arabe',
-    freeNoSignup: 'Générez un CV pro en 60 secondes',
-    ctaReadyTitle: 'Prêt à créer votre CV ?',
-    ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
     // Cover letter
     clTitle: 'Lettre de Motivation',
     clSubtitle: 'Générez une lettre de motivation persuasive en 30 secondes',
@@ -486,9 +483,6 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Center',
     photoPositionRight: 'Right',
     availableLangs: 'Available in French, English, Spanish, and Arabic',
-    freeNoSignup: 'Generate a pro resume in 60 seconds',
-    ctaReadyTitle: 'Ready to create your resume?',
-    ctaReadyDesc: "In less than 2 minutes, you'll have a professional resume ready to send.",
     // Cover letter
     clTitle: 'Cover Letter',
     clSubtitle: 'Generate a persuasive cover letter in 30 seconds',
@@ -689,9 +683,6 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'وسط',
     photoPositionRight: 'يمين',
     availableLangs: 'متاح بالفرنسية والإنجليزية والإسبانية والعربية',
-    freeNoSignup: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
-    ctaReadyTitle: 'مستعد لإنشاء سيرتك الذاتية؟',
-    ctaReadyDesc: 'في أقل من دقيقتين، ستكون لديك سيرة ذاتية احترافية جاهزة للإرسال.',
     // Cover letter
     clTitle: 'رسالة الدافع',
     clSubtitle: 'أنشئ رسالة دافع مقنعة في 30 ثانية',
@@ -893,9 +884,6 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     photoPositionCenter: 'Centro',
     photoPositionRight: 'Derecha',
     availableLangs: 'Disponible en francés, inglés, español y árabe',
-    freeNoSignup: 'Genera un CV pro en 60 segundos',
-    ctaReadyTitle: '¿Listo para crear tu currículum?',
-    ctaReadyDesc: 'En menos de 2 minutos, tendrás un currículum profesional listo para enviar.',
     // Cover letter
     clTitle: 'Carta de Motivación',
     clSubtitle: 'Genera una carta de motivación persuasiva en 30 segundos',

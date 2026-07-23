@@ -68,7 +68,7 @@ export default function CVForm() {
     setError,
     updateCLFormData,
     setGeneratedCL,
-    setCLGenerating,
+    setIsCLGenerating,
     setCLError,
   } = useCVStore()
 
@@ -135,7 +135,7 @@ export default function CVForm() {
     setStep('generating')
     setIsGenerating(true)
     setError(null)
-    setCLGenerating(formData.companyName.trim().length > 0)
+    setIsCLGenerating(formData.companyName.trim().length > 0)
     setCLError(null)
 
     const hasCompany = formData.companyName.trim().length > 0
@@ -205,19 +205,19 @@ export default function CVForm() {
           }
         } catch {
           // CL generation failed silently - CV is still valid
-          setCLGenerating(false)
+          setIsCLGenerating(false)
         }
       }
 
       setTimeout(() => {
         setStep('preview')
         setIsGenerating(false)
-        setCLGenerating(false)
+        setIsCLGenerating(false)
       }, 1000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
       setIsGenerating(false)
-      setCLGenerating(false)
+      setIsCLGenerating(false)
       setStep('form')
       toast.error(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
@@ -757,7 +757,7 @@ export default function CVForm() {
                         <div className="grid grid-cols-3 gap-3">
                           {(['left', 'center', 'right'] as const).map((pos) => {
                             const key = pos === 'left' ? 'photoPositionLeft' : pos === 'center' ? 'photoPositionCenter' : 'photoPositionRight'
-                            const posIcon = pos === 'left' ? AlignLeft : pos === 'center' ? AlignCenter : AlignRight
+                            const PosIcon = pos === 'left' ? AlignLeft : pos === 'center' ? AlignCenter : AlignRight
                             return (
                               <button
                                 key={pos}
@@ -775,7 +775,7 @@ export default function CVForm() {
                                     </svg>
                                   </div>
                                 )}
-                                <posIcon className={`w-5 h-5 mx-auto mb-2 ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`} />
+                                <PosIcon className={`w-5 h-5 mx-auto mb-2 ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`} />
                                 <div className={`text-xs font-bold uppercase tracking-wider ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`}>
                                   {t(language, key)}
                                 </div>

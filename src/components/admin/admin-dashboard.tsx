@@ -223,7 +223,18 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   const [usersLoading, setUsersLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [tickets, setTickets] = useState<Array<Record<string, unknown>>>([])
-  const [satData, setSatData] = useState<Record<string, unknown> | null>(null)
+  interface SatData {
+  avgRating: number
+  totalRatings: number
+  recentCount: number
+  recentAvg: number
+  cvCount: number
+  clCount: number
+  ratingCounts: Record<number, number>
+  ratings: Array<Record<string, unknown>>
+}
+
+const [satData, setSatData] = useState<SatData | null>(null)
 
   const fetchStats = useCallback(async () => {
     try {
@@ -985,9 +996,9 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <StatCard icon={Star} label="Note moyenne" value={`${satData.avgRating}/5`} color="amber" />
-                        <StatCard icon={Users} label="Total avis" value={satData.totalRatings} color="emerald" />
-                        <StatCard icon={Calendar} label="Avis (30j)" value={satData.recentCount} sub={`Moy: ${satData.recentAvg}/5`} color="blue" />
-                        <StatCard icon={FileText} label="Avis CVs" value={satData.cvCount} sub={`Lettres: ${satData.clCount}`} color="emerald" />
+                        <StatCard icon={Users} label="Total avis" value={satData.totalRatings as number} color="emerald" />
+                        <StatCard icon={Calendar} label="Avis (30j)" value={satData.recentCount as number} sub={`Moy: ${satData.recentAvg}/5`} color="blue" />
+                        <StatCard icon={FileText} label="Avis CVs" value={satData.cvCount as number} sub={`Lettres: ${satData.clCount}`} color="emerald" />
                       </div>
 
                       <Card>
@@ -999,7 +1010,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                             {([5, 4, 3, 2, 1] as const).map((star) => {
                               const count = (satData.ratingCounts as Record<number, number>)[star] || 0
                               const maxCount = Math.max(...Object.values(satData.ratingCounts as Record<number, number>), 1)
-                              const pct = satData.totalRatings > 0 ? (count / satData.totalRatings) * 100 : 0
+                              const pct = (satData.totalRatings as number) > 0 ? (count / (satData.totalRatings as number)) * 100 : 0
                               return (
                                 <div key={star} className="flex items-center gap-3">
                                   <div className="flex items-center gap-1 w-16 justify-end">
@@ -1020,7 +1031,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                         </CardContent>
                       </Card>
 
-                      {(satData.ratings as Array<Record<string, unknown>>).length > 0 && (
+                      {satData.ratings.length > 0 && (
                         <Card>
                           <CardHeader className="pb-3">
                             <CardTitle className="text-sm font-semibold">Derniers avis</CardTitle>
@@ -1028,7 +1039,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                           <CardContent>
                             <ScrollArea className="max-h-[250px]">
                               <div className="space-y-2">
-                                {(satData.ratings as Array<Record<string, unknown>>).slice(0, 20).map((r: any) => (
+                                {satData.ratings.slice(0, 20).map((r: any) => (
                                   <div key={r.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
                                     <div className="flex items-center gap-2">
                                       <div className="flex">
