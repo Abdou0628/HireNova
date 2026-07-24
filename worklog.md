@@ -66,3 +66,26 @@ Stage Summary:
 - Payment methods: Card CMI, Visa, Mastercard, Floos wallet, CashPlus, MTN MoMo
 - Webhook auto-upgrades user plan on successful payment
 - HMAC signature verification for webhook security
+---
+Task ID: 1
+Agent: Main Agent
+Task: Verify, finalize and restore all features + add "Powered by IA" below logo
+
+Work Log:
+- Audited all project files: cv-store.ts, i18n.ts, landing.tsx, form.tsx, preview.tsx, cover-letter-form.tsx, cover-letter-preview.tsx, generating.tsx, cover-letter-generating.tsx
+- Confirmed ALL persona features are present: PersonaType, selectedPersona, setSelectedPersona in store
+- Confirmed ALL 40+ persona i18n keys in 4 languages (FR/EN/AR/ES) are present
+- Confirmed landing page has 6 persona cards, personasRef, scrollToPersonas CTA
+- Confirmed form.tsx has persona badge, persona-specific fields, persona data in generate payload
+- Fixed JSX comment syntax error in form.tsx (missing closing brace)
+- Added "POWERED BY IA" text below logo on ALL 7 pages: landing (nav + hero), form, preview, CL form, CL preview, CV generating, CL generating
+- Added internship toggle for student/graduate personas with i18n in 4 languages
+- Added internshipRequest state variable and included it in generate API payload
+- All lint checks pass clean
+- Dev server compiles successfully with 200 responses
+
+Stage Summary:
+- 100% of persona system verified and working
+- "Powered by IA" added to all 7 pages
+- Internship request toggle added for student/graduate
+- Lint clean, dev server running, no errors

@@ -219,6 +219,8 @@ export type TranslationKey =
   | 'personaChoose'
   | 'ctaChooseProfile'
   | 'personaFieldsTitle'
+  | 'internshipRequest'
+  | 'internshipRequestDesc'
   | 'pfStudentField1' | 'pfStudentField1Ph'
   | 'pfStudentField2' | 'pfStudentField2Ph'
   | 'pfStudentField3' | 'pfStudentField3Ph'
@@ -469,6 +471,8 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaChoose: 'Choisir ce profil',
     ctaChooseProfile: 'Créer mon CV',
     personaFieldsTitle: 'Informations spécifiques au profil',
+    internshipRequest: 'Demande de stage',
+    internshipRequestDesc: "Adapter le CV pour une recherche de stage plutôt qu'un emploi",
     pfStudentField1: 'Établissement',
     pfStudentField1Ph: 'Ex: Université Hassan II',
     pfStudentField2: 'Filière / Spécialité',
@@ -737,6 +741,8 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaChoose: 'Choose this profile',
     ctaChooseProfile: 'Create my resume',
     personaFieldsTitle: 'Profile-specific information',
+    internshipRequest: 'Internship Request',
+    internshipRequestDesc: "Tailor the CV for an internship search rather than a job",
     pfStudentField1: 'Institution',
     pfStudentField1Ph: 'Ex: Harvard University',
     pfStudentField2: 'Major / Specialization',
@@ -1004,6 +1010,8 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaChoose: 'اختر هذا الملف',
     ctaChooseProfile: 'إنشاء سيرتي الذاتية',
     personaFieldsTitle: 'معلومات خاصة بالملف',
+    internshipRequest: 'طلب تدريب',
+    internshipRequestDesc: 'تكييف السيرة الذاتية للبحث عن تدريب بدلاً من وظيفة',
     pfStudentField1: 'المؤسسة',
     pfStudentField1Ph: 'مثال: جامعة الحسن الثاني',
     pfStudentField2: 'التخصص',
@@ -1272,6 +1280,8 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaChoose: 'Elegir este perfil',
     ctaChooseProfile: 'Crear mi CV',
     personaFieldsTitle: 'Información específica del perfil',
+    internshipRequest: 'Solicitud de prácticas',
+    internshipRequestDesc: 'Adaptar el currículum para una búsqueda de prácticas en lugar de un empleo',
     pfStudentField1: 'Institución',
     pfStudentField1Ph: 'Ej: Universidad Complutense',
     pfStudentField2: 'Especialidad',

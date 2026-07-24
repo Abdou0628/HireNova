@@ -90,6 +90,7 @@ export default function CVForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneCountryCode, setPhoneCountryCode] = useState<string>('')
   const [personaFields, setPersonaFields] = useState<Record<string, string>>({})
+  const [internshipRequest, setInternshipRequest] = useState(false)
 
   function handlePhoneCountryChange(code: string) {
     setPhoneCountryCode(code)
@@ -166,6 +167,7 @@ export default function CVForm() {
           language,
           persona: selectedPersona || undefined,
           personaFields: Object.keys(personaFields).length > 0 ? personaFields : undefined,
+          internshipRequest: internshipRequest || undefined,
         }),
       })
 
@@ -588,6 +590,39 @@ export default function CVForm() {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {/* Internship Request Toggle — student/graduate only */}
+                    {(selectedPersona === 'student' || selectedPersona === 'graduate') && (
+                      <div className="mt-5">
+                        <button
+                          type="button"
+                          onClick={() => setInternshipRequest(!internshipRequest)}
+                          className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all cursor-pointer ${
+                            internshipRequest
+                              ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                              : 'border-stone-200 bg-white text-muted-foreground hover:border-emerald-300'
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
+                            internshipRequest
+                              ? 'bg-emerald-600 border-emerald-600'
+                              : 'border-stone-300'
+                          }`}>
+                            {internshipRequest && (
+                              <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          <div className="text-left">
+                            <span className={`text-sm font-semibold ${internshipRequest ? 'text-emerald-800' : 'text-foreground'}`}>
+                              {t(language, 'internshipRequest')}
+                            </span>
+                            <p className="text-xs mt-0.5">{t(language, 'internshipRequestDesc')}</p>
+                          </div>
+                        </button>
                       </div>
                     )}
 
