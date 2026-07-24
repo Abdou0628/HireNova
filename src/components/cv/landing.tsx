@@ -102,6 +102,8 @@ export default function Landing() {
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
+      } else if (data.code === 'PAYMENT_NOT_READY') {
+        toast.info(data.error, { duration: 5000 })
       } else {
         toast.error(data.error || 'Erreur')
       }

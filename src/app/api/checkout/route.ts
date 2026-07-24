@@ -32,6 +32,14 @@ export async function POST(request: NextRequest) {
     const plan = plans[planType as PlanType]
     const userId = session.user.id
 
+    // Check if LemonSqueezy is properly configured
+    if (!STORE_ID || STORE_ID === '' || plan.variantId.startsWith('variant_')) {
+      return NextResponse.json({
+        error: 'Les paiements seront bientôt disponibles. Nous préparons les abonnements pour votre région.',
+        code: 'PAYMENT_NOT_READY'
+      }, { status: 503 })
+    }
+
     // Fetch user from DB
     const user = await db.user.findUnique({
       where: { id: userId },

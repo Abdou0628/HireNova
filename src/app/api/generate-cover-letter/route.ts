@@ -5,13 +5,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import type { GeneratedCoverLetter } from '@/store/cv-store'
 
-const FREE_CL_MONTHLY_LIMIT = 0
+const FREE_CL_MONTHLY_LIMIT = 3
 
 async function checkCLLimit(userId?: string): Promise<{ allowed: boolean; remaining: number }> {
-  if (!userId) return { allowed: false, remaining: 0 }
+  if (!userId) return { allowed: true, remaining: FREE_CL_MONTHLY_LIMIT }
   const user = await db.user.findUnique({ where: { id: userId } })
-  if (!user) return { allowed: false, remaining: 0 }
-  if (user.plan === 'pro' || user.plan === 'lifetime') return { allowed: true, remaining: Infinity }
+  if (!user) return { allowed: true, remaining: FREE_CL_MONTHLY_LIMIT }
+  if (user.plan === 'pro' || user.plan === 'annual') return { allowed: true, remaining: Infinity }
   const currentMonth = new Date().getMonth()
   if (user.lastResetMonth !== currentMonth) {
     await db.user.update({ where: { id: userId }, data: { clCountThisMonth: 0, lastResetMonth: currentMonth } })

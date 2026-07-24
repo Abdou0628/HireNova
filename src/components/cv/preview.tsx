@@ -146,9 +146,9 @@ export default function Preview() {
   if (!generatedCV) return null
 
   return (
-    <div className="min-h-screen flex flex-col bg-stone-100">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/40">
       {/* Top bar */}
-      <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white border-b sticky top-0 z-50">
+      <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white/90 backdrop-blur-sm border-b sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center">
@@ -340,7 +340,7 @@ export default function Preview() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-6 px-4 sm:px-6 bg-white">
+      <footer className="border-t py-6 px-4 sm:px-6 bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30">
         <div className="max-w-5xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
           <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
