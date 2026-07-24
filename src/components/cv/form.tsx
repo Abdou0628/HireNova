@@ -257,7 +257,10 @@ export default function CVForm() {
             onClick={() => { setStep('landing'); setSelectedPersona(null) }}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
+            <div className="flex flex-col items-center">
+              <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+            </div>
             <span className="font-semibold text-foreground hidden sm:inline">{t(language, 'siteTitle')}</span>
           </button>
           {selectedPersona && (

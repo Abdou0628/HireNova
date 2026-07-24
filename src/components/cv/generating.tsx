@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
-import { FileText, Sparkles, PenLine, CheckCircle2 } from 'lucide-react'
+import Image from 'next/image'
+import { FileText, Sparkles, PenLine } from 'lucide-react'
 
 export default function Generating() {
   const { language, isCLGenerating } = useCVStore()
@@ -31,7 +32,13 @@ export default function Generating() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Animated icon */}
+      {/* Logo */}
+      <div className="flex flex-col items-center mb-6">
+        <Image src="/hirenova-logo.png" alt="HireNova" width={48} height={48} className="rounded-xl shadow-md" />
+        <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+      </div>
+
+      {/* Animated icon */}
         <div className="relative mb-8">
           <motion.div
             className="w-24 h-24 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto"

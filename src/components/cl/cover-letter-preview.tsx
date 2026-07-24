@@ -94,7 +94,10 @@ export default function CoverLetterPreview() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white border-b sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
+            <div className="flex flex-col items-center">
+              <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+            </div>
             <div>
               <span className="font-semibold text-foreground text-sm">{t(language, 'clTitle')}</span>
               <div className="flex items-center gap-1.5 text-xs text-emerald-600">

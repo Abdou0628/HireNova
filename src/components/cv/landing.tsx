@@ -133,7 +133,10 @@ export default function Landing() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
+            <div className="flex flex-col items-center">
+              <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+            </div>
             <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -199,7 +202,10 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: 0.05 }}
                 className="mb-6"
               >
-                <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+                <div className="flex flex-col items-center">
+                  <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+                  <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+                </div>
               </motion.div>
 
               <motion.h1
