@@ -36,6 +36,7 @@ import {
   FileUp,
   CheckCircle2,
   Loader2,
+  ChevronDown,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
@@ -614,13 +615,22 @@ export default function CVForm() {
                         </div>
                         <div className="sm:col-span-2">
                           <Label htmlFor="birthCountry">{t(language, 'birthCountry')}</Label>
-                          <Input
-                            id="birthCountry"
-                            value={formData.birthCountry}
-                            onChange={(e) => updateFormData({ birthCountry: e.target.value })}
-                            placeholder={t(language, 'birthCountryPlaceholder')}
-                            className="mt-1.5"
-                          />
+                          <div className="relative mt-1.5">
+                            <select
+                              id="birthCountry"
+                              value={formData.birthCountry}
+                              onChange={(e) => updateFormData({ birthCountry: e.target.value })}
+                              className="flex h-9 w-full rounded-md border border-stone-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 appearance-none cursor-pointer"
+                            >
+                              <option value="">{t(language, 'birthCountryPlaceholder')}</option>
+                              {countries.map((c) => (
+                                <option key={c.code} value={c.name}>
+                                  {c.flag} {c.name}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          </div>
                         </div>
                       </div>
                     </div>
