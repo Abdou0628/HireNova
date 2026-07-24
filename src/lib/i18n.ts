@@ -272,6 +272,23 @@ export type TranslationKey =
   | 'authRequiredDesc'
   | 'subscriptionRequiredTitle'
   | 'subscriptionRequiredDesc'
+  // Forgot password
+  | 'forgotPasswordTitle'
+  | 'forgotPasswordDesc'
+  | 'forgotPasswordButton'
+  | 'forgotPasswordEmail'
+  | 'forgotPasswordEmailPh'
+  | 'forgotPasswordVerify'
+  | 'forgotPasswordVerifyDesc'
+  | 'forgotPasswordUserFound'
+  | 'forgotPasswordNewPassword'
+  | 'forgotPasswordNewPasswordPh'
+  | 'forgotPasswordConfirm'
+  | 'forgotPasswordSuccess'
+  | 'forgotPasswordBackToLogin'
+  | 'forgotPasswordNoAccount'
+  | 'forgotPasswordNoPlan'
+  | 'forgotPasswordError'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -571,6 +588,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     authRequiredDesc: 'Connectez-vous ou créez un compte pour accéder à nos services de génération.',
     subscriptionRequiredTitle: 'Abonnement requis',
     subscriptionRequiredDesc: 'Souscrivez à un abonnement pour générer des CV, lettres de motivation et demandes.',
+    forgotPasswordTitle: 'Mot de passe oublié ?',
+    forgotPasswordDesc: 'Entrez votre email pour vérifier votre compte abonné.',
+    forgotPasswordButton: 'Réinitialiser mon mot de passe',
+    forgotPasswordEmail: 'Adresse e-mail',
+    forgotPasswordEmailPh: 'votre@email.com',
+    forgotPasswordVerify: 'Vérifier mon compte',
+    forgotPasswordVerifyDesc: 'Nous avons trouvé votre compte abonné. Définissez votre nouveau mot de passe.',
+    forgotPasswordUserFound: 'Compte abonné trouvé',
+    forgotPasswordNewPassword: 'Nouveau mot de passe',
+    forgotPasswordNewPasswordPh: 'Minimum 6 caractères',
+    forgotPasswordConfirm: 'Confirmer le nouveau mot de passe',
+    forgotPasswordSuccess: 'Mot de passe mis à jour avec succès !',
+    forgotPasswordBackToLogin: 'Retour à la connexion',
+    forgotPasswordNoAccount: 'Aucun compte trouvé avec cet email.',
+    forgotPasswordNoPlan: 'Ce compte n\'a pas d\'abonnement actif. Veuillez d\'abord souscrire à un plan.',
+    forgotPasswordError: 'Erreur lors de la réinitialisation.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -869,6 +902,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     authRequiredDesc: 'Sign in or create an account to access our generation services.',
     subscriptionRequiredTitle: 'Subscription required',
     subscriptionRequiredDesc: 'Subscribe to a plan to generate resumes, cover letters, and applications.',
+    forgotPasswordTitle: 'Forgot your password?',
+    forgotPasswordDesc: 'Enter your email to verify your subscriber account.',
+    forgotPasswordButton: 'Reset my password',
+    forgotPasswordEmail: 'Email address',
+    forgotPasswordEmailPh: 'your@email.com',
+    forgotPasswordVerify: 'Verify my account',
+    forgotPasswordVerifyDesc: 'We found your subscriber account. Set your new password.',
+    forgotPasswordUserFound: 'Subscriber account found',
+    forgotPasswordNewPassword: 'New password',
+    forgotPasswordNewPasswordPh: 'Minimum 6 characters',
+    forgotPasswordConfirm: 'Confirm new password',
+    forgotPasswordSuccess: 'Password updated successfully!',
+    forgotPasswordBackToLogin: 'Back to sign in',
+    forgotPasswordNoAccount: 'No account found with this email.',
+    forgotPasswordNoPlan: 'This account has no active subscription. Please subscribe to a plan first.',
+    forgotPasswordError: 'Error during reset.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1166,6 +1215,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     authRequiredDesc: 'سجّل الدخول أو أنشئ حساباً للوصول إلى خدماتنا.',
     subscriptionRequiredTitle: 'الاشتراك مطلوب',
     subscriptionRequiredDesc: 'اشترك في خطة لإنشاء السيرة الذاتية ورسائل الدافع والطلبات.',
+    forgotPasswordTitle: 'نسيت كلمة المرور؟',
+    forgotPasswordDesc: 'أدخل بريدك الإلكتروني للتحقق من حسابك المشترك.',
+    forgotPasswordButton: 'إعادة تعيين كلمة المرور',
+    forgotPasswordEmail: 'البريد الإلكتروني',
+    forgotPasswordEmailPh: 'بريدك@email.com',
+    forgotPasswordVerify: 'التحقق من حسابي',
+    forgotPasswordVerifyDesc: 'وجدنا حسابك المشترك. قم بتعيين كلمة المرور الجديدة.',
+    forgotPasswordUserFound: 'تم العثور على حساب مشترك',
+    forgotPasswordNewPassword: 'كلمة المرور الجديدة',
+    forgotPasswordNewPasswordPh: '6 أحرف على الأقل',
+    forgotPasswordConfirm: 'تأكيد كلمة المرور الجديدة',
+    forgotPasswordSuccess: 'تم تحديث كلمة المرور بنجاح!',
+    forgotPasswordBackToLogin: 'العودة لتسجيل الدخول',
+    forgotPasswordNoAccount: 'لم يتم العثور على حساب بهذا البريد الإلكتروني.',
+    forgotPasswordNoPlan: 'هذا الحساب ليس لديه اشتراك نشط. يرجى الاشتراك في خطة أولاً.',
+    forgotPasswordError: 'خطأ أثناء إعادة التعيين.',
   },
   es: {
     siteTitle: 'HireNova',
@@ -1464,6 +1529,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     authRequiredDesc: 'Inicia sesión o crea una cuenta para acceder a nuestros servicios.',
     subscriptionRequiredTitle: 'Suscripción requerida',
     subscriptionRequiredDesc: 'Suscríbete a un plan para generar currículums, cartas y solicitudes.',
+    forgotPasswordTitle: '¿Olvidaste tu contraseña?',
+    forgotPasswordDesc: 'Ingresa tu email para verificar tu cuenta de suscriptor.',
+    forgotPasswordButton: 'Restablecer mi contraseña',
+    forgotPasswordEmail: 'Correo electrónico',
+    forgotPasswordEmailPh: 'tu@email.com',
+    forgotPasswordVerify: 'Verificar mi cuenta',
+    forgotPasswordVerifyDesc: 'Encontramos tu cuenta de suscriptor. Define tu nueva contraseña.',
+    forgotPasswordUserFound: 'Cuenta de suscriptor encontrada',
+    forgotPasswordNewPassword: 'Nueva contraseña',
+    forgotPasswordNewPasswordPh: 'Mínimo 6 caracteres',
+    forgotPasswordConfirm: 'Confirmar nueva contraseña',
+    forgotPasswordSuccess: '¡Contraseña actualizada con éxito!',
+    forgotPasswordBackToLogin: 'Volver a iniciar sesión',
+    forgotPasswordNoAccount: 'No se encontró una cuenta con este email.',
+    forgotPasswordNoPlan: 'Esta cuenta no tiene una suscripción activa. Por favor suscríbete a un plan primero.',
+    forgotPasswordError: 'Error al restablecer.',
   }
 }
 

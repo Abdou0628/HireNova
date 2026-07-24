@@ -46,3 +46,26 @@ Stage Summary:
 - Form pages guard against direct access without auth+plan
 - APIs enforce auth+plan on server side (belt-and-suspenders approach)
 
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add "Mot de passe oublié" (Forgot Password) feature for subscribers
+
+Work Log:
+- Created /api/auth/reset-password API with GET (verify email + plan) and POST (reset password)
+- API verifies user exists AND has an active paid plan (pro/annual/lifetime) before allowing reset
+- Returns specific errors: USER_NOT_FOUND, NO_ACTIVE_PLAN
+- Rewrote AuthModal with 3-step forgot password flow:
+  - Step 1: Enter email (with subscriber-only notice badge)
+  - Step 2: Verify account found → enter + confirm new password
+  - Step 3: Success screen with redirect to login
+- Added "Réinitialiser mon mot de passe" link on login form
+- Added 17 new i18n keys in all 4 languages (FR, EN, AR, ES)
+- Verified with agent-browser: forgot password button visible, 3-step flow works, back-to-login works
+
+Stage Summary:
+- Forgot password feature fully implemented for subscribers only
+- Non-subscribers get clear error message to subscribe first
+- Complete UI flow with key icon, shield badges, and success animation
+- All 4 languages supported
+
