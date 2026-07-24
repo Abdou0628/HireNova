@@ -319,7 +319,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
             </div>
             <div>
               <DialogTitle className="text-lg font-bold">Dashboard Admin</DialogTitle>
-              <p className="text-xs text-muted-foreground">CV Genius IA — Abdellah Bazhani</p>
+              <p className="text-xs text-muted-foreground">HireNova — E-Society 2050</p>
             </div>
           </div>
           <Button

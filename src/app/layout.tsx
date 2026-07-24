@@ -15,22 +15,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CV Genius IA - Générateur de CV Multilingue",
-  description: "Créez un CV professionnel optimisé ATS en 60 secondes avec l'IA. Disponible en français, anglais et arabe.",
-  keywords: ["CV", "resume", "générateur CV", "IA", "ATS", "multilingue", "français", "anglais", "arabe"],
-  authors: [{ name: "Z.ai" }],
+  title: "HireNova - Générateur de CV & Lettres de Motivation",
+  description: "Créez un CV professionnel optimisé ATS et une lettre de motivation en 60 secondes avec l'IA. Disponible en français, anglais, arabe et espagnol.",
+  keywords: ["CV", "resume", "lettre de motivation", "générateur CV", "IA", "ATS", "multilingue", "HireNova", "français", "anglais", "arabe", "espagnol"],
+  authors: [{ name: "E-Society 2050" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/hirenova-logo.png",
   },
   openGraph: {
-    title: "CV Genius IA - Générateur de CV Multilingue",
-    description: "Créez un CV professionnel en 60 secondes avec l'intelligence artificielle.",
+    title: "HireNova - Générateur de CV & Lettres de Motivation",
+    description: "Créez un CV professionnel et une lettre de motivation en 60 secondes avec l'intelligence artificielle.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CV Genius IA",
-    description: "Générateur de CV professionnel multilingue propulsé par l'IA",
+    title: "HireNova",
+    description: "Générateur de CV et lettres de motivation multilingue propulsé par l'IA",
   },
 };
 

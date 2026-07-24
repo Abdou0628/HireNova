@@ -206,7 +206,7 @@ export type TranslationKey =
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
-    siteTitle: 'CV Genius IA',
+    siteTitle: 'HireNova',
     siteSubtitle: 'Générez un CV professionnel en 60 secondes',
     siteDescription:
       'Notre IA rédige un CV optimisé pour les ATS, parfaitement adapté à votre métier cible.',
@@ -417,7 +417,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     paymobAfrica: '🌍 Paiement pour l\'Afrique',
   },
   en: {
-    siteTitle: 'CV Genius AI',
+    siteTitle: 'HireNova',
     siteSubtitle: 'Generate a professional resume in 60 seconds',
     siteDescription:
       'Our AI writes an ATS-optimized resume, perfectly tailored to your target role.',
@@ -628,7 +628,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     paymobAfrica: '🌍 Payment for Africa',
   },
   ar: {
-    siteTitle: 'CV Genious الذكاء الاصطناعي',
+    siteTitle: 'HireNova',
     siteSubtitle: 'أنشئ سيرة ذاتية احترافية في 60 ثانية',
     siteDescription:
       'يكتب الذكاء الاصطناعي لدينا سيرة ذاتية محسنة لأنظمة ATS، مصممة خصيصاً للوظيفة المستهدفة.',
@@ -838,7 +838,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     paymobAfrica: '🌍 الدفع لأفريقيا',
   },
   es: {
-    siteTitle: 'CV Genius IA',
+    siteTitle: 'HireNova',
     siteSubtitle: 'Genera un currículum profesional en 60 segundos',
     siteDescription:
       'Nuestra IA redacta un currículum optimizado para ATS, perfectamente adaptado a tu puesto objetivo.',

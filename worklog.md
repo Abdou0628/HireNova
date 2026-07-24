@@ -1,4 +1,4 @@
-# Worklog - CV Genius IA
+# Worklog - HireNova (E-Society 2050)
 
 ---
 Task ID: 1

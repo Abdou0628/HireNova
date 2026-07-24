@@ -551,7 +551,7 @@ export default function CoverLetterForm() {
       {/* Footer */}
       <footer className="border-t py-6 px-4 sm:px-6 bg-white mt-auto">
         <div className="max-w-3xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
-          <p>{t(language, 'footerText')} &copy; 2026 CV Genius IA — <span className="font-medium text-foreground">Abdellah Bazhani</span></p>
+          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
           <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
         </div>
       </footer>

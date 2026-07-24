@@ -73,7 +73,7 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
               <ThumbsUp className="w-8 h-8 text-emerald-600" />
             </div>
             <h3 className="text-lg font-bold mb-2">Merci pour votre retour !</h3>
-            <p className="text-sm text-muted-foreground">Votre avis nous aide à améliorer CV Genius IA.</p>
+            <p className="text-sm text-muted-foreground">Votre avis nous aide à améliorer HireNova.</p>
           </div>
         ) : (
           <>
