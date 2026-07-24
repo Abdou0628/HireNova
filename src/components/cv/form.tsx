@@ -568,7 +568,7 @@ export default function CVForm() {
                       />
                     </div>
 
-                    {/* Persona-specific fields */
+                    {/* Persona-specific fields */}
                     {selectedPersona && personaFieldMap[selectedPersona] && (
                       <div className="mt-6 pt-5 border-t border-stone-100">
                         <Label className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-3">
