@@ -158,6 +158,10 @@ export type TranslationKey =
   | 'pricingAnnual'
   | 'pricingAnnualUsd'
   | 'pricingAnnualPriceUsd'
+  | 'pricingAnnualGbp'
+  | 'pricingAnnualPriceGbp'
+  | 'pricingProPriceGbp'
+  | 'pricingMonthlyGbp'
   | 'pricingCv'
   | 'pricingTemplates'
   | 'pricingPdf'
@@ -431,6 +435,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAnnual: '/an',
     pricingAnnualUsd: '/year',
     pricingAnnualPriceUsd: '$79',
+    pricingAnnualGbp: '/an',
+    pricingAnnualPriceGbp: '£59',
+    pricingProPriceGbp: '£5.99',
+    pricingMonthlyGbp: '/month',
     pricingCv: 'Générations de CV',
     pricingTemplates: 'Templates premium',
     pricingPdf: 'Téléchargement PDF',
@@ -721,6 +729,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAnnual: '/year',
     pricingAnnualUsd: '/year',
     pricingAnnualPriceUsd: '$79',
+    pricingAnnualGbp: '/year',
+    pricingAnnualPriceGbp: '£59',
+    pricingProPriceGbp: '£5.99',
+    pricingMonthlyGbp: '/month',
     pricingCv: 'Resume generations',
     pricingTemplates: 'Premium templates',
     pricingPdf: 'PDF download',
@@ -1010,6 +1022,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAnnual: '/سنة',
     pricingAnnualUsd: '/سنة',
     pricingAnnualPriceUsd: '$79',
+    pricingAnnualGbp: '/سنة',
+    pricingAnnualPriceGbp: '£59',
+    pricingProPriceGbp: '£5.99',
+    pricingMonthlyGbp: '/شهر',
     pricingCv: 'إنشاءات السيرة الذاتية',
     pricingTemplates: 'قوالب مميزة',
     pricingPdf: 'تحميل PDF',
@@ -1300,6 +1316,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAnnual: '/año',
     pricingAnnualUsd: '/año',
     pricingAnnualPriceUsd: '$79',
+    pricingAnnualGbp: '/año',
+    pricingAnnualPriceGbp: '£59',
+    pricingProPriceGbp: '£5.99',
+    pricingMonthlyGbp: '/mes',
     pricingCv: 'Generaciones de currículum',
     pricingTemplates: 'Plantillas premium',
     pricingPdf: 'Descarga PDF',

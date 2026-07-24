@@ -6,7 +6,7 @@ import { getPlans, STORE_ID } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
 
 type PlanType = 'pro' | 'annual'
-type Currency = 'eur' | 'usd'
+type Currency = 'eur' | 'usd' | 'gbp'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const currency: Currency = currencyParam === 'usd' ? 'usd' : 'eur'
+    const currency: Currency = ['eur', 'usd', 'gbp'].includes(currencyParam) ? currencyParam : 'eur'
     const plans = getPlans(currency)
     const plan = plans[planType as PlanType]
     const userId = session.user.id

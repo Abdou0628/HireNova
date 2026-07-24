@@ -25,7 +25,11 @@ export default function Generating() {
       ]
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50/30 to-amber-50/20 px-4">
+      {/* Background image */}
+      <div className="absolute inset-0 -z-10">
+        <Image src="/images/hero-cv.jpg" alt="" fill className="object-cover opacity-10" />
+      </div>
       <motion.div
         className="text-center"
         initial={{ opacity: 0, scale: 0.9 }}
@@ -74,9 +78,10 @@ export default function Generating() {
         <h2 className="text-2xl font-bold text-foreground mb-2">
           {generatingBoth ? t(language, 'generatingBoth') : t(language, 'generating')}
         </h2>
-        <p className="text-muted-foreground mb-8">
+        <p className="text-muted-foreground mb-4">
           {generatingBoth ? t(language, 'generatingBothSubtitle') : t(language, 'generatingSubtitle')}
         </p>
+        <p className="text-emerald-600 text-sm italic max-w-sm mx-auto">{language === 'fr' ? '« Votre future carrière commence ici »' : language === 'en' ? '"Your future career starts here"' : language === 'es' ? '"Tu futura carrera comienza aquí"' : '"مستقبلك المهني يبدأ من هنا"'}</p>
 
         {/* Animated steps */}
         <div className="space-y-3 max-w-xs mx-auto text-left">

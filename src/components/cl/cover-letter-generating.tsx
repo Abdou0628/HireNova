@@ -17,7 +17,7 @@ export default function CoverLetterGenerating() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50/30 via-white to-emerald-50/30 px-4">
       <motion.div
         className="text-center"
         initial={{ opacity: 0, scale: 0.9 }}

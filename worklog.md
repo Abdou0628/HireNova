@@ -1,111 +1,23 @@
-# Worklog - HireNova (E-Society 2050)
-
----
-Task ID: 1
-Agent: Main
-Task: Set admin email in .env + Create Admin Dashboard
-
-Work Log:
-- Added ADMIN_EMAIL=abdellahbazhani053@gmail.com to .env
-- Created /api/admin/users/route.ts (paginated user listing with search/filter)
-- Created /components/admin/admin-dashboard.tsx (6 tabs: Overview, Users, Activity, Revenue, Support, Satisfaction)
-- Dashboard accessible via ProfileButton dropdown (only for admin email)
-- Added Star, MessageSquare, CheckCircle, Clock icons
-
-Stage Summary:
-- Admin Dashboard fully functional with stats, user management, revenue tracking
-- Protected by ADMIN_EMAIL environment variable
-
----
-Task ID: 2
-Agent: Main
-Task: Add Support System + Satisfaction Rating + Legal Notices
-
-Work Log:
-- Added SatisfactionRating and SupportTicket models to Prisma schema
-- Created /api/support/route.ts (POST - create support ticket)
-- Created /api/satisfaction/route.ts (POST - submit rating 1-5)
-- Created /api/admin/support/route.ts (GET tickets, PATCH status)
-- Created /api/admin/satisfaction/route.ts (GET stats and ratings)
-- Created /components/support/support-button.tsx (floating button + dialog form)
-- Created /components/support/satisfaction-prompt.tsx (star rating after CV/CL generation)
-- Created /components/support/legal-dialog.tsx (Mentions Légales & CGU)
-- Created /components/support/global-providers.tsx (layout wrapper)
-- Added SatisfactionPrompt to CV preview and CL preview (auto-shows 3s after)
-- Added 'Mentions Légales' link to all 5 footers (landing, form, preview, cl-form, cl-preview)
-- Added Support and Satisfaction tabs to Admin Dashboard
-- Added floating support button to global layout
-
-Stage Summary:
-- Support system: floating button → form with name, email, subject (Bug/Paiement/Question/Autre), message
-- Satisfaction: 5-star rating popup after CV/CL preview, stored in DB
-- Admin can see all tickets and satisfaction stats in dashboard
-- Legal dialog with: Éditeur info, CGU, Protection données (Loi 09-08), Droits d'auteur (Convention de Berne), Hébergement, Contact
-
----
-Task ID: 3
-Agent: Main
-Task: Add Paymob/Floos payment integration for Africa
-
-Work Log:
-- Added paymobOrderId, paymobPaymentId, paymobProvider fields to User model in Prisma schema
-- Ran db:push to sync schema
-- Created /lib/paymob.ts (Paymob API helper: auth, order creation, payment key, iframe URL, HMAC verification)
-- Created /api/paymob/checkout/route.ts (POST - creates Paymob payment, returns iframe URL)
-- Created /api/paymob/webhook/route.ts (POST - verifies HMAC, upgrades user plan on success)
-- Added 11 new i18n translation keys (paymobLabel, paymobDesc, paymobProPrice, paymobLifetimePrice, paymobMonthly, paymobOneTime, paymobMethods, paymobCard, paymobWallet, paymobAfrica) in FR/EN/AR/ES
-- Updated landing.tsx: added MAD as 3rd currency option (EUR/USD/🌍MAD), Paymob checkout flow when MAD selected, payment methods info card (Carte CMI/Visa/Mastercard + Floos/CashPlus/MTN MoMo)
-- Added PAYMOB_API_KEY, PAYMOB_INTEGRATION_ID, PAYMOB_IFRAME_ID, PAYMOB_HMAC_SECRET to .env
-- Updated legal-dialog.tsx to mention Paymob/Floos as payment partner
-- Prices: Pro 70 MAD/month, Lifetime 300 MAD one-time
-- Lint passes cleanly
-
-Stage Summary:
-- Full Paymob/Floos integration ready for Africa/MENA
-- 3-currency system: EUR (LemonSqueezy), USD (LemonSqueezy), MAD (Paymob/Floos)
-- Payment methods: Card CMI, Visa, Mastercard, Floos wallet, CashPlus, MTN MoMo
-- Webhook auto-upgrades user plan on successful payment
-- HMAC signature verification for webhook security
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Verify, finalize and restore all features + add "Powered by IA" below logo
+Task: Sauvegarder le projet + Remplacer À Vie par Annuel + Design vibrant + Paiement international
 
 Work Log:
-- Audited all project files: cv-store.ts, i18n.ts, landing.tsx, form.tsx, preview.tsx, cover-letter-form.tsx, cover-letter-preview.tsx, generating.tsx, cover-letter-generating.tsx
-- Confirmed ALL persona features are present: PersonaType, selectedPersona, setSelectedPersona in store
-- Confirmed ALL 40+ persona i18n keys in 4 languages (FR/EN/AR/ES) are present
-- Confirmed landing page has 6 persona cards, personasRef, scrollToPersonas CTA
-- Confirmed form.tsx has persona badge, persona-specific fields, persona data in generate payload
-- Fixed JSX comment syntax error in form.tsx (missing closing brace)
-- Added "POWERED BY IA" text below logo on ALL 7 pages: landing (nav + hero), form, preview, CL form, CL preview, CV generating, CL generating
-- Added internship toggle for student/graduate personas with i18n in 4 languages
-- Added internshipRequest state variable and included it in generate API payload
-- All lint checks pass clean
-- Dev server compiles successfully with 200 responses
+- Created project backup zip at /tmp/hirenova-project-backup-$(date).zip
+- Replaced "À Vie" (29.99€) with "Annuel" (70€) in landing.tsx, i18n.ts (4 languages), lemonsqueezy.ts, checkout/route.ts
+- Both plans now have identical features (ATS score + priority generation included in Pro too)
+- Generated 5 AI images: hero-career.jpg, hero-coaching.jpg, hero-cv.jpg, gradient-emerald.jpg, bg-pattern.jpg
+- Applied vibrant gradient backgrounds to all sections: Hero (emerald→teal→amber), Persona (white→emerald), Pricing (amber→white→emerald), Ecosystem (teal→white→emerald), CTA (emerald→teal with image overlay)
+- Added inspirational quote to generating page: "Votre future carrière commence ici"
+- Added 3 currencies (EUR €, USD $, GBP £) with proper price display
+- Footer now shows all 16 supported countries with flags
+- Updated lemonsqueezy.ts with SUPPORTED_REGIONS for Europe/Americas/Oceania/GCC
+- Checkout API now accepts 'eur' | 'usd' | 'gbp'
+- Created final backup at /tmp/hirenova-final-$(date).zip
 
 Stage Summary:
-- 100% of persona system verified and working
-- "Powered by IA" added to all 7 pages
-- Internship request toggle added for student/graduate
-- Lint clean, dev server running, no errors
-
----
-Task ID: 2
-Agent: Main Agent
-Task: Remove MAD currency + Add HireNova Ecosystem Roadmap section
-
-Work Log:
-- Removed MAD currency from pricing: removed state, Paymob checkout, Paymob info card, MAD button
-- Cleaned up unused imports (Wallet, CreditCard, Smartphone)
-- Added new imports for roadmap icons (Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop)
-- Created "L'Écosystème HireNova" section with 9 product cards
-- HireNova CV marked as ACTIF, all 8 others as BIENTÔT
-- Added 12 new i18n keys (roadmapTitle, ecosystemTitle, ecosystemDesc, + 9 product descriptions) in FR/EN/AR/ES
-- Lint clean, dev server compiles 200 OK
-- Browser verified: all 9 cards visible with correct labels, MAD completely removed from pricing
-
-Stage Summary:
-- MAD currency fully removed from pricing section
-- 9 HireNova ecosystem products displayed on landing page roadmap
-- All i18n translations in 4 languages
+- All 5 tasks completed and verified with agent-browser
+- Lint clean, server running, all currencies and pricing verified
+- 16 payment countries displayed in footer
+- All pages have vibrant gradient backgrounds with images

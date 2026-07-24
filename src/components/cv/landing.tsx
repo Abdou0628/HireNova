@@ -80,9 +80,10 @@ export default function Landing() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<'eur' | 'usd'>('eur')
+  const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
 
   const isUsd = currency === 'usd'
+  const isGbp = currency === 'gbp'
 
   async function handleCheckout(planType: 'pro' | 'annual') {
     if (!session?.user) {
@@ -147,11 +148,13 @@ export default function Landing() {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="relative overflow-hidden">
-          {/* Background decoration */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/30 to-amber-50/20">
+          {/* Background image + overlay */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-100/60 via-teal-50/40 to-transparent rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-100/30 to-transparent rounded-full blur-3xl" />
+            <Image src="/images/hero-career.jpg" alt="" fill className="object-cover opacity-15" priority />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/80" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-200/40 via-teal-100/30 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-200/30 to-transparent rounded-full blur-3xl" />
           </div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16">
@@ -261,7 +264,11 @@ export default function Landing() {
         </section>
 
         {/* Persona Selection Section */}
-        <section ref={personasRef} className="py-16 sm:py-20 bg-white">
+        <section ref={personasRef} className="relative py-16 sm:py-20 bg-gradient-to-b from-white to-emerald-50/50">
+          <div className="absolute inset-0 -z-10">
+            <Image src="/images/hero-coaching.jpg" alt="" fill className="object-cover opacity-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-emerald-50/70" />
+          </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               className="text-center mb-10"
@@ -385,7 +392,11 @@ export default function Landing() {
         </section>
 
         {/* Pricing Section */}
-        <section className="py-16 sm:py-24">
+        <section className="relative py-16 sm:py-24 bg-gradient-to-br from-amber-50/50 via-white to-emerald-50/30">
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-emerald-200/20 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/20 to-transparent rounded-full blur-3xl" />
+          </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               className="text-center mb-12"
@@ -404,15 +415,21 @@ export default function Landing() {
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => setCurrency('eur')}
-                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'eur' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
-                  EUR
+                  EUR €
                 </button>
                 <button
                   onClick={() => setCurrency('usd')}
-                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'usd' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
-                  USD
+                  USD $
+                </button>
+                <button
+                  onClick={() => setCurrency('gbp')}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'gbp' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                >
+                  GBP £
                 </button>
               </div>
             </motion.div>
@@ -438,8 +455,8 @@ export default function Landing() {
                       {t(language, 'planPro')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : isGbp ? t(language, 'pricingProPriceGbp') : t(language, 'planProPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
 
@@ -493,8 +510,8 @@ export default function Landing() {
                       {t(language, 'planAnnual')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingAnnualPriceUsd') : t(language, 'planAnnualPrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingAnnualUsd') : t(language, 'pricingAnnual')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingAnnualPriceUsd') : isGbp ? t(language, 'pricingAnnualPriceGbp') : t(language, 'planAnnualPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingAnnualUsd') : isGbp ? t(language, 'pricingAnnualGbp') : t(language, 'pricingAnnual')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planAnnualDesc')}</p>
 
@@ -531,7 +548,11 @@ export default function Landing() {
         </section>
 
         {/* HireNova Ecosystem — Future Products Roadmap */}
-        <section className="py-16 sm:py-24 bg-gradient-to-b from-muted/30 to-white">
+        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-teal-50/40 via-white to-emerald-50/30">
+          <div className="absolute inset-0 -z-10">
+            <Image src="/images/bg-pattern.jpg" alt="" fill className="object-cover opacity-8" />
+            <div className="absolute inset-0 bg-white/85" />
+          </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               className="text-center mb-12"
@@ -592,15 +613,19 @@ export default function Landing() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 sm:py-20">
+        <section className="relative py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              className="text-center bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-12 lg:p-16"
+              className="relative text-center bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden"
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={{ duration: 0.6 }}
             >
+              <div className="absolute inset-0">
+                <Image src="/images/gradient-emerald.jpg" alt="" fill className="object-cover opacity-20" />
+              </div>
+              <div className="relative z-10">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
                 {t(language, 'ctaReadyTitle')}
               </h2>
@@ -628,6 +653,7 @@ export default function Landing() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -641,9 +667,13 @@ export default function Landing() {
       />
 
       {/* Footer */}
-      <footer className="border-t py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+      <footer className="border-t bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 py-8 px-4 sm:px-6 lg:px-8 mt-auto">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+          <div className="flex items-center flex-wrap justify-center gap-2 text-xs">
+            <span className="text-emerald-600 font-medium">Paiement sécurisé :</span>
+            <span>🇫🇷 FR</span><span>🇧🇪 BE</span><span>🇨🇭 CH</span><span>🇱🇺 LU</span><span>🇲🇨 MC</span><span>🇪🇸 ES</span><span>🇬🇧 UK</span><span>🇺🇸 US</span><span>🇨🇦 CA</span><span>🇦🇺 AU</span><span>🇸🇦 SA</span><span>🇦🇪 AE</span><span>🇶🇦 QA</span><span>🇰🇼 KW</span><span>🇧🇭 BH</span><span>🇴🇲 OM</span>
+          </div>
           <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
         </div>
       </footer>
