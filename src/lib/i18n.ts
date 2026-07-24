@@ -221,6 +221,9 @@ export type TranslationKey =
   | 'personaFieldsTitle'
   | 'internshipRequest'
   | 'internshipRequestDesc'
+  | 'jobRequest'
+  | 'jobRequestDesc'
+  | 'applicationType'
   | 'roadmapTitle'
   | 'ecosystemTitle'
   | 'ecosystemDesc'
@@ -484,7 +487,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     ctaChooseProfile: 'Créer mon CV',
     personaFieldsTitle: 'Informations spécifiques au profil',
     internshipRequest: 'Demande de stage',
-    internshipRequestDesc: "Adapter le CV pour une recherche de stage plutôt qu'un emploi",
+    internshipRequestDesc: 'Adapter le CV et la lettre pour une recherche de stage.',
+    jobRequest: "Demande d'emploi",
+    jobRequestDesc: "Adapter le CV et la lettre pour une recherche d'emploi.",
+    applicationType: "Type de candidature",
     roadmapTitle: 'Feuille de route',
     ecosystemTitle: 'L\'Écosystème HireNova',
     ecosystemDesc: 'Une suite complète d\'outils IA pour transformer votre parcours professionnel, de la candidature à l\'évolution de carrière.',
@@ -766,7 +772,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     ctaChooseProfile: 'Create my resume',
     personaFieldsTitle: 'Profile-specific information',
     internshipRequest: 'Internship Request',
-    internshipRequestDesc: "Tailor the CV for an internship search rather than a job",
+    internshipRequestDesc: 'Tailor the CV and cover letter for an internship search.',
+    jobRequest: 'Job Application',
+    jobRequestDesc: "Tailor the CV and cover letter for a job search.",
+    applicationType: 'Application type',
     roadmapTitle: 'Roadmap',
     ecosystemTitle: 'The HireNova Ecosystem',
     ecosystemDesc: 'A complete suite of AI tools to transform your career journey, from applications to career growth.',
@@ -1047,7 +1056,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     ctaChooseProfile: 'إنشاء سيرتي الذاتية',
     personaFieldsTitle: 'معلومات خاصة بالملف',
     internshipRequest: 'طلب تدريب',
-    internshipRequestDesc: 'تكييف السيرة الذاتية للبحث عن تدريب بدلاً من وظيفة',
+    internshipRequestDesc: 'تكييف السيرة الذاتية والرسالة للبحث عن تدريب.',
+    jobRequest: 'طلب وظيفة',
+    jobRequestDesc: 'تكييف السيرة الذاتية والرسالة للبحث عن وظيفة.',
+    applicationType: 'نوع الطلب',
     roadmapTitle: 'خارطة الطريق',
     ecosystemTitle: 'منظومة HireNova',
     ecosystemDesc: 'مجموعة كاملة من أدوات الذكاء الاصطناعي لتحويل مسارك المهني، من التقديم إلى النمو الوظيفي.',
@@ -1329,7 +1341,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     ctaChooseProfile: 'Crear mi CV',
     personaFieldsTitle: 'Información específica del perfil',
     internshipRequest: 'Solicitud de prácticas',
-    internshipRequestDesc: 'Adaptar el currículum para una búsqueda de prácticas en lugar de un empleo',
+    internshipRequestDesc: 'Adaptar el CV y la carta para una búsqueda de prácticas.',
+    jobRequest: 'Solicitud de empleo',
+    jobRequestDesc: 'Adaptar el CV y la carta para una búsqueda de empleo.',
+    applicationType: 'Tipo de solicitud',
     roadmapTitle: 'Hoja de ruta',
     ecosystemTitle: 'El Ecosistema HireNova',
     ecosystemDesc: 'Una suite completa de herramientas IA para transformar tu trayectoria profesional.',
