@@ -69,3 +69,29 @@ Stage Summary:
 - Complete UI flow with key icon, shield badges, and success animation
 - All 4 languages supported
 
+---
+Task ID: 4
+Agent: Main Agent
+Task: Add email verification code for password reset (subscribers only)
+
+Work Log:
+- Added resetCode + resetCodeExpires fields to User model in Prisma schema, pushed to DB
+- Created /api/auth/send-reset-code: generates 6-digit code, stores in DB with 15min expiry, verifies subscriber plan
+- Created /api/auth/verify-reset-code: checks code matches, not expired, belongs to correct user
+- Updated /api/auth/reset-password: now requires code parameter, verifies code validity before allowing password change, clears code after success
+- Rewrote AuthModal with 4-step flow:
+  - Step 1: Email input + "Envoyer le code de vérification" button
+  - Step 2: 6-digit code input with auto-focus, paste support, "Renvoyer" and "Changer email" options
+  - Step 3: New password + confirm with subscriber badge
+  - Step 4: Success screen with "Retour à la connexion"
+- Added 18 new i18n keys in FR, EN, AR, ES for code verification flow
+- Full E2E verification with agent-browser: sent code → entered code → set new password → logged in successfully
+
+Stage Summary:
+- 6-digit verification code system fully working
+- Code stored in DB with 15-minute expiry
+- Only subscribers (pro/annual/lifetime) can use password reset
+- Auto-focus + paste support on code input
+- Code cleared from DB after successful password reset
+- All 4 languages supported
+

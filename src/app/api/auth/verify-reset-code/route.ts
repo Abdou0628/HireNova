@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { hash } from 'bcryptjs'
 import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, newPassword, code } = body
+    const { email, code } = body
 
-    if (!email || !newPassword || !code) {
+    if (!email || !code) {
       return NextResponse.json(
-        { success: false, error: 'Email, code et nouveau mot de passe sont requis' },
-        { status: 400 }
-      )
-    }
-
-    if (newPassword.length < 6) {
-      return NextResponse.json(
-        { success: false, error: 'Le mot de passe doit contenir au moins 6 caractères' },
+        { success: false, error: 'Email et code requis' },
         { status: 400 }
       )
     }
@@ -25,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const user = await db.user.findUnique({
       where: { email: normalizedEmail },
-      select: { id: true, email: true, name: true, plan: true, resetCode: true, resetCodeExpires: true },
+      select: { id: true, resetCode: true, resetCodeExpires: true, name: true, plan: true },
     })
 
     if (!user) {
@@ -35,50 +27,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify code is still valid
+    // Check code exists
     if (!user.resetCode || !user.resetCodeExpires) {
       return NextResponse.json(
-        { success: false, error: 'Aucun code de vérification valide. Veuillez recommencer.', code: 'NO_CODE' },
-        { status: 403 }
+        { success: false, error: 'Aucun code de vérification en attente. Veuillez demander un nouveau code.', code: 'NO_CODE' },
+        { status: 400 }
       )
     }
 
+    // Check code not expired
     if (new Date() > user.resetCodeExpires) {
+      // Clear expired code
       await db.user.update({
         where: { id: user.id },
         data: { resetCode: null, resetCodeExpires: null },
       })
       return NextResponse.json(
         { success: false, error: 'Le code a expiré. Veuillez demander un nouveau code.', code: 'CODE_EXPIRED' },
-        { status: 403 }
+        { status: 400 }
       )
     }
 
+    // Check code matches
     if (user.resetCode !== code) {
       return NextResponse.json(
-        { success: false, error: 'Code invalide.', code: 'WRONG_CODE' },
-        { status: 403 }
+        { success: false, error: 'Code incorrect. Veuillez réessayer.', code: 'WRONG_CODE' },
+        { status: 400 }
       )
     }
-
-    // All checks passed — reset password
-    const hashedPassword = await hash(newPassword, 12)
-
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        resetCode: null,
-        resetCodeExpires: null,
-      },
-    })
 
     return NextResponse.json({
       success: true,
-      message: 'Mot de passe mis à jour avec succès',
+      name: user.name,
+      plan: user.plan,
     })
   } catch (error) {
-    console.error('Reset password error:', error)
+    console.error('Verify reset code error:', error)
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }

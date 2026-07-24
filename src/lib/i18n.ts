@@ -289,6 +289,23 @@ export type TranslationKey =
   | 'forgotPasswordNoAccount'
   | 'forgotPasswordNoPlan'
   | 'forgotPasswordError'
+  // Reset code verification
+  | 'codeSendBtn'
+  | 'codeEnterTitle'
+  | 'codeEnterDesc'
+  | 'codeSentTo'
+  | 'codeSentDevNote'
+  | 'codeSubscriberOnly'
+  | 'codeVerifying'
+  | 'codeExpiresIn'
+  | 'codeResend'
+  | 'codeResent'
+  | 'codeChangeEmail'
+  | 'codeWrong'
+  | 'codeExpired'
+  | 'codeNoCode'
+  | 'codePasswordMismatch'
+  | 'codeSuccessDesc'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -604,6 +621,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordNoAccount: 'Aucun compte trouvé avec cet email.',
     forgotPasswordNoPlan: 'Ce compte n\'a pas d\'abonnement actif. Veuillez d\'abord souscrire à un plan.',
     forgotPasswordError: 'Erreur lors de la réinitialisation.',
+    codeSendBtn: 'Envoyer le code de vérification',
+    codeEnterTitle: 'Saisissez le code',
+    codeEnterDesc: 'Entrez le code à 6 chiffres envoyé à votre email.',
+    codeSentTo: 'Code envoyé à',
+    codeSentDevNote: 'Code (mode développement)',
+    codeSubscriberOnly: 'La réinitialisation du mot de passe est réservée aux abonnés avec un plan actif.',
+    codeVerifying: 'Vérification du code...',
+    codeExpiresIn: 'Expire dans',
+    codeResend: 'Renvoyer un nouveau code',
+    codeResent: 'Nouveau code envoyé !',
+    codeChangeEmail: 'Changer d\'email',
+    codeWrong: 'Code incorrect. Veuillez réessayer.',
+    codeExpired: 'Le code a expiré. Veuillez demander un nouveau code.',
+    codeNoCode: 'Aucun code en attente. Veuillez recommencer.',
+    codePasswordMismatch: 'Les mots de passe ne correspondent pas.',
+    codeSuccessDesc: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -918,6 +951,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordNoAccount: 'No account found with this email.',
     forgotPasswordNoPlan: 'This account has no active subscription. Please subscribe to a plan first.',
     forgotPasswordError: 'Error during reset.',
+    codeSendBtn: 'Send verification code',
+    codeEnterTitle: 'Enter the code',
+    codeEnterDesc: 'Enter the 6-digit code sent to your email.',
+    codeSentTo: 'Code sent to',
+    codeSentDevNote: 'Code (dev mode)',
+    codeSubscriberOnly: 'Password reset is reserved for subscribers with an active plan.',
+    codeVerifying: 'Verifying code...',
+    codeExpiresIn: 'Expires in',
+    codeResend: 'Resend a new code',
+    codeResent: 'New code sent!',
+    codeChangeEmail: 'Change email',
+    codeWrong: 'Incorrect code. Please try again.',
+    codeExpired: 'The code has expired. Please request a new one.',
+    codeNoCode: 'No pending code. Please start over.',
+    codePasswordMismatch: 'Passwords do not match.',
+    codeSuccessDesc: 'You can now sign in with your new password.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1231,6 +1280,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordNoAccount: 'لم يتم العثور على حساب بهذا البريد الإلكتروني.',
     forgotPasswordNoPlan: 'هذا الحساب ليس لديه اشتراك نشط. يرجى الاشتراك في خطة أولاً.',
     forgotPasswordError: 'خطأ أثناء إعادة التعيين.',
+    codeSendBtn: 'إرسال رمز التحقق',
+    codeEnterTitle: 'أدخل الرمز',
+    codeEnterDesc: 'أدخل رمز الـ 6 أرقام المرسل إلى بريدك الإلكتروني.',
+    codeSentTo: 'تم إرسال الرمز إلى',
+    codeSentDevNote: 'الرمز (وضع التطوير)',
+    codeSubscriberOnly: 'إعادة تعيين كلمة المرور مخصصة للمشتركين ذوي الخطة النشطة.',
+    codeVerifying: 'جارٍ التحقق من الرمز...',
+    codeExpiresIn: 'ينتهي في',
+    codeResend: 'إعادة إرسال رمز جديد',
+    codeResent: 'تم إرسال رمز جديد!',
+    codeChangeEmail: 'تغيير البريد الإلكتروني',
+    codeWrong: 'رمز غير صحيح. يرجى المحاولة مرة أخرى.',
+    codeExpired: 'انتهت صلاحية الرمز. يرجى طلب رمز جديد.',
+    codeNoCode: 'لا يوجد رمز معلق. يرجى البدء من جديد.',
+    codePasswordMismatch: 'كلمات المرور غير متطابقة.',
+    codeSuccessDesc: 'يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.',
   },
   es: {
     siteTitle: 'HireNova',
@@ -1545,6 +1610,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordNoAccount: 'No se encontró una cuenta con este email.',
     forgotPasswordNoPlan: 'Esta cuenta no tiene una suscripción activa. Por favor suscríbete a un plan primero.',
     forgotPasswordError: 'Error al restablecer.',
+    codeSendBtn: 'Enviar código de verificación',
+    codeEnterTitle: 'Introduce el código',
+    codeEnterDesc: 'Introduce el código de 6 dígitos enviado a tu email.',
+    codeSentTo: 'Código enviado a',
+    codeSentDevNote: 'Código (modo desarrollo)',
+    codeSubscriberOnly: 'La restablecimiento de contraseña está reservado para suscriptores con un plan activo.',
+    codeVerifying: 'Verificando código...',
+    codeExpiresIn: 'Expira en',
+    codeResend: 'Reenviar un nuevo código',
+    codeResent: '¡Nuevo código enviado!',
+    codeChangeEmail: 'Cambiar email',
+    codeWrong: 'Código incorrecto. Por favor inténtalo de nuevo.',
+    codeExpired: 'El código ha expirado. Por favor solicita uno nuevo.',
+    codeNoCode: 'No hay código pendiente. Por favor empieza de nuevo.',
+    codePasswordMismatch: 'Las contraseñas no coinciden.',
+    codeSuccessDesc: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
   }
 }
 

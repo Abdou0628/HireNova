@@ -26,6 +26,8 @@ model User {
   paymobOrderId    String?
   paymobPaymentId  String?
   paymobProvider   String?
+  resetCode        String?
+  resetCodeExpires DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

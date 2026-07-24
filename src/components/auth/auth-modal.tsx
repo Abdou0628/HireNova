@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { signIn } from 'next-auth/react'
-import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { t } from '@/lib/i18n'
 import { useCVStore } from '@/store/cv-store'
 
-type Mode = 'login' | 'register' | 'forgot-email' | 'forgot-new-password' | 'forgot-success'
+type Mode = 'login' | 'register' | 'forgot-email' | 'forgot-code' | 'forgot-new-password' | 'forgot-success'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -26,29 +26,91 @@ interface AuthModalProps {
   onAuthSuccess?: () => void
 }
 
+// 6-digit code input component
+function CodeInput({ length = 6, onComplete }: { length?: number; onComplete: (code: string) => void }) {
+  const [values, setValues] = useState<string[]>(Array(length).fill(''))
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  const handleChange = (index: number, value: string) => {
+    // Only allow digits
+    const digit = value.replace(/\D/g, '').slice(-1)
+    const newValues = [...values]
+    newValues[index] = digit
+    setValues(newValues)
+
+    // Auto-focus next input
+    if (digit && index < length - 1) {
+      inputRefs.current[index + 1]?.focus()
+    }
+
+    // Check if complete
+    if (newValues.every((v) => v !== '')) {
+      onComplete(newValues.join(''))
+    }
+  }
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !values[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
+    if (pasted.length === length) {
+      const newValues = pasted.split('')
+      setValues(newValues)
+      inputRefs.current[length - 1]?.focus()
+      onComplete(pasted)
+    }
+  }
+
+  return (
+    <div className="flex justify-center gap-2 my-2" onPaste={handlePaste}>
+      {values.map((value, i) => (
+        <Input
+          key={i}
+          ref={(el) => { inputRefs.current[i] = el }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={value}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          className="w-11 h-14 text-center text-xl font-bold rounded-xl border-2 border-border focus:border-emerald-500 focus:ring-emerald-500/20 transition-all"
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<Mode>(initialMode)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetCode, setResetCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [resetEmail, setResetEmail] = useState('')
   const [resetUserName, setResetUserName] = useState<string | null>(null)
+  const [codeExpiresIn, setCodeExpiresIn] = useState<number>(0)
 
   const { language } = useCVStore()
-
   const lang = language
 
   const resetForm = () => {
     setEmail('')
     setPassword('')
     setName('')
+    setResetEmail('')
+    setResetCode('')
     setNewPassword('')
     setConfirmPassword('')
-    setResetEmail('')
     setResetUserName(null)
+    setCodeExpiresIn(0)
     setLoading(false)
   }
 
@@ -114,16 +176,25 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     }
   }
 
-  const handleForgotEmailSubmit = async (e: React.FormEvent) => {
+  // Step 1: Send code
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!resetEmail) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/auth/reset-password?email=${encodeURIComponent(resetEmail)}`)
+      const res = await fetch('/api/auth/send-reset-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      })
       const data = await res.json()
       if (data.success) {
-        setResetUserName(data.name)
-        setMode('forgot-new-password')
+        setCodeExpiresIn(data.expiresIn)
+        setMode('forgot-code')
+        // In production, the code is sent via email. For development, show it.
+        if (data.code) {
+          toast.success(`${t(lang, 'codeSentTo')} ${resetEmail}`, { duration: 8000, description: `${t(lang, 'codeSentDevNote')} : ${data.code}` })
+        }
       } else if (data.code === 'USER_NOT_FOUND') {
         toast.error(t(lang, 'forgotPasswordNoAccount'))
       } else if (data.code === 'NO_ACTIVE_PLAN') {
@@ -138,11 +209,44 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     }
   }
 
+  // Step 2: Verify code
+  const handleVerifyCode = async (code: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/verify-reset-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, code }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setResetUserName(data.name)
+        setResetCode(code)
+        setMode('forgot-new-password')
+      } else if (data.code === 'WRONG_CODE') {
+        toast.error(t(lang, 'codeWrong'))
+      } else if (data.code === 'CODE_EXPIRED') {
+        toast.error(t(lang, 'codeExpired'))
+        setMode('forgot-email')
+      } else if (data.code === 'NO_CODE') {
+        toast.error(t(lang, 'codeNoCode'))
+        setMode('forgot-email')
+      } else {
+        toast.error(data.error || t(lang, 'forgotPasswordError'))
+      }
+    } catch {
+      toast.error(t(lang, 'forgotPasswordError'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Step 3: Reset password
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPassword || !confirmPassword) return
     if (newPassword !== confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas')
+      toast.error(t(lang, 'codePasswordMismatch'))
       return
     }
     if (newPassword.length < 6) {
@@ -154,7 +258,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetEmail, newPassword }),
+        body: JSON.stringify({ email: resetEmail, newPassword, code: resetCode }),
       })
       const data = await res.json()
       if (data.success) {
@@ -179,21 +283,46 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     setMode('login')
   }
 
+  const resendCode = async () => {
+    if (!resetEmail) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/send-reset-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setCodeExpiresIn(data.expiresIn)
+        toast.success(t(lang, 'codeResent'), { description: data.code ? `${t(lang, 'codeSentDevNote')} : ${data.code}` : undefined })
+      } else {
+        toast.error(data.error || t(lang, 'forgotPasswordError'))
+      }
+    } catch {
+      toast.error(t(lang, 'forgotPasswordError'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const toggleMode = () => {
     resetForm()
     setMode((m) => (m === 'login' ? 'register' : 'login'))
   }
 
   const isLogin = mode === 'login'
-  const isForgot = mode === 'forgot-email' || mode === 'forgot-new-password' || mode === 'forgot-success'
+  const isForgot = mode === 'forgot-email' || mode === 'forgot-code' || mode === 'forgot-new-password' || mode === 'forgot-success'
 
-  // Header content per mode
+  // Header content
   const headerTitle = isForgot
     ? mode === 'forgot-email'
       ? t(lang, 'forgotPasswordTitle')
-      : mode === 'forgot-new-password'
-        ? t(lang, 'forgotPasswordVerify')
-        : t(lang, 'forgotPasswordSuccess')
+      : mode === 'forgot-code'
+        ? t(lang, 'codeEnterTitle')
+        : mode === 'forgot-new-password'
+          ? t(lang, 'forgotPasswordVerify')
+          : t(lang, 'forgotPasswordSuccess')
     : isLogin
       ? t(lang, 'loginTitle')
       : t(lang, 'registerTitle')
@@ -201,9 +330,11 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const headerDesc = isForgot
     ? mode === 'forgot-email'
       ? t(lang, 'forgotPasswordDesc')
-      : mode === 'forgot-new-password'
-        ? t(lang, 'forgotPasswordVerifyDesc')
-        : ''
+      : mode === 'forgot-code'
+        ? t(lang, 'codeEnterDesc')
+        : mode === 'forgot-new-password'
+          ? t(lang, 'forgotPasswordVerifyDesc')
+          : ''
     : isLogin
       ? t(lang, 'loginEmail')
       : t(lang, 'registerTitle')
@@ -211,7 +342,9 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const headerIcon = isForgot
     ? mode === 'forgot-success'
       ? <CheckCircle2 className="w-6 h-6 text-white" />
-      : <KeyRound className="w-6 h-6 text-white" />
+      : mode === 'forgot-code'
+        ? <Mail className="w-6 h-6 text-white" />
+        : <KeyRound className="w-6 h-6 text-white" />
     : <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
       </svg>
@@ -238,7 +371,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
 
         {/* FORGOT PASSWORD - Step 1: Enter email */}
         {mode === 'forgot-email' && (
-          <form onSubmit={handleForgotEmailSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSendCode} className="p-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="reset-email" className="text-sm font-medium text-foreground">
                 {t(lang, 'forgotPasswordEmail')}
@@ -254,9 +387,9 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               />
             </div>
 
-            <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600" />
-              <span>La réinitialisation est réservée aux abonnés avec un plan actif.</span>
+            <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+              <span>{t(lang, 'codeSubscriberOnly')}</span>
             </div>
 
             <Button
@@ -265,7 +398,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 text-base font-semibold cursor-pointer transition-all"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t(lang, 'forgotPasswordVerify')}
+              {t(lang, 'codeSendBtn')}
             </Button>
 
             <div className="text-center pt-2">
@@ -281,11 +414,57 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
           </form>
         )}
 
-        {/* FORGOT PASSWORD - Step 2: New password */}
+        {/* FORGOT PASSWORD - Step 2: Enter code */}
+        {mode === 'forgot-code' && (
+          <div className="p-6 space-y-4">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">{t(lang, 'codeSentTo')}</p>
+              <p className="text-sm font-semibold text-foreground">{resetEmail}</p>
+            </div>
+
+            <CodeInput onComplete={(code) => !loading && handleVerifyCode(code)} />
+
+            {loading && (
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t(lang, 'codeVerifying')}
+              </div>
+            )}
+
+            {codeExpiresIn > 0 && (
+              <p className="text-center text-xs text-muted-foreground">
+                {t(lang, 'codeExpiresIn')} {codeExpiresIn} min
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={resendCode}
+              disabled={loading}
+              className="w-full text-sm text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer inline-flex items-center justify-center gap-1 font-medium disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? '' : ''}`} />
+              {t(lang, 'codeResend')}
+            </button>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setMode('forgot-email')}
+                className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer inline-flex items-center gap-1"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                {t(lang, 'codeChangeEmail')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* FORGOT PASSWORD - Step 3: New password */}
         {mode === 'forgot-new-password' && (
           <form onSubmit={handleResetPassword} className="p-6 space-y-4">
             {resetUserName && (
-              <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-800 mb-2">
+              <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-800">
                 <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
                 <span className="font-medium">{t(lang, 'forgotPasswordUserFound')} :</span>
                 <span className="font-semibold">{resetUserName}</span>
@@ -346,7 +525,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
           </form>
         )}
 
-        {/* FORGOT PASSWORD - Step 3: Success */}
+        {/* FORGOT PASSWORD - Step 4: Success */}
         {mode === 'forgot-success' && (
           <div className="p-6 space-y-4">
             <div className="text-center py-4">
@@ -357,7 +536,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
                 {t(lang, 'forgotPasswordSuccess')}
               </p>
               <p className="text-muted-foreground text-sm">
-                Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
+                {t(lang, 'codeSuccessDesc')}
               </p>
             </div>
             <Button
