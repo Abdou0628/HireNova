@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, Wallet, CreditCard, Smartphone, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -80,10 +80,9 @@ export default function Landing() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<'eur' | 'usd' | 'mad'>('eur')
+  const [currency, setCurrency] = useState<'eur' | 'usd'>('eur')
 
   const isUsd = currency === 'usd'
-  const isMad = currency === 'mad'
 
   async function handleCheckout(planType: 'pro' | 'lifetime') {
     if (!session?.user) {
@@ -93,32 +92,17 @@ export default function Landing() {
     }
     setCheckoutLoading(planType)
     try {
-      if (isMad) {
-        // Paymob/Floos for Africa
-        const res = await fetch('/api/paymob/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planType }),
-        })
-        const data = await res.json()
-        if (data.url) {
-          window.location.href = data.url
-        } else {
-          toast.error(data.error || 'Erreur')
-        }
+      // LemonSqueezy for EUR/USD
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planType, currency }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
       } else {
-        // LemonSqueezy for EUR/USD
-        const res = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planType, currency }),
-        })
-        const data = await res.json()
-        if (data.url) {
-          window.location.href = data.url
-        } else {
-          toast.error(data.error || 'Erreur')
-        }
+        toast.error(data.error || 'Erreur')
       }
     } catch {
       toast.error('Erreur de connexion')
@@ -420,7 +404,7 @@ export default function Landing() {
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => setCurrency('eur')}
-                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd && !isMad ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
                   EUR
                 </button>
@@ -429,12 +413,6 @@ export default function Landing() {
                   className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
                 >
                   USD
-                </button>
-                <button
-                  onClick={() => setCurrency('mad')}
-                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isMad ? "bg-amber-500 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
-                >
-                  🌍 MAD
                 </button>
               </div>
             </motion.div>
@@ -460,8 +438,8 @@ export default function Landing() {
                       {t(language, 'planPro')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobProPrice') : isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobMonthly') : isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
 
@@ -515,8 +493,8 @@ export default function Landing() {
                       {t(language, 'planLifetime')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobLifetimePrice') : isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobOneTime') : isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
 
@@ -549,40 +527,67 @@ export default function Landing() {
               </motion.div>
             </div>
 
-            {/* Paymob / Africa Payment Info */}
-            {isMad && (
-              <motion.div
-                className="mt-8 max-w-4xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
-                        <Wallet className="w-5 h-5 text-white" />
+          </div>
+        </section>
+
+        {/* HireNova Ecosystem — Future Products Roadmap */}
+        <section className="py-16 sm:py-24 bg-gradient-to-b from-muted/30 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+                <Rocket className="w-4 h-4" />
+                <span>{t(language, 'roadmapTitle')}</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'ecosystemTitle')}</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'ecosystemDesc')}</p>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {[
+                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald' },
+                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: false, accent: 'blue' },
+                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet' },
+                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky' },
+                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber' },
+                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose' },
+                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo' },
+                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal' },
+                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange' },
+              ].map((product, index) => (
+                <motion.div
+                  key={product.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.4, delay: index * 0.06 }}
+                >
+                  <Card className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active ? 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white' : 'border-muted/50 bg-white'}`}>
+                    {product.active && (
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-emerald-600 text-white px-2 py-0.5 text-[10px] font-semibold rounded-full">ACTIF</Badge>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{t(language, 'paymobAfrica')}</h3>
-                        <p className="text-sm text-muted-foreground">{t(language, 'paymobLabel')}</p>
+                    )}
+                    {!product.active && (
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">BIENTÔT</Badge>
                       </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">{t(language, 'paymobDesc')}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
-                        <CreditCard className="w-5 h-5 text-amber-600 shrink-0" />
-                        <span className="text-sm font-medium">{t(language, 'paymobCard')}</span>
+                    )}
+                    <CardContent className="p-5">
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${product.active ? 'bg-emerald-100' : 'bg-muted'}`}>
+                        <product.icon className={`w-5 h-5 ${product.active ? 'text-emerald-600' : 'text-muted-foreground'}`} />
                       </div>
-                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
-                        <Smartphone className="w-5 h-5 text-amber-600 shrink-0" />
-                        <span className="text-sm font-medium">{t(language, 'paymobWallet')}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-emerald-800' : 'text-foreground'}`}>{product.name}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 

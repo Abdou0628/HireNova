@@ -89,3 +89,23 @@ Stage Summary:
 - "Powered by IA" added to all 7 pages
 - Internship request toggle added for student/graduate
 - Lint clean, dev server running, no errors
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Remove MAD currency + Add HireNova Ecosystem Roadmap section
+
+Work Log:
+- Removed MAD currency from pricing: removed state, Paymob checkout, Paymob info card, MAD button
+- Cleaned up unused imports (Wallet, CreditCard, Smartphone)
+- Added new imports for roadmap icons (Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop)
+- Created "L'Écosystème HireNova" section with 9 product cards
+- HireNova CV marked as ACTIF, all 8 others as BIENTÔT
+- Added 12 new i18n keys (roadmapTitle, ecosystemTitle, ecosystemDesc, + 9 product descriptions) in FR/EN/AR/ES
+- Lint clean, dev server compiles 200 OK
+- Browser verified: all 9 cards visible with correct labels, MAD completely removed from pricing
+
+Stage Summary:
+- MAD currency fully removed from pricing section
+- 9 HireNova ecosystem products displayed on landing page roadmap
+- All i18n translations in 4 languages

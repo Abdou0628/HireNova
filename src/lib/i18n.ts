@@ -221,6 +221,18 @@ export type TranslationKey =
   | 'personaFieldsTitle'
   | 'internshipRequest'
   | 'internshipRequestDesc'
+  | 'roadmapTitle'
+  | 'ecosystemTitle'
+  | 'ecosystemDesc'
+  | 'ecosystemCv'
+  | 'ecosystemAts'
+  | 'ecosystemInterview'
+  | 'ecosystemLinkedin'
+  | 'ecosystemRecruiter'
+  | 'ecosystemCareer'
+  | 'ecosystemCoach'
+  | 'ecosystemFormation'
+  | 'ecosystemFreelance'
   | 'pfStudentField1' | 'pfStudentField1Ph'
   | 'pfStudentField2' | 'pfStudentField2Ph'
   | 'pfStudentField3' | 'pfStudentField3Ph'
@@ -473,6 +485,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFieldsTitle: 'Informations spécifiques au profil',
     internshipRequest: 'Demande de stage',
     internshipRequestDesc: "Adapter le CV pour une recherche de stage plutôt qu'un emploi",
+    roadmapTitle: 'Feuille de route',
+    ecosystemTitle: 'L\'Écosystème HireNova',
+    ecosystemDesc: 'Une suite complète d\'outils IA pour transformer votre parcours professionnel, de la candidature à l\'évolution de carrière.',
+    ecosystemCv: 'Créez des CV professionnels optimisés ATS en 60 secondes avec l\'IA.',
+    ecosystemAts: 'Analysez et optimisez le score ATS de votre CV pour passer les filtres automatiques.',
+    ecosystemInterview: 'Préparez-vous aux entretiens avec des simulations IA et questions personnalisées.',
+    ecosystemLinkedin: 'Optimisez votre profil LinkedIn pour attirer les recruteurs.',
+    ecosystemRecruiter: 'Trouvez les meilleurs talents grâce à l\'IA et au matching intelligent.',
+    ecosystemCareer: 'Orientez votre carrière avec des conseils personnalisés et des plans d\'évolution.',
+    ecosystemCoach: 'Un coach IA personnel pour vous guider dans votre développement professionnel.',
+    ecosystemFormation: 'Formations certifiantes en ligne adaptées à votre profil et vos objectifs.',
+    ecosystemFreelance: 'Gérez vos missions freelance, clients et facturation en toute simplicité.',
     pfStudentField1: 'Établissement',
     pfStudentField1Ph: 'Ex: Université Hassan II',
     pfStudentField2: 'Filière / Spécialité',
@@ -743,6 +767,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFieldsTitle: 'Profile-specific information',
     internshipRequest: 'Internship Request',
     internshipRequestDesc: "Tailor the CV for an internship search rather than a job",
+    roadmapTitle: 'Roadmap',
+    ecosystemTitle: 'The HireNova Ecosystem',
+    ecosystemDesc: 'A complete suite of AI tools to transform your career journey, from applications to career growth.',
+    ecosystemCv: 'Create ATS-optimized professional resumes in 60 seconds with AI.',
+    ecosystemAts: 'Analyze and optimize your resume\'s ATS score to pass automated filters.',
+    ecosystemInterview: 'Prepare for interviews with AI simulations and personalized questions.',
+    ecosystemLinkedin: 'Optimize your LinkedIn profile to attract recruiters.',
+    ecosystemRecruiter: 'Find top talent with AI-powered intelligent matching.',
+    ecosystemCareer: 'Guide your career with personalized advice and growth plans.',
+    ecosystemCoach: 'A personal AI coach to guide your professional development.',
+    ecosystemFormation: 'Certified online training tailored to your profile and goals.',
+    ecosystemFreelance: 'Manage freelance missions, clients, and billing effortlessly.',
     pfStudentField1: 'Institution',
     pfStudentField1Ph: 'Ex: Harvard University',
     pfStudentField2: 'Major / Specialization',
@@ -1012,6 +1048,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFieldsTitle: 'معلومات خاصة بالملف',
     internshipRequest: 'طلب تدريب',
     internshipRequestDesc: 'تكييف السيرة الذاتية للبحث عن تدريب بدلاً من وظيفة',
+    roadmapTitle: 'خارطة الطريق',
+    ecosystemTitle: 'منظومة HireNova',
+    ecosystemDesc: 'مجموعة كاملة من أدوات الذكاء الاصطناعي لتحويل مسارك المهني، من التقديم إلى النمو الوظيفي.',
+    ecosystemCv: 'أنشئ سيرات ذاتية احترافية محسّنة لـ ATS في 60 ثانية بالذكاء الاصطناعي.',
+    ecosystemAts: 'حلّل وحسّن نقاط ATS لسيرتك الذاتية لتجاوز الفلاتر التلقائية.',
+    ecosystemInterview: 'استعد للمقابلات بمحاكيات ذكاء اصطناعي وأسئلة مخصصة.',
+    ecosystemLinkedin: 'حسّن ملفك الشخصي على لينكد إن لجذب المسؤولين عن التوظيف.',
+    ecosystemRecruiter: 'اعثر على أفضل المواهب بمطابقة ذكية مدعومة بالذكاء الاصطناعي.',
+    ecosystemCareer: 'وجّه مسارك المهني بنصائح مخصصة وخطط نمو.',
+    ecosystemCoach: 'مدرب ذكاء اصطناعي شخصي لإرشادك في تطورك المهني.',
+    ecosystemFormation: 'تدريب معتمد عبر الإنترنت مصمم حسب ملفك وأهدافك.',
+    ecosystemFreelance: 'أدِر مهام المستقلين والعملاء والفواتير بسهولة.',
     pfStudentField1: 'المؤسسة',
     pfStudentField1Ph: 'مثال: جامعة الحسن الثاني',
     pfStudentField2: 'التخصص',
@@ -1282,6 +1330,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFieldsTitle: 'Información específica del perfil',
     internshipRequest: 'Solicitud de prácticas',
     internshipRequestDesc: 'Adaptar el currículum para una búsqueda de prácticas en lugar de un empleo',
+    roadmapTitle: 'Hoja de ruta',
+    ecosystemTitle: 'El Ecosistema HireNova',
+    ecosystemDesc: 'Una suite completa de herramientas IA para transformar tu trayectoria profesional.',
+    ecosystemCv: 'Crea currículums profesionales optimizados para ATS en 60 segundos con IA.',
+    ecosystemAts: 'Analiza y optimiza la puntuación ATS de tu currículum para pasar filtros automáticos.',
+    ecosystemInterview: 'Prepárate para entrevistas con simulaciones IA y preguntas personalizadas.',
+    ecosystemLinkedin: 'Optimiza tu perfil de LinkedIn para atraer reclutadores.',
+    ecosystemRecruiter: 'Encuentra los mejores talentos con matching inteligente impulsado por IA.',
+    ecosystemCareer: 'Orienta tu carrera con consejos personalizados y planes de crecimiento.',
+    ecosystemCoach: 'Un coach IA personal para guiar tu desarrollo profesional.',
+    ecosystemFormation: 'Formación certificada online adaptada a tu perfil y objetivos.',
+    ecosystemFreelance: 'Gestiona misiones freelance, clientes y facturación sin esfuerzo.',
     pfStudentField1: 'Institución',
     pfStudentField1Ph: 'Ej: Universidad Complutense',
     pfStudentField2: 'Especialidad',
