@@ -306,6 +306,27 @@ export type TranslationKey =
   | 'codeNoCode'
   | 'codePasswordMismatch'
   | 'codeSuccessDesc'
+  // ATS Analysis
+  | 'atsAnalyzeBtn'
+  | 'atsAnalyzing'
+  | 'atsAnalyzingSubtitle'
+  | 'atsOverallScore'
+  | 'atsScoreLabel'
+  | 'atsCategoryKeywords'
+  | 'atsCategoryKeywordsDesc'
+  | 'atsCategoryStructure'
+  | 'atsCategoryStructureDesc'
+  | 'atsCategoryExperience'
+  | 'atsCategoryExperienceDesc'
+  | 'atsCategorySkills'
+  | 'atsCategorySkillsDesc'
+  | 'atsCategoryReadability'
+  | 'atsCategoryReadabilityDesc'
+  | 'atsSuggestions'
+  | 'atsSuggestionGood'
+  | 'atsReAnalyze'
+  | 'atsClose'
+  | 'atsPoweredBy'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -637,6 +658,27 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'Aucun code en attente. Veuillez recommencer.',
     codePasswordMismatch: 'Les mots de passe ne correspondent pas.',
     codeSuccessDesc: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+    // ATS Analysis
+    atsAnalyzeBtn: 'Analyser mon score ATS',
+    atsAnalyzing: "L'IA analyse votre CV...",
+    atsAnalyzingSubtitle: 'Évaluation de la compatibilité ATS en cours',
+    atsOverallScore: 'Score ATS Global',
+    atsScoreLabel: 'Score ATS',
+    atsCategoryKeywords: 'Mots-clés & SEO',
+    atsCategoryKeywordsDesc: 'Pertinence des mots-clés pour le poste visé',
+    atsCategoryStructure: 'Structure & Format',
+    atsCategoryStructureDesc: 'Structure du CV et formatage compatible ATS',
+    atsCategoryExperience: 'Expérience & Impact',
+    atsCategoryExperienceDesc: 'Qualité et impact des descriptions d\'expérience',
+    atsCategorySkills: 'Adéquation Compétences',
+    atsCategorySkillsDesc: 'Alignement des compétences avec le poste visé',
+    atsCategoryReadability: 'Lisibilité',
+    atsCategoryReadabilityDesc: 'Clarté du texte et ton professionnel',
+    atsSuggestions: 'Suggestions d\'optimisation',
+    atsSuggestionGood: 'Votre CV est bien optimisé pour les systèmes ATS !',
+    atsReAnalyze: 'Ré-analyser',
+    atsClose: 'Fermer',
+    atsPoweredBy: 'Propulsé par HireNova ATS',
   },
   en: {
     siteTitle: 'HireNova',
@@ -967,6 +1009,27 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'No pending code. Please start over.',
     codePasswordMismatch: 'Passwords do not match.',
     codeSuccessDesc: 'You can now sign in with your new password.',
+    // ATS Analysis
+    atsAnalyzeBtn: 'Analyze my ATS Score',
+    atsAnalyzing: 'AI is analyzing your resume...',
+    atsAnalyzingSubtitle: 'Evaluating ATS compatibility',
+    atsOverallScore: 'Overall ATS Score',
+    atsScoreLabel: 'ATS Score',
+    atsCategoryKeywords: 'Keywords & SEO',
+    atsCategoryKeywordsDesc: 'Relevance of keywords for your target position',
+    atsCategoryStructure: 'Structure & Format',
+    atsCategoryStructureDesc: 'Resume structure and ATS-friendly formatting',
+    atsCategoryExperience: 'Experience & Impact',
+    atsCategoryExperienceDesc: 'Quality and impact of experience descriptions',
+    atsCategorySkills: 'Skills Match',
+    atsCategorySkillsDesc: 'Skills alignment with the target role',
+    atsCategoryReadability: 'Readability',
+    atsCategoryReadabilityDesc: 'Text clarity and professional tone',
+    atsSuggestions: 'Optimization Suggestions',
+    atsSuggestionGood: 'Your resume is well optimized for ATS systems!',
+    atsReAnalyze: 'Re-analyze',
+    atsClose: 'Close',
+    atsPoweredBy: 'Powered by HireNova ATS',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1296,6 +1359,27 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'لا يوجد رمز معلق. يرجى البدء من جديد.',
     codePasswordMismatch: 'كلمات المرور غير متطابقة.',
     codeSuccessDesc: 'يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.',
+    // ATS Analysis
+    atsAnalyzeBtn: 'تحليل نقطتي ATS',
+    atsAnalyzing: 'الذكاء الاصطناعي يحلل سيرتك الذاتية...',
+    atsAnalyzingSubtitle: 'جاري تقييم التوافق مع ATS',
+    atsOverallScore: 'النتيجة الإجمالية ATS',
+    atsScoreLabel: 'نقطة ATS',
+    atsCategoryKeywords: 'الكلمات المفتاحية و SEO',
+    atsCategoryKeywordsDesc: 'ملاءمة الكلمات المفتاحية للوظيفة المستهدفة',
+    atsCategoryStructure: 'الهيكل والتنسيق',
+    atsCategoryStructureDesc: 'هيكل السيرة الذاتية والتنسيق المتوافق مع ATS',
+    atsCategoryExperience: 'الخبرة والتأثير',
+    atsCategoryExperienceDesc: 'جودة وتأثير وصف الخبرات',
+    atsCategorySkills: 'توافق المهارات',
+    atsCategorySkillsDesc: 'ملاءمة المهارات مع الوظيفة المستهدفة',
+    atsCategoryReadability: 'سهولة القراءة',
+    atsCategoryReadabilityDesc: 'وضوح النص والنبرة المهنية',
+    atsSuggestions: 'اقتراحات التحسين',
+    atsSuggestionGood: 'سيرتك الذاتية محسنة بشكل جيد لأنظمة ATS!',
+    atsReAnalyze: 'إعادة التحليل',
+    atsClose: 'إغلاق',
+    atsPoweredBy: 'مدعوم بواسطة HireNova ATS',
   },
   es: {
     siteTitle: 'HireNova',
@@ -1626,6 +1710,27 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'No hay código pendiente. Por favor empieza de nuevo.',
     codePasswordMismatch: 'Las contraseñas no coinciden.',
     codeSuccessDesc: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
+    // ATS Analysis
+    atsAnalyzeBtn: 'Analizar mi puntuación ATS',
+    atsAnalyzing: 'La IA está analizando tu currículum...',
+    atsAnalyzingSubtitle: 'Evaluando la compatibilidad ATS',
+    atsOverallScore: 'Puntuación ATS Global',
+    atsScoreLabel: 'Puntuación ATS',
+    atsCategoryKeywords: 'Palabras clave y SEO',
+    atsCategoryKeywordsDesc: 'Relevancia de palabras clave para el puesto objetivo',
+    atsCategoryStructure: 'Estructura y Formato',
+    atsCategoryStructureDesc: 'Estructura del currículum y formato compatible con ATS',
+    atsCategoryExperience: 'Experiencia e Impacto',
+    atsCategoryExperienceDesc: 'Calidad e impacto de las descripciones de experiencia',
+    atsCategorySkills: 'Adecuación de Competencias',
+    atsCategorySkillsDesc: 'Alineación de competencias con el puesto objetivo',
+    atsCategoryReadability: 'Legibilidad',
+    atsCategoryReadabilityDesc: 'Claridad del texto y tono profesional',
+    atsSuggestions: 'Sugerencias de Optimización',
+    atsSuggestionGood: '¡Tu currículum está bien optimizado para los sistemas ATS!',
+    atsReAnalyze: 'Re-analizar',
+    atsClose: 'Cerrar',
+    atsPoweredBy: 'Impulsado por HireNova ATS',
   }
 }
 

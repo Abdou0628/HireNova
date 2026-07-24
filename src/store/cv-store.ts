@@ -75,6 +75,18 @@ export interface GeneratedCoverLetter {
   signOff: string
 }
 
+export interface ATSCategoryScore {
+  name: string
+  score: number
+  description: string
+}
+
+export interface ATSResult {
+  overallScore: number
+  categories: ATSCategoryScore[]
+  suggestions: string[]
+}
+
 interface CVStore {
   step: AppStep
   formStep: number
@@ -90,6 +102,10 @@ interface CVStore {
   generatedCL: GeneratedCoverLetter | null
   isCLGenerating: boolean
   clError: string | null
+  // ATS analysis state
+  atsResult: ATSResult | null
+  isATSAnalyzing: boolean
+  atsError: string | null
 
   setStep: (step: AppStep) => void
   setFormStep: (step: number) => void
@@ -104,6 +120,9 @@ interface CVStore {
   setGeneratedCL: (cl: GeneratedCoverLetter | null) => void
   setIsCLGenerating: (val: boolean) => void
   setCLError: (err: string | null) => void
+  setATSResult: (result: ATSResult | null) => void
+  setIsATSAnalyzing: (val: boolean) => void
+  setATSError: (err: string | null) => void
   resetCL: () => void
   reset: () => void
 }
@@ -166,6 +185,10 @@ export const useCVStore = create<CVStore>((set) => ({
   generatedCL: null,
   isCLGenerating: false,
   clError: null,
+  // ATS
+  atsResult: null,
+  isATSAnalyzing: false,
+  atsError: null,
 
   setStep: (step) => set({ step }),
   setFormStep: (formStep) => set({ formStep }),
@@ -182,6 +205,9 @@ export const useCVStore = create<CVStore>((set) => ({
   setGeneratedCL: (generatedCL) => set({ generatedCL }),
   setIsCLGenerating: (isCLGenerating) => set({ isCLGenerating }),
   setCLError: (clError) => set({ clError }),
+  setATSResult: (atsResult) => set({ atsResult }),
+  setIsATSAnalyzing: (isATSAnalyzing) => set({ isATSAnalyzing }),
+  setATSError: (atsError) => set({ atsError }),
   resetCL: () =>
     set({
       step: 'landing',
@@ -189,6 +215,9 @@ export const useCVStore = create<CVStore>((set) => ({
       generatedCL: null,
       isCLGenerating: false,
       clError: null,
+      atsResult: null,
+      isATSAnalyzing: false,
+      atsError: null,
     }),
   reset: () =>
     set({
@@ -204,5 +233,8 @@ export const useCVStore = create<CVStore>((set) => ({
       generatedCL: null,
       isCLGenerating: false,
       clError: null,
+      atsResult: null,
+      isATSAnalyzing: false,
+      atsError: null,
     }),
 }))

@@ -637,7 +637,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {[
                 { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald' },
-                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: false, accent: 'blue' },
+                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald' },
                 { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet' },
                 { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky' },
                 { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber' },

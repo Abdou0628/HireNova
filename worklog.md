@@ -95,3 +95,39 @@ Stage Summary:
 - Code cleared from DB after successful password reset
 - All 4 languages supported
 
+---
+Task ID: 5
+Agent: Main Agent
+Task: Activate HireNova ATS - Analyze and optimize CV ATS score with % display
+
+Work Log:
+- Added 22 ATS analysis i18n keys in all 4 languages (FR, EN, AR, ES) to i18n.ts
+- Added ATSResult + ATSCategoryScore interfaces to cv-store.ts
+- Added atsResult, isATSAnalyzing, atsError state + setATSResult, setIsATSAnalyzing, setATSError actions to CVStore
+- Updated reset() and resetCL() to clear ATS state
+- Created /api/analyze-ats API route using z-ai-web-dev-sdk LLM for deep CV analysis
+  - Auth + subscription check (401/403 guards)
+  - Sends generated CV content + target job + industry to LLM
+  - Returns: overallScore (40-95%), 5 category scores, 4-6 actionable suggestions
+  - Categories: keywords_seo, structure_format, experience_impact, skills_match, readability
+- Created /src/components/cv/ats-analysis.tsx - full ATS analysis modal with:
+  - Animated circular score gauge (SVG arc with 1.5s animation)
+  - Color-coded scoring: green (≥80%), amber (≥60%), red (<60%)
+  - 5 category breakdown cards with individual progress bars and descriptions
+  - Optimization suggestions list with numbered items
+  - Loading state with spinner animation
+  - Error state with retry button
+  - Re-analyze button
+- Updated preview.tsx: added ATS analysis button in header bar + prominent CTA card below document
+- Updated landing.tsx: changed HireNova ATS from active:false to active:true in ecosystem section
+- Cleaned up duplicate interfaces in cv-store.ts
+- Lint clean (0 errors, 0 warnings)
+- Verified with agent-browser: landing page loads, ecosystem shows 2 ACTIF badges (CV + ATS)
+
+Stage Summary:
+- HireNova ATS feature fully activated
+- AI-powered CV ATS analysis with detailed % scores across 5 categories
+- Beautiful circular gauge UI with animated score display
+- Integrated into preview page with 2 access points (header button + prominent CTA)
+- Auth + subscription protected on API level
+- All 4 languages supported (FR, EN, AR, ES)

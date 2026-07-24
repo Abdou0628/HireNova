@@ -20,10 +20,12 @@ import {
   PenLine,
   FileDown,
   ChevronDown,
+  Search,
 } from 'lucide-react'
 import CVDocument from './cv-document'
 import CoverLetterDocument from '@/components/cl/cover-letter-document'
 import SatisfactionPrompt from '@/components/support/satisfaction-prompt'
+import ATSAnalysis from '@/components/cv/ats-analysis'
 
 type PreviewTab = 'cv' | 'cl'
 
@@ -47,6 +49,7 @@ export default function Preview() {
   const hasCL = !!generatedCL
   const [showSatisfaction, setShowSatisfaction] = useState(false)
   const [satisfactionType, setSatisfactionType] = useState<'cv' | 'cover_letter'>('cv')
+  const [showATS, setShowATS] = useState(false)
 
   useEffect(() => {
     // Show satisfaction 3 seconds after preview loads
@@ -166,6 +169,15 @@ export default function Preview() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowATS(true)}
+              className="gap-1.5 cursor-pointer text-xs sm:text-sm border-emerald-600/40 text-emerald-700 hover:bg-emerald-50"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t(language, 'atsAnalyzeBtn')}</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -296,8 +308,33 @@ export default function Preview() {
             </AnimatePresence>
           </div>
 
+          {/* ATS Score Button */}
+          <motion.div
+            className="mt-6 w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <button
+              onClick={() => setShowATS(true)}
+              className="w-full flex items-center justify-center gap-3 p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-dashed border-emerald-300 rounded-xl hover:border-emerald-400 hover:from-emerald-100 hover:to-teal-100 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/30">
+                <Search className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-bold text-emerald-800 text-sm group-hover:text-emerald-700 transition-colors">
+                  {t(language, 'atsAnalyzeBtn')}
+                </h3>
+                <p className="text-xs text-emerald-600/70">
+                  {t(language, 'atsPoweredBy')}
+                </p>
+              </div>
+            </button>
+          </motion.div>
+
           {/* Bottom action buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
             <Button
               onClick={() => handleDownloadPDF(activeTab)}
               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 px-8 py-6 text-base rounded-xl shadow-lg shadow-emerald-600/25 cursor-pointer w-full sm:w-auto"
@@ -351,6 +388,11 @@ export default function Preview() {
         open={showSatisfaction}
         onClose={() => setShowSatisfaction(false)}
         type={satisfactionType}
+      />
+
+      <ATSAnalysis
+        isOpen={showATS}
+        onClose={() => setShowATS(false)}
       />
     </div>
   )
