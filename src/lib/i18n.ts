@@ -267,6 +267,11 @@ export type TranslationKey =
   | 'pfExpatField4' | 'pfExpatField4Ph'
   // CV link in CL form
   | 'clNoCvCreateCta'
+  // Auth & subscription gates
+  | 'authRequiredTitle'
+  | 'authRequiredDesc'
+  | 'subscriptionRequiredTitle'
+  | 'subscriptionRequiredDesc'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -562,6 +567,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pfExpatField4: 'Langues parlées',
     pfExpatField4Ph: 'Ex: Français, Anglais, Arabe',
     clNoCvCreateCta: "Créer mon CV d\'abord",
+    authRequiredTitle: 'Créer un compte pour continuer',
+    authRequiredDesc: 'Connectez-vous ou créez un compte pour accéder à nos services de génération.',
+    subscriptionRequiredTitle: 'Abonnement requis',
+    subscriptionRequiredDesc: 'Souscrivez à un abonnement pour générer des CV, lettres de motivation et demandes.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -856,6 +865,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pfExpatField4: 'Languages spoken',
     pfExpatField4Ph: 'Ex: French, English, Arabic',
     clNoCvCreateCta: 'Create my resume first',
+    authRequiredTitle: 'Create an account to continue',
+    authRequiredDesc: 'Sign in or create an account to access our generation services.',
+    subscriptionRequiredTitle: 'Subscription required',
+    subscriptionRequiredDesc: 'Subscribe to a plan to generate resumes, cover letters, and applications.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1149,6 +1162,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pfExpatField4: 'اللغات المتحدثة',
     pfExpatField4Ph: 'مثال: الفرنسية، الإنجليزية، العربية',
     clNoCvCreateCta: 'إنشاء سيرتي الذاتية أولاً',
+    authRequiredTitle: 'أنشئ حساباً للمتابعة',
+    authRequiredDesc: 'سجّل الدخول أو أنشئ حساباً للوصول إلى خدماتنا.',
+    subscriptionRequiredTitle: 'الاشتراك مطلوب',
+    subscriptionRequiredDesc: 'اشترك في خطة لإنشاء السيرة الذاتية ورسائل الدافع والطلبات.',
   },
   es: {
     siteTitle: 'HireNova',
@@ -1443,6 +1460,10 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pfExpatField4: 'Idiomas hablados',
     pfExpatField4Ph: 'Ej: Francés, Inglés, Árabe',
     clNoCvCreateCta: 'Crear mi CV primero',
+    authRequiredTitle: 'Crea una cuenta para continuar',
+    authRequiredDesc: 'Inicia sesión o crea una cuenta para acceder a nuestros servicios.',
+    subscriptionRequiredTitle: 'Suscripción requerida',
+    subscriptionRequiredDesc: 'Suscríbete a un plan para generar currículums, cartas y solicitudes.',
   }
 }
 

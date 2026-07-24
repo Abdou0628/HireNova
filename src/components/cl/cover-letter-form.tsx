@@ -27,6 +27,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
 const tones = [
   { id: 'formal' as const, icon: UserCircle, labelKey: 'clToneFormal' as const },
@@ -58,6 +59,17 @@ export default function CoverLetterForm() {
   const [formStep, setFormStep] = useState(0)
   const hasCV = !!generatedCV
   const hasCVInput = !!(formData.fullName || formData.experience || formData.skills)
+  const { data: session } = useSession()
+  const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
+  const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
+
+  // Auth + plan guard
+  useEffect(() => {
+    if (!session?.user || !hasActivePlan) {
+      toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+      setStep('landing')
+    }
+  }, [session, hasActivePlan, language, setStep])
 
   // Auto-prefill from CV data on mount
   useEffect(() => {

@@ -129,7 +129,7 @@ export default function ProfileButton() {
                 className="px-3 py-2.5 text-sm font-semibold text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
                 onSelect={(e) => {
                   e.preventDefault()
-                  toast.info('Bientôt disponible')
+                  document.dispatchEvent(new CustomEvent('scroll-to-pricing'))
                 }}
               >
                 <Crown className="w-4 h-4 mr-2 text-emerald-600" />

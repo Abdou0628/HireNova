@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCVStore, type TemplateStyle, type CVLanguage, type PersonaType } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 import { countries, findCountryByDial } from '@/lib/countries'
 import type { TranslationKey } from '@/lib/i18n'
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
@@ -97,6 +98,16 @@ export default function CVForm() {
   const [applicationType, setApplicationType] = useState<'internship' | 'job' | null>(null)
   const [isImportingCv, setIsImportingCv] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { data: session } = useSession()
+  const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
+  const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
+
+  useEffect(() => {
+    if (!session?.user || !hasActivePlan) {
+      toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+      setStep('landing')
+    }
+  }, [session, hasActivePlan, language, setStep])
 
   async function handleImportCv(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]

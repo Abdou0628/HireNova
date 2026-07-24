@@ -23,9 +23,10 @@ interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   initialMode: Mode
+  onAuthSuccess?: () => void
 }
 
-export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<Mode>(initialMode)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
@@ -63,6 +64,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
       } else {
         toast.success(t(lang, 'loginSuccess'))
         handleClose()
+        onAuthSuccess?.()
       }
     } catch {
       toast.error(t(lang, 'loginError'))
@@ -91,6 +93,7 @@ export default function AuthModal({ isOpen, onClose, initialMode }: AuthModalPro
         if (result?.ok) {
           toast.success(t(lang, 'loginSuccess'))
           handleClose()
+          onAuthSuccess?.()
         }
       } else {
         toast.error(t(lang, 'registerError'))

@@ -72,18 +72,71 @@ const pricingFeatures: PricingFeature[] = [
 export default function Landing() {
   const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
   const personasRef = useRef<HTMLDivElement>(null)
+  const pricingRef = useRef<HTMLDivElement>(null)
 
   function scrollToPersonas() {
     personasRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  function scrollToPricing() {
+    pricingRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   const { data: session } = useSession()
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
+  const [pendingAction, setPendingAction] = useState<'form' | 'clForm' | null>(null)
 
   const isUsd = currency === 'usd'
   const isGbp = currency === 'gbp'
+
+  const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
+  const isLoggedIn = !!session?.user
+  const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
+
+  function requireAuthAndPlan(action: 'form' | 'clForm') {
+    if (!isLoggedIn) {
+      setPendingAction(action)
+      setAuthMode('register')
+      setAuthModalOpen(true)
+      return
+    }
+    if (!hasActivePlan) {
+      toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+      scrollToPricing()
+      return
+    }
+    if (action === 'clForm') {
+      setStep('clForm')
+    }
+  }
+
+  function handleAuthSuccess() {
+    // After login/register, check plan and execute pending action
+    if (pendingAction && hasActivePlan) {
+      if (pendingAction === 'clForm') {
+        setStep('clForm')
+      }
+      setPendingAction(null)
+    } else if (pendingAction && !hasActivePlan) {
+      // User logged in but no paid plan yet
+      setTimeout(() => {
+        toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+        scrollToPricing()
+      }, 500)
+      setPendingAction(null)
+    }
+  }
+
+  // Listen for scroll-to-pricing custom event from profile button
+  useEffect(() => {
+    const handler = () => {
+      setStep('landing')
+      setTimeout(scrollToPricing, 100)
+    }
+    document.addEventListener('scroll-to-pricing', handler)
+    return () => document.removeEventListener('scroll-to-pricing', handler)
+  }, [setStep])
 
   async function handleCheckout(planType: 'pro' | 'annual') {
     if (!session?.user) {
@@ -225,7 +278,7 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
-                  onClick={scrollToPersonas}
+                  onClick={() => requireAuthAndPlan('form')}
                 >
                   <FileText className="mr-2 w-5 h-5" />
                   {t(language, 'ctaChooseProfile')}
@@ -235,7 +288,7 @@ export default function Landing() {
                   size="lg"
                   variant="outline"
                   className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
-                  onClick={() => setStep('clForm')}
+                  onClick={() => requireAuthAndPlan('clForm')}
                 >
                   <PenLine className="mr-2 w-5 h-5" />
                   {t(language, 'clCta')}
@@ -336,6 +389,17 @@ export default function Landing() {
                   <Card
                     className="h-full cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-400 group min-w-0 overflow-hidden"
                     onClick={() => {
+                      if (!isLoggedIn) {
+                        setPendingAction('form')
+                        setAuthMode('register')
+                        setAuthModalOpen(true)
+                        return
+                      }
+                      if (!hasActivePlan) {
+                        toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+                        scrollToPricing()
+                        return
+                      }
                       setSelectedPersona(persona.type)
                       setStep('form')
                     }}
@@ -394,7 +458,7 @@ export default function Landing() {
         </section>
 
         {/* Pricing Section */}
-        <section className="relative py-16 sm:py-24 bg-gradient-to-br from-amber-50/50 via-white to-emerald-50/30">
+        <section ref={pricingRef} className="relative py-16 sm:py-24 bg-gradient-to-br from-amber-50/50 via-white to-emerald-50/30">
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-emerald-200/20 to-transparent rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/20 to-transparent rounded-full blur-3xl" />
@@ -638,7 +702,7 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
-                  onClick={scrollToPersonas}
+                  onClick={() => requireAuthAndPlan('form')}
                 >
                   <FileText className="mr-2 w-5 h-5" />
                   {t(language, 'ctaChooseProfile')}
@@ -648,7 +712,7 @@ export default function Landing() {
                   size="lg"
                   variant="outline"
                   className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
-                  onClick={() => setStep('clForm')}
+                  onClick={() => requireAuthAndPlan('clForm')}
                 >
                   <PenLine className="mr-2 w-5 h-5" />
                   {t(language, 'clCta')}
@@ -666,6 +730,7 @@ export default function Landing() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialMode={authMode}
+        onAuthSuccess={handleAuthSuccess}
       />
 
       {/* Footer */}

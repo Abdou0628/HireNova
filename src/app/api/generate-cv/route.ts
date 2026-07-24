@@ -8,17 +8,12 @@ import type { GeneratedCV } from '@/store/cv-store'
 const FREE_MONTHLY_LIMIT = 3
 
 async function checkUsageLimit(userId?: string): Promise<{ allowed: boolean; remaining: number }> {
-  if (!userId) return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
+  if (!userId) return { allowed: false, remaining: 0 }
   const user = await db.user.findUnique({ where: { id: userId } })
-  if (!user) return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
-  if (user.plan === 'pro' || user.plan === 'annual') return { allowed: true, remaining: Infinity }
-  const currentMonth = new Date().getMonth()
-  if (user.lastResetMonth !== currentMonth) {
-    await db.user.update({ where: { id: userId }, data: { cvCountThisMonth: 0, lastResetMonth: currentMonth } })
-    return { allowed: true, remaining: FREE_MONTHLY_LIMIT }
-  }
-  const remaining = FREE_MONTHLY_LIMIT - user.cvCountThisMonth
-  return { allowed: remaining > 0, remaining }
+  if (!user) return { allowed: false, remaining: 0 }
+  if (user.plan === 'free') return { allowed: false, remaining: 0 }
+  if (user.plan === 'pro' || user.plan === 'annual' || user.plan === 'lifetime') return { allowed: true, remaining: Infinity }
+  return { allowed: false, remaining: 0 }
 }
 
 const langMap: Record<string, string> = {
@@ -62,10 +57,16 @@ export async function POST(request: NextRequest) {
     // Check usage limit for authenticated users
     const session = await getServerSession(authOptions)
     const userId = session?.user?.id as string | undefined
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Vous devez créer un compte et souscrire à un abonnement pour générer un CV.', code: 'AUTH_REQUIRED' },
+        { status: 401 }
+      )
+    }
     const usage = await checkUsageLimit(userId)
     if (!usage.allowed) {
       return NextResponse.json(
-        { error: `Limite mensuelle atteinte (${FREE_MONTHLY_LIMIT} CVs). Passez au plan Pro pour des générations illimitées.`, code: 'LIMIT_REACHED' },
+        { error: 'Vous devez souscrire à un abonnement pour générer des CV. Choisissez un plan Pro ou Annuel.', code: 'SUBSCRIPTION_REQUIRED' },
         { status: 403 }
       )
     }

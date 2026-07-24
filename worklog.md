@@ -21,3 +21,28 @@ Stage Summary:
 - Lint clean, server running, all currencies and pricing verified
 - 16 payment countries displayed in footer
 - All pages have vibrant gradient backgrounds with images
+---
+Task ID: 2
+Agent: Main Agent
+Task: Enforce account creation + paid subscription before any generation (CV, CL, Demande)
+
+Work Log:
+- Added 4 new i18n keys (authRequiredTitle, authRequiredDesc, subscriptionRequiredTitle, subscriptionRequiredDesc) in all 4 languages (FR, EN, AR, ES)
+- Modified AuthModal to accept onAuthSuccess callback, fired after successful login/register
+- Modified landing.tsx: added pendingAction state, pricingRef, requireAuthAndPlan() function, handleAuthSuccess(), scroll-to-pricing event listener
+- All 3 navigation paths (hero CV button, persona cards, CL button) + bottom CTA buttons now check auth + plan
+- Modified form.tsx: added useEffect auth+plan guard at mount - redirects to landing if not logged in or no paid plan
+- Modified cover-letter-form.tsx: same useEffect auth+plan guard
+- Modified generate-cv API: requires auth (401) + paid plan (403), no more free tier
+- Modified generate-cover-letter API: same auth+plan requirements
+- Modified profile-button.tsx: upgrade button now dispatches scroll-to-pricing custom event
+- Verified with agent-browser: all 3 paths trigger auth modal for non-logged-in users
+
+Stage Summary:
+- Complete auth+subscription gate implemented
+- Users must create account AND pay for subscription before generating anything
+- Non-logged-in users see auth modal (register mode) when clicking any generation action
+- Logged-in free-plan users get redirected to pricing section with warning toast
+- Form pages guard against direct access without auth+plan
+- APIs enforce auth+plan on server side (belt-and-suspenders approach)
+
