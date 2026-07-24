@@ -1,0 +1,653 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { motion } from 'framer-motion'
+     5→import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop } from 'lucide-react'
+     6→import Image from 'next/image'
+     7→import { toast } from 'sonner'
+     8→import { Button } from '@/components/ui/button'
+     9→import { Card, CardContent } from '@/components/ui/card'
+    10→import { Badge } from '@/components/ui/badge'
+    11→import { useCVStore, type PersonaType } from '@/store/cv-store'
+    12→import { t } from '@/lib/i18n'
+    13→import type { CVLanguage, TranslationKey } from '@/lib/i18n'
+    14→import ProfileButton from '@/components/auth/profile-button'
+    15→import AuthModal from '@/components/auth/auth-modal'
+    16→import { useSession } from 'next-auth/react'
+    17→
+    18→const flagEmoji: Record<CVLanguage, string> = {
+    19→  fr: '🇫🇷',
+    20→  en: '🇬🇧',
+    21→  ar: '🇸🇦',
+    22→  es: '🇪🇸',
+    23→}
+    24→
+    25→const features = [
+    26→  { icon: Sparkles, titleKey: 'feature1Title' as const, descKey: 'feature1Desc' as const },
+    27→  { icon: Globe, titleKey: 'feature2Title' as const, descKey: 'feature2Desc' as const },
+    28→  { icon: Shield, titleKey: 'feature3Title' as const, descKey: 'feature3Desc' as const },
+    29→  { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
+    30→]
+    31→
+    32→function StatCounter() {
+    33→  const [count, setCount] = useState(0)
+    34→
+    35→  useEffect(() => {
+    36→    fetch('/api/stats')
+    37→      .then((r) => r.json())
+    38→      .then((data) => setCount(data.total || 0))
+    39→      .catch(() => {})
+    40→  }, [])
+    41→
+    42→  return (
+    43→    <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
+    44→      {count}
+    45→    </div>
+    46→  )
+    47→}
+    48→
+    49→const staticStats = [
+    50→  { value: '4', icon: Languages, label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+    51→  { value: '3', icon: LayoutTemplate, label: { fr: 'Templates', en: 'Templates', ar: 'قوالب', es: 'Plantillas' } },
+    52→  { value: '2', icon: Download, label: { fr: 'Formats (PDF, Word)', en: 'Formats (PDF, Word)', ar: 'صيغ (PDF, Word)', es: 'Formatos (PDF, Word)' } },
+    53→]
+    54→
+    55→interface PricingFeature {
+    56→  key: TranslationKey
+    57→  pro: boolean | string
+    58→  lifetime: boolean | string
+    59→}
+    60→
+    61→const pricingFeatures: PricingFeature[] = [
+    62→  { key: 'pricingCv', pro: '∞', lifetime: '∞' },
+    63→  { key: 'pricingTemplates', pro: '3', lifetime: '3' },
+    64→  { key: 'pricingPdf', pro: true, lifetime: true },
+    65→  { key: 'pricingWord', pro: true, lifetime: true },
+    66→  { key: 'pricingCoverLetter', pro: true, lifetime: true },
+    67→  { key: 'pricingNoWatermark', pro: true, lifetime: true },
+    68→  { key: 'pricingAtsScore', pro: false, lifetime: true },
+    69→  { key: 'pricingPriority', pro: false, lifetime: true },
+    70→]
+    71→
+    72→export default function Landing() {
+    73→  const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+    74→  const personasRef = useRef<HTMLDivElement>(null)
+    75→
+    76→  function scrollToPersonas() {
+    77→    personasRef.current?.scrollIntoView({ behavior: 'smooth' })
+    78→  }
+    79→  const { data: session } = useSession()
+    80→  const [authModalOpen, setAuthModalOpen] = useState(false)
+    81→  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+    82→  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+    83→  const [currency, setCurrency] = useState<'eur' | 'usd'>('eur')
+    84→
+    85→  const isUsd = currency === 'usd'
+    86→
+    87→  async function handleCheckout(planType: 'pro' | 'lifetime') {
+    88→    if (!session?.user) {
+    89→      setAuthMode('register')
+    90→      setAuthModalOpen(true)
+    91→      return
+    92→    }
+    93→    setCheckoutLoading(planType)
+    94→    try {
+    95→      // LemonSqueezy for EUR/USD
+    96→      const res = await fetch('/api/checkout', {
+    97→        method: 'POST',
+    98→        headers: { 'Content-Type': 'application/json' },
+    99→        body: JSON.stringify({ planType, currency }),
+   100→      })
+   101→      const data = await res.json()
+   102→      if (data.url) {
+   103→        window.location.href = data.url
+   104→      } else {
+   105→        toast.error(data.error || 'Erreur')
+   106→      }
+   107→    } catch {
+   108→      toast.error('Erreur de connexion')
+   109→    } finally {
+   110→      setCheckoutLoading(null)
+   111→    }
+   112→  }
+   113→
+   114→  return (
+   115→    <div className="min-h-screen flex flex-col">
+   116→      {/* Header */}
+   117→      <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
+   118→        <div className="max-w-6xl mx-auto flex items-center justify-between">
+   119→          <div className="flex items-center gap-2">
+   120→            <div className="flex flex-col items-center">
+   121→              <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
+   122→              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+   123→            </div>
+   124→            <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
+   125→          </div>
+   126→          <div className="flex items-center gap-3">
+   127→            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+   128→              {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
+   129→                <button
+   130→                  key={lang}
+   131→                  onClick={() => setLanguage(lang)}
+   132→                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+   133→                    language === lang
+   134→                      ? 'bg-white shadow-sm text-foreground'
+   135→                      : 'text-muted-foreground hover:text-foreground'
+   136→                  }`}
+   137→                >
+   138→                  <span className="mr-1">{flagEmoji[lang]}</span>
+   139→                  <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+   140→                </button>
+   141→              ))}
+   142→            </div>
+   143→            <ProfileButton />
+   144→          </div>
+   145→        </div>
+   146→      </header>
+   147→
+   148→      {/* Hero Section */}
+   149→      <main className="flex-1">
+   150→        <section className="relative overflow-hidden">
+   151→          {/* Background decoration */}
+   152→          <div className="absolute inset-0 -z-10">
+   153→            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-100/60 via-teal-50/40 to-transparent rounded-full blur-3xl" />
+   154→            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-100/30 to-transparent rounded-full blur-3xl" />
+   155→          </div>
+   156→
+   157→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16">
+   158→            <div className="text-center max-w-3xl mx-auto">
+   159→              <motion.div
+   160→                initial={{ opacity: 0, y: 20 }}
+   161→                animate={{ opacity: 1, y: 0 }}
+   162→                transition={{ duration: 0.6 }}
+   163→              >
+   164→                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   165→                  <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+   166→                  <span>{t(language, 'freeNoSignup')}</span>
+   167→                </div>
+   168→              </motion.div>
+   169→
+   170→              <motion.div
+   171→                initial={{ opacity: 0, y: 20 }}
+   172→                animate={{ opacity: 1, y: 0 }}
+   173→                transition={{ duration: 0.6, delay: 0.05 }}
+   174→                className="mb-6"
+   175→              >
+   176→                <div className="inline-flex items-center gap-2 bg-white text-muted-foreground px-4 py-1.5 rounded-full text-xs font-medium border border-emerald-200 shadow-sm">
+   177→                  <Languages className="w-3.5 h-3.5 text-emerald-600" />
+   178→                  <span>🇫🇷 🇬🇧 🇪🇸 🇸🇦</span>
+   179→                  <span className="text-emerald-700">{t(language, 'availableLangs')}</span>
+   180→                </div>
+   181→              </motion.div>
+   182→
+   183→              <motion.div
+   184→                initial={{ opacity: 0, scale: 0.8 }}
+   185→                animate={{ opacity: 1, scale: 1 }}
+   186→                transition={{ duration: 0.5, delay: 0.05 }}
+   187→                className="mb-6"
+   188→              >
+   189→                <div className="flex flex-col items-center">
+   190→                  <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+   191→                  <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+   192→                </div>
+   193→              </motion.div>
+   194→
+   195→              <motion.h1
+   196→                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6"
+   197→                initial={{ opacity: 0, y: 20 }}
+   198→                animate={{ opacity: 1, y: 0 }}
+   199→                transition={{ duration: 0.6, delay: 0.1 }}
+   200→              >
+   201→                {t(language, 'siteTitle')}
+   202→                <span className="block text-emerald-600 mt-2">{t(language, 'siteSubtitle')}</span>
+   203→              </motion.h1>
+   204→
+   205→              <motion.p
+   206→                className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+   207→                initial={{ opacity: 0, y: 20 }}
+   208→                animate={{ opacity: 1, y: 0 }}
+   209→                transition={{ duration: 0.6, delay: 0.2 }}
+   210→              >
+   211→                {t(language, 'siteDescription')}
+   212→              </motion.p>
+   213→
+   214→              <motion.div
+   215→                initial={{ opacity: 0, y: 20 }}
+   216→                animate={{ opacity: 1, y: 0 }}
+   217→                transition={{ duration: 0.6, delay: 0.3 }}
+   218→                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+   219→              >
+   220→                <Button
+   221→                  size="lg"
+   222→                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
+   223→                  onClick={scrollToPersonas}
+   224→                >
+   225→                  <FileText className="mr-2 w-5 h-5" />
+   226→                  {t(language, 'ctaChooseProfile')}
+   227→                  <ArrowRight className="ml-2 w-5 h-5" />
+   228→                </Button>
+   229→                <Button
+   230→                  size="lg"
+   231→                  variant="outline"
+   232→                  className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
+   233→                  onClick={() => setStep('clForm')}
+   234→                >
+   235→                  <PenLine className="mr-2 w-5 h-5" />
+   236→                  {t(language, 'clCta')}
+   237→                  <ArrowRight className="ml-2 w-5 h-5" />
+   238→                </Button>
+   239→              </motion.div>
+   240→            </div>
+   241→
+   242→            {/* Stats */}
+   243→            <motion.div
+   244→              className="mt-16 grid grid-cols-4 gap-4 max-w-2xl mx-auto"
+   245→              initial={{ opacity: 0, y: 30 }}
+   246→              animate={{ opacity: 1, y: 0 }}
+   247→              transition={{ duration: 0.6, delay: 0.4 }}
+   248→            >
+   249→              <div className="text-center">
+   250→                <StatCounter />
+   251→                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
+   252→              </div>
+   253→              {staticStats.map((stat) => (
+   254→                <div key={stat.value} className="text-center">
+   255→                  <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{stat.value}</div>
+   256→                  <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label[language]}</div>
+   257→                </div>
+   258→              ))}
+   259→            </motion.div>
+   260→          </div>
+   261→        </section>
+   262→
+   263→        {/* Persona Selection Section */}
+   264→        <section ref={personasRef} className="py-16 sm:py-20 bg-white">
+   265→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   266→            <motion.div
+   267→              className="text-center mb-10"
+   268→              initial={{ opacity: 0, y: 30 }}
+   269→              whileInView={{ opacity: 1, y: 0 }}
+   270→              viewport={{ once: true, margin: '-100px' }}
+   271→              transition={{ duration: 0.5 }}
+   272→            >
+   273→              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Qui êtes-vous ?</h2>
+   274→              <p className="text-muted-foreground max-w-xl mx-auto">Sélectionnez votre profil pour un CV personnalisé</p>
+   275→            </motion.div>
+   276→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   277→              {([{
+   278→                type: 'student' as PersonaType,
+   279→                emoji: '\uD83C\uDF93',
+   280→                icon: GraduationCap,
+   281→                nameKey: 'personaStudent' as TranslationKey,
+   282→                descKey: 'personaStudentDesc' as TranslationKey,
+   283→                color: 'emerald',
+   284→              }, {
+   285→                type: 'graduate' as PersonaType,
+   286→                emoji: '\uD83C\uDF1F',
+   287→                icon: Award,
+   288→                nameKey: 'personaGraduate' as TranslationKey,
+   289→                descKey: 'personaGraduateDesc' as TranslationKey,
+   290→                color: 'blue',
+   291→              }, {
+   292→                type: 'professional' as PersonaType,
+   293→                emoji: '\uD83D\uDCBC',
+   294→                icon: Briefcase,
+   295→                nameKey: 'personaProfessional' as TranslationKey,
+   296→                descKey: 'personaProfessionalDesc' as TranslationKey,
+   297→                color: 'violet',
+   298→              }, {
+   299→                type: 'executive' as PersonaType,
+   300→                emoji: '\uD83D\uDC54',
+   301→                icon: UserCheck,
+   302→                nameKey: 'personaExecutive' as TranslationKey,
+   303→                descKey: 'personaExecutiveDesc' as TranslationKey,
+   304→                color: 'amber',
+   305→              }, {
+   306→                type: 'freelance' as PersonaType,
+   307→                emoji: '\uD83D\uDE80',
+   308→                icon: Rocket,
+   309→                nameKey: 'personaFreelance' as TranslationKey,
+   310→                descKey: 'personaFreelanceDesc' as TranslationKey,
+   311→                color: 'rose',
+   312→              }, {
+   313→                type: 'expat' as PersonaType,
+   314→                emoji: '\u2708\uFE0F',
+   315→                icon: Plane,
+   316→                nameKey: 'personaExpat' as TranslationKey,
+   317→                descKey: 'personaExpatDesc' as TranslationKey,
+   318→                color: 'sky',
+   319→              }]).map((persona, index) => (
+   320→                <motion.div
+   321→                  key={persona.type}
+   322→                  initial={{ opacity: 0, y: 30 }}
+   323→                  whileInView={{ opacity: 1, y: 0 }}
+   324→                  viewport={{ once: true, margin: '-50px' }}
+   325→                  transition={{ duration: 0.4, delay: index * 0.08 }}
+   326→                >
+   327→                  <Card
+   328→                    className="h-full cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-400 group min-w-0 overflow-hidden"
+   329→                    onClick={() => {
+   330→                      setSelectedPersona(persona.type)
+   331→                      setStep('form')
+   332→                    }}
+   333→                  >
+   334→                    <CardContent className="p-4 sm:p-5">
+   335→                      <div className="flex items-start gap-3">
+   336→                        <div className={`w-10 h-10 rounded-xl bg-${persona.color}-100 flex items-center justify-center shrink-0`}
+   337→                        >
+   338→                          <span className="text-xl">{persona.emoji}</span>
+   339→                        </div>
+   340→                        <div className="min-w-0">
+   341→                          <h3 className="font-semibold text-foreground text-sm">{t(language, persona.nameKey)}</h3>
+   342→                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2"><span className="truncate block max-w-full">{t(language, persona.descKey)}</span></p>
+   343→                        </div>
+   344→                      </div>
+   345→                      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-emerald-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+   346→                        <span>{t(language, 'personaChoose')}</span>
+   347→                        <ArrowRight className="w-3 h-3" />
+   348→                      </div>
+   349→                    </CardContent>
+   350→                  </Card>
+   351→                </motion.div>
+   352→              ))}
+   353→            </div>
+   354→          </div>
+   355→        </section>
+   356→
+   357→        {/* Features Section */}
+   358→        <section className="py-16 sm:py-24 bg-muted/30">
+   359→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   360→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+   361→              {features.map((feature, index) => (
+   362→                <motion.div
+   363→                  key={feature.titleKey}
+   364→                  initial={{ opacity: 0, y: 30 }}
+   365→                  animate={{ opacity: 1, y: 0 }}
+   366→                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+   367→                >
+   368→                  <Card className="h-full border-0 shadow-sm hover:shadow-md transition-shadow bg-white">
+   369→                    <CardContent className="p-6">
+   370→                      <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+   371→                        <feature.icon className="w-6 h-6 text-emerald-600" />
+   372→                      </div>
+   373→                      <h3 className="font-semibold text-foreground mb-2">
+   374→                        {t(language, feature.titleKey)}
+   375→                      </h3>
+   376→                      <p className="text-sm text-muted-foreground leading-relaxed">
+   377→                        {t(language, feature.descKey)}
+   378→                      </p>
+   379→                    </CardContent>
+   380→                  </Card>
+   381→                </motion.div>
+   382→              ))}
+   383→            </div>
+   384→          </div>
+   385→        </section>
+   386→
+   387→        {/* Pricing Section */}
+   388→        <section className="py-16 sm:py-24">
+   389→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   390→            <motion.div
+   391→              className="text-center mb-12"
+   392→              initial={{ opacity: 0, y: 30 }}
+   393→              whileInView={{ opacity: 1, y: 0 }}
+   394→              viewport={{ once: true, margin: '-100px' }}
+   395→              transition={{ duration: 0.5 }}
+   396→            >
+   397→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+   398→                {t(language, 'pricingTitle')}
+   399→              </h2>
+   400→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+   401→                {t(language, 'pricingSubtitle')}
+   402→              </p>
+   403→              {/* Currency Toggle */}
+   404→              <div className="flex items-center justify-center gap-2">
+   405→                <button
+   406→                  onClick={() => setCurrency('eur')}
+   407→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   408→                >
+   409→                  EUR
+   410→                </button>
+   411→                <button
+   412→                  onClick={() => setCurrency('usd')}
+   413→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   414→                >
+   415→                  USD
+   416→                </button>
+   417→              </div>
+   418→            </motion.div>
+   419→
+   420→            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start max-w-4xl mx-auto">
+   421→              {/* Pro Plan */}
+   422→              <motion.div
+   423→                initial={{ opacity: 0, y: 40 }}
+   424→                whileInView={{ opacity: 1, y: 0 }}
+   425→                viewport={{ once: true, margin: '-50px' }}
+   426→                transition={{ duration: 0.5, delay: 0.1 }}
+   427→              >
+   428→                <Card className="relative border-2 border-emerald-600 bg-white shadow-lg shadow-emerald-600/10">
+   429→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   430→                    <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   431→                      <Sparkles className="w-3 h-3 mr-1" />
+   432→                      {t(language, 'planProPopular')}
+   433→                    </Badge>
+   434→                  </div>
+   435→                  <CardContent className="p-6 sm:p-8 pt-8">
+   436→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   437→                      <Crown className="w-5 h-5 text-emerald-600" />
+   438→                      {t(language, 'planPro')}
+   439→                    </h3>
+   440→                    <div className="flex items-baseline gap-1 mb-2">
+   441→                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
+   442→                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+   443→                    </div>
+   444→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
+   445→
+   446→                    <div className="space-y-3 mb-8">
+   447→                      {pricingFeatures.map((feature) => (
+   448→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   449→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   450→                          <span className={`font-medium ${feature.pro === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+   451→                            {feature.pro === false ? (
+   452→                              <X className="w-4 h-4 text-stone-300" />
+   453→                            ) : typeof feature.pro === 'string' ? (
+   454→                              feature.pro
+   455→                            ) : (
+   456→                              <Check className="w-4 h-4 text-emerald-600" />
+   457→                            )}
+   458→                          </span>
+   459→                        </div>
+   460→                      ))}
+   461→                    </div>
+   462→
+   463→                    <Button
+   464→                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-emerald-600/20"
+   465→                      onClick={() => handleCheckout('pro')}
+   466→                      disabled={checkoutLoading === 'pro'}
+   467→                    >
+   468→                      {checkoutLoading === 'pro' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Crown className="mr-2 w-4 h-4" />}
+   469→                      {checkoutLoading === 'pro' ? 'Chargement...' : t(language, 'planPro')}
+   470→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   471→                    </Button>
+   472→                  </CardContent>
+   473→                </Card>
+   474→              </motion.div>
+   475→
+   476→              {/* Lifetime Plan */}
+   477→              <motion.div
+   478→                initial={{ opacity: 0, y: 40 }}
+   479→                whileInView={{ opacity: 1, y: 0 }}
+   480→                viewport={{ once: true, margin: '-50px' }}
+   481→                transition={{ duration: 0.5, delay: 0.2 }}
+   482→              >
+   483→                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
+   484→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   485→                    <Badge className="bg-amber-500 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   486→                      <Zap className="w-3 h-3 mr-1" />
+   487→                      {t(language, 'planLifetimeBest')}
+   488→                    </Badge>
+   489→                  </div>
+   490→                  <CardContent className="p-6 sm:p-8 pt-8">
+   491→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   492→                      <Zap className="w-5 h-5 text-amber-500" />
+   493→                      {t(language, 'planLifetime')}
+   494→                    </h3>
+   495→                    <div className="flex items-baseline gap-1 mb-2">
+   496→                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
+   497→                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+   498→                    </div>
+   499→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
+   500→
+   501→                    <div className="space-y-3 mb-8">
+   502→                      {pricingFeatures.map((feature) => (
+   503→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   504→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   505→                          <span className="font-medium text-foreground">
+   506→                            {typeof feature.lifetime === 'string' ? (
+   507→                              feature.lifetime
+   508→                            ) : (
+   509→                              <Check className="w-4 h-4 text-emerald-600" />
+   510→                            )}
+   511→                          </span>
+   512→                        </div>
+   513→                      ))}
+   514→                    </div>
+   515→
+   516→                    <Button
+   517→                      className="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
+   518→                      onClick={() => handleCheckout('lifetime')}
+   519→                      disabled={checkoutLoading === 'lifetime'}
+   520→                    >
+   521→                      {checkoutLoading === 'lifetime' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
+   522→                      {checkoutLoading === 'lifetime' ? 'Chargement...' : t(language, 'planLifetime')}
+   523→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   524→                    </Button>
+   525→                  </CardContent>
+   526→                </Card>
+   527→              </motion.div>
+   528→            </div>
+   529→
+   530→          </div>
+   531→        </section>
+   532→
+   533→        {/* HireNova Ecosystem — Future Products Roadmap */}
+   534→        <section className="py-16 sm:py-24 bg-gradient-to-b from-muted/30 to-white">
+   535→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   536→            <motion.div
+   537→              className="text-center mb-12"
+   538→              initial={{ opacity: 0, y: 30 }}
+   539→              whileInView={{ opacity: 1, y: 0 }}
+   540→              viewport={{ once: true, margin: '-100px' }}
+   541→              transition={{ duration: 0.5 }}
+   542→            >
+   543→              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   544→                <Rocket className="w-4 h-4" />
+   545→                <span>{t(language, 'roadmapTitle')}</span>
+   546→              </div>
+   547→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'ecosystemTitle')}</h2>
+   548→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'ecosystemDesc')}</p>
+   549→            </motion.div>
+   550→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+   551→              {[
+   552→                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald' },
+   553→                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: false, accent: 'blue' },
+   554→                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet' },
+   555→                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky' },
+   556→                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber' },
+   557→                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose' },
+   558→                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo' },
+   559→                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal' },
+   560→                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange' },
+   561→              ].map((product, index) => (
+   562→                <motion.div
+   563→                  key={product.name}
+   564→                  initial={{ opacity: 0, y: 30 }}
+   565→                  whileInView={{ opacity: 1, y: 0 }}
+   566→                  viewport={{ once: true, margin: '-50px' }}
+   567→                  transition={{ duration: 0.4, delay: index * 0.06 }}
+   568→                >
+   569→                  <Card className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active ? 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white' : 'border-muted/50 bg-white'}`}>
+   570→                    {product.active && (
+   571→                      <div className="absolute top-3 right-3">
+   572→                        <Badge className="bg-emerald-600 text-white px-2 py-0.5 text-[10px] font-semibold rounded-full">ACTIF</Badge>
+   573→                      </div>
+   574→                    )}
+   575→                    {!product.active && (
+   576→                      <div className="absolute top-3 right-3">
+   577→                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">BIENTÔT</Badge>
+   578→                      </div>
+   579→                    )}
+   580→                    <CardContent className="p-5">
+   581→                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${product.active ? 'bg-emerald-100' : 'bg-muted'}`}>
+   582→                        <product.icon className={`w-5 h-5 ${product.active ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+   583→                      </div>
+   584→                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-emerald-800' : 'text-foreground'}`}>{product.name}</h3>
+   585→                      <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
+   586→                    </CardContent>
+   587→                  </Card>
+   588→                </motion.div>
+   589→              ))}
+   590→            </div>
+   591→          </div>
+   592→        </section>
+   593→
+   594→        {/* CTA Section */}
+   595→        <section className="py-16 sm:py-20">
+   596→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   597→            <motion.div
+   598→              className="text-center bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-12 lg:p-16"
+   599→              initial={{ opacity: 0, scale: 0.95 }}
+   600→              whileInView={{ opacity: 1, scale: 1 }}
+   601→              viewport={{ once: true, margin: '-100px' }}
+   602→              transition={{ duration: 0.6 }}
+   603→            >
+   604→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+   605→                {t(language, 'ctaReadyTitle')}
+   606→              </h2>
+   607→              <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
+   608→                {t(language, 'ctaReadyDesc')}
+   609→              </p>
+   610→              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+   611→                <Button
+   612→                  size="lg"
+   613→                  className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
+   614→                  onClick={scrollToPersonas}
+   615→                >
+   616→                  <FileText className="mr-2 w-5 h-5" />
+   617→                  {t(language, 'ctaChooseProfile')}
+   618→                  <ArrowRight className="ml-2 w-5 h-5" />
+   619→                </Button>
+   620→                <Button
+   621→                  size="lg"
+   622→                  variant="outline"
+   623→                  className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
+   624→                  onClick={() => setStep('clForm')}
+   625→                >
+   626→                  <PenLine className="mr-2 w-5 h-5" />
+   627→                  {t(language, 'clCta')}
+   628→                  <ArrowRight className="ml-2 w-5 h-5" />
+   629→                </Button>
+   630→              </div>
+   631→            </motion.div>
+   632→          </div>
+   633→        </section>
+   634→      </main>
+   635→
+   636→      {/* Auth Modal */}
+   637→      <AuthModal
+   638→        isOpen={authModalOpen}
+   639→        onClose={() => setAuthModalOpen(false)}
+   640→        initialMode={authMode}
+   641→      />
+   642→
+   643→      {/* Footer */}
+   644→      <footer className="border-t py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+   645→        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
+   646→          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+   647→          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+   648→        </div>
+   649→      </footer>
+   650→    </div>
+   651→  )
+   652→}
+   653→

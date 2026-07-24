@@ -1,0 +1,1035 @@
+     1→'use client'
+     2→
+     3→import { useState, useRef } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import { useCVStore, type TemplateStyle, type CVLanguage, type PersonaType } from '@/store/cv-store'
+     6→import { t } from '@/lib/i18n'
+     7→import { Button } from '@/components/ui/button'
+     8→import { Input } from '@/components/ui/input'
+     9→import { Textarea } from '@/components/ui/textarea'
+    10→import { Label } from '@/components/ui/label'
+    11→import {
+    12→  User,
+    13→  Briefcase,
+    14→  GraduationCap,
+    15→  Code2,
+    16→  ArrowRight,
+    17→  ArrowLeft,
+    18→  FileText,
+    19→  Palette,
+    20→  Globe,
+    21→  Camera,
+    22→  X,
+    23→  Info,
+    24→  CalendarDays,
+    25→  MapPinned,
+    26→  HeartHandshake,
+    27→  ImageIcon,
+    28→  AlignLeft,
+    29→  AlignCenter,
+    30→  AlignRight,
+    31→  Building2,
+    32→  PenLine,
+    33→  Zap,
+    34→  UserCircle,
+    35→  Upload,
+    36→  FileUp,
+    37→  CheckCircle2,
+    38→  Loader2,
+    39→} from 'lucide-react'
+    40→import { toast } from 'sonner'
+    41→import Image from 'next/image'
+    42→import { countries, findCountryByDial } from '@/lib/countries'
+    43→import type { TranslationKey } from '@/lib/i18n'
+    44→const stepIcons = [User, Briefcase, GraduationCap, Code2]
+    45→const stepTitles = ['step1Title', 'step2TitleNew', 'step3Title', 'step4Title'] as const
+    46→
+    47→const templates: { id: TemplateStyle; labelKey: 'templateModern' | 'templateClassic' | 'templateCreative' }[] = [
+    48→  { id: 'modern', labelKey: 'templateModern' },
+    49→  { id: 'classic', labelKey: 'templateClassic' },
+    50→  { id: 'creative', labelKey: 'templateCreative' },
+    51→]
+    52→
+    53→const personaEmoji: Record<PersonaType, string> = { student: '\uD83C\uDF93', graduate: '\uD83C\uDF1F', professional: '\uD83D\uDCBC', executive: '\uD83D\uDC54', freelance: '\uD83D\uDE80', expat: '\u2708\uFE0F' }
+    54→const personaNameKey: Record<PersonaType, TranslationKey> = { student: 'personaStudent', graduate: 'personaGraduate', professional: 'personaProfessional', executive: 'personaExecutive', freelance: 'personaFreelance', expat: 'personaExpat' }
+    55→const personaFieldMap: Record<PersonaType, { labelKey: TranslationKey; phKey: TranslationKey }[]> = {
+    56→  student: [{ labelKey: 'pfStudentField1', phKey: 'pfStudentField1Ph' }, { labelKey: 'pfStudentField2', phKey: 'pfStudentField2Ph' }, { labelKey: 'pfStudentField3', phKey: 'pfStudentField3Ph' }],
+    57→  graduate: [{ labelKey: 'pfGraduateField1', phKey: 'pfGraduateField1Ph' }, { labelKey: 'pfGraduateField2', phKey: 'pfGraduateField2Ph' }, { labelKey: 'pfGraduateField3', phKey: 'pfGraduateField3Ph' }],
+    58→  professional: [{ labelKey: 'pfProField1', phKey: 'pfProField1Ph' }, { labelKey: 'pfProField2', phKey: 'pfProField2Ph' }, { labelKey: 'pfProField3', phKey: 'pfProField3Ph' }],
+    59→  executive: [{ labelKey: 'pfExecField1', phKey: 'pfExecField1Ph' }, { labelKey: 'pfExecField2', phKey: 'pfExecField2Ph' }, { labelKey: 'pfExecField3', phKey: 'pfExecField3Ph' }, { labelKey: 'pfExecField4', phKey: 'pfExecField4Ph' }],
+    60→  freelance: [{ labelKey: 'pfFreeField1', phKey: 'pfFreeField1Ph' }, { labelKey: 'pfFreeField2', phKey: 'pfFreeField2Ph' }, { labelKey: 'pfFreeField3', phKey: 'pfFreeField3Ph' }],
+    61→  expat: [{ labelKey: 'pfExpatField1', phKey: 'pfExpatField1Ph' }, { labelKey: 'pfExpatField2', phKey: 'pfExpatField2Ph' }, { labelKey: 'pfExpatField3', phKey: 'pfExpatField3Ph' }, { labelKey: 'pfExpatField4', phKey: 'pfExpatField4Ph' }],
+    62→}
+    63→
+    64→const languages: { id: CVLanguage; flag: string }[] = [
+    65→  { id: 'fr', flag: '🇫🇷' },
+    66→  { id: 'en', flag: '🇬🇧' },
+    67→  { id: 'ar', flag: '🇸🇦' },
+    68→  { id: 'es', flag: '🇪🇸' },
+    69→]
+    70→
+    71→export default function CVForm() {
+    72→  const {
+    73→    formStep,
+    74→    setFormStep,
+    75→    language,
+    76→    setLanguage,
+    77→    template,
+    78→    setTemplate,
+    79→    formData,
+    80→    updateFormData,
+    81→    setStep,
+    82→    setIsGenerating,
+    83→    setGeneratedCV,
+    84→    setError,
+    85→    setSelectedPersona,
+    86→    selectedPersona,
+    87→    updateCLFormData,
+    88→    setGeneratedCL,
+    89→    setIsCLGenerating,
+    90→    setCLError,
+    91→  } = useCVStore()
+    92→
+    93→  const [isSubmitting, setIsSubmitting] = useState(false)
+    94→  const [phoneCountryCode, setPhoneCountryCode] = useState<string>('')
+    95→  const [personaFields, setPersonaFields] = useState<Record<string, string>>({})
+    96→  const [applicationType, setApplicationType] = useState<'internship' | 'job' | null>(null)
+    97→  const [isImportingCv, setIsImportingCv] = useState(false)
+    98→  const fileInputRef = useRef<HTMLInputElement>(null)
+    99→
+   100→  async function handleImportCv(e: React.ChangeEvent<HTMLInputElement>) {
+   101→    const file = e.target.files?.[0]
+   102→    if (!file) return
+   103→    setIsImportingCv(true)
+   104→    try {
+   105→      const formData = new FormData()
+   106→      formData.append('file', file)
+   107→      formData.append('language', language)
+   108→      const res = await fetch('/api/import-cv', {
+   109→        method: 'POST',
+   110→        body: formData,
+   111→      })
+   112→      const data = await res.json()
+   113→      if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'import')
+   114→      // Auto-fill form fields from parsed CV
+   115→      if (data.fullName) updateFormData({ fullName: data.fullName })
+   116→      if (data.email) updateFormData({ email: data.email })
+   117→      if (data.phone) updateFormData({ phone: data.phone })
+   118→      if (data.location) updateFormData({ location: data.location })
+   119→      if (data.targetJob) updateFormData({ targetJob: data.targetJob })
+   120→      if (data.industry) updateFormData({ industry: data.industry })
+   121→      if (data.experience) updateFormData({ experience: data.experience })
+   122→      if (data.education) updateFormData({ education: data.education })
+   123→      if (data.skills) updateFormData({ skills: data.skills })
+   124→      if (data.languages) updateFormData({ languages: data.languages })
+   125→      if (data.summary) updateFormData({ summary: data.summary })
+   126→      if (data.linkedin) updateFormData({ linkedin: data.linkedin })
+   127→      if (data.website) updateFormData({ website: data.website })
+   128→      toast.success(t(language, 'importCvSuccess'))
+   129→    } catch (err) {
+   130→      const message = err instanceof Error ? err.message : 'Erreur inconnue'
+   131→      toast.error(message)
+   132→    } finally {
+   133→      setIsImportingCv(false)
+   134→      if (fileInputRef.current) fileInputRef.current.value = ''
+   135→    }
+   136→  }
+   137→
+   138→  function handlePhoneCountryChange(code: string) {
+   139→    setPhoneCountryCode(code)
+   140→    const country = countries.find((c) => c.code === code)
+   141→    if (country) {
+   142→      // Remove any existing dial code from phone, prepend new one
+   143→      const currentNumber = formData.phone.replace(/^[+\d\s\-()]+/, '').trim()
+   144→      updateFormData({ phone: currentNumber ? `${country.dial} ${currentNumber}` : country.dial })
+   145→    }
+   146→  }
+   147→
+   148→  function handlePhoneNumberChange(number: string) {
+   149→    const country = countries.find((c) => c.code === phoneCountryCode)
+   150→    const dial = country?.dial || ''
+   151→    const cleaned = number.replace(/[^\d\s]/g, '').trim()
+   152→    updateFormData({ phone: dial ? `${dial} ${cleaned}` : cleaned })
+   153→  }
+   154→
+   155→  function getPhoneNumberOnly(): string {
+   156→    const country = countries.find((c) => c.code === phoneCountryCode)
+   157→    const dial = country?.dial || ''
+   158→    return formData.phone.startsWith(dial) ? formData.phone.slice(dial.length).trim() : formData.phone.replace(/^[+\d\s\-()]+/, '').trim()
+   159→  }
+   160→
+   161→  const slideVariants = {
+   162→    enter: (direction: number) => ({ x: direction > 0 ? 300 : -300, opacity: 0 }),
+   163→    center: { x: 0, opacity: 1 },
+   164→    exit: (direction: number) => ({ x: direction < 0 ? 300 : -300, opacity: 0 }),
+   165→  }
+   166→
+   167→  function validateStep(step: number): boolean {
+   168→    if (step === 0) {
+   169→      if (!formData.fullName.trim() || !formData.email.trim()) {
+   170→        toast.error(t(language, 'errorFillFields'))
+   171→        return false
+   172→      }
+   173→    }
+   174→    if (step === 1) {
+   175→      if (!formData.targetJob.trim()) {
+   176→        toast.error(t(language, 'errorFillFields'))
+   177→        return false
+   178→      }
+   179→    }
+   180→    return true
+   181→  }
+   182→
+   183→  function handleNext() {
+   184→    if (!validateStep(formStep)) return
+   185→    if (formStep < 3) setFormStep(formStep + 1)
+   186→  }
+   187→
+   188→  function handlePrevious() {
+   189→    if (formStep > 0) setFormStep(formStep - 1)
+   190→  }
+   191→
+   192→  async function handleGenerate() {
+   193→    if (!validateStep(formStep)) return
+   194→    setIsSubmitting(true)
+   195→    setStep('generating')
+   196→    setIsGenerating(true)
+   197→    setError(null)
+   198→    setIsCLGenerating(formData.companyName.trim().length > 0)
+   199→    setCLError(null)
+   200→
+   201→    const hasCompany = formData.companyName.trim().length > 0
+   202→
+   203→    try {
+   204→      // Generate CV
+   205→      const res = await fetch('/api/generate-cv', {
+   206→        method: 'POST',
+   207→        headers: { 'Content-Type': 'application/json' },
+   208→        body: JSON.stringify({
+   209→          ...formData,
+   210→          language,
+   211→          persona: selectedPersona || undefined,
+   212→          personaFields: Object.keys(personaFields).length > 0 ? personaFields : undefined,
+   213→          internshipRequest: applicationType === 'internship' || undefined,
+   214→        }),
+   215→      })
+   216→
+   217→      const data = await res.json()
+   218→      if (!res.ok) {
+   219→        if (data.code === 'LIMIT_REACHED') {
+   220→          setStep('landing')
+   221→          toast.error(data.error, { duration: 6000 })
+   222→          return
+   223→        }
+   224→        throw new Error(data.error || 'Erreur lors de la génération')
+   225→      }
+   226→
+   227→      const generatedCV = data.cv
+   228→      setGeneratedCV(generatedCV)
+   229→
+   230→      // If company name provided, auto-generate cover letter simultaneously
+   231→      if (hasCompany) {
+   232→        try {
+   233→          // Auto-sync personal info to CL form data
+   234→          updateCLFormData({
+   235→            fullName: formData.fullName,
+   236→            email: formData.email,
+   237→            phone: formData.phone,
+   238→            address: formData.address,
+   239→            location: formData.location,
+   240→            companyName: formData.companyName,
+   241→            hiringManager: formData.hiringManager,
+   242→            jobTitle: formData.targetJob,
+   243→            tone: formData.clTone,
+   244→          })
+   245→
+   246→          const clRes = await fetch('/api/generate-cover-letter', {
+   247→            method: 'POST',
+   248→            headers: { 'Content-Type': 'application/json' },
+   249→            body: JSON.stringify({
+   250→              fullName: formData.fullName,
+   251→              email: formData.email,
+   252→              phone: formData.phone,
+   253→              address: formData.address,
+   254→              location: formData.location,
+   255→              companyName: formData.companyName,
+   256→              hiringManager: formData.hiringManager,
+   257→              jobTitle: formData.targetJob,
+   258→              tone: formData.clTone,
+   259→              language,
+   260→              generatedCVSummary: generatedCV.summary,
+   261→              generatedCVExperience: generatedCV.experience,
+   262→              generatedCVEducation: generatedCV.education,
+   263→              generatedCVSkills: generatedCV.skills,
+   264→              generatedCVLanguages: generatedCV.languages,
+   265→            }),
+   266→          })
+   267→
+   268→          const clData = await clRes.json()
+   269→          if (clRes.ok && clData.letter) {
+   270→            setGeneratedCL(clData.letter)
+   271→          }
+   272→        } catch {
+   273→          // CL generation failed silently - CV is still valid
+   274→          setIsCLGenerating(false)
+   275→        }
+   276→      }
+   277→
+   278→      setTimeout(() => {
+   279→        setStep('preview')
+   280→        setIsGenerating(false)
+   281→        setIsCLGenerating(false)
+   282→      }, 1000)
+   283→    } catch (err) {
+   284→      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+   285→      setIsGenerating(false)
+   286→      setIsCLGenerating(false)
+   287→      setStep('form')
+   288→      toast.error(err instanceof Error ? err.message : 'Erreur inconnue')
+   289→    } finally {
+   290→      setIsSubmitting(false)
+   291→    }
+   292→  }
+   293→
+   294→  const isLastStep = formStep === 3
+   295→
+   296→  return (
+   297→    <div className="min-h-screen flex flex-col bg-background">
+   298→      {/* Header */}
+   299→      <header className="w-full px-4 sm:px-6 lg:px-8 py-4 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+   300→        <div className="max-w-3xl mx-auto flex items-center justify-between">
+   301→          <button
+   302→            onClick={() => { setStep('landing'); setSelectedPersona(null) }}
+   303→            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+   304→          >
+   305→            <div className="flex flex-col items-center">
+   306→              <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
+   307→              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+   308→            </div>
+   309→            <span className="font-semibold text-foreground hidden sm:inline">{t(language, 'siteTitle')}</span>
+   310→          </button>
+   311→          {selectedPersona && (
+   312→            <span className="flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+   313→              <span>{personaEmoji[selectedPersona]}</span>
+   314→              <span>{t(language, personaNameKey[selectedPersona])}</span>
+   315→            </span>
+   316→          )}
+   317→          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+   318→            {languages.map((lang) => (
+   319→              <button
+   320→                key={lang.id}
+   321→                onClick={() => setLanguage(lang.id)}
+   322→                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+   323→                  language === lang.id
+   324→                    ? 'bg-white shadow-sm text-foreground'
+   325→                    : 'text-muted-foreground hover:text-foreground'
+   326→                }`}
+   327→              >
+   328→                <span className="mr-1">{lang.flag}</span>
+   329→                <span className="hidden sm:inline">{lang.id.toUpperCase()}</span>
+   330→              </button>
+   331→            ))}
+   332→          </div>
+   333→        </div>
+   334→      </header>
+   335→
+   336→      <main className="flex-1 py-8 px-4 sm:px-6">
+   337→        <div className="max-w-2xl mx-auto">
+   338→          {/* Progress */}
+   339→          <div className="mb-8">
+   340→            <div className="flex items-center justify-between mb-4">
+   341→              {stepTitles.map((titleKey, i) => {
+   342→                const Icon = stepIcons[i]
+   343→                const isActive = i === formStep
+   344→                const isCompleted = i < formStep
+   345→                return (
+   346→                  <button
+   347→                    key={titleKey}
+   348→                    onClick={() => {
+   349→                      if (isCompleted || i === formStep) setFormStep(i)
+   350→                    }}
+   351→                    className={`flex flex-col items-center gap-1.5 flex-1 cursor-pointer group ${
+   352→                      !isCompleted && i !== formStep ? 'opacity-40' : ''
+   353→                    }`}
+   354→                  >
+   355→                    <div
+   356→                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+   357→                        isActive
+   358→                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+   359→                          : isCompleted
+   360→                            ? 'bg-emerald-100 text-emerald-700'
+   361→                            : 'bg-muted text-muted-foreground'
+   362→                      }`}
+   363→                    >
+   364→                      <Icon className="w-5 h-5" />
+   365→                    </div>
+   366→                    <span
+   367→                      className={`text-xs font-medium text-center hidden sm:block ${
+   368→                        isActive ? 'text-emerald-600' : 'text-muted-foreground'
+   369→                      }`}
+   370→                    >
+   371→                      {t(language, titleKey)}
+   372→                    </span>
+   373→                  </button>
+   374→                )
+   375→              })}
+   376→            </div>
+   377→            {/* Progress bar */}
+   378→            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+   379→              <motion.div
+   380→                className="h-full bg-emerald-500 rounded-full"
+   381→                animate={{ width: `${((formStep + 1) / 4) * 100}%` }}
+   382→                transition={{ duration: 0.4, ease: 'easeOut' }}
+   383→              />
+   384→            </div>
+   385→          </div>
+   386→
+   387→          {/* Form Content */}
+   388→          <div className="bg-white rounded-2xl border shadow-sm p-6 sm:p-8 min-h-[400px] relative overflow-hidden">
+   389→            <AnimatePresence mode="wait" custom={1}>
+   390→              <motion.div
+   391→                key={formStep}
+   392→                custom={1}
+   393→                variants={slideVariants}
+   394→                initial="enter"
+   395→                animate="center"
+   396→                exit="exit"
+   397→                transition={{ duration: 0.3, ease: 'easeInOut' }}
+   398→              >
+   399→                <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+   400→                  {(() => {
+   401→                    const Icon = stepIcons[formStep]
+   402→                    return <Icon className="w-5 h-5 text-emerald-600" />
+   403→                  })()}
+   404→                  {t(language, stepTitles[formStep])}
+   405→                </h2>
+   406→
+   407→                {/* Step 1: Personal Info */}
+   408→                {formStep === 0 && (
+   409→                  <div className="space-y-4">
+   410→                    {/* Import Existing CV Banner */}
+   411→                    <div className="rounded-xl border-2 border-dashed border-emerald-300 bg-gradient-to-r from-emerald-50/60 to-teal-50/40 p-5">
+   412→                      <div className="flex items-start gap-3">
+   413→                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+   414→                          <Upload className="w-5 h-5 text-emerald-600" />
+   415→                        </div>
+   416→                        <div className="flex-1 min-w-0">
+   417→                          <h3 className="text-sm font-semibold text-emerald-800 mb-1">{t(language, 'importCvTitle')}</h3>
+   418→                          <p className="text-xs text-emerald-700/80 mb-3 leading-relaxed">{t(language, 'importCvDesc')}</p>
+   419→                          <div className="flex items-center gap-3">
+   420→                            <Button
+   421→                              type="button"
+   422→                              variant="outline"
+   423→                              size="sm"
+   424→                              onClick={() => fileInputRef.current?.click()}
+   425→                              disabled={isImportingCv}
+   426→                              className="bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 gap-2 cursor-pointer text-xs font-medium"
+   427→                            >
+   428→                              {isImportingCv ? (
+   429→                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+   430→                              ) : (
+   431→                                <FileUp className="w-3.5 h-3.5" />
+   432→                              )}
+   433→                              {isImportingCv ? t(language, 'importCvParsing') : t(language, 'importCvBtn')}
+   434→                            </Button>
+   435→                            <span className="text-[10px] text-muted-foreground">PDF · DOCX · TXT</span>
+   436→                          </div>
+   437→                        </div>
+   438→                      </div>
+   439→                      <input
+   440→                        ref={fileInputRef}
+   441→                        type="file"
+   442→                        accept=".pdf,.doc,.docx,.txt"
+   443→                        className="hidden"
+   444→                        onChange={handleImportCv}
+   445→                      />
+   446→                    </div>
+   447→
+   448→                    {/* Photo Upload */}
+   449→                    <div>
+   450→                      <Label>{t(language, 'photo')}</Label>
+   451→                      <div className="mt-1.5">
+   452→                        {formData.photo ? (
+   453→                          <div className="relative inline-block">
+   454→                            <img
+   455→                              src={formData.photo}
+   456→                              alt="Photo"
+   457→                              className="w-24 h-24 rounded-full object-cover border-2 border-emerald-200"
+   458→                            />
+   459→                            <button
+   460→                              type="button"
+   461→                              onClick={() => updateFormData({ photo: '' })}
+   462→                              className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer shadow-sm"
+   463→                            >
+   464→                              <X className="w-3 h-3" />
+   465→                            </button>
+   466→                          </div>
+   467→                        ) : (
+   468→                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/25 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group">
+   469→                            <input
+   470→                              type="file"
+   471→                              accept="image/*"
+   472→                              className="hidden"
+   473→                              onChange={(e) => {
+   474→                                const file = e.target.files?.[0]
+   475→                                if (!file) return
+   476→                                if (file.size > 5 * 1024 * 1024) {
+   477→                                  toast.error(language === 'fr' ? 'Image trop volumineuse (max 5 Mo)' : language === 'en' ? 'Image too large (max 5 MB)' : 'الصورة كبيرة جداً (الحد الأقصى 5 ميغابايت)')
+   478→                                  return
+   479→                                }
+   480→                                const reader = new FileReader()
+   481→                                reader.onload = () => {
+   482→                                  updateFormData({ photo: reader.result as string })
+   483→                                }
+   484→                                reader.readAsDataURL(file)
+   485→                              }}
+   486→                            />
+   487→                            <Camera className="w-8 h-8 text-muted-foreground/40 group-hover:text-emerald-500 transition-colors" />
+   488→                            <span className="text-xs text-muted-foreground/60 mt-1.5 group-hover:text-emerald-600 transition-colors">
+   489→                              {t(language, 'photoPlaceholder')}
+   490→                            </span>
+   491→                          </label>
+   492→                        )}
+   493→                      </div>
+   494→                      <div className="flex items-start gap-1.5 mt-2">
+   495→                        <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+   496→                        <p className="text-xs text-muted-foreground">{t(language, 'photoNote')}</p>
+   497→                      </div>
+   498→                    </div>
+   499→                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   500→                      <div className="sm:col-span-2">
+   501→                        <Label htmlFor="fullName">{t(language, 'fullName')} *</Label>
+   502→                        <Input
+   503→                          id="fullName"
+   504→                          value={formData.fullName}
+   505→                          onChange={(e) => updateFormData({ fullName: e.target.value })}
+   506→                          placeholder={language === 'fr' ? 'Jean Dupont' : language === 'en' ? 'John Smith' : 'محمد أحمد'}
+   507→                          className="mt-1.5"
+   508→                        />
+   509→                      </div>
+   510→                      <div>
+   511→                        <Label htmlFor="email">{t(language, 'email')} *</Label>
+   512→                        <Input
+   513→                          id="email"
+   514→                          type="email"
+   515→                          value={formData.email}
+   516→                          onChange={(e) => updateFormData({ email: e.target.value })}
+   517→                          placeholder="jean@exemple.com"
+   518→                          className="mt-1.5"
+   519→                        />
+   520→                      </div>
+   521→                      <div className="sm:col-span-2">
+   522→                        <Label>{t(language, 'phone')}</Label>
+   523→                        <div className="mt-1.5 flex gap-2">
+   524→                          <select
+   525→                            value={phoneCountryCode}
+   526→                            onChange={(e) => handlePhoneCountryChange(e.target.value)}
+   527→                            className="h-9 w-[180px] shrink-0 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 appearance-none cursor-pointer"
+   528→                            aria-label={t(language, 'phoneCountry')}
+   529→                          >
+   530→                            <option value="">{t(language, 'phoneCountryPlaceholder')}</option>
+   531→                            {countries.map((c) => (
+   532→                              <option key={c.code} value={c.code}>
+   533→                                {c.flag} {c.dial} {c.name}
+   534→                              </option>
+   535→                            ))}
+   536→                          </select>
+   537→                          <Input
+   538→                            type="tel"
+   539→                            value={getPhoneNumberOnly()}
+   540→                            onChange={(e) => handlePhoneNumberChange(e.target.value)}
+   541→                            placeholder={language === 'fr' ? '600 000 000' : language === 'en' ? '600 000 000' : language === 'ar' ? '600 000 000' : '600 000 000'}
+   542→                            className="flex-1"
+   543→                          />
+   544→                        </div>
+   545→                      </div>
+   546→                      <div>
+   547→                        <Label htmlFor="address">{t(language, 'address')}</Label>
+   548→                        <Input
+   549→                          id="address"
+   550→                          value={formData.address}
+   551→                          onChange={(e) => updateFormData({ address: e.target.value })}
+   552→                          placeholder={language === 'fr' ? '123 Rue Mohammed V' : language === 'en' ? '123 Main Street' : language === 'ar' ? 'شارع محمد الخامس 123' : 'Calle Ejemplo 123'}
+   553→                          className="mt-1.5"
+   554→                        />
+   555→                      </div>
+   556→                      <div>
+   557→                        <Label htmlFor="location">{t(language, 'location')}</Label>
+   558→                        <Input
+   559→                          id="location"
+   560→                          value={formData.location}
+   561→                          onChange={(e) => updateFormData({ location: e.target.value })}
+   562→                          placeholder={language === 'fr' ? 'Casablanca, Maroc' : language === 'en' ? 'London, UK' : language === 'ar' ? 'الدار البيضاء، المغرب' : 'Madrid, España'}
+   563→                          className="mt-1.5"
+   564→                        />
+   565→                      </div>
+   566→                      <div>
+   567→                        <Label htmlFor="linkedin">LinkedIn</Label>
+   568→                        <Input
+   569→                          id="linkedin"
+   570→                          value={formData.linkedin}
+   571→                          onChange={(e) => updateFormData({ linkedin: e.target.value })}
+   572→                          placeholder="linkedin.com/in/jean-dupont"
+   573→                          className="mt-1.5"
+   574→                        />
+   575→                      </div>
+   576→                      <div className="sm:col-span-2">
+   577→                        <Label htmlFor="website">{t(language, 'website')}</Label>
+   578→                        <Input
+   579→                          id="website"
+   580→                          value={formData.website}
+   581→                          onChange={(e) => updateFormData({ website: e.target.value })}
+   582→                          placeholder="www.monsite.com"
+   583→                          className="mt-1.5"
+   584→                        />
+   585→                      </div>
+   586→                    </div>
+   587→
+   588→                    {/* Birth Information */}
+   589→                    <div className="mt-6 pt-5 border-t border-stone-100">
+   590→                      <Label className="flex items-center gap-2 text-sm font-semibold text-stone-700 mb-3">
+   591→                        <CalendarDays className="w-4 h-4 text-emerald-600" />
+   592→                        {t(language, 'personalInfo')}
+   593→                      </Label>
+   594→                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   595→                        <div>
+   596→                          <Label htmlFor="dateOfBirth">{t(language, 'dateOfBirth')}</Label>
+   597→                          <Input
+   598→                            id="dateOfBirth"
+   599→                            type="date"
+   600→                            value={formData.dateOfBirth}
+   601→                            onChange={(e) => updateFormData({ dateOfBirth: e.target.value })}
+   602→                            className="mt-1.5"
+   603→                          />
+   604→                        </div>
+   605→                        <div>
+   606→                          <Label htmlFor="birthPlace">{t(language, 'birthPlace')}</Label>
+   607→                          <Input
+   608→                            id="birthPlace"
+   609→                            value={formData.birthPlace}
+   610→                            onChange={(e) => updateFormData({ birthPlace: e.target.value })}
+   611→                            placeholder={language === 'fr' ? 'Casablanca' : language === 'en' ? 'Casablanca' : language === 'ar' ? 'الدار البيضاء' : 'Madrid'}
+   612→                            className="mt-1.5"
+   613→                          />
+   614→                        </div>
+   615→                        <div className="sm:col-span-2">
+   616→                          <Label htmlFor="birthCountry">{t(language, 'birthCountry')}</Label>
+   617→                          <Input
+   618→                            id="birthCountry"
+   619→                            value={formData.birthCountry}
+   620→                            onChange={(e) => updateFormData({ birthCountry: e.target.value })}
+   621→                            placeholder={t(language, 'birthCountryPlaceholder')}
+   622→                            className="mt-1.5"
+   623→                          />
+   624→                        </div>
+   625→                      </div>
+   626→                    </div>
+   627→                  </div>
+   628→                )}
+   629→
+   630→                {/* Step 2: Career Goals, Cover Letter & Persona Fields */}
+   631→                {formStep === 1 && (
+   632→                  <div className="space-y-4">
+   633→                    <div>
+   634→                      <Label htmlFor="targetJob">{t(language, 'targetJob')} *</Label>
+   635→                      <Input
+   636→                        id="targetJob"
+   637→                        value={formData.targetJob}
+   638→                        onChange={(e) => updateFormData({ targetJob: e.target.value })}
+   639→                        placeholder={language === 'fr' ? 'Développeur Full-Stack' : language === 'en' ? 'Full-Stack Developer' : 'مطور Full-Stack'}
+   640→                        className="mt-1.5"
+   641→                      />
+   642→                    </div>
+   643→                    <div>
+   644→                      <Label htmlFor="industry">{t(language, 'industry')}</Label>
+   645→                      <Input
+   646→                        id="industry"
+   647→                        value={formData.industry}
+   648→                        onChange={(e) => updateFormData({ industry: e.target.value })}
+   649→                        placeholder={language === 'fr' ? 'Technologie / IT' : language === 'en' ? 'Technology / IT' : 'التكنولوجيا / تكنولوجيا المعلومات'}
+   650→                        className="mt-1.5"
+   651→                      />
+   652→                    </div>
+   653→
+   654→                    {/* Persona-specific fields */}
+   655→                    {selectedPersona && personaFieldMap[selectedPersona] && (
+   656→                      <div className="mt-6 pt-5 border-t border-stone-100">
+   657→                        <Label className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-3">
+   658→                          <span>{personaEmoji[selectedPersona]}</span>
+   659→                          {t(language, 'personaFieldsTitle')}
+   660→                        </Label>
+   661→                        <div className="space-y-3">
+   662→                          {personaFieldMap[selectedPersona].map((field, i) => (
+   663→                            <div key={i}>
+   664→                              <Label>{t(language, field.labelKey)}</Label>
+   665→                              <Input
+   666→                                value={personaFields[field.labelKey] || ''}
+   667→                                onChange={(e) => setPersonaFields(prev => ({ ...prev, [field.labelKey]: e.target.value }))}
+   668→                                placeholder={t(language, field.phKey)}
+   669→                                className="mt-1.5"
+   670→                              />
+   671→                            </div>
+   672→                          ))}
+   673→                        </div>
+   674→                      </div>
+   675→                    )}
+   676→
+   677→                    {/* Application Type Toggle — student/graduate only */}
+   678→                    {(selectedPersona === 'student' || selectedPersona === 'graduate') && (
+   679→                      <div className="mt-5">
+   680→                        <Label className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-3">
+   681→                          <span>{personaEmoji[selectedPersona]}</span>
+   682→                          {t(language, 'applicationType')}
+   683→                        </Label>
+   684→                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   685→                          {/* Internship Request */}
+   686→                          <button
+   687→                            type="button"
+   688→                            onClick={() => setApplicationType(applicationType === 'internship' ? null : 'internship')}
+   689→                            className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+   690→                              applicationType === 'internship'
+   691→                                ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm'
+   692→                                : 'border-stone-200 bg-white text-muted-foreground hover:border-emerald-300'
+   693→                            }`}
+   694→                          >
+   695→                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+   696→                              applicationType === 'internship'
+   697→                                ? 'border-emerald-500'
+   698→                                : 'border-stone-300'
+   699→                            }`}>
+   700→                              {applicationType === 'internship' && (
+   701→                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+   702→                              )}
+   703→                            </div>
+   704→                            <div className="text-left">
+   705→                              <span className={`text-sm font-semibold block ${applicationType === 'internship' ? 'text-emerald-800' : 'text-foreground'}`}>
+   706→                                {t(language, 'internshipRequest')}
+   707→                              </span>
+   708→                              <p className="text-xs mt-0.5">{t(language, 'internshipRequestDesc')}</p>
+   709→                            </div>
+   710→                          </button>
+   711→                          {/* Job Request */}
+   712→                          <button
+   713→                            type="button"
+   714→                            onClick={() => setApplicationType(applicationType === 'job' ? null : 'job')}
+   715→                            className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+   716→                              applicationType === 'job'
+   717→                                ? 'border-blue-500 bg-blue-50 text-blue-800 shadow-sm'
+   718→                                : 'border-stone-200 bg-white text-muted-foreground hover:border-blue-300'
+   719→                            }`}
+   720→                          >
+   721→                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+   722→                              applicationType === 'job'
+   723→                                ? 'border-blue-500'
+   724→                                : 'border-stone-300'
+   725→                            }`}>
+   726→                              {applicationType === 'job' && (
+   727→                                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+   728→                              )}
+   729→                            </div>
+   730→                            <div className="text-left">
+   731→                              <span className={`text-sm font-semibold block ${applicationType === 'job' ? 'text-blue-800' : 'text-foreground'}`}>
+   732→                                {t(language, 'jobRequest')}
+   733→                              </span>
+   734→                              <p className="text-xs mt-0.5">{t(language, 'jobRequestDesc')}</p>
+   735→                            </div>
+   736→                          </button>
+   737→                        </div>
+   738→                      </div>
+   739→                    )}
+   740→
+   741→                    {/* Cover Letter section */}
+   742→                    <div className="relative mt-6">
+   743→                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
+   744→                      <div className="flex items-center gap-2 mt-4 mb-4">
+   745→                        <PenLine className="w-4 h-4 text-emerald-600" />
+   746→                        <span className="text-sm font-semibold text-emerald-700">
+   747→                          {t(language, 'tabCoverLetter')}
+   748→                        </span>
+   749→                        <span className="text-xs text-muted-foreground bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+   750→                          {language === 'fr' ? 'Optionnel' : language === 'en' ? 'Optional' : language === 'es' ? 'Opcional' : 'اختياري'}
+   751→                        </span>
+   752→                      </div>
+   753→
+   754→                      <div className="space-y-4">
+   755→                        <div>
+   756→                          <Label htmlFor="companyName" className="text-sm font-medium">
+   757→                            {t(language, 'companyNameForCl')}
+   758→                          </Label>
+   759→                          <Input
+   760→                            id="companyName"
+   761→                            value={formData.companyName}
+   762→                            onChange={(e) => updateFormData({ companyName: e.target.value })}
+   763→                            placeholder={t(language, 'companyNameForClPlaceholder')}
+   764→                            className="mt-1.5"
+   765→                          />
+   766→                          <p className="text-xs text-muted-foreground mt-1">
+   767→                            {language === 'fr'
+   768→                              ? "Renseignez le nom de l'entreprise pour générer automatiquement une lettre de motivation personnalisée en même temps que votre CV."
+   769→                              : language === 'en'
+   770→                                ? 'Enter the company name to automatically generate a personalized cover letter along with your resume.'
+   771→                                : language === 'es'
+   772→                                  ? 'Ingrese el nombre de la empresa para generar automáticamente una carta de motivación junto con su currículum.'
+   773→                                  : 'أدخل اسم الشركة لإنشاء رسالة دافع مخصصة تلقائياً مع سيرتك الذاتية.'}
+   774→                          </p>
+   775→                        </div>
+   776→                        <div>
+   777→                          <Label htmlFor="hiringManager" className="text-sm font-medium">
+   778→                            {t(language, 'hiringManagerForCl')}
+   779→                          </Label>
+   780→                          <Input
+   781→                            id="hiringManager"
+   782→                            value={formData.hiringManager}
+   783→                            onChange={(e) => updateFormData({ hiringManager: e.target.value })}
+   784→                            placeholder={t(language, 'hiringManagerForClPlaceholder')}
+   785→                            className="mt-1.5"
+   786→                          />
+   787→                        </div>
+   788→                        <div>
+   789→                          <Label className="text-sm font-medium">{t(language, 'clToneForCl')}</Label>
+   790→                          <div className="grid grid-cols-3 gap-2 mt-1.5">
+   791→                            {([
+   792→                              { id: 'formal' as const, icon: UserCircle, labelKey: 'clToneFormal' as const },
+   793→                              { id: 'semi-formal' as const, icon: Building2, labelKey: 'clToneSemiFormal' as const },
+   794→                              { id: 'dynamic' as const, icon: Zap, labelKey: 'clToneDynamic' as const },
+   795→                            ]).map((tone) => (
+   796→                              <button
+   797→                                key={tone.id}
+   798→                                type="button"
+   799→                                onClick={() => updateFormData({ clTone: tone.id })}
+   800→                                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+   801→                                  formData.clTone === tone.id
+   802→                                    ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+   803→                                    : 'border-muted bg-white text-muted-foreground hover:border-emerald-300'
+   804→                                }`}
+   805→                              >
+   806→                                <tone.icon className="w-4 h-4" />
+   807→                                <span className="text-xs font-medium">{t(language, tone.labelKey)}</span>
+   808→                              </button>
+   809→                            ))}
+   810→                          </div>
+   811→                        </div>
+   812→                      </div>
+   813→                    </div>
+   814→                  </div>
+   815→                )}
+   816→
+   817→                {/* Step 3: Experience & Education */}
+   818→                {formStep === 2 && (
+   819→                  <div className="space-y-6">
+   820→                    <div>
+   821→                      <Label htmlFor="experience">{t(language, 'experience')}</Label>
+   822→                      <Textarea
+   823→                        id="experience"
+   824→                        value={formData.experience}
+   825→                        onChange={(e) => updateFormData({ experience: e.target.value })}
+   826→                        placeholder={t(language, 'experiencePlaceholder')}
+   827→                        className="mt-1.5 min-h-[120px] resize-y"
+   828→                      />
+   829→                    </div>
+   830→                    <div>
+   831→                      <Label htmlFor="education">{t(language, 'education')}</Label>
+   832→                      <Textarea
+   833→                        id="education"
+   834→                        value={formData.education}
+   835→                        onChange={(e) => updateFormData({ education: e.target.value })}
+   836→                        placeholder={t(language, 'educationPlaceholder')}
+   837→                        className="mt-1.5 min-h-[120px] resize-y"
+   838→                      />
+   839→                    </div>
+   840→                  </div>
+   841→                )}
+   842→
+   843→                {/* Step 4: Skills, Languages, Template */}
+   844→                {formStep === 3 && (
+   845→                  <div className="space-y-6">
+   846→                    <div>
+   847→                      <Label htmlFor="skills">{t(language, 'skills')}</Label>
+   848→                      <Textarea
+   849→                        id="skills"
+   850→                        value={formData.skills}
+   851→                        onChange={(e) => updateFormData({ skills: e.target.value })}
+   852→                        placeholder={t(language, 'skillsPlaceholder')}
+   853→                        className="mt-1.5 min-h-[80px] resize-y"
+   854→                      />
+   855→                    </div>
+   856→                    <div>
+   857→                      <Label htmlFor="languages">{t(language, 'languages')}</Label>
+   858→                      <Textarea
+   859→                        id="languages"
+   860→                        value={formData.languages}
+   861→                        onChange={(e) => updateFormData({ languages: e.target.value })}
+   862→                        placeholder={t(language, 'languagesPlaceholder')}
+   863→                        className="mt-1.5 min-h-[80px] resize-y"
+   864→                      />
+   865→                    </div>
+   866→                    <div>
+   867→                      <Label htmlFor="softSkills">{t(language, 'softSkills')}</Label>
+   868→                      <Textarea
+   869→                        id="softSkills"
+   870→                        value={formData.softSkills}
+   871→                        onChange={(e) => updateFormData({ softSkills: e.target.value })}
+   872→                        placeholder={t(language, 'softSkillsPlaceholder')}
+   873→                        className="mt-1.5 min-h-[80px] resize-y"
+   874→                      />
+   875→                    </div>
+   876→                    <div>
+   877→                      <Label htmlFor="summary">{t(language, 'summary')}</Label>
+   878→                      <Textarea
+   879→                        id="summary"
+   880→                        value={formData.summary}
+   881→                        onChange={(e) => updateFormData({ summary: e.target.value })}
+   882→                        placeholder={t(language, 'summaryPlaceholder')}
+   883→                        className="mt-1.5 min-h-[80px] resize-y"
+   884→                      />
+   885→                    </div>
+   886→
+   887→                    {/* Template Selector */}
+   888→                    <div>
+   889→                      <Label className="flex items-center gap-2 mb-3">
+   890→                        <Palette className="w-4 h-4 text-emerald-600" />
+   891→                        {t(language, 'templateLabel')}
+   892→                      </Label>
+   893→                      <div className="grid grid-cols-3 gap-3">
+   894→                        {templates.map((tmpl) => (
+   895→                          <button
+   896→                            key={tmpl.id}
+   897→                            onClick={() => setTemplate(tmpl.id)}
+   898→                            className={`relative rounded-xl border-2 p-4 transition-all cursor-pointer ${
+   899→                              template === tmpl.id
+   900→                                ? 'border-emerald-600 bg-emerald-50'
+   901→                                : 'border-muted hover:border-emerald-300 bg-white'
+   902→                            }`}
+   903→                          >
+   904→                            {template === tmpl.id && (
+   905→                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
+   906→                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+   907→                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+   908→                                </svg>
+   909→                              </div>
+   910→                            )}
+   911→                            <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${template === tmpl.id ? 'text-emerald-700' : 'text-muted-foreground'}`}>
+   912→                              {t(language, tmpl.labelKey)}
+   913→                            </div>
+   914→                            {/* Mini template preview */}
+   915→                            {tmpl.id === 'modern' && (
+   916→                              <div className="space-y-1.5">
+   917→                                <div className="flex gap-1.5 h-8">
+   918→                                  <div className="w-1/3 bg-emerald-800 rounded-sm" />
+   919→                                  <div className="flex-1 bg-stone-100 rounded-sm" />
+   920→                                </div>
+   921→                                <div className="flex gap-1.5 h-4">
+   922→                                  <div className="w-1/3 bg-emerald-800 rounded-sm" />
+   923→                                  <div className="flex-1 bg-stone-100 rounded-sm" />
+   924→                                </div>
+   925→                              </div>
+   926→                            )}
+   927→                            {tmpl.id === 'classic' && (
+   928→                              <div className="space-y-1.5">
+   929→                                <div className="h-2 w-1/2 bg-stone-800 rounded-sm mx-auto" />
+   930→                                <div className="h-1 w-3/4 bg-stone-200 rounded-sm mx-auto" />
+   931→                                <div className="h-4 bg-stone-100 rounded-sm" />
+   932→                              </div>
+   933→                            )}
+   934→                            {tmpl.id === 'creative' && (
+   935→                              <div className="space-y-1.5">
+   936→                                <div className="h-4 bg-gradient-to-r from-emerald-700 to-teal-600 rounded-sm" />
+   937→                                <div className="flex gap-1.5 h-6">
+   938→                                  <div className="flex-1 bg-stone-100 rounded-sm" />
+   939→                                  <div className="w-1/3 bg-stone-200 rounded-sm" />
+   940→                                </div>
+   941→                              </div>
+   942→                            )}
+   943→                          </button>
+   944→                        ))}
+   945→                      </div>
+   946→                    </div>
+   947→
+   948→                    {/* Photo Position Selector - only show if user has a photo */}
+   949→                    {formData.photo && (
+   950→                      <div className="mt-6">
+   951→                        <Label className="flex items-center gap-2 mb-3">
+   952→                          <ImageIcon className="w-4 h-4 text-emerald-600" />
+   953→                          {t(language, 'photoPosition')}
+   954→                        </Label>
+   955→                        <div className="grid grid-cols-3 gap-3">
+   956→                          {(['left', 'center', 'right'] as const).map((pos) => {
+   957→                            const key = pos === 'left' ? 'photoPositionLeft' : pos === 'center' ? 'photoPositionCenter' : 'photoPositionRight'
+   958→                            const PosIcon = pos === 'left' ? AlignLeft : pos === 'center' ? AlignCenter : AlignRight
+   959→                            return (
+   960→                              <button
+   961→                                key={pos}
+   962→                                onClick={() => updateFormData({ photoPosition: pos })}
+   963→                                className={`relative rounded-xl border-2 p-4 transition-all cursor-pointer ${
+   964→                                  formData.photoPosition === pos
+   965→                                    ? 'border-emerald-600 bg-emerald-50'
+   966→                                    : 'border-muted hover:border-emerald-300 bg-white'
+   967→                                }`}
+   968→                              >
+   969→                                {formData.photoPosition === pos && (
+   970→                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
+   971→                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+   972→                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+   973→                                    </svg>
+   974→                                  </div>
+   975→                                )}
+   976→                                <PosIcon className={`w-5 h-5 mx-auto mb-2 ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`} />
+   977→                                <div className={`text-xs font-bold uppercase tracking-wider ${formData.photoPosition === pos ? 'text-emerald-700' : 'text-muted-foreground'}`}>
+   978→                                  {t(language, key)}
+   979→                                </div>
+   980→                              </button>
+   981→                            )
+   982→                          })}
+   983→                        </div>
+   984→                      </div>
+   985→                    )}
+   986→                  </div>
+   987→                )}
+   988→              </motion.div>
+   989→            </AnimatePresence>
+   990→          </div>
+   991→
+   992→          {/* Navigation Buttons */}
+   993→          <div className="flex items-center justify-between mt-6">
+   994→            <Button
+   995→              variant="outline"
+   996→              onClick={handlePrevious}
+   997→              disabled={formStep === 0}
+   998→              className="gap-2 cursor-pointer"
+   999→            >
+  1000→              <ArrowLeft className="w-4 h-4" />
+  1001→              {t(language, 'previous')}
+  1002→            </Button>
+  1003→
+  1004→            {isLastStep ? (
+  1005→              <Button
+  1006→                onClick={handleGenerate}
+  1007→                disabled={isSubmitting}
+  1008→                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 px-8 cursor-pointer"
+  1009→              >
+  1010→                <Globe className="w-4 h-4" />
+  1011→                {t(language, 'generate')}
+  1012→              </Button>
+  1013→            ) : (
+  1014→              <Button
+  1015→                onClick={handleNext}
+  1016→                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 cursor-pointer"
+  1017→              >
+  1018→                {t(language, 'next')}
+  1019→                <ArrowRight className="w-4 h-4" />
+  1020→              </Button>
+  1021→            )}
+  1022→          </div>
+  1023→        </div>
+  1024→      </main>
+  1025→
+  1026→      {/* Footer */}
+  1027→      <footer className="border-t py-6 px-4 sm:px-6 lg:px-8 mt-auto">
+  1028→        <div className="max-w-3xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
+  1029→          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+  1030→          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+  1031→        </div>
+  1032→      </footer>
+  1033→    </div>
+  1034→  )
+  1035→}
