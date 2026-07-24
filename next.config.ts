@@ -6,8 +6,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  // Allow Caddy reverse proxy (port 81 → 3000) to serve _next resources
-  allowedDevOrigins: ["*"],
 };
 
 export default nextConfig;
