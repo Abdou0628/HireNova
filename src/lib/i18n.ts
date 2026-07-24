@@ -327,6 +327,30 @@ export type TranslationKey =
   | 'atsReAnalyze'
   | 'atsClose'
   | 'atsPoweredBy'
+  // SEO & FAQ
+  | 'seoTitle'
+  | 'faqTitle'
+  | 'faqSubtitle'
+  | 'faqQ1'
+  | 'faqA1'
+  | 'faqQ2'
+  | 'faqA2'
+  | 'faqQ3'
+  | 'faqA3'
+  | 'faqQ4'
+  | 'faqA4'
+  | 'faqQ5'
+  | 'faqA5'
+  | 'faqQ6'
+  | 'faqA6'
+  | 'faqQ7'
+  | 'faqA7'
+  | 'faqQ8'
+  | 'faqA8'
+  | 'trustTitle'
+  | 'trustSubtitle'
+  | 'trustStats'
+  | 'trustGuarantee'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -679,6 +703,30 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     atsReAnalyze: 'Ré-analyser',
     atsClose: 'Fermer',
     atsPoweredBy: 'Propulsé par HireNova ATS',
+    // SEO & FAQ
+    seoTitle: 'Questions fréquentes sur HireNova — CV, Lettre de Motivation & Score ATS',
+    faqTitle: 'Questions Fréquentes',
+    faqSubtitle: 'Tout ce que vous devez savoir sur HireNova et nos outils IA pour votre recherche d\'emploi.',
+    faqQ1: 'Comment fonctionne HireNova pour créer un CV ?',
+    faqA1: 'HireNova utilise une intelligence artificielle avancée pour analyser vos informations professionnelles et générer un CV sur mesure. Remplissez le formulaire en 4 étapes (informations personnelles, projet professionnel, expérience & formation, compétences), choisissez votre template (Moderne, Classique ou Créatif), et l\'IA rédige un CV professionnel optimisé pour les systèmes ATS en moins de 60 secondes.',
+    faqQ2: 'Qu\'est-ce que le score ATS et pourquoi est-il important ?',
+    faqA2: 'Le score ATS (Applicant Tracking System) mesure la compatibilité de votre CV avec les logiciels de recrutement automatiques utilisés par plus de 75% des entreprises. HireNova analyse votre CV sur 5 critères : mots-clés & SEO, structure & format, expérience & impact, adéquation des compétences, et lisibilité. Un score élevé augmente vos chances de passer les premiers filtres de recrutement.',
+    faqQ3: 'Puis-je créer un CV en plusieurs langues ?',
+    faqA3: 'Oui ! HireNova est disponible en 4 langues : français, anglais, arabe et espagnol. L\'IA adapte le vocabulaire, le style et la mise en forme à chaque langue. Vous pouvez créer votre CV dans la langue de votre choix et même générer des versions multilingues pour des candidatures internationales.',
+    faqQ4: 'Combien coûte HireNova ?',
+    faqA4: 'HireNova propose 3 plans : le Plan Pro à 6,99€/mois (ou $7.99/£5.99) pour les chercheurs d\'emploi actifs, et le Plan Annuel à 70€/an (ou $79/£59) pour une année complète de recherche d\'emploi. Les deux plans incluent : générations de CV et lettres de motivation illimitées, score ATS détaillé, 3 templates premium, export PDF et Word, et génération prioritaire.',
+    faqQ5: 'Puis-je télécharger mon CV en PDF et Word ?',
+    faqA5: 'Absolument ! Avec les plans Pro et Annuel, vous pouvez télécharger votre CV en PDF (format standard A4) et en Word (.doc). Les deux formats sont parfaitement optimisés pour l\'impression et le partage par email. Le PDF préserve la mise en page, tandis que le Word permet des modifications ultérieures.',
+    faqQ6: 'Comment fonctionne la lettre de motivation IA ?',
+    faqA6: 'HireNova génère une lettre de motivation personnalisée à partir de vos informations et de l\'offre d\'emploi visée. Indiquez le nom de l\'entreprise, le poste, le recruteur, vos motivations et vos points forts. L\'IA rédige une lettre persuasive, adaptée au ton choisi (formel, semi-formel ou dynamique), en 30 secondes.',
+    faqQ7: 'Mes données personnelles sont-elles en sécurité ?',
+    faqA7: 'Oui, la sécurité de vos données est notre priorité. Vos informations sont chiffrées et ne sont jamais partagées avec des tiers. Nous utilisons des protocoles de sécurité standards (HTTPS, chiffrement des données au repos). Vous pouvez supprimer votre compte et toutes vos données à tout moment depuis votre espace personnel.',
+    faqQ8: 'HireNova fonctionne-t-il pour les candidats internationaux ?',
+    faqA8: 'Oui ! HireNova est conçu pour les candidats du monde entier. Nous supportons les paiements en euros (EUR), dollars américains (USD) et livres sterling (GBP). Notre service est accessible depuis 16 pays en Europe, Amériques, Océanie et Golfe. Les CV générés sont adaptés aux standards internationaux et optimisés pour les recruteurs francophones et anglophones.',
+    trustTitle: 'La confiance de milliers de candidats',
+    trustSubtitle: 'Rejoignez une communauté grandissante de professionnels qui réussissent leur recherche d\'emploi avec HireNova.',
+    trustStats: 'Utilisateurs satisfaits',
+    trustGuarantee: 'Garantie satisfaction — Votre abonnement est remboursé si le service ne répond pas à vos attentes.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -1030,6 +1078,30 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     atsReAnalyze: 'Re-analyze',
     atsClose: 'Close',
     atsPoweredBy: 'Powered by HireNova ATS',
+    // SEO & FAQ
+    seoTitle: 'Frequently Asked Questions about HireNova — Resume, Cover Letter & ATS Score',
+    faqTitle: 'Frequently Asked Questions',
+    faqSubtitle: 'Everything you need to know about HireNova and our AI tools for your job search.',
+    faqQ1: 'How does HireNova work to create a resume?',
+    faqA1: 'HireNova uses advanced artificial intelligence to analyze your professional information and generate a tailored resume. Fill out the 4-step form (personal info, career goals, experience & education, skills), choose your template (Modern, Classic or Creative), and the AI writes an ATS-optimized professional resume in under 60 seconds.',
+    faqQ2: 'What is the ATS score and why is it important?',
+    faqA2: 'The ATS (Applicant Tracking System) score measures how compatible your resume is with the automated recruitment software used by over 75% of companies. HireNova analyzes your resume across 5 criteria: keywords & SEO, structure & format, experience & impact, skills match, and readability. A high score increases your chances of passing initial recruitment filters.',
+    faqQ3: 'Can I create a resume in multiple languages?',
+    faqA3: 'Yes! HireNova is available in 4 languages: French, English, Arabic, and Spanish. The AI adapts vocabulary, style, and formatting to each language. You can create your resume in your preferred language and even generate multilingual versions for international applications.',
+    faqQ4: 'How much does HireNova cost?',
+    faqA4: 'HireNova offers 2 plans: the Pro Plan at €6.99/month (or $7.99/£5.99) for active job seekers, and the Annual Plan at €70/year (or $79/£59) for a full year of job search. Both plans include: unlimited CV and cover letter generation, detailed ATS score, 3 premium templates, PDF and Word export, and priority generation.',
+    faqQ5: 'Can I download my resume in PDF and Word?',
+    faqA5: 'Absolutely! With Pro and Annual plans, you can download your resume in PDF (standard A4 format) and Word (.doc). Both formats are perfectly optimized for printing and email sharing. PDF preserves the layout, while Word allows for further editing.',
+    faqQ6: 'How does the AI cover letter work?',
+    faqA6: 'HireNova generates a personalized cover letter from your information and the target job posting. Enter the company name, position, recruiter, your motivations, and key strengths. The AI writes a persuasive letter, adapted to your chosen tone (formal, semi-formal, or dynamic), in just 30 seconds.',
+    faqQ7: 'Is my personal data safe?',
+    faqA7: 'Yes, your data security is our priority. Your information is encrypted and never shared with third parties. We use standard security protocols (HTTPS, data encryption at rest). You can delete your account and all your data at any time from your personal space.',
+    faqQ8: 'Does HireNova work for international candidates?',
+    faqA8: 'Yes! HireNova is designed for candidates worldwide. We support payments in Euros (EUR), US Dollars (USD), and British Pounds (GBP). Our service is accessible from 16 countries across Europe, Americas, Oceania, and the Gulf. Generated resumes are adapted to international standards and optimized for French and English-speaking recruiters.',
+    trustTitle: 'Trusted by thousands of candidates',
+    trustSubtitle: 'Join a growing community of professionals succeeding in their job search with HireNova.',
+    trustStats: 'Satisfied users',
+    trustGuarantee: 'Satisfaction guarantee — Your subscription is refunded if the service does not meet your expectations.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1380,6 +1452,30 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     atsReAnalyze: 'إعادة التحليل',
     atsClose: 'إغلاق',
     atsPoweredBy: 'مدعوم بواسطة HireNova ATS',
+    // SEO & FAQ
+    seoTitle: 'الأسئلة الشائعة حول HireNova — السيرة الذاتية ورسالة التعريف ودرجة ATS',
+    faqTitle: 'الأسئلة الشائعة',
+    faqSubtitle: 'كل ما تحتاج معرفته عن HireNova وأدوات الذكاء الاصطناعي للبحث عن عمل.',
+    faqQ1: 'كيف يعمل HireNova لإنشاء سيرة ذاتية؟',
+    faqA1: 'يستخدم HireNova ذكاءً اصطناعيًا متقدمًا لتحليل معلوماتك المهنية وإنشاء سيرة ذاتية مخصصة. املأ النموذج في 4 خطوات، اختر القالب (عصري أو كلاسيكي أو إبداعي)، وسيقوم الذكاء الاصطناعي بكتابة سيرة ذاتية احترافية محسّنة لأنظمة ATS في أقل من 60 ثانية.',
+    faqQ2: 'ما هي درجة ATS ولماذا هي مهمة؟',
+    faqA2: 'درجة ATS (نظام تتبع المتقدمين) تقيس مدى توافق سيرتك الذاتية مع برامج التوظيف الآلية المستخدمة من قبل أكثر من 75% من الشركات. يحلل HireNova سيرتك على 5 معايير: الكلمات المفتاحية، الهيكل والتنسيق، الخبرة والتأثير، ملاءمة المهارات، وسهولة القراءة.',
+    faqQ3: 'هل يمكنني إنشاء سيرة ذاتية بلغات متعددة؟',
+    faqA3: 'نعم! HireNova متوفر بـ 4 لغات: الفرنسية والإنجليزية والعربية والإسبانية. يتكيف الذكاء الاصطناعي مع كل لغة من حيث المفردات والأسلوب والتنسيق.',
+    faqQ4: 'كم يكلف HireNova؟',
+    faqA4: 'يقدم HireNova خيارين: خطة Pro بسعر 6.99€/شهر للباحثين النشطين عن عمل، وخطة سنوية بسعر 70€/سنة لبحث كامل عن عمل. تشمل الخطط: توليد غير محدود للسير الذاتية ورسائل التعريف، درجة ATS مفصلة، 3 قوالب احترافية، وتصدير PDF و Word.',
+    faqQ5: 'هل يمكنني تحميل سيرتي الذاتية بصيغة PDF و Word؟',
+    faqA5: 'بالتأكيد! مع خطط Pro والسنوية، يمكنك تحميل سيرتك بصيغة PDF (A4 قياسي) و Word (.doc). كلا الصيغتين محسّنتان تمامًا للطباعة والمشاركة عبر البريد الإلكتروني.',
+    faqQ6: 'كيف تعمل رسالة التعريف بالذكاء الاصطناعي؟',
+    faqA6: 'ينشئ HireNova رسالة تعريف مخصصة من معلوماتك وعرض الوظيفة المستهدف. أدخل اسم الشركة والمسمى الوظيفي والوظيفة ودوافعك ونقاط قوتك. يكتب الذكاء الاصطناعي رسالة مقنعة ومناسبة للنبرة المختارة في 30 ثانية.',
+    faqQ7: 'هل بياناتي الشخصية آمنة؟',
+    faqA7: 'نعم، أمان بياناتك أولويتنا. معلوماتك مشفرة ولا تُشارك أبدًا مع أطراف ثالثة. نستخدم بروتوكولات أمان قياسية (HTTPS، تشفير البيانات). يمكنك حذف حسابك وجميع بياناتك في أي وقت.',
+    faqQ8: 'هل يعمل HireNova للمرشحين الدوليين؟',
+    faqA8: 'نعم! HireNova مصمم للمرشحين حول العالم. ندعم المدفوعات بـ EUR و USD و GBP. خدمتنا متاحة في 16 دولة عبر أوروبا والأمريكتين وأوقيانوسيا والخليج.',
+    trustTitle: 'ثقة آلاف المرشحين',
+    trustSubtitle: 'انضم إلى مجتمع متنامي من المحترفين الذين ينجحون في بحثهم عن عمل مع HireNova.',
+    trustStats: 'مستخدمون راضون',
+    trustGuarantee: 'ضمان الرضا — يتم استرداد اشتراكك إذا لم يكن الخدمة تلبي توقعاتك.',
   },
   es: {
     siteTitle: 'HireNova',
@@ -1731,6 +1827,30 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     atsReAnalyze: 'Re-analizar',
     atsClose: 'Cerrar',
     atsPoweredBy: 'Impulsado por HireNova ATS',
+    // SEO & FAQ
+    seoTitle: 'Preguntas frecuentes sobre HireNova — Currículum, Carta de Presentación y Puntuación ATS',
+    faqTitle: 'Preguntas Frecuentes',
+    faqSubtitle: 'Todo lo que necesitas saber sobre HireNova y nuestras herramientas IA para tu búsqueda de empleo.',
+    faqQ1: '¿Cómo funciona HireNova para crear un currículum?',
+    faqA1: 'HireNova utiliza inteligencia artificial avanzada para analizar tu información profesional y generar un currículum personalizado. Completa el formulario en 4 pasos, elige tu plantilla (Moderna, Clásica o Creativa), y la IA redacta un currículum profesional optimizado para ATS en menos de 60 segundos.',
+    faqQ2: '¿Qué es la puntuación ATS y por qué es importante?',
+    faqA2: 'La puntuación ATS (Applicant Tracking System) mide la compatibilidad de tu currículum con los software de reclutamiento automatizados utilizados por más del 75% de las empresas. HireNova analiza tu currículum en 5 criterios: palabras clave y SEO, estructura y formato, experiencia e impacto, adecuación de competencias, y legibilidad.',
+    faqQ3: '¿Puedo crear un currículum en varios idiomas?',
+    faqA3: '¡Sí! HireNova está disponible en 4 idiomas: francés, inglés, árabe y español. La IA adapta el vocabulario, el estilo y el formato a cada idioma.',
+    faqQ4: '¿Cuánto cuesta HireNova?',
+    faqA4: 'HireNova ofrece 2 planes: el Plan Pro a 6,99€/mes para buscadores activos, y el Plan Anual a 70€/año para una búsqueda completa de empleo. Ambos incluyen: generaciones ilimitadas de CV y cartas, puntuación ATS detallada, 3 plantillas premium, exportación PDF y Word.',
+    faqQ5: '¿Puedo descargar mi currículum en PDF y Word?',
+    faqA5: '¡Por supuesto! Con los planes Pro y Anual, puedes descargar tu currículum en PDF (formato A4 estándar) y Word (.doc). Ambos formatos están perfectamente optimizados para impresión y compartir por email.',
+    faqQ6: '¿Cómo funciona la carta de presentación con IA?',
+    faqA6: 'HireNova genera una carta de presentación personalizada a partir de tu información y la oferta de empleo. Ingresa el nombre de la empresa, el puesto, tus motivaciones y puntos fuertes. La IA redacta una carta persuasiva adaptada al tono elegido en 30 segundos.',
+    faqQ7: '¿Están seguros mis datos personales?',
+    faqA7: 'Sí, la seguridad de tus datos es nuestra prioridad. Tu información está cifrada y nunca se comparte con terceros. Puedes eliminar tu cuenta y todos tus datos en cualquier momento.',
+    faqQ8: '¿HireNova funciona para candidatos internacionales?',
+    faqA8: '¡Sí! HireNova está diseñado para candidatos de todo el mundo. Aceptamos pagos en EUR, USD y GBP. Nuestro servicio está disponible en 16 países de Europa, Américas, Oceanía y el Golfo.',
+    trustTitle: 'La confianza de miles de candidatos',
+    trustSubtitle: 'Únete a una comunidad creciente de profesionales que logran éxito en su búsqueda de empleo con HireNova.',
+    trustStats: 'Usuarios satisfechos',
+    trustGuarantee: 'Garantía de satisfacción — Tu suscripción es reembolsable si el servicio no cumple con tus expectativas.',
   }
 }
 

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -68,6 +68,51 @@ const pricingFeatures: PricingFeature[] = [
   { key: 'pricingAtsScore', pro: true, annual: true },
   { key: 'pricingPriority', pro: true, annual: true },
 ]
+
+// FAQ Accordion Item Component
+function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <Card className="border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between gap-4 p-5 text-left cursor-pointer group"
+          aria-expanded={isOpen}
+        >
+          <div className="flex items-start gap-3 min-w-0">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+              {index + 1}
+            </span>
+            <h3 className="font-semibold text-foreground text-sm sm:text-base leading-snug">{question}</h3>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5 pt-0 ml-10">
+                <p className="text-sm text-muted-foreground leading-relaxed">{answer}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card>
+    </motion.div>
+  )
+}
 
 export default function Landing() {
   const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
@@ -675,6 +720,91 @@ export default function Landing() {
                 </motion.div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section — SEO Rich Content */}
+        <section className="relative py-16 sm:py-24 bg-white" id="faq">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+                <HelpCircle className="w-4 h-4" />
+                <span>FAQ</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'faqTitle')}</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'faqSubtitle')}</p>
+            </motion.div>
+
+            <div className="space-y-4">
+              {([
+                { q: 'faqQ1' as const, a: 'faqA1' as const },
+                { q: 'faqQ2' as const, a: 'faqA2' as const },
+                { q: 'faqQ3' as const, a: 'faqA3' as const },
+                { q: 'faqQ4' as const, a: 'faqA4' as const },
+                { q: 'faqQ5' as const, a: 'faqA5' as const },
+                { q: 'faqQ6' as const, a: 'faqA6' as const },
+                { q: 'faqQ7' as const, a: 'faqA7' as const },
+                { q: 'faqQ8' as const, a: 'faqA8' as const },
+              ]).map((item, index) => (
+                <FAQItem key={item.q} question={t(language, item.q)} answer={t(language, item.a)} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust / Social Proof Section — SEO */}
+        <section className="relative py-16 sm:py-20 bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/40">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">{t(language, 'trustTitle')}</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">{t(language, 'trustSubtitle')}</p>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              {([
+                { icon: Users, value: '1,247+', label: t(language, 'trustStats'), color: 'emerald' },
+                { icon: ThumbsUp, value: '4.8/5', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
+                { icon: Lock, value: '256-bit', label: { fr: 'Chiffrement SSL', en: 'SSL Encryption', ar: 'تشفير SSL', es: 'Cifrado SSL' }[language], color: 'teal' },
+              ]).map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Card className="border-0 shadow-sm bg-white text-center">
+                    <CardContent className="p-6">
+                      <div className={`w-12 h-12 rounded-xl bg-${item.color}-100 flex items-center justify-center mx-auto mb-3`}>
+                        <item.icon className={`w-6 h-6 text-${item.color}-600`} />
+                      </div>
+                      <div className="text-2xl font-extrabold text-foreground mb-1">{item.value}</div>
+                      <div className="text-sm text-muted-foreground">{item.label}</div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+            <motion.div
+              className="mt-8 text-center"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">{t(language, 'trustGuarantee')}</p>
+            </motion.div>
           </div>
         </section>
 
