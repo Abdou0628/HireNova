@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
+import Image from 'next/image'
 import { t } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 import {
@@ -150,9 +151,7 @@ export default function Preview() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white border-b sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
             <div>
               <span className="font-semibold text-foreground text-sm">{t(language, 'siteTitle')}</span>
               <div className="flex items-center gap-1.5 text-xs text-emerald-600">

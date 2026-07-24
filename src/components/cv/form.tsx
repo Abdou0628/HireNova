@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useCVStore, type TemplateStyle, type CVLanguage } from '@/store/cv-store'
+import { useCVStore, type TemplateStyle, type CVLanguage, type PersonaType } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,7 +34,9 @@ import {
   UserCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import Image from 'next/image'
 import { countries, findCountryByDial } from '@/lib/countries'
+import type { TranslationKey } from '@/lib/i18n'
 
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
 const stepTitles = ['step1Title', 'step2TitleNew', 'step3Title', 'step4Title'] as const
@@ -44,6 +46,17 @@ const templates: { id: TemplateStyle; labelKey: 'templateModern' | 'templateClas
   { id: 'classic', labelKey: 'templateClassic' },
   { id: 'creative', labelKey: 'templateCreative' },
 ]
+
+const personaEmoji: Record<PersonaType, string> = { student: '\uD83C\uDF93', graduate: '\uD83C\uDF1F', professional: '\uD83D\uDCBC', executive: '\uD83D\uDC54', freelance: '\uD83D\uDE80', expat: '\u2708\uFE0F' }
+const personaNameKey: Record<PersonaType, TranslationKey> = { student: 'personaStudent', graduate: 'personaGraduate', professional: 'personaProfessional', executive: 'personaExecutive', freelance: 'personaFreelance', expat: 'personaExpat' }
+const personaFieldMap: Record<PersonaType, { labelKey: TranslationKey; phKey: TranslationKey }[]> = {
+  student: [{ labelKey: 'pfStudentField1', phKey: 'pfStudentField1Ph' }, { labelKey: 'pfStudentField2', phKey: 'pfStudentField2Ph' }, { labelKey: 'pfStudentField3', phKey: 'pfStudentField3Ph' }],
+  graduate: [{ labelKey: 'pfGraduateField1', phKey: 'pfGraduateField1Ph' }, { labelKey: 'pfGraduateField2', phKey: 'pfGraduateField2Ph' }, { labelKey: 'pfGraduateField3', phKey: 'pfGraduateField3Ph' }],
+  professional: [{ labelKey: 'pfProField1', phKey: 'pfProField1Ph' }, { labelKey: 'pfProField2', phKey: 'pfProField2Ph' }, { labelKey: 'pfProField3', phKey: 'pfProField3Ph' }],
+  executive: [{ labelKey: 'pfExecField1', phKey: 'pfExecField1Ph' }, { labelKey: 'pfExecField2', phKey: 'pfExecField2Ph' }, { labelKey: 'pfExecField3', phKey: 'pfExecField3Ph' }, { labelKey: 'pfExecField4', phKey: 'pfExecField4Ph' }],
+  freelance: [{ labelKey: 'pfFreeField1', phKey: 'pfFreeField1Ph' }, { labelKey: 'pfFreeField2', phKey: 'pfFreeField2Ph' }, { labelKey: 'pfFreeField3', phKey: 'pfFreeField3Ph' }],
+  expat: [{ labelKey: 'pfExpatField1', phKey: 'pfExpatField1Ph' }, { labelKey: 'pfExpatField2', phKey: 'pfExpatField2Ph' }, { labelKey: 'pfExpatField3', phKey: 'pfExpatField3Ph' }, { labelKey: 'pfExpatField4', phKey: 'pfExpatField4Ph' }],
+}
 
 const languages: { id: CVLanguage; flag: string }[] = [
   { id: 'fr', flag: '🇫🇷' },
@@ -66,6 +79,8 @@ export default function CVForm() {
     setIsGenerating,
     setGeneratedCV,
     setError,
+    setSelectedPersona,
+    selectedPersona,
     updateCLFormData,
     setGeneratedCL,
     setIsCLGenerating,
@@ -74,6 +89,7 @@ export default function CVForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneCountryCode, setPhoneCountryCode] = useState<string>('')
+  const [personaFields, setPersonaFields] = useState<Record<string, string>>({})
 
   function handlePhoneCountryChange(code: string) {
     setPhoneCountryCode(code)
@@ -145,7 +161,12 @@ export default function CVForm() {
       const res = await fetch('/api/generate-cv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, language }),
+        body: JSON.stringify({
+          ...formData,
+          language,
+          persona: selectedPersona || undefined,
+          personaFields: Object.keys(personaFields).length > 0 ? personaFields : undefined,
+        }),
       })
 
       const data = await res.json()
@@ -233,14 +254,18 @@ export default function CVForm() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <button
-            onClick={() => setStep('landing')}
+            onClick={() => { setStep('landing'); setSelectedPersona(null) }}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
             <span className="font-semibold text-foreground hidden sm:inline">{t(language, 'siteTitle')}</span>
           </button>
+          {selectedPersona && (
+            <span className="flex items-center gap-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+              <span>{personaEmoji[selectedPersona]}</span>
+              <span>{t(language, personaNameKey[selectedPersona])}</span>
+            </span>
+          )}
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
             {languages.map((lang) => (
               <button
@@ -516,7 +541,7 @@ export default function CVForm() {
                   </div>
                 )}
 
-                {/* Step 2: Career Goals & Cover Letter */}
+                {/* Step 2: Career Goals, Cover Letter & Persona Fields */}
                 {formStep === 1 && (
                   <div className="space-y-4">
                     <div>
@@ -540,7 +565,30 @@ export default function CVForm() {
                       />
                     </div>
 
-                    {/* Cover Letter section - separated visually */}
+                    {/* Persona-specific fields */
+                    {selectedPersona && personaFieldMap[selectedPersona] && (
+                      <div className="mt-6 pt-5 border-t border-stone-100">
+                        <Label className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-3">
+                          <span>{personaEmoji[selectedPersona]}</span>
+                          {t(language, 'personaFieldsTitle')}
+                        </Label>
+                        <div className="space-y-3">
+                          {personaFieldMap[selectedPersona].map((field, i) => (
+                            <div key={i}>
+                              <Label>{t(language, field.labelKey)}</Label>
+                              <Input
+                                value={personaFields[field.labelKey] || ''}
+                                onChange={(e) => setPersonaFields(prev => ({ ...prev, [field.labelKey]: e.target.value }))}
+                                placeholder={t(language, field.phKey)}
+                                className="mt-1.5"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cover Letter section */}
                     <div className="relative mt-6">
                       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent" />
                       <div className="flex items-center gap-2 mt-4 mb-4">

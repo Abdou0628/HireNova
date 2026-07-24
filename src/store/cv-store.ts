@@ -4,6 +4,7 @@ export type AppStep = 'landing' | 'form' | 'generating' | 'preview' | 'clForm' |
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 export type PhotoPosition = 'left' | 'center' | 'right'
+export type PersonaType = 'student' | 'graduate' | 'professional' | 'executive' | 'freelance' | 'expat'
 
 export interface FormData {
   fullName: string
@@ -83,6 +84,7 @@ interface CVStore {
   generatedCV: GeneratedCV | null
   isGenerating: boolean
   error: string | null
+  selectedPersona: PersonaType | null
   // Cover letter state
   clFormData: CoverLetterFormData
   generatedCL: GeneratedCoverLetter | null
@@ -97,6 +99,7 @@ interface CVStore {
   setGeneratedCV: (cv: GeneratedCV | null) => void
   setIsGenerating: (val: boolean) => void
   setError: (err: string | null) => void
+  setSelectedPersona: (persona: PersonaType | null) => void
   updateCLFormData: (data: Partial<CoverLetterFormData>) => void
   setGeneratedCL: (cl: GeneratedCoverLetter | null) => void
   setIsCLGenerating: (val: boolean) => void
@@ -157,6 +160,7 @@ export const useCVStore = create<CVStore>((set) => ({
   generatedCV: null,
   isGenerating: false,
   error: null,
+  selectedPersona: null,
   // Cover letter
   clFormData: { ...initialCLFormData },
   generatedCL: null,
@@ -172,6 +176,7 @@ export const useCVStore = create<CVStore>((set) => ({
   setGeneratedCV: (generatedCV) => set({ generatedCV }),
   setIsGenerating: (isGenerating) => set({ isGenerating }),
   setError: (error) => set({ error }),
+  setSelectedPersona: (selectedPersona) => set({ selectedPersona }),
   updateCLFormData: (data) =>
     set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
   setGeneratedCL: (generatedCL) => set({ generatedCL }),
@@ -194,6 +199,7 @@ export const useCVStore = create<CVStore>((set) => ({
       generatedCV: null,
       isGenerating: false,
       error: null,
+      selectedPersona: null,
       clFormData: { ...initialCLFormData },
       generatedCL: null,
       isCLGenerating: false,

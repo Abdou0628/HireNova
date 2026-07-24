@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCVStore, type CVLanguage } from '@/store/cv-store'
+import Image from 'next/image'
 import { t } from '@/lib/i18n'
 import { countries } from '@/lib/countries'
 import { Button } from '@/components/ui/button'
@@ -142,9 +143,7 @@ export default function CoverLetterForm() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white border-b sticky top-0 z-50">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
             <span className="font-semibold text-foreground text-sm">{t(language, 'clTitle')}</span>
           </div>
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
@@ -201,6 +200,15 @@ export default function CoverLetterForm() {
                   ? t(language, 'clLinkedToCvDesc')
                   : t(language, 'clNoCvLinkedDesc')}
               </p>
+              {!hasCV && (
+                <div className="mt-3">
+                  <Button variant="outline" size="sm" onClick={() => setStep('landing')}
+                    className="text-xs gap-1.5 cursor-pointer border-amber-300 text-amber-700 hover:bg-amber-100">
+                    <FileText className="w-3 h-3" />
+                    {t(language, 'clNoCvCreateCta')}
+                  </Button>
+                </div>
+              )}
               {hasCV && generatedCV && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {generatedCV.summary && (

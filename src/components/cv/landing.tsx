@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, Wallet, CreditCard, Smartphone } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, Wallet, CreditCard, Smartphone, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCVStore } from '@/store/cv-store'
+import { useCVStore, type PersonaType } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
 import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
@@ -69,7 +70,12 @@ const pricingFeatures: PricingFeature[] = [
 ]
 
 export default function Landing() {
-  const { setStep, language, setLanguage } = useCVStore()
+  const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+  const personasRef = useRef<HTMLDivElement>(null)
+
+  function scrollToPersonas() {
+    personasRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
   const { data: session } = useSession()
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
@@ -127,9 +133,7 @@ export default function Landing() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
             <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -189,6 +193,15 @@ export default function Landing() {
                 </div>
               </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.05 }}
+                className="mb-6"
+              >
+                <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+              </motion.div>
+
               <motion.h1
                 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6"
                 initial={{ opacity: 0, y: 20 }}
@@ -217,10 +230,10 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
-                  onClick={() => setStep('form')}
+                  onClick={scrollToPersonas}
                 >
                   <FileText className="mr-2 w-5 h-5" />
-                  {t(language, 'cta')}
+                  {t(language, 'ctaChooseProfile')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button
@@ -254,6 +267,100 @@ export default function Landing() {
                 </div>
               ))}
             </motion.div>
+          </div>
+        </section>
+
+        {/* Persona Selection Section */}
+        <section ref={personasRef} className="py-16 sm:py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-10"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Qui êtes-vous ?</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Sélectionnez votre profil pour un CV personnalisé</p>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {([{
+                type: 'student' as PersonaType,
+                emoji: '\uD83C\uDF93',
+                icon: GraduationCap,
+                nameKey: 'personaStudent' as TranslationKey,
+                descKey: 'personaStudentDesc' as TranslationKey,
+                color: 'emerald',
+              }, {
+                type: 'graduate' as PersonaType,
+                emoji: '\uD83C\uDF1F',
+                icon: Award,
+                nameKey: 'personaGraduate' as TranslationKey,
+                descKey: 'personaGraduateDesc' as TranslationKey,
+                color: 'blue',
+              }, {
+                type: 'professional' as PersonaType,
+                emoji: '\uD83D\uDCBC',
+                icon: Briefcase,
+                nameKey: 'personaProfessional' as TranslationKey,
+                descKey: 'personaProfessionalDesc' as TranslationKey,
+                color: 'violet',
+              }, {
+                type: 'executive' as PersonaType,
+                emoji: '\uD83D\uDC54',
+                icon: UserCheck,
+                nameKey: 'personaExecutive' as TranslationKey,
+                descKey: 'personaExecutiveDesc' as TranslationKey,
+                color: 'amber',
+              }, {
+                type: 'freelance' as PersonaType,
+                emoji: '\uD83D\uDE80',
+                icon: Rocket,
+                nameKey: 'personaFreelance' as TranslationKey,
+                descKey: 'personaFreelanceDesc' as TranslationKey,
+                color: 'rose',
+              }, {
+                type: 'expat' as PersonaType,
+                emoji: '\u2708\uFE0F',
+                icon: Plane,
+                nameKey: 'personaExpat' as TranslationKey,
+                descKey: 'personaExpatDesc' as TranslationKey,
+                color: 'sky',
+              }]).map((persona, index) => (
+                <motion.div
+                  key={persona.type}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.4, delay: index * 0.08 }}
+                >
+                  <Card
+                    className="h-full cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-400 group min-w-0 overflow-hidden"
+                    onClick={() => {
+                      setSelectedPersona(persona.type)
+                      setStep('form')
+                    }}
+                  >
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-xl bg-${persona.color}-100 flex items-center justify-center shrink-0`}
+                        >
+                          <span className="text-xl">{persona.emoji}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-foreground text-sm">{t(language, persona.nameKey)}</h3>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2"><span className="truncate block max-w-full">{t(language, persona.descKey)}</span></p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-emerald-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span>{t(language, 'personaChoose')}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -493,10 +600,10 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
-                  onClick={() => setStep('form')}
+                  onClick={scrollToPersonas}
                 >
                   <FileText className="mr-2 w-5 h-5" />
-                  {t(language, 'cta')}
+                  {t(language, 'ctaChooseProfile')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button

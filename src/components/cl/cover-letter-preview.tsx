@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useCVStore } from '@/store/cv-store'
+import Image from 'next/image'
 import { t } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -93,9 +94,7 @@ export default function CoverLetterPreview() {
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4 bg-white border-b sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <PenLine className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
             <div>
               <span className="font-semibold text-foreground text-sm">{t(language, 'clTitle')}</span>
               <div className="flex items-center gap-1.5 text-xs text-emerald-600">
