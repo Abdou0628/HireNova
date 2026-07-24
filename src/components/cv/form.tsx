@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCVStore, type TemplateStyle, type CVLanguage, type PersonaType } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
@@ -32,12 +32,15 @@ import {
   PenLine,
   Zap,
   UserCircle,
+  Upload,
+  FileUp,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
 import { countries, findCountryByDial } from '@/lib/countries'
 import type { TranslationKey } from '@/lib/i18n'
-
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
 const stepTitles = ['step1Title', 'step2TitleNew', 'step3Title', 'step4Title'] as const
 
@@ -91,6 +94,46 @@ export default function CVForm() {
   const [phoneCountryCode, setPhoneCountryCode] = useState<string>('')
   const [personaFields, setPersonaFields] = useState<Record<string, string>>({})
   const [applicationType, setApplicationType] = useState<'internship' | 'job' | null>(null)
+  const [isImportingCv, setIsImportingCv] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleImportCv(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsImportingCv(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('language', language)
+      const res = await fetch('/api/import-cv', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'import')
+      // Auto-fill form fields from parsed CV
+      if (data.fullName) updateFormData({ fullName: data.fullName })
+      if (data.email) updateFormData({ email: data.email })
+      if (data.phone) updateFormData({ phone: data.phone })
+      if (data.location) updateFormData({ location: data.location })
+      if (data.targetJob) updateFormData({ targetJob: data.targetJob })
+      if (data.industry) updateFormData({ industry: data.industry })
+      if (data.experience) updateFormData({ experience: data.experience })
+      if (data.education) updateFormData({ education: data.education })
+      if (data.skills) updateFormData({ skills: data.skills })
+      if (data.languages) updateFormData({ languages: data.languages })
+      if (data.summary) updateFormData({ summary: data.summary })
+      if (data.linkedin) updateFormData({ linkedin: data.linkedin })
+      if (data.website) updateFormData({ website: data.website })
+      toast.success(t(language, 'importCvSuccess'))
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erreur inconnue'
+      toast.error(message)
+    } finally {
+      setIsImportingCv(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   function handlePhoneCountryChange(code: string) {
     setPhoneCountryCode(code)
@@ -364,6 +407,44 @@ export default function CVForm() {
                 {/* Step 1: Personal Info */}
                 {formStep === 0 && (
                   <div className="space-y-4">
+                    {/* Import Existing CV Banner */}
+                    <div className="rounded-xl border-2 border-dashed border-emerald-300 bg-gradient-to-r from-emerald-50/60 to-teal-50/40 p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                          <Upload className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold text-emerald-800 mb-1">{t(language, 'importCvTitle')}</h3>
+                          <p className="text-xs text-emerald-700/80 mb-3 leading-relaxed">{t(language, 'importCvDesc')}</p>
+                          <div className="flex items-center gap-3">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={isImportingCv}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 gap-2 cursor-pointer text-xs font-medium"
+                            >
+                              {isImportingCv ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <FileUp className="w-3.5 h-3.5" />
+                              )}
+                              {isImportingCv ? t(language, 'importCvParsing') : t(language, 'importCvBtn')}
+                            </Button>
+                            <span className="text-[10px] text-muted-foreground">PDF · DOCX · TXT</span>
+                          </div>
+                        </div>
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt"
+                        className="hidden"
+                        onChange={handleImportCv}
+                      />
+                    </div>
+
                     {/* Photo Upload */}
                     <div>
                       <Label>{t(language, 'photo')}</Label>

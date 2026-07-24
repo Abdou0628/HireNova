@@ -224,6 +224,11 @@ export type TranslationKey =
   | 'jobRequest'
   | 'jobRequestDesc'
   | 'applicationType'
+  | 'importCvTitle'
+  | 'importCvDesc'
+  | 'importCvBtn'
+  | 'importCvSuccess'
+  | 'importCvParsing'
   | 'roadmapTitle'
   | 'ecosystemTitle'
   | 'ecosystemDesc'
@@ -491,6 +496,11 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     jobRequest: "Demande d'emploi",
     jobRequestDesc: "Adapter le CV et la lettre pour une recherche d'emploi.",
     applicationType: "Type de candidature",
+    importCvTitle: 'Importez votre CV existant',
+    importCvDesc: 'Importez un CV existant (PDF, Word ou texte) et l\'IA le reformulera professionnellement avec le modèle choisi.',
+    importCvBtn: 'Importer mon CV',
+    importCvSuccess: 'CV importé avec succès ! Les champs ont été remplis automatiquement.',
+    importCvParsing: 'Analyse de votre CV en cours...',
     roadmapTitle: 'Feuille de route',
     ecosystemTitle: 'L\'Écosystème HireNova',
     ecosystemDesc: 'Une suite complète d\'outils IA pour transformer votre parcours professionnel, de la candidature à l\'évolution de carrière.',
@@ -776,6 +786,11 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     jobRequest: 'Job Application',
     jobRequestDesc: "Tailor the CV and cover letter for a job search.",
     applicationType: 'Application type',
+    importCvTitle: 'Import your existing CV',
+    importCvDesc: 'Import an existing CV (PDF, Word or text) and AI will professionally reformat it with your chosen template.',
+    importCvBtn: 'Import my CV',
+    importCvSuccess: 'CV imported successfully! Fields have been auto-filled.',
+    importCvParsing: 'Analyzing your CV...',
     roadmapTitle: 'Roadmap',
     ecosystemTitle: 'The HireNova Ecosystem',
     ecosystemDesc: 'A complete suite of AI tools to transform your career journey, from applications to career growth.',
@@ -1060,6 +1075,11 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     jobRequest: 'طلب وظيفة',
     jobRequestDesc: 'تكييف السيرة الذاتية والرسالة للبحث عن وظيفة.',
     applicationType: 'نوع الطلب',
+    importCvTitle: 'استيراد سيرتك الذاتية الحالية',
+    importCvDesc: 'استيراد سيرة ذاتية موجودة (PDF أو Word أو نص) وسيقوم الذكاء الاصطناعي بإعادة صياغتها باحترافية.',
+    importCvBtn: 'استيراد سيرتي الذاتية',
+    importCvSuccess: 'تم استيراد السيرة الذاتية بنجاح! تم ملء الحقول تلقائياً.',
+    importCvParsing: 'جاري تحليل سيرتك الذاتية...',
     roadmapTitle: 'خارطة الطريق',
     ecosystemTitle: 'منظومة HireNova',
     ecosystemDesc: 'مجموعة كاملة من أدوات الذكاء الاصطناعي لتحويل مسارك المهني، من التقديم إلى النمو الوظيفي.',
@@ -1345,6 +1365,11 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     jobRequest: 'Solicitud de empleo',
     jobRequestDesc: 'Adaptar el CV y la carta para una búsqueda de empleo.',
     applicationType: 'Tipo de solicitud',
+    importCvTitle: 'Importa tu CV existente',
+    importCvDesc: 'Importa un CV existente (PDF, Word o texto) y la IA lo reformateará profesionalmente.',
+    importCvBtn: 'Importar mi CV',
+    importCvSuccess: '¡CV importado con éxito! Los campos se han llenado automáticamente.',
+    importCvParsing: 'Analizando tu CV...',
     roadmapTitle: 'Hoja de ruta',
     ecosystemTitle: 'El Ecosistema HireNova',
     ecosystemDesc: 'Una suite completa de herramientas IA para transformar tu trayectoria profesional.',
