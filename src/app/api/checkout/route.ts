@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { getPlans, STORE_ID } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
 
-type PlanType = 'pro' | 'lifetime'
+type PlanType = 'pro' | 'annual'
 type Currency = 'eur' | 'usd'
 
 export async function POST(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { planType, currency: currencyParam } = body as { planType?: string; currency?: string }
 
-    const validPlans: PlanType[] = ['pro', 'lifetime']
+    const validPlans: PlanType[] = ['pro', 'annual']
     if (!planType || !validPlans.includes(planType as PlanType)) {
       return NextResponse.json(
         { error: `Invalid planType. Must be one of: ${validPlans.join(', ')}` },

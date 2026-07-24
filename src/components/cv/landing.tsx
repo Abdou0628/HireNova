@@ -55,18 +55,18 @@ const staticStats = [
 interface PricingFeature {
   key: TranslationKey
   pro: boolean | string
-  lifetime: boolean | string
+  annual: boolean | string
 }
 
 const pricingFeatures: PricingFeature[] = [
-  { key: 'pricingCv', pro: '∞', lifetime: '∞' },
-  { key: 'pricingTemplates', pro: '3', lifetime: '3' },
-  { key: 'pricingPdf', pro: true, lifetime: true },
-  { key: 'pricingWord', pro: true, lifetime: true },
-  { key: 'pricingCoverLetter', pro: true, lifetime: true },
-  { key: 'pricingNoWatermark', pro: true, lifetime: true },
-  { key: 'pricingAtsScore', pro: false, lifetime: true },
-  { key: 'pricingPriority', pro: false, lifetime: true },
+  { key: 'pricingCv', pro: '∞', annual: '∞' },
+  { key: 'pricingTemplates', pro: '3', annual: '3' },
+  { key: 'pricingPdf', pro: true, annual: true },
+  { key: 'pricingWord', pro: true, annual: true },
+  { key: 'pricingCoverLetter', pro: true, annual: true },
+  { key: 'pricingNoWatermark', pro: true, annual: true },
+  { key: 'pricingAtsScore', pro: true, annual: true },
+  { key: 'pricingPriority', pro: true, annual: true },
 ]
 
 export default function Landing() {
@@ -84,7 +84,7 @@ export default function Landing() {
 
   const isUsd = currency === 'usd'
 
-  async function handleCheckout(planType: 'pro' | 'lifetime') {
+  async function handleCheckout(planType: 'pro' | 'annual') {
     if (!session?.user) {
       setAuthMode('register')
       setAuthModalOpen(true)
@@ -473,38 +473,38 @@ export default function Landing() {
                 </Card>
               </motion.div>
 
-              {/* Lifetime Plan */}
+              {/* Annual Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
+                <Card className="relative border-2 border-amber-500 bg-gradient-to-br from-amber-50/50 to-white shadow-lg shadow-amber-500/10">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className="bg-amber-500 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
                       <Zap className="w-3 h-3 mr-1" />
-                      {t(language, 'planLifetimeBest')}
+                      {t(language, 'planAnnualBest')}
                     </Badge>
                   </div>
                   <CardContent className="p-6 sm:p-8 pt-8">
                     <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
                       <Zap className="w-5 h-5 text-amber-500" />
-                      {t(language, 'planLifetime')}
+                      {t(language, 'planAnnual')}
                     </h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
-                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingAnnualPriceUsd') : t(language, 'planAnnualPrice')}</span>
+                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingAnnualUsd') : t(language, 'pricingAnnual')}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
+                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planAnnualDesc')}</p>
 
                     <div className="space-y-3 mb-8">
                       {pricingFeatures.map((feature) => (
                         <div key={feature.key} className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">{t(language, feature.key)}</span>
                           <span className="font-medium text-foreground">
-                            {typeof feature.lifetime === 'string' ? (
-                              feature.lifetime
+                            {typeof feature.annual === 'string' ? (
+                              feature.annual
                             ) : (
                               <Check className="w-4 h-4 text-emerald-600" />
                             )}
@@ -514,12 +514,12 @@ export default function Landing() {
                     </div>
 
                     <Button
-                      className="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
-                      onClick={() => handleCheckout('lifetime')}
-                      disabled={checkoutLoading === 'lifetime'}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-amber-500/20"
+                      onClick={() => handleCheckout('annual')}
+                      disabled={checkoutLoading === 'annual'}
                     >
-                      {checkoutLoading === 'lifetime' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
-                      {checkoutLoading === 'lifetime' ? 'Chargement...' : t(language, 'planLifetime')}
+                      {checkoutLoading === 'annual' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
+                      {checkoutLoading === 'annual' ? 'Chargement...' : t(language, 'planAnnual')}
                       {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
                     </Button>
                   </CardContent>

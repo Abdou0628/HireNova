@@ -151,10 +151,13 @@ export type TranslationKey =
   | 'planProPrice'
   | 'planProDesc'
   | 'planProPopular'
-  | 'planLifetime'
-  | 'planLifetimePrice'
-  | 'planLifetimeDesc'
-  | 'planLifetimeBest'
+  | 'planAnnual'
+  | 'planAnnualPrice'
+  | 'planAnnualDesc'
+  | 'planAnnualBest'
+  | 'pricingAnnual'
+  | 'pricingAnnualUsd'
+  | 'pricingAnnualPriceUsd'
   | 'pricingCv'
   | 'pricingTemplates'
   | 'pricingPdf'
@@ -164,12 +167,9 @@ export type TranslationKey =
   | 'pricingAtsScore'
   | 'pricingPriority'
   | 'pricingMonthly'
-  | 'pricingOneTime'
   | 'pricingCurrency'
   | 'pricingProPriceUsd'
-  | 'pricingLifetimePriceUsd'
   | 'pricingMonthlyUsd'
-  | 'pricingOneTimeUsd'
   | 'pricingStartFree'
   | 'loginTitle'
   | 'registerTitle'
@@ -424,10 +424,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planProPrice: '6,99€',
     planProDesc: "Pour les chercheurs d'emploi actifs",
     planProPopular: 'Le plus populaire',
-    planLifetime: 'À Vie',
-    planLifetimePrice: '29,99€',
-    planLifetimeDesc: 'Un seul paiement, pour toujours',
-    planLifetimeBest: 'Meilleure offre',
+    planAnnual: 'Annuel',
+    planAnnualPrice: '70€',
+    planAnnualDesc: "Idéal pour une année complète de recherche d'emploi",
+    planAnnualBest: 'Meilleur rapport qualité-prix',
+    pricingAnnual: '/an',
+    pricingAnnualUsd: '/year',
+    pricingAnnualPriceUsd: '$79',
     pricingCv: 'Générations de CV',
     pricingTemplates: 'Templates premium',
     pricingPdf: 'Téléchargement PDF',
@@ -437,12 +440,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAtsScore: 'Score ATS détaillé',
     pricingPriority: 'Génération prioritaire',
     pricingMonthly: '/mois',
-    pricingOneTime: 'une seule fois',
     pricingCurrency: 'Devise',
     pricingProPriceUsd: '$7.99',
-    pricingLifetimePriceUsd: '$34.99',
     pricingMonthlyUsd: '/month',
-    pricingOneTimeUsd: 'one time',
     pricingStartFree: 'Commencer gratuitement',
     loginTitle: 'Connexion',
     registerTitle: 'Créer un compte',
@@ -714,10 +714,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planProPrice: '$6.99',
     planProDesc: 'For active job seekers',
     planProPopular: 'Most popular',
-    planLifetime: 'Lifetime',
-    planLifetimePrice: '$29.99',
-    planLifetimeDesc: 'One-time payment, forever',
-    planLifetimeBest: 'Best value',
+    planAnnual: 'Annual',
+    planAnnualPrice: '$70',
+    planAnnualDesc: 'Perfect for a full year of job hunting',
+    planAnnualBest: 'Best value',
+    pricingAnnual: '/year',
+    pricingAnnualUsd: '/year',
+    pricingAnnualPriceUsd: '$79',
     pricingCv: 'Resume generations',
     pricingTemplates: 'Premium templates',
     pricingPdf: 'PDF download',
@@ -727,12 +730,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAtsScore: 'Detailed ATS score',
     pricingPriority: 'Priority generation',
     pricingMonthly: '/month',
-    pricingOneTime: 'one time',
     pricingCurrency: 'Currency',
     pricingProPriceUsd: '$7.99',
-    pricingLifetimePriceUsd: '$34.99',
     pricingMonthlyUsd: '/month',
-    pricingOneTimeUsd: 'one time',
     pricingStartFree: 'Start for free',
     loginTitle: 'Sign In',
     registerTitle: 'Create an account',
@@ -1003,10 +1003,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planProPrice: '6.99$',
     planProDesc: 'للباحثين النشطين عن عمل',
     planProPopular: 'الأكثر شعبية',
-    planLifetime: 'مدى الحياة',
-    planLifetimePrice: '29.99$',
-    planLifetimeDesc: 'دفعة واحدة، للأبد',
-    planLifetimeBest: 'أفضل قيمة',
+    planAnnual: 'سنوي',
+    planAnnualPrice: '70$€',
+    planAnnualDesc: 'مثالي لسنة كاملة من البحث عن عمل',
+    planAnnualBest: 'أفضل قيمة',
+    pricingAnnual: '/سنة',
+    pricingAnnualUsd: '/سنة',
+    pricingAnnualPriceUsd: '$79',
     pricingCv: 'إنشاءات السيرة الذاتية',
     pricingTemplates: 'قوالب مميزة',
     pricingPdf: 'تحميل PDF',
@@ -1016,12 +1019,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAtsScore: 'درجة ATS مفصلة',
     pricingPriority: 'إنشاء ذو أولوية',
     pricingMonthly: '/شهر',
-    pricingOneTime: 'مرة واحدة',
     pricingCurrency: 'العملة',
     pricingProPriceUsd: '$7.99',
-    pricingLifetimePriceUsd: '$34.99',
     pricingMonthlyUsd: '/شهر',
-    pricingOneTimeUsd: 'مرة واحدة',
     pricingStartFree: 'البدء مجاناً',
     loginTitle: 'تسجيل الدخول',
     registerTitle: 'إنشاء حساب',
@@ -1293,10 +1293,13 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planProPrice: '6,99€',
     planProDesc: 'Para buscadores de empleo activos',
     planProPopular: 'El más popular',
-    planLifetime: 'De por vida',
-    planLifetimePrice: '29,99€',
-    planLifetimeDesc: 'Un solo pago, para siempre',
-    planLifetimeBest: 'Mejor oferta',
+    planAnnual: 'Anual',
+    planAnnualPrice: '70€',
+    planAnnualDesc: 'Ideal para un año completo de búsqueda de empleo',
+    planAnnualBest: 'Mejor relación calidad-precio',
+    pricingAnnual: '/año',
+    pricingAnnualUsd: '/año',
+    pricingAnnualPriceUsd: '$79',
     pricingCv: 'Generaciones de currículum',
     pricingTemplates: 'Plantillas premium',
     pricingPdf: 'Descarga PDF',
@@ -1306,12 +1309,9 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     pricingAtsScore: 'Puntuación ATS detallada',
     pricingPriority: 'Generación prioritaria',
     pricingMonthly: '/mes',
-    pricingOneTime: 'una sola vez',
     pricingCurrency: 'Moneda',
     pricingProPriceUsd: '$7.99',
-    pricingLifetimePriceUsd: '$34.99',
     pricingMonthlyUsd: '/mes',
-    pricingOneTimeUsd: 'una sola vez',
     pricingStartFree: 'Empezar gratis',
     loginTitle: 'Iniciar sesión',
     registerTitle: 'Crear una cuenta',

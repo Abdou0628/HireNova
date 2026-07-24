@@ -13,18 +13,18 @@ type Currency = 'eur' | 'usd'
 export const VARIANTS: Record<Currency, Record<string, string>> = {
   eur: {
     pro: process.env.LS_PRO_VARIANT_ID_EUR || 'variant_pro_eur',
-    lifetime: process.env.LS_LIFETIME_VARIANT_ID_EUR || 'variant_lifetime_eur',
+    annual: process.env.LS_ANNUAL_VARIANT_ID_EUR || 'variant_annual_eur',
   },
   usd: {
     pro: process.env.LS_PRO_VARIANT_ID_USD || 'variant_pro_usd',
-    lifetime: process.env.LS_LIFETIME_VARIANT_ID_USD || 'variant_lifetime_usd',
+    annual: process.env.LS_ANNUAL_VARIANT_ID_USD || 'variant_annual_usd',
   },
 }
 
 export function getPlans(currency: Currency = 'eur') {
   return {
     pro: { name: 'Pro', variantId: VARIANTS[currency].pro, type: 'recurring' as const, currency },
-    lifetime: { name: 'Lifetime', variantId: VARIANTS[currency].lifetime, type: 'one_time' as const, currency },
+    annual: { name: 'Annual', variantId: VARIANTS[currency].annual, type: 'recurring' as const, currency },
   }
 }
 
