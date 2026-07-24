@@ -4,6 +4,15 @@ import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import type { GeneratedCV } from '@/store/cv-store'
+import { scanInput, logSecurityEvent } from '@/lib/security'
+
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  const realIP = request.headers.get('x-real-ip')
+  if (realIP) return realIP
+  return '127.0.0.1'
+}
 
 const FREE_MONTHLY_LIMIT = 3
 
@@ -53,6 +62,29 @@ export async function POST(request: NextRequest) {
       birthCountry,
       language,
     } = body
+
+    // Input security scan on all text fields
+    const fieldsToScan = [fullName, email, targetJob, experience, education, skills, summary, softSkills]
+    for (const field of fieldsToScan) {
+      if (field && typeof field === 'string') {
+        const scan = scanInput(field)
+        if (!scan.isClean) {
+          await logSecurityEvent({
+            type: scan.sqlInjection ? 'sql_injection_attempt' : 'xss_attempt',
+            severity: 'high',
+            ip: getClientIP(request),
+            path: '/api/generate-cv',
+            method: 'POST',
+            userAgent: request.headers.get('user-agent') || undefined,
+            details: { field, sqlInjection: scan.sqlInjection, xss: scan.xss },
+          }).catch(() => {})
+          return NextResponse.json(
+            { error: 'Invalid input detected' },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     // Check usage limit for authenticated users
     const session = await getServerSession(authOptions)

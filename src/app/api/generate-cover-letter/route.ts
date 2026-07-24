@@ -4,6 +4,16 @@ import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import type { GeneratedCoverLetter } from '@/store/cv-store'
+import { scanInput, logSecurityEvent } from '@/lib/security'
+
+function getClientIP(request: Request): string {
+  const headers = request.headers as Record<string, string | null>;
+  const forwarded = headers['x-forwarded-for'];
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const realIP = headers['x-real-ip'];
+  if (realIP) return realIP;
+  return '127.0.0.1';
+}
 
 const FREE_CL_MONTHLY_LIMIT = 3
 
@@ -70,18 +80,39 @@ export async function POST(request: globalThis.Request) {
       tone,
       additionalNotes,
       language,
-      // Raw CV input (fallback)
       cvExperience,
       cvEducation,
       cvSkills,
       cvSoftSkills,
-      // Structured generated CV (richer data)
       generatedCVSummary,
       generatedCVExperience,
       generatedCVEducation,
       generatedCVSkills,
       generatedCVLanguages,
     } = body
+
+    // Input security scan
+    const fieldsToScan = [fullName, email, companyName, jobTitle, whyCompany, keyStrengths, additionalNotes, cvExperience, cvEducation]
+    for (const field of fieldsToScan) {
+      if (field && typeof field === 'string') {
+        const scan = scanInput(field)
+        if (!scan.isClean) {
+          await logSecurityEvent({
+            type: scan.sqlInjection ? 'sql_injection_attempt' : 'xss_attempt',
+            severity: 'high',
+            ip: getClientIP(request),
+            path: '/api/generate-cover-letter',
+            method: 'POST',
+            userAgent: request.headers.get('user-agent') || undefined,
+            details: { sqlInjection: scan.sqlInjection, xss: scan.xss },
+          }).catch(() => {})
+          return NextResponse.json(
+            { error: 'Invalid input detected' },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     // Check usage limit
     const session = await getServerSession(authOptions)
@@ -111,7 +142,7 @@ export async function POST(request: globalThis.Request) {
     const langInstr = langInstructions[language] || langInstructions.fr
     const toneDesc = toneMap[language]?.[tone] || toneMap.fr['semi-formal'] || 'Ton professionnel'
 
-    // Build CV context section - prefer structured generated CV over raw input
+    // Build CV context section
     const cvSections: string[] = []
 
     if (generatedCVSummary) {

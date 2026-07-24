@@ -89,6 +89,19 @@ model Resume {
   user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
+model SecurityLog {
+  id        String   @id @default(cuid())
+  type      String   // rate_limit | brute_force | suspicious_input | sql_injection_attempt | xss_attempt | invalid_auth | forbidden_access
+  severity  String   // low | medium | high | critical
+  ip        String
+  path      String
+  method    String
+  userAgent String?
+  email     String?
+  details   String?
+  createdAt DateTime @default(now())
+}
+
 model CoverLetter {
   id               String   @id @default(cuid())
   userId           String?

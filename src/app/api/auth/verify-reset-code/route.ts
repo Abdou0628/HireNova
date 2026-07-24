@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { scanInput, sanitizeString, logSecurityEvent } from '@/lib/security'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
+    // Security scan
+    const emailScan = scanInput(email)
+    if (!emailScan.isClean) {
+      await logSecurityEvent({
+        type: emailScan.sqlInjection ? 'sql_injection_attempt' : 'xss_attempt',
+        severity: 'high',
+        ip: request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1',
+        path: '/api/auth/verify-reset-code',
+        method: 'POST',
+        userAgent: request.headers.get('user-agent') || undefined,
+        email: email?.toLowerCase().trim(),
+        details: { field: 'email' },
+      }).catch(() => {})
+      return NextResponse.json(
+        { success: false, error: 'Invalid input detected' },
+        { status: 400 }
+      )
+    }
+
+    const normalizedEmail = sanitizeString(email.toLowerCase().trim())
 
     const user = await db.user.findUnique({
       where: { email: normalizedEmail },

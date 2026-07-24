@@ -13,6 +13,7 @@ import { t } from '@/lib/i18n'
 import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
 import AuthModal from '@/components/auth/auth-modal'
+import AdminDashboard from '@/components/admin/admin-dashboard'
 import { useSession } from 'next-auth/react'
 
 const flagEmoji: Record<CVLanguage, string> = {
@@ -131,6 +132,8 @@ export default function Landing() {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
   const [pendingAction, setPendingAction] = useState<'form' | 'clForm' | null>(null)
+  const [adminEmail, setAdminEmail] = useState('')
+  const [isAdminOpen, setIsAdminOpen] = useState(false)
 
   const isUsd = currency === 'usd'
   const isGbp = currency === 'gbp'
@@ -182,6 +185,18 @@ export default function Landing() {
     document.addEventListener('scroll-to-pricing', handler)
     return () => document.removeEventListener('scroll-to-pricing', handler)
   }, [setStep])
+
+  // Fetch admin email config
+  useEffect(() => {
+    fetch('/api/admin/config')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.adminEmail) setAdminEmail(data.adminEmail)
+      })
+      .catch(() => {})
+  }, [])
+
+  const isAdmin = !!adminEmail && session?.user?.email === adminEmail
 
   async function handleCheckout(planType: 'pro' | 'annual') {
     if (!session?.user) {
@@ -241,6 +256,17 @@ export default function Landing() {
                 </button>
               ))}
             </div>
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-lg cursor-pointer transition-all"
+                onClick={() => setIsAdminOpen(true)}
+                aria-label="Admin Dashboard"
+              >
+                <Shield className="w-4 h-4" />
+              </Button>
+            )}
             <ProfileButton />
           </div>
         </div>
@@ -251,10 +277,11 @@ export default function Landing() {
         <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/30 to-amber-50/20">
           {/* Background image + overlay */}
           <div className="absolute inset-0 -z-10">
-            <Image src="/images/hero-career.jpg" alt="" fill className="object-cover opacity-15" priority />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/80" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-200/40 via-teal-100/30 to-transparent rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-200/30 to-transparent rounded-full blur-3xl" />
+            <Image src="/images/hero-career.jpg" alt="" fill className="object-cover opacity-[0.38]" priority />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-white/50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/15 to-white/45" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-200/20 via-teal-100/15 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-200/15 to-transparent rounded-full blur-3xl" />
           </div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16">
@@ -366,8 +393,8 @@ export default function Landing() {
         {/* Persona Selection Section */}
         <section ref={personasRef} className="relative py-16 sm:py-20 bg-gradient-to-b from-white to-emerald-50/50">
           <div className="absolute inset-0 -z-10">
-            <Image src="/images/hero-coaching.jpg" alt="" fill className="object-cover opacity-10" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-emerald-50/70" />
+            <Image src="/images/hero-coaching.jpg" alt="" fill className="object-cover opacity-[0.22]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/75 to-emerald-50/50" />
           </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -862,6 +889,8 @@ export default function Landing() {
         initialMode={authMode}
         onAuthSuccess={handleAuthSuccess}
       />
+
+      <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
 
       {/* Footer */}
       <footer className="border-t bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 py-8 px-4 sm:px-6 lg:px-8 mt-auto">

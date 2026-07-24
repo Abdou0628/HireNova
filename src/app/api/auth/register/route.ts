@@ -1,11 +1,62 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
+import { scanInput, sanitizeString, logSecurityEvent } from "@/lib/security";
+
+function getClientIP(request: Request): string {
+  const headers = request.headers as Record<string, string | null>;
+  const forwarded = headers["x-forwarded-for"];
+  if (forwarded) return forwarded.split(",")[0].trim();
+  const realIP = headers["x-real-ip"];
+  if (realIP) return realIP;
+  return "127.0.0.1";
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email, name, password } = body;
+
+    // Input sanitization & security scan
+    if (email) {
+      const scanResult = scanInput(email);
+      if (!scanResult.isClean) {
+        await logSecurityEvent({
+          type: scanResult.sqlInjection ? "sql_injection_attempt" : "xss_attempt",
+          severity: "high",
+          ip: getClientIP(request),
+          path: "/api/auth/register",
+          method: "POST",
+          userAgent: request.headers.get("user-agent") || undefined,
+          email: email.toLowerCase().trim(),
+          details: { field: "email", sqlInjection: scanResult.sqlInjection, xss: scanResult.xss },
+        }).catch(() => {});
+        return NextResponse.json(
+          { success: false, error: "Invalid input detected" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (name) {
+      const scanResult = scanInput(name);
+      if (!scanResult.isClean) {
+        await logSecurityEvent({
+          type: scanResult.sqlInjection ? "sql_injection_attempt" : "xss_attempt",
+          severity: "high",
+          ip: getClientIP(request),
+          path: "/api/auth/register",
+          method: "POST",
+          userAgent: request.headers.get("user-agent") || undefined,
+          email: email?.toLowerCase().trim(),
+          details: { field: "name", sqlInjection: scanResult.sqlInjection, xss: scanResult.xss },
+        }).catch(() => {});
+        return NextResponse.json(
+          { success: false, error: "Invalid input detected" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,7 +76,7 @@ export async function POST(request: Request) {
     }
 
     // Normalize email
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = sanitizeString(email.toLowerCase().trim());
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
@@ -46,7 +97,7 @@ export async function POST(request: Request) {
     const user = await db.user.create({
       data: {
         email: normalizedEmail,
-        name: name?.trim() || null,
+        name: name ? sanitizeString(name.trim()) : null,
         password: hashedPassword,
       },
     });

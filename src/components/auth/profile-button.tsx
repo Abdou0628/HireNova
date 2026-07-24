@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { LogOut, User, ChevronDown, Crown, Shield } from 'lucide-react'
 import { toast } from 'sonner'
@@ -26,10 +26,20 @@ export default function ProfileButton() {
   const lang = language
   const [authOpen, setAuthOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
+  const [adminEmail, setAdminEmail] = useState('')
 
   const user = session?.user
   const isLoggedIn = status === 'authenticated' && user
-  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  const isAdmin = !!adminEmail && user?.email === adminEmail
+
+  useEffect(() => {
+    fetch('/api/admin/config')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.adminEmail) setAdminEmail(data.adminEmail)
+      })
+      .catch(() => {})
+  }, [])
 
   const handleLogout = async () => {
     await signOut({ redirect: false })

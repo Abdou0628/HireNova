@@ -1,11 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
 import { db } from '@/lib/db'
+import { scanInput, sanitizeString, logSecurityEvent } from '@/lib/security'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { email, newPassword, code } = body
+
+    // Security scan on inputs
+    const emailScan = email ? scanInput(email) : null
+    if (emailScan && !emailScan.isClean) {
+      await logSecurityEvent({
+        type: emailScan.sqlInjection ? 'sql_injection_attempt' : 'xss_attempt',
+        severity: 'high',
+        ip: request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1',
+        path: '/api/auth/reset-password',
+        method: 'POST',
+        userAgent: request.headers.get('user-agent') || undefined,
+        email: email?.toLowerCase().trim(),
+        details: { field: 'email' },
+      }).catch(() => {})
+      return NextResponse.json(
+        { success: false, error: 'Invalid input detected' },
+        { status: 400 }
+      )
+    }
 
     if (!email || !newPassword || !code) {
       return NextResponse.json(
@@ -21,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
+    const normalizedEmail = sanitizeString(email.toLowerCase().trim())
 
     const user = await db.user.findUnique({
       where: { email: normalizedEmail },

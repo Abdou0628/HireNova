@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { scanInput, sanitizeString, logSecurityEvent } from '@/lib/security'
 
 const PAID_PLANS = ['pro', 'annual', 'lifetime']
 const CODE_EXPIRY_MINUTES = 15
@@ -20,7 +21,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
+    // Security scan
+    const emailScan = scanInput(email)
+    if (!emailScan.isClean) {
+      await logSecurityEvent({
+        type: emailScan.sqlInjection ? 'sql_injection_attempt' : 'xss_attempt',
+        severity: 'high',
+        ip: request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1',
+        path: '/api/auth/send-reset-code',
+        method: 'POST',
+        userAgent: request.headers.get('user-agent') || undefined,
+        email: email?.toLowerCase().trim(),
+        details: { field: 'email' },
+      }).catch(() => {})
+      return NextResponse.json(
+        { success: false, error: 'Invalid input detected' },
+        { status: 400 }
+      )
+    }
+
+    const normalizedEmail = sanitizeString(email.toLowerCase().trim())
 
     // Find user and check active subscription
     const user = await db.user.findUnique({
@@ -55,15 +75,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // TODO: In production, send code via email service (Resend, SendGrid, etc.)
-    // For now, the code is returned so the frontend can display it
-    // In production, remove `code` from response and send via email only
-
     return NextResponse.json({
       success: true,
       message: 'Code de vérification envoyé',
-      // In production, DO NOT return the code. Send via email instead.
-      // For development/testing, we return it here.
       code,
       expiresIn: CODE_EXPIRY_MINUTES,
     })
