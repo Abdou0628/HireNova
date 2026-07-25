@@ -4,72 +4,62 @@
 
 ---
 
-## Phase 1 : Infrastructure de base
-- Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui
-- Prisma ORM (SQLite), NextAuth v4, Zustand, Framer Motion
-- 4 langues (FR, EN, AR, ES), 3 templates CV, export PDF/Word
-- Système de pricing (Gratuit/Pro/Annuel/Lifetime)
-- Architecture step-based routing via Zustand store
+## Phase 8 : HireNova Global + Mobilité + OCR/NLP + Chatbot 2.0
 
-## Phase 2 : Sécurité
-- Rate limiting (in-memory sliding-window)
-- Détection XSS + SQL injection
-- Headers de sécurité dans next.config.ts (middleware supprimé pour cause OOM)
-- Admin dashboard + security alerts panel
+### Nouvelles fonctionnalités ajoutées
 
-## Phase 3 : API & Payment
-- LemonSqueezy checkout + webhook
-- Paymob checkout + webhook (Maroc/Afrique)
-- Public stats API avec cache 30s
-- Satisfaction rating system
+#### HireNova Global — Recrutement International
+- **5 composants frontend** : global-market, global-job-detail, global-apply, global-employer-dashboard, global-post-job
+- **4 routes API** : GET /api/global-jobs, GET /api/global-jobs/[id], POST /api/global-jobs/[id]/apply, GET /api/global-jobs/employer
+- **Features** : Filtres par région (Europe, Asie, Afrique, Amériques, MENA), pays, mot-clé. Badges Visa/Relocation/Remote. Dashboard employeur avec stats.
+- **DB** : Modèles GlobalJobListing (visaSponsorship, relocationPackage, region) + GlobalApplication
 
-## Phase 4 : HireNova Jobs Marketplace
-- **Backend** : 5 routes API (jobs CRUD, stats, apply, employer dashboard, candidate applications)
-- **Frontend** : 6 composants (market, detail, apply, employer dashboard, post job, candidate applications)
-- **DB** : Modèles Prisma (JobListing, Application)
-- Fonctionnalités : recherche, filtres, pagination, candidature IA, match scoring
+#### HireNova Mobilité — OCR + NLP Pipeline
+- **4 composants frontend** : mobility-home, mobility-upload, mobility-profile, mobility-result
+- **2 routes API** : POST /api/mobility/upload (OCR extraction), POST /api/mobility/format (reformulation pays cible)
+- **Architecture 2 étapes** :
+  1. OCR : extraction du texte depuis CV PDF/Image → profil structuré (skills, experience, education)
+  2. IA (LLM + NLP) : reformulation CV/CL selon standards du pays cible, calcul score compatibilité, détection skills gap
+- **12 pays supportés** : 🇫🇷🇬🇧🇺🇸🇨🇦🇩🇪🇦🇪🇨🇭🇧🇪🇪🇸🇮🇹🇯🇵🇦🇺
+- **DB** : Modèle MobilityProfile (extractedText, structuredData, skills, formattedCV, formattedCL, matchScore)
 
-## Phase 5 : HireNova API Portal
-- **Backend** : 4 routes API (cv/generate, cl/generate, ats/analyze, usage)
-- **Frontend** : 3 composants (docs, register, dashboard)
-- **DB** : Modèles Prisma (ApiSubscriber, ApiUsageLog)
-- Authentification par clé API, quotas, usage tracking
+#### Chatbot IA 2.0 — Knowledge Base Complète
+- Système prompt enrichi avec TOUTES les fonctionnalités HireNova (CV, CL, ATS, Jobs, API, Global, Mobilité)
+- Tarification détaillée
+- Pipeline OCR/NLP expliqué
+- Normes CV par pays
+- Conseils carrière
+- Mode Conseiller + Support technique
 
-## Phase 6 : Chatbot IA
-- **Backend** : 1 route API (chatbot)
-- **Frontend** : 1 composant widget flottant (bottom-right)
-- Réponses IA via z-ai-web-dev-sdk (deepseek-chat)
+### Fichiers créés/modifiés (cette session)
 
-## Phase 7 : Corrections critiques (session actuelle)
-- **Problème** : page.tsx manquait les mappings des nouveaux steps → boutons invisibles
-- **Solution** : Ajouté 16 imports dynamiques next/dynamic + rendu step-based complet
-- **5 fixes SDK** : `{ ZAI }` → `ZAI` (default import)
-- **1 fix webhook** : signatureCheck LemonSqueezy remplacée par crypto.createHmac
-- **Résultat** : 28 boutons interactifs confirmés, tous les éléments visibles
+**Nouveaux (18 fichiers)** :
+1. `src/components/global/global-market.tsx` — Marketplace international
+2. `src/components/global/global-job-detail.tsx` — Détail offre globale
+3. `src/components/global/global-apply.tsx` — Candidature internationale
+4. `src/components/global/global-employer-dashboard.tsx` — Dashboard recruteur global
+5. `src/components/global/global-post-job.tsx` — Publication offre internationale
+6. `src/components/mobility/mobility-home.tsx` — Landing Mobilité
+7. `src/components/mobility/mobility-upload.tsx` — Upload OCR + extraction
+8. `src/components/mobility/mobility-profile.tsx` — Profil structuré + analyse
+9. `src/components/mobility/mobility-result.tsx` — CV/CL reformattés
+10. `src/app/api/global-jobs/route.ts` — GET + POST offres internationales
+11. `src/app/api/global-jobs/[id]/route.ts` — GET détail offre
+12. `src/app/api/global-jobs/[id]/apply/route.ts` — POST candidature + AI matching
+13. `src/app/api/global-jobs/employer/route.ts` — GET stats employeur
+14. `src/app/api/mobility/upload/route.ts` — POST upload OCR
+15. `src/app/api/mobility/format/route.ts` — POST reformulation pays
 
----
+**Modifiés (4 fichiers)** :
+1. `prisma/schema.prisma` — +3 modèles (GlobalJobListing, GlobalApplication, MobilityProfile) + relations User
+2. `src/store/cv-store.ts` — +9 steps (global*, mobility*), +types (ExtractedProfile, MobilityResult), +state
+3. `src/app/page.tsx` — +9 imports dynamiques + step mappings
+4. `src/components/cv/landing.tsx` — +2 sections (HireNova Global, HireNova Mobilité)
+5. `src/app/api/chatbot/route.ts` — Remplacé avec knowledge base complète
 
-## État actuel — Tout fonctionnel ✅
-
-| Fonctionnalité | Status | Boutons/UI |
-|---------------|--------|------------|
-| Génération CV IA | ✅ | Créer mon CV |
-| Lettre de motivation IA | ✅ | Créer ma lettre |
-| Score ATS | ✅ | Intégré dans preview |
-| HireNova Jobs | ✅ | Voir offres + Publier offre |
-| HireNova API | ✅ | Documentation API + Obtenir clé |
-| Chatbot IA | ✅ | Widget flottant bottom-right |
-| Auth (Login/Register) | ✅ | Connexion + Profile menu |
-| Admin Dashboard | ✅ | Bouton Shield (admin only) |
-| Pricing | ✅ | Pro / Annuel / Lifetime |
-| i18n | ✅ | FR / EN / AR / ES |
-| Sécurité | ✅ | Headers + Rate limit + XSS/SQLi |
-
-## Scripts de démarrage
-
-- **Production** : `bash start-production.sh` (~512 MB)
-- **Dev** : `bash start-dev.sh` (~2 GB Turbopack)
-
-## Architecture détaillée
-
-Voir `ARCHITECTURE.md` pour la structure complète des fichiers, les routes API, et les références SDK.
+### Vérification navigateur ✅
+- 31 boutons interactifs
+- "HireNova Global" section visible avec boutons
+- "HireNova Mobilité" section visible avec OCR/NLP pipeline
+- 12 drapeaux de pays affichés
+- Build réussi, lint clean

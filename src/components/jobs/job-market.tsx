@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Fragment } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Search, MapPin, Briefcase, DollarSign, Building2, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -29,7 +29,7 @@ export default function JobMarketView() {
   const [total, setTotal] = useState(0)
   const limit = 9
 
-  const fetchJobs = () => {
+  const fetchJobs = useCallback(() => {
     setLoading(true)
     const params = new URLSearchParams({ page: String(page), limit: String(limit) })
     if (keyword) params.set('keyword', keyword)
@@ -41,9 +41,9 @@ export default function JobMarketView() {
       .then(data => { setJobs(data.jobs || []); setTotal(data.total || 0) })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [page, keyword, location, type, remote, limit])
 
-  useEffect(() => { fetchJobs() }, [page, keyword, location, type, remote])
+  useEffect(() => { fetchJobs() }, [fetchJobs]) // eslint-disable-line react-hooks/set-state-in-effect
 
   const totalPages = Math.ceil(total / limit)
 

@@ -906,6 +906,81 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* HireNova Global Section */}
+        <section className="py-16 sm:py-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+              <Badge className="mb-3 bg-teal-100 text-teal-700 hover:bg-teal-100"><Globe className="w-3 h-3 mr-1" /> International</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Global</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl">Recrutement international pour les entreprises qui recrutent à travers le monde. Visa sponsorship, relocation, multi-régions.</p>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {[
+                { icon: Globe, title: '40+ Pays', desc: 'Offres dans le monde entier' },
+                { icon: Shield, title: 'Visa Sponsorship', desc: 'Accompagnement pour les candidats internationaux' },
+                { icon: Plane, title: 'Relocation', desc: 'Packages de relocation intégrés' },
+              ].map((f, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Card className="border-teal-100 hover:border-teal-200 transition-colors">
+                    <CardContent className="p-5 text-center">
+                      <f.icon className="w-8 h-8 mx-auto text-teal-600 mb-3" />
+                      <h3 className="font-semibold">{f.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">{f.desc}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Button onClick={() => setStep('globalMarket')} className="bg-teal-600 hover:bg-teal-700 cursor-pointer"><Globe className="w-4 h-4 mr-2" /> Explorer les offres internationales</Button>
+              <Button variant="outline" onClick={() => setStep('globalEmployerDashboard')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Dashboard Employeur</Button>
+            </div>
+          </div>
+        </section>
+
+        {/* HireNova Mobilité Section */}
+        <section className="py-16 sm:py-20 bg-gradient-to-b from-teal-50/30 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+              <Badge className="mb-3 bg-purple-100 text-purple-700 hover:bg-purple-100"><Plane className="w-3 h-3 mr-1" /> Mobilité</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Mobilité</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl">OCR + IA : extrayez votre CV, analysez vos compétences, et reformatez vos documents selon les standards de chaque pays cible.</p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <Card className="h-full border-purple-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Search className="w-5 h-5 text-purple-600" /></div>
+                      <h3 className="font-semibold">Étape 1 — OCR & Extraction</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Upload votre CV (PDF ou image). Notre OCR extrait automatiquement le texte brut, les informations personnelles, et les données structurées.</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <Card className="h-full border-purple-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Bot className="w-5 h-5 text-purple-600" /></div>
+                      <h3 className="font-semibold">Étape 2 — IA & Reformulation</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Notre LLM analyse le contenu, normalise les compétences, détecte les lacunes, et reformate votre CV et lettre de motivation selon les standards du pays cible.</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              {['🇫🇷 France', '🇬🇧 UK', '🇺🇸 USA', '🇨🇦 Canada', '🇩🇪 Allemagne', '🇦🇪 UAE', '🇨🇭 Suisse', '🇧🇪 Belgique', '🇪🇸 Espagne', '🇮🇹 Italie', '🇯🇵 Japon', '🇦🇺 Australie'].map(c => (
+                <Badge key={c} variant="outline" className="text-xs px-3 py-1.5">{c}</Badge>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button onClick={() => setStep('mobilityHome')} className="bg-purple-600 hover:bg-purple-700 cursor-pointer"><Plane className="w-4 h-4 mr-2" /> Adapter mon CV pour l&apos;international</Button>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="relative py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

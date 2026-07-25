@@ -41,6 +41,9 @@ model User {
   supportTickets      SupportTicket[]
   jobListings         JobListing[]
   applications        Application[]
+  globalJobListings   GlobalJobListing[]  @relation("GlobalEmployer")
+  globalApplications  GlobalApplication[]
+  mobilityProfiles    MobilityProfile[]
 }
 
 model SatisfactionRating {
@@ -203,4 +206,72 @@ model ApiUsageLog {
   ip            String?
   createdAt     DateTime @default(now())
   subscriber    ApiSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+}
+
+// ===== HireNova Global — International Recruitment =====
+
+model GlobalJobListing {
+  id               String   @id @default(cuid())
+  employerId       String?
+  title            String
+  company          String
+  location         String
+  country          String
+  region           String   // Europe, Asia, Africa, Americas, MENA
+  type             String   @default("CDI")
+  salaryMin        Int?
+  salaryMax        Int?
+  currency         String   @default("EUR")
+  description      String
+  requirements      String
+  skills           String?
+  language         String   @default("en")
+  visaSponsorship  Boolean  @default(false)
+  relocationPackage Boolean  @default(false)
+  isRemote         Boolean  @default(false)
+  status           String   @default("active")
+  viewsCount       Int      @default(0)
+  applicationsCount Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  employer         User?       @relation("GlobalEmployer", fields: [employerId], references: [id], onDelete: Cascade)
+  applications     GlobalApplication[]
+}
+
+model GlobalApplication {
+  id            String   @id @default(cuid())
+  jobId         String
+  candidateId   String?
+  candidateName String
+  candidateEmail String
+  coverNote     String?
+  matchScore    Int?
+  matchAnalysis String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  job           GlobalJobListing @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate     User?           @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+}
+
+// ===== HireNova Mobilité — Country-specific CV/CL formatting =====
+
+model MobilityProfile {
+  id              String   @id @default(cuid())
+  userId          String?
+  fullName        String
+  email           String
+  originCountry   String
+  targetCountry   String
+  targetRole      String
+  extractedText   String   // OCR raw text
+  structuredData  String   // JSON: parsed profile
+  skills          String   // JSON: normalized skills array
+  matchScore      Int?
+  formattedCV     String?  // country-specific CV content
+  formattedCL     String?  // country-specific CL content
+  status          String   @default("draft") // draft | processing | completed | error
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

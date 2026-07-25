@@ -1,12 +1,22 @@
 import { create } from 'zustand'
 
 export type AppStep =
+  // Core CV
   | 'landing' | 'form' | 'generating' | 'preview'
+  // Cover Letter
   | 'clForm' | 'clGenerating' | 'clPreview'
+  // Jobs Marketplace
   | 'jobMarket' | 'jobDetail' | 'jobApply'
   | 'employerDashboard' | 'employerPostJob'
   | 'candidateApplications'
+  // API Portal
   | 'apiDocs' | 'apiRegister' | 'apiDashboard'
+  // HireNova Global — International Recruitment
+  | 'globalMarket' | 'globalJobDetail' | 'globalApply'
+  | 'globalEmployerDashboard' | 'globalPostJob'
+  // HireNova Mobilité — OCR + NLP Pipeline
+  | 'mobilityHome' | 'mobilityUpload' | 'mobilityProfile' | 'mobilityResult'
+
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 export type PhotoPosition = 'left' | 'center' | 'right'
@@ -15,6 +25,8 @@ export type PersonaType = 'student' | 'graduate' | 'professional' | 'executive' 
 export interface StepData {
   jobId?: string
   apiKey?: string
+  targetCountry?: string
+  profileId?: string
   [key: string]: unknown
 }
 
@@ -88,6 +100,40 @@ export interface ATSResult {
   suggestions: string[]
 }
 
+// OCR + NLP Pipeline types
+export interface ExtractedProfile {
+  fullName: string
+  email: string
+  phone: string
+  location: string
+  linkedin: string
+  summary: string
+  skills: string[]
+  languages: Array<{ name: string; level: string }>
+  experience: Array<{ title: string; company: string; period: string; description: string }>
+  education: Array<{ degree: string; school: string; period: string; description: string }>
+  certifications: string[]
+  rawText: string
+}
+
+export interface MobilityResult {
+  targetCountry: string
+  countryNorms: {
+    cvFormat: string
+    requiredSections: string[]
+    forbiddenSections: string[]
+    photoRequired: boolean
+    maxPages: number
+    language: string
+    tips: string[]
+  }
+  formattedCV: GeneratedCV
+  formattedCL: GeneratedCoverLetter
+  compatibilityScore: number
+  skillsGap: string[]
+  recommendations: string[]
+}
+
 interface CVStore {
   step: AppStep
   stepData: StepData
@@ -106,6 +152,10 @@ interface CVStore {
   atsResult: ATSResult | null
   isATSAnalyzing: boolean
   atsError: string | null
+  // Mobility state
+  extractedProfile: ExtractedProfile | null
+  mobilityResult: MobilityResult | null
+  isProcessing: boolean
 
   setStep: (step: AppStep, data?: StepData) => void
   setFormStep: (step: number) => void
@@ -123,6 +173,9 @@ interface CVStore {
   setATSResult: (result: ATSResult | null) => void
   setIsATSAnalyzing: (val: boolean) => void
   setATSError: (err: string | null) => void
+  setExtractedProfile: (profile: ExtractedProfile | null) => void
+  setMobilityResult: (result: MobilityResult | null) => void
+  setIsProcessing: (val: boolean) => void
   resetCL: () => void
   reset: () => void
 }
@@ -154,6 +207,7 @@ export const useCVStore = create<CVStore>((set) => ({
   clFormData: { ...initialCLFormData },
   generatedCL: null, isCLGenerating: false, clError: null,
   atsResult: null, isATSAnalyzing: false, atsError: null,
+  extractedProfile: null, mobilityResult: null, isProcessing: false,
 
   setStep: (step, data) => set({ step, stepData: data ?? {} }),
   setFormStep: (formStep) => set({ formStep }),
@@ -171,6 +225,9 @@ export const useCVStore = create<CVStore>((set) => ({
   setATSResult: (atsResult) => set({ atsResult }),
   setIsATSAnalyzing: (isATSAnalyzing) => set({ isATSAnalyzing }),
   setATSError: (atsError) => set({ atsError }),
+  setExtractedProfile: (extractedProfile) => set({ extractedProfile }),
+  setMobilityResult: (mobilityResult) => set({ mobilityResult }),
+  setIsProcessing: (isProcessing) => set({ isProcessing }),
   resetCL: () => set({
     step: 'landing', stepData: {},
     clFormData: { ...initialCLFormData },
@@ -184,5 +241,6 @@ export const useCVStore = create<CVStore>((set) => ({
     clFormData: { ...initialCLFormData },
     generatedCL: null, isCLGenerating: false, clError: null,
     atsResult: null, isATSAnalyzing: false, atsError: null,
+    extractedProfile: null, mobilityResult: null, isProcessing: false,
   }),
 }))
