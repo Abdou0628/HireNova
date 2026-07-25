@@ -43,7 +43,7 @@ export default function JobMarketView() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { fetchJobs() // eslint-disable-line react-hooks/set-state-in-effect }, [page, keyword, location, type, remote])
+  useEffect(() => { fetchJobs() }, [page, keyword, location, type, remote])
 
   const totalPages = Math.ceil(total / limit)
 

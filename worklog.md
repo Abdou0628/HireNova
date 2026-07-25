@@ -98,3 +98,27 @@ Stage Summary:
 - Harmonized: hero shows document count, trust section shows satisfaction ratings
 - Numbers will increment naturally as users submit satisfaction ratings
 - Verified with Agent Browser: page loads correctly, sections render properly
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix missing Jobs Marketplace, API Portal, and Chatbot buttons on landing page
+
+Work Log:
+- Verified all subagent-created files exist on disk (14 backend API routes, 11 frontend components)
+- Identified root cause: `page.tsx` only mapped 7 original steps, missing all new step types (jobMarket, jobDetail, jobApply, employerDashboard, employerPostJob, candidateApplications, apiDocs, apiRegister, apiDashboard)
+- Updated `page.tsx` to use `next/dynamic` lazy loading for all 16 components with proper step-based rendering
+- Fixed lint error in `job-market.tsx` (malformed eslint-disable comment)
+- Fixed incorrect `{ ZAI }` named imports → `ZAI` default import in 5 API route files (v1/cv, v1/cl, v1/ats, chatbot, jobs/[id]/apply)
+- Fixed `@lemonsqueezy/lemonsqueezy.js` import in webhook/route.ts (signatureCheck doesn't exist → replaced with crypto.createHmac)
+- Copied `.next/static` and `public` into `.next/standalone/` directory for production server
+- Built production bundle successfully with `next build`
+- Started production server and verified in browser via agent-browser
+
+Stage Summary:
+- Root cause was `page.tsx` missing step mappings for all new features
+- All 3 missing features now working:
+  - ✅ HireNova Jobs section with "Voir toutes les offres" and "Publier une offre" buttons
+  - ✅ HireNova API section with "Documentation API" and "Obtenir une clé API" buttons
+  - ✅ Chatbot widget (floating button at bottom-right, z-50)
+- 28 interactive buttons confirmed on landing page
+- Agent-browser verification confirmed all buttons are clickable with proper refs

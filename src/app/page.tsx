@@ -1,14 +1,29 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import dynamic from 'next/dynamic'
 import { useCVStore } from '@/store/cv-store'
-import Landing from '@/components/cv/landing'
-import CVForm from '@/components/cv/form'
-import Generating from '@/components/cv/generating'
-import Preview from '@/components/cv/preview'
-import CoverLetterForm from '@/components/cl/cover-letter-form'
-import CoverLetterGenerating from '@/components/cl/cover-letter-generating'
-import CoverLetterPreview from '@/components/cl/cover-letter-preview'
+
+const Landing = dynamic(() => import('@/components/cv/landing'), { ssr: false })
+const CVForm = dynamic(() => import('@/components/cv/form'), { ssr: false })
+const Generating = dynamic(() => import('@/components/cv/generating'), { ssr: false })
+const Preview = dynamic(() => import('@/components/cv/preview'), { ssr: false })
+const CoverLetterForm = dynamic(() => import('@/components/cl/cover-letter-form'), { ssr: false })
+const CoverLetterGenerating = dynamic(() => import('@/components/cl/cover-letter-generating'), { ssr: false })
+const CoverLetterPreview = dynamic(() => import('@/components/cl/cover-letter-preview'), { ssr: false })
+
+// Jobs components
+const JobMarket = dynamic(() => import('@/components/jobs/job-market'), { ssr: false })
+const JobDetail = dynamic(() => import('@/components/jobs/job-detail'), { ssr: false })
+const JobApply = dynamic(() => import('@/components/jobs/job-apply'), { ssr: false })
+const EmployerDashboard = dynamic(() => import('@/components/jobs/employer-dashboard'), { ssr: false })
+const EmployerPostJob = dynamic(() => import('@/components/jobs/employer-post-job'), { ssr: false })
+const CandidateApplications = dynamic(() => import('@/components/jobs/candidate-applications'), { ssr: false })
+
+// API components
+const ApiDocs = dynamic(() => import('@/components/api/api-docs'), { ssr: false })
+const ApiRegister = dynamic(() => import('@/components/api/api-register'), { ssr: false })
+const ApiDashboard = dynamic(() => import('@/components/api/api-dashboard'), { ssr: false })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -22,6 +37,19 @@ export default function Home() {
       {step === 'clForm' && <CoverLetterForm />}
       {step === 'clGenerating' && <CoverLetterGenerating />}
       {step === 'clPreview' && <CoverLetterPreview />}
+
+      {/* Jobs Marketplace */}
+      {step === 'jobMarket' && <JobMarket />}
+      {step === 'jobDetail' && <JobDetail />}
+      {step === 'jobApply' && <JobApply />}
+      {step === 'employerDashboard' && <EmployerDashboard />}
+      {step === 'employerPostJob' && <EmployerPostJob />}
+      {step === 'candidateApplications' && <CandidateApplications />}
+
+      {/* API Portal */}
+      {step === 'apiDocs' && <ApiDocs />}
+      {step === 'apiRegister' && <ApiRegister />}
+      {step === 'apiDashboard' && <ApiDashboard />}
     </SessionProvider>
   )
 }

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { signatureCheck } from '@lemonsqueezy/lemonsqueezy.js'
+import { createHmac } from 'crypto'
+
+function signatureCheck(body: string, secret: string, signature: string): boolean {
+  const hmac = createHmac('sha256', secret)
+  hmac.update(body)
+  return hmac.digest('hex') === signature
+}
 
 export const runtime = 'nodejs'
 
