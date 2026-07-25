@@ -800,9 +800,9 @@ export default function Landing() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
               {([
-                { icon: Users, value: '1,247+', label: t(language, 'trustStats'), color: 'emerald' },
-                { icon: ThumbsUp, value: '4.8/5', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
-                { icon: Lock, value: '256-bit', label: { fr: 'Chiffrement SSL', en: 'SSL Encryption', ar: 'تشفير SSL', es: 'Cifrado SSL' }[language], color: 'teal' },
+                { icon: Users, value: '100+', label: t(language, 'trustStats'), color: 'emerald' },
+                { icon: ThumbsUp, value: '5/5', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
+                { icon: Lock, value: '100%', label: { fr: 'Données sécurisées', en: 'Data secured', ar: 'بيانات آمنة', es: 'Datos seguros' }[language], color: 'teal' },
               ]).map((item, index) => (
                 <motion.div
                   key={item.label}

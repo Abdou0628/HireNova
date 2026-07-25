@@ -726,7 +726,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     trustTitle: 'La confiance de milliers de candidats',
     trustSubtitle: 'Rejoignez une communauté grandissante de professionnels qui réussissent leur recherche d\'emploi avec HireNova.',
     trustStats: 'Utilisateurs satisfaits',
-    trustGuarantee: 'Garantie satisfaction — Votre abonnement est remboursé si le service ne répond pas à vos attentes.',
+    trustGuarantee: 'Notre seul objectif, c\'est votre satisfaction.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -1101,7 +1101,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     trustTitle: 'Trusted by thousands of candidates',
     trustSubtitle: 'Join a growing community of professionals succeeding in their job search with HireNova.',
     trustStats: 'Satisfied users',
-    trustGuarantee: 'Satisfaction guarantee — Your subscription is refunded if the service does not meet your expectations.',
+    trustGuarantee: 'Our only goal is your satisfaction.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -1475,7 +1475,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     trustTitle: 'ثقة آلاف المرشحين',
     trustSubtitle: 'انضم إلى مجتمع متنامي من المحترفين الذين ينجحون في بحثهم عن عمل مع HireNova.',
     trustStats: 'مستخدمون راضون',
-    trustGuarantee: 'ضمان الرضا — يتم استرداد اشتراكك إذا لم يكن الخدمة تلبي توقعاتك.',
+    trustGuarantee: 'هدفنا الوحيد هو رضاكم.'
   },
   es: {
     siteTitle: 'HireNova',
@@ -1850,7 +1850,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     trustTitle: 'La confianza de miles de candidatos',
     trustSubtitle: 'Únete a una comunidad creciente de profesionales que logran éxito en su búsqueda de empleo con HireNova.',
     trustStats: 'Usuarios satisfechos',
-    trustGuarantee: 'Garantía de satisfacción — Tu suscripción es reembolsable si el servicio no cumple con tus expectativas.',
+    trustGuarantee: 'Nuestro único objetivo es su satisfacción.'
   }
 }
 
