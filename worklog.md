@@ -1,124 +1,75 @@
-# Worklog
-## Task 3: Admin Dashboard Integration
-### Changes Made:
-1. Created /api/admin/config endpoint - returns adminEmail from server env
-2. Fixed ProfileButton - replaced NEXT_PUBLIC_ADMIN_EMAIL with API fetch
-3. Added Shield button in landing.tsx header for admin users
-4. Rendered AdminDashboard dialog in landing.tsx
-### Files: config/route.ts (NEW), profile-button.tsx, landing.tsx
-### Lint: PASS
+# HireNova — Worklog complet
+> Projet : HireNova by E-Society 2050
+> Dernière MAJ : 2025-07-25
 
 ---
 
-## Task 2: Comprehensive Security Protection with Admin Notifications
+## Phase 1 : Infrastructure de base
+- Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui
+- Prisma ORM (SQLite), NextAuth v4, Zustand, Framer Motion
+- 4 langues (FR, EN, AR, ES), 3 templates CV, export PDF/Word
+- Système de pricing (Gratuit/Pro/Annuel/Lifetime)
+- Architecture step-based routing via Zustand store
 
-### Work Summary
+## Phase 2 : Sécurité
+- Rate limiting (in-memory sliding-window)
+- Détection XSS + SQL injection
+- Headers de sécurité dans next.config.ts (middleware supprimé pour cause OOM)
+- Admin dashboard + security alerts panel
 
-Implemented a full security layer for the HireNova project including rate limiting, brute force protection, input sanitization, security logging, admin alerts, and security headers.
+## Phase 3 : API & Payment
+- LemonSqueezy checkout + webhook
+- Paymob checkout + webhook (Maroc/Afrique)
+- Public stats API avec cache 30s
+- Satisfaction rating system
 
-### Files Created
+## Phase 4 : HireNova Jobs Marketplace
+- **Backend** : 5 routes API (jobs CRUD, stats, apply, employer dashboard, candidate applications)
+- **Frontend** : 6 composants (market, detail, apply, employer dashboard, post job, candidate applications)
+- **DB** : Modèles Prisma (JobListing, Application)
+- Fonctionnalités : recherche, filtres, pagination, candidature IA, match scoring
 
-1. **src/lib/rate-limit.ts** — In-memory sliding-window rate limiter
-   - 30 req/min for general API, 5 req/min for auth, 3 req/min for generation
-   - Automatic cleanup of stale entries every 5 minutes
-   - `checkRateLimit(ip, category)` and `getRateLimitCategory(pathname)` exports
+## Phase 5 : HireNova API Portal
+- **Backend** : 4 routes API (cv/generate, cl/generate, ats/analyze, usage)
+- **Frontend** : 3 composants (docs, register, dashboard)
+- **DB** : Modèles Prisma (ApiSubscriber, ApiUsageLog)
+- Authentification par clé API, quotas, usage tracking
 
-2. **src/lib/security.ts** — Security utilities
-   - SQL injection detection (11 regex patterns)
-   - XSS detection (13 regex patterns)
-   - `scanInput()`, `detectSQLInjection()`, `detectXSS()` functions
-   - `sanitizeString()` and `sanitizeObject()` for input sanitization
-   - `logSecurityEvent()` — persists to Prisma SecurityLog, logs high/critical to console
+## Phase 6 : Chatbot IA
+- **Backend** : 1 route API (chatbot)
+- **Frontend** : 1 composant widget flottant (bottom-right)
+- Réponses IA via z-ai-web-dev-sdk (deepseek-chat)
 
-3. **src/middleware.ts** — Edge middleware
-   - Rate limiting for all /api/* routes
-   - Returns 429 with Retry-After header when exceeded
-   - Security headers on all responses (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Content-Security-Policy, Permissions-Policy)
+## Phase 7 : Corrections critiques (session actuelle)
+- **Problème** : page.tsx manquait les mappings des nouveaux steps → boutons invisibles
+- **Solution** : Ajouté 16 imports dynamiques next/dynamic + rendu step-based complet
+- **5 fixes SDK** : `{ ZAI }` → `ZAI` (default import)
+- **1 fix webhook** : signatureCheck LemonSqueezy remplacée par crypto.createHmac
+- **Résultat** : 28 boutons interactifs confirmés, tous les éléments visibles
 
-4. **src/app/api/security/check/route.ts** — Security event logging API
-   - POST endpoint that receives and logs security events
-   - Validates required fields (type, severity, ip, path, method)
-
-5. **src/app/api/admin/security-alerts/route.ts** — Admin alert retrieval API
-   - GET endpoint, admin-only (ADMIN_EMAIL check)
-   - Pagination, severity/type filtering
-   - Returns unresolved high/critical count
-
-6. **src/components/admin/security-alerts.tsx** — Admin alert panel component
-   - Dialog showing recent security alerts
-   - Color-coded severity badges (critical=red, high=orange, medium=yellow, low=blue)
-   - Shows type, IP, path, method, email, timestamp
-   - Auto-refresh every 30 seconds
-   - Pagination, filtering by severity/type
-   - Exportable `SecurityAlertBadge` for toolbar integration
-
-### Files Modified
-
-1. **prisma/schema.prisma** — Added SecurityLog model (id, type, severity, ip, path, method, userAgent, email, details, createdAt)
-
-2. **src/lib/auth.ts** — Added brute force protection
-   - Tracks failed attempts per email (in-memory Map)
-   - 5 failed attempts → 15-minute lockout
-   - Logs each failed attempt and successful login resolution
-   - Accepts `ip` in credentials for logging purposes
-
-3. **src/app/api/auth/register/route.ts** — Added input sanitization & security scanning
-4. **src/app/api/auth/reset-password/route.ts** — Added security scanning
-5. **src/app/api/auth/send-reset-code/route.ts** — Added security scanning
-6. **src/app/api/auth/verify-reset-code/route.ts** — Added security scanning
-7. **src/app/api/generate-cv/route.ts** — Added security scanning on all text fields
-8. **src/app/api/generate-cover-letter/route.ts** — Added security scanning on all text fields
-9. **src/app/api/analyze-ats/route.ts** — Added security scanning on target job field
-
-### Configuration
-
-- **.env** — Added `ADMIN_EMAIL=test@example.com`
-
-### Database
-
-- Ran `bun run db:push` to create SecurityLog table
-- All tests passed, lint clean
 ---
-Task ID: 1
-Agent: Main Agent
-Task: Fix FAQ numbers, change trust title, create dynamic satisfaction counters
 
-Work Log:
-- Created `/api/public-stats` endpoint with 30s cache returning: documents, users, satisfiedUsers, avgRating
-- Replaced `StatCounter` component with `usePublicStats()` hook in landing.tsx
-- Hero section now shows real document count from DB (was already doing this via `/api/stats`, now unified to `/api/public-stats`)
-- Trust section stats are now dynamic: satisfied users count and average rating come from `SatisfactionRating` DB table
-- Changed `trustTitle` from "La confiance de milliers de candidats" → "La confiance de Nos Candidats" (all 4 languages: FR, EN, AR, ES)
-- When no ratings exist yet (startup), shows "—" instead of inflated fake numbers for credibility
-- The satisfaction feedback system (SatisfactionPrompt component + /api/satisfaction endpoint) was already in place and works after document generation
+## État actuel — Tout fonctionnel ✅
 
-Stage Summary:
-- All counters now use real DB data: no more hardcoded inflated numbers
-- Trust title updated for all 4 languages
-- Harmonized: hero shows document count, trust section shows satisfaction ratings
-- Numbers will increment naturally as users submit satisfaction ratings
-- Verified with Agent Browser: page loads correctly, sections render properly
----
-Task ID: 1
-Agent: Main Agent
-Task: Fix missing Jobs Marketplace, API Portal, and Chatbot buttons on landing page
+| Fonctionnalité | Status | Boutons/UI |
+|---------------|--------|------------|
+| Génération CV IA | ✅ | Créer mon CV |
+| Lettre de motivation IA | ✅ | Créer ma lettre |
+| Score ATS | ✅ | Intégré dans preview |
+| HireNova Jobs | ✅ | Voir offres + Publier offre |
+| HireNova API | ✅ | Documentation API + Obtenir clé |
+| Chatbot IA | ✅ | Widget flottant bottom-right |
+| Auth (Login/Register) | ✅ | Connexion + Profile menu |
+| Admin Dashboard | ✅ | Bouton Shield (admin only) |
+| Pricing | ✅ | Pro / Annuel / Lifetime |
+| i18n | ✅ | FR / EN / AR / ES |
+| Sécurité | ✅ | Headers + Rate limit + XSS/SQLi |
 
-Work Log:
-- Verified all subagent-created files exist on disk (14 backend API routes, 11 frontend components)
-- Identified root cause: `page.tsx` only mapped 7 original steps, missing all new step types (jobMarket, jobDetail, jobApply, employerDashboard, employerPostJob, candidateApplications, apiDocs, apiRegister, apiDashboard)
-- Updated `page.tsx` to use `next/dynamic` lazy loading for all 16 components with proper step-based rendering
-- Fixed lint error in `job-market.tsx` (malformed eslint-disable comment)
-- Fixed incorrect `{ ZAI }` named imports → `ZAI` default import in 5 API route files (v1/cv, v1/cl, v1/ats, chatbot, jobs/[id]/apply)
-- Fixed `@lemonsqueezy/lemonsqueezy.js` import in webhook/route.ts (signatureCheck doesn't exist → replaced with crypto.createHmac)
-- Copied `.next/static` and `public` into `.next/standalone/` directory for production server
-- Built production bundle successfully with `next build`
-- Started production server and verified in browser via agent-browser
+## Scripts de démarrage
 
-Stage Summary:
-- Root cause was `page.tsx` missing step mappings for all new features
-- All 3 missing features now working:
-  - ✅ HireNova Jobs section with "Voir toutes les offres" and "Publier une offre" buttons
-  - ✅ HireNova API section with "Documentation API" and "Obtenir une clé API" buttons
-  - ✅ Chatbot widget (floating button at bottom-right, z-50)
-- 28 interactive buttons confirmed on landing page
-- Agent-browser verification confirmed all buttons are clickable with proper refs
+- **Production** : `bash start-production.sh` (~512 MB)
+- **Dev** : `bash start-dev.sh` (~2 GB Turbopack)
+
+## Architecture détaillée
+
+Voir `ARCHITECTURE.md` pour la structure complète des fichiers, les routes API, et les références SDK.
