@@ -30,21 +30,22 @@ const features = [
   { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
 ]
 
-function StatCounter() {
-  const [count, setCount] = useState(0)
+interface PublicStats {
+  documents: number
+  users: number
+  satisfiedUsers: number
+  avgRating: number
+}
 
+function usePublicStats() {
+  const [stats, setStats] = useState<PublicStats>({ documents: 0, users: 0, satisfiedUsers: 0, avgRating: 0 })
   useEffect(() => {
-    fetch('/api/stats')
+    fetch('/api/public-stats')
       .then((r) => r.json())
-      .then((data) => setCount(data.total || 0))
+      .then((data) => setStats(data))
       .catch(() => {})
   }, [])
-
-  return (
-    <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-      {count}
-    </div>
-  )
+  return stats
 }
 
 const staticStats = [
@@ -117,6 +118,7 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
 
 export default function Landing() {
   const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+  const liveStats = usePublicStats()
   const personasRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDivElement>(null)
 
@@ -371,13 +373,13 @@ export default function Landing() {
 
             {/* Stats */}
             <motion.div
-              className="mt-16 grid grid-cols-4 gap-4 max-w-2xl mx-auto"
+              className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               <div className="text-center">
-                <StatCounter />
+                <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{liveStats.documents}</div>
                 <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
               </div>
               {staticStats.map((stat) => (
@@ -800,8 +802,8 @@ export default function Landing() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
               {([
-                { icon: Users, value: '100+', label: t(language, 'trustStats'), color: 'emerald' },
-                { icon: ThumbsUp, value: '5/5', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
+                { icon: Users, value: liveStats.satisfiedUsers > 0 ? String(liveStats.satisfiedUsers) : '—', label: t(language, 'trustStats'), color: 'emerald' },
+                { icon: ThumbsUp, value: liveStats.avgRating > 0 ? `${liveStats.avgRating}/5` : '—', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
                 { icon: Lock, value: '100%', label: { fr: 'Données sécurisées', en: 'Data secured', ar: 'بيانات آمنة', es: 'Datos seguros' }[language], color: 'teal' },
               ]).map((item, index) => (
                 <motion.div

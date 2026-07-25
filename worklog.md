@@ -78,3 +78,23 @@ Implemented a full security layer for the HireNova project including rate limiti
 
 - Ran `bun run db:push` to create SecurityLog table
 - All tests passed, lint clean
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix FAQ numbers, change trust title, create dynamic satisfaction counters
+
+Work Log:
+- Created `/api/public-stats` endpoint with 30s cache returning: documents, users, satisfiedUsers, avgRating
+- Replaced `StatCounter` component with `usePublicStats()` hook in landing.tsx
+- Hero section now shows real document count from DB (was already doing this via `/api/stats`, now unified to `/api/public-stats`)
+- Trust section stats are now dynamic: satisfied users count and average rating come from `SatisfactionRating` DB table
+- Changed `trustTitle` from "La confiance de milliers de candidats" → "La confiance de Nos Candidats" (all 4 languages: FR, EN, AR, ES)
+- When no ratings exist yet (startup), shows "—" instead of inflated fake numbers for credibility
+- The satisfaction feedback system (SatisfactionPrompt component + /api/satisfaction endpoint) was already in place and works after document generation
+
+Stage Summary:
+- All counters now use real DB data: no more hardcoded inflated numbers
+- Trust title updated for all 4 languages
+- Harmonized: hero shows document count, trust section shows satisfaction ratings
+- Numbers will increment naturally as users submit satisfaction ratings
+- Verified with Agent Browser: page loads correctly, sections render properly
