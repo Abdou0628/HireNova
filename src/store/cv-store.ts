@@ -1,10 +1,22 @@
 import { create } from 'zustand'
 
-export type AppStep = 'landing' | 'form' | 'generating' | 'preview' | 'clForm' | 'clGenerating' | 'clPreview'
+export type AppStep =
+  | 'landing' | 'form' | 'generating' | 'preview'
+  | 'clForm' | 'clGenerating' | 'clPreview'
+  | 'jobMarket' | 'jobDetail' | 'jobApply'
+  | 'employerDashboard' | 'employerPostJob'
+  | 'candidateApplications'
+  | 'apiDocs' | 'apiRegister' | 'apiDashboard'
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 export type PhotoPosition = 'left' | 'center' | 'right'
 export type PersonaType = 'student' | 'graduate' | 'professional' | 'executive' | 'freelance' | 'expat'
+
+export interface StepData {
+  jobId?: string
+  apiKey?: string
+  [key: string]: unknown
+}
 
 export interface FormData {
   fullName: string
@@ -27,7 +39,6 @@ export interface FormData {
   birthCountry: string
   softSkills: string
   photoPosition: PhotoPosition
-  // Cover letter fields collected in CV form
   companyName: string
   hiringManager: string
   clTone: 'formal' | 'semi-formal' | 'dynamic'
@@ -35,18 +46,8 @@ export interface FormData {
 
 export interface GeneratedCV {
   summary: string
-  experience: Array<{
-    title: string
-    company: string
-    period: string
-    description: string
-  }>
-  education: Array<{
-    degree: string
-    school: string
-    period: string
-    description: string
-  }>
+  experience: Array<{ title: string; company: string; period: string; description: string }>
+  education: Array<{ degree: string; school: string; period: string; description: string }>
   skills: string[]
   languages: Array<{ name: string; level: string }>
 }
@@ -89,6 +90,7 @@ export interface ATSResult {
 
 interface CVStore {
   step: AppStep
+  stepData: StepData
   formStep: number
   language: CVLanguage
   template: TemplateStyle
@@ -97,17 +99,15 @@ interface CVStore {
   isGenerating: boolean
   error: string | null
   selectedPersona: PersonaType | null
-  // Cover letter state
   clFormData: CoverLetterFormData
   generatedCL: GeneratedCoverLetter | null
   isCLGenerating: boolean
   clError: string | null
-  // ATS analysis state
   atsResult: ATSResult | null
   isATSAnalyzing: boolean
   atsError: string | null
 
-  setStep: (step: AppStep) => void
+  setStep: (step: AppStep, data?: StepData) => void
   setFormStep: (step: number) => void
   setLanguage: (lang: CVLanguage) => void
   setTemplate: (template: TemplateStyle) => void
@@ -128,113 +128,61 @@ interface CVStore {
 }
 
 const initialFormData: FormData = {
-  fullName: '',
-  email: '',
-  phone: '',
-  address: '',
-  location: '',
-  linkedin: '',
-  website: '',
-  targetJob: '',
-  industry: '',
-  experience: '',
-  education: '',
-  skills: '',
-  languages: '',
-  summary: '',
-  photo: '',
-  dateOfBirth: '',
-  birthPlace: '',
-  birthCountry: '',
-  softSkills: '',
-  photoPosition: 'center',
-  companyName: '',
-  hiringManager: '',
-  clTone: 'semi-formal',
+  fullName: '', email: '', phone: '', address: '', location: '',
+  linkedin: '', website: '', targetJob: '', industry: '',
+  experience: '', education: '', skills: '', languages: '',
+  summary: '', photo: '', dateOfBirth: '', birthPlace: '',
+  birthCountry: '', softSkills: '', photoPosition: 'center',
+  companyName: '', hiringManager: '', clTone: 'semi-formal',
 }
 
 const initialCLFormData: CoverLetterFormData = {
-  fullName: '',
-  email: '',
-  phone: '',
-  address: '',
-  country: '',
-  location: '',
-  companyName: '',
-  hiringManager: '',
-  jobTitle: '',
-  jobReference: '',
-  whyCompany: '',
-  keyStrengths: '',
-  tone: 'semi-formal',
-  additionalNotes: '',
+  fullName: '', email: '', phone: '', address: '', country: '',
+  location: '', companyName: '', hiringManager: '', jobTitle: '',
+  jobReference: '', whyCompany: '', keyStrengths: '',
+  tone: 'semi-formal', additionalNotes: '',
 }
 
 export const useCVStore = create<CVStore>((set) => ({
   step: 'landing',
+  stepData: {},
   formStep: 0,
   language: 'fr',
   template: 'modern',
   formData: { ...initialFormData },
-  generatedCV: null,
-  isGenerating: false,
-  error: null,
-  selectedPersona: null,
-  // Cover letter
+  generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
   clFormData: { ...initialCLFormData },
-  generatedCL: null,
-  isCLGenerating: false,
-  clError: null,
-  // ATS
-  atsResult: null,
-  isATSAnalyzing: false,
-  atsError: null,
+  generatedCL: null, isCLGenerating: false, clError: null,
+  atsResult: null, isATSAnalyzing: false, atsError: null,
 
-  setStep: (step) => set({ step }),
+  setStep: (step, data) => set({ step, stepData: data ?? {} }),
   setFormStep: (formStep) => set({ formStep }),
   setLanguage: (language) => set({ language }),
   setTemplate: (template) => set({ template }),
-  updateFormData: (data) =>
-    set((state) => ({ formData: { ...state.formData, ...data } })),
+  updateFormData: (data) => set((state) => ({ formData: { ...state.formData, ...data } })),
   setGeneratedCV: (generatedCV) => set({ generatedCV }),
   setIsGenerating: (isGenerating) => set({ isGenerating }),
   setError: (error) => set({ error }),
   setSelectedPersona: (selectedPersona) => set({ selectedPersona }),
-  updateCLFormData: (data) =>
-    set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
+  updateCLFormData: (data) => set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
   setGeneratedCL: (generatedCL) => set({ generatedCL }),
   setIsCLGenerating: (isCLGenerating) => set({ isCLGenerating }),
   setCLError: (clError) => set({ clError }),
   setATSResult: (atsResult) => set({ atsResult }),
   setIsATSAnalyzing: (isATSAnalyzing) => set({ isATSAnalyzing }),
   setATSError: (atsError) => set({ atsError }),
-  resetCL: () =>
-    set({
-      step: 'landing',
-      clFormData: { ...initialCLFormData },
-      generatedCL: null,
-      isCLGenerating: false,
-      clError: null,
-      atsResult: null,
-      isATSAnalyzing: false,
-      atsError: null,
-    }),
-  reset: () =>
-    set({
-      step: 'landing',
-      formStep: 0,
-      template: 'modern',
-      formData: { ...initialFormData },
-      generatedCV: null,
-      isGenerating: false,
-      error: null,
-      selectedPersona: null,
-      clFormData: { ...initialCLFormData },
-      generatedCL: null,
-      isCLGenerating: false,
-      clError: null,
-      atsResult: null,
-      isATSAnalyzing: false,
-      atsError: null,
-    }),
+  resetCL: () => set({
+    step: 'landing', stepData: {},
+    clFormData: { ...initialCLFormData },
+    generatedCL: null, isCLGenerating: false, clError: null,
+    atsResult: null, isATSAnalyzing: false, atsError: null,
+  }),
+  reset: () => set({
+    step: 'landing', stepData: {}, formStep: 0, template: 'modern',
+    formData: { ...initialFormData },
+    generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
+    clFormData: { ...initialCLFormData },
+    generatedCL: null, isCLGenerating: false, clError: null,
+    atsResult: null, isATSAnalyzing: false, atsError: null,
+  }),
 }))

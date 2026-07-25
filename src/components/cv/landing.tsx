@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
 import AuthModal from '@/components/auth/auth-modal'
 import AdminDashboard from '@/components/admin/admin-dashboard'
+import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import { useSession } from 'next-auth/react'
 
 const flagEmoji: Record<CVLanguage, string> = {
@@ -837,6 +838,74 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* HireNova Jobs Section */}
+        <section className="py-16 sm:py-20 bg-gradient-to-b from-emerald-50/50 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
+              <Badge className="mb-3 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Briefcase className="w-3 h-3 mr-1" /> Marketplace</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Jobs</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Connectez vos talents avec les meilleures opportunités</p>
+            </motion.div>
+            <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
+              <div className="text-center"><p className="text-2xl font-bold text-emerald-600">0</p><p className="text-xs text-muted-foreground">Offres actives</p></div>
+              <div className="w-px h-8 bg-border" />
+              <div className="text-center"><p className="text-2xl font-bold text-teal-600">0</p><p className="text-xs text-muted-foreground">Entreprises</p></div>
+              <div className="w-px h-8 bg-border" />
+              <div className="text-center"><p className="text-2xl font-bold text-amber-600">0</p><p className="text-xs text-muted-foreground">Candidatures</p></div>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-4">Bientôt des offres d&apos;emploi... Revenez vérifier !</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button onClick={() => setStep('jobMarket')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Briefcase className="w-4 h-4 mr-2" /> Voir toutes les offres</Button>
+                <Button variant="outline" onClick={() => setStep('employerPostJob')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Publier une offre</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HireNova API Section */}
+        <section className="py-16 sm:py-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
+              <Badge className="mb-3 bg-amber-100 text-amber-700 hover:bg-amber-100"><Code2 className="w-3 h-3 mr-1" /> API B2B</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova API</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Intégrez la génération de CV, lettres et analyse ATS dans votre plateforme</p>
+            </motion.div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              {[
+                { icon: FileText, title: 'Génération CV', desc: 'CV professionnels' },
+                { icon: PenLine, title: 'Lettre', desc: 'Lettres personnalisées' },
+                { icon: Shield, title: 'Analyse ATS', desc: 'Score compatibilité' },
+                { icon: BarChart3, title: 'Suivi', desc: 'Dashboard temps réel' }
+              ].map((f, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Card className="text-center p-4 hover:shadow-md transition-shadow"><f.icon className="w-8 h-8 mx-auto text-emerald-600 mb-2" /><h3 className="text-sm font-semibold">{f.title}</h3><p className="text-xs text-muted-foreground mt-1">{f.desc}</p></Card>
+                </motion.div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {[
+                { name: 'Starter', price: '49€', credits: '100' },
+                { name: 'Business', price: '149€', credits: '500' },
+                { name: 'Enterprise', price: '399€', credits: '∞' }
+              ].map((p, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Card className={`text-center p-6 ${i === 1 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''}`}>
+                    <h3 className="font-bold text-lg">{p.name}</h3>
+                    <div className="text-3xl font-bold text-emerald-600 my-2">{p.price}<span className="text-sm font-normal text-muted-foreground">/mois</span></div>
+                    <p className="text-sm text-muted-foreground">{p.credits === '∞' ? 'Illimité' : `${p.credits} crédits`}/mois</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+            <p className="text-center text-xs text-muted-foreground mb-6">🎓 Écoles &bull; 🏛️ Universités &bull; 📚 Formations &bull; 🏢 Entreprises &bull; 🏦 Banques &bull; 🌍 Organisations</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button onClick={() => setStep('apiDocs')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Code2 className="w-4 h-4 mr-2" /> Documentation API</Button>
+              <Button variant="outline" onClick={() => setStep('apiRegister')} className="cursor-pointer"><Rocket className="w-4 h-4 mr-2" /> Obtenir une clé API</Button>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="relative py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -893,6 +962,9 @@ export default function Landing() {
       />
 
       <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+
+      {/* Chatbot Widget - always visible */}
+      <ChatbotWidget />
 
       {/* Footer */}
       <footer className="border-t bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 py-8 px-4 sm:px-6 lg:px-8 mt-auto">

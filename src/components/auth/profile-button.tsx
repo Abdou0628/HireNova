@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown, Shield } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, LayoutDashboard, PlusCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,7 +22,7 @@ import AdminDashboard from '@/components/admin/admin-dashboard'
 
 export default function ProfileButton() {
   const { data: session, status } = useSession()
-  const { language } = useCVStore()
+  const { language, setStep } = useCVStore()
   const lang = language
   const [authOpen, setAuthOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
@@ -147,6 +147,29 @@ export default function ProfileButton() {
               </DropdownMenuItem>
             </>
           )}
+
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('apiDocs') }}
+          >
+            <Code2 className="w-4 h-4 mr-2 text-emerald-600" />
+            HireNova API
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('jobMarket') }}
+          >
+            <Briefcase className="w-4 h-4 mr-2 text-teal-600" />
+            Offres d'emploi
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('candidateApplications') }}
+          >
+            <FileText className="w-4 h-4 mr-2 text-amber-600" />
+            Mes candidatures
+          </DropdownMenuItem>
 
           {isAdmin && (
             <>

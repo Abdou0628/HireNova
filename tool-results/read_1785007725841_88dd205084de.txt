@@ -1,0 +1,911 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { useState, useEffect, useRef } from 'react'
+     4→     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→     5→import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock } from 'lucide-react'
+     6→     6→import Image from 'next/image'
+     7→     7→import { toast } from 'sonner'
+     8→     8→import { Button } from '@/components/ui/button'
+     9→     9→import { Card, CardContent } from '@/components/ui/card'
+    10→    10→import { Badge } from '@/components/ui/badge'
+    11→    11→import { useCVStore, type PersonaType } from '@/store/cv-store'
+    12→    12→import { t } from '@/lib/i18n'
+    13→    13→import type { CVLanguage, TranslationKey } from '@/lib/i18n'
+    14→    14→import ProfileButton from '@/components/auth/profile-button'
+    15→    15→import AuthModal from '@/components/auth/auth-modal'
+    16→    16→import AdminDashboard from '@/components/admin/admin-dashboard'
+    17→    17→import { useSession } from 'next-auth/react'
+    18→    18→
+    19→    19→const flagEmoji: Record<CVLanguage, string> = {
+    20→    20→  fr: '🇫🇷',
+    21→    21→  en: '🇬🇧',
+    22→    22→  ar: '🇸🇦',
+    23→    23→  es: '🇪🇸',
+    24→    24→}
+    25→    25→
+    26→    26→const features = [
+    27→    27→  { icon: Sparkles, titleKey: 'feature1Title' as const, descKey: 'feature1Desc' as const },
+    28→    28→  { icon: Globe, titleKey: 'feature2Title' as const, descKey: 'feature2Desc' as const },
+    29→    29→  { icon: Shield, titleKey: 'feature3Title' as const, descKey: 'feature3Desc' as const },
+    30→    30→  { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
+    31→    31→]
+    32→    32→
+    33→    33→interface PublicStats {
+    34→    34→  documents: number
+    35→    35→  users: number
+    36→    36→  satisfiedUsers: number
+    37→    37→  avgRating: number
+    38→    38→}
+    39→    39→
+    40→    40→function usePublicStats() {
+    41→    41→  const [stats, setStats] = useState<PublicStats>({ documents: 0, users: 0, satisfiedUsers: 0, avgRating: 0 })
+    42→    42→  useEffect(() => {
+    43→    43→    fetch('/api/public-stats')
+    44→    44→      .then((r) => r.json())
+    45→    45→      .then((data) => setStats(data))
+    46→    46→      .catch(() => {})
+    47→    47→  }, [])
+    48→    48→  return stats
+    49→    49→}
+    50→    50→
+    51→    51→const staticStats = [
+    52→    52→  { value: '4', icon: Languages, label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+    53→    53→  { value: '3', icon: LayoutTemplate, label: { fr: 'Templates', en: 'Templates', ar: 'قوالب', es: 'Plantillas' } },
+    54→    54→  { value: '2', icon: Download, label: { fr: 'Formats (PDF, Word)', en: 'Formats (PDF, Word)', ar: 'صيغ (PDF, Word)', es: 'Formatos (PDF, Word)' } },
+    55→    55→]
+    56→    56→
+    57→    57→interface PricingFeature {
+    58→    58→  key: TranslationKey
+    59→    59→  pro: boolean | string
+    60→    60→  annual: boolean | string
+    61→    61→}
+    62→    62→
+    63→    63→const pricingFeatures: PricingFeature[] = [
+    64→    64→  { key: 'pricingCv', pro: '∞', annual: '∞' },
+    65→    65→  { key: 'pricingTemplates', pro: '3', annual: '3' },
+    66→    66→  { key: 'pricingPdf', pro: true, annual: true },
+    67→    67→  { key: 'pricingWord', pro: true, annual: true },
+    68→    68→  { key: 'pricingCoverLetter', pro: true, annual: true },
+    69→    69→  { key: 'pricingNoWatermark', pro: true, annual: true },
+    70→    70→  { key: 'pricingAtsScore', pro: true, annual: true },
+    71→    71→  { key: 'pricingPriority', pro: true, annual: true },
+    72→    72→]
+    73→    73→
+    74→    74→// FAQ Accordion Item Component
+    75→    75→function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+    76→    76→  const [isOpen, setIsOpen] = useState(false)
+    77→    77→
+    78→    78→  return (
+    79→    79→    <motion.div
+    80→    80→      initial={{ opacity: 0, y: 20 }}
+    81→    81→      whileInView={{ opacity: 1, y: 0 }}
+    82→    82→      viewport={{ once: true, margin: '-30px' }}
+    83→    83→      transition={{ duration: 0.3, delay: index * 0.05 }}
+    84→    84→    >
+    85→    85→      <Card className="border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    86→    86→        <button
+    87→    87→          onClick={() => setIsOpen(!isOpen)}
+    88→    88→          className="w-full flex items-center justify-between gap-4 p-5 text-left cursor-pointer group"
+    89→    89→          aria-expanded={isOpen}
+    90→    90→        >
+    91→    91→          <div className="flex items-start gap-3 min-w-0">
+    92→    92→            <span className="shrink-0 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+    93→    93→              {index + 1}
+    94→    94→            </span>
+    95→    95→            <h3 className="font-semibold text-foreground text-sm sm:text-base leading-snug">{question}</h3>
+    96→    96→          </div>
+    97→    97→          <ChevronDown className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+    98→    98→        </button>
+    99→    99→        <AnimatePresence>
+   100→   100→          {isOpen && (
+   101→   101→            <motion.div
+   102→   102→              initial={{ height: 0, opacity: 0 }}
+   103→   103→              animate={{ height: 'auto', opacity: 1 }}
+   104→   104→              exit={{ height: 0, opacity: 0 }}
+   105→   105→              transition={{ duration: 0.2 }}
+   106→   106→              className="overflow-hidden"
+   107→   107→            >
+   108→   108→              <div className="px-5 pb-5 pt-0 ml-10">
+   109→   109→                <p className="text-sm text-muted-foreground leading-relaxed">{answer}</p>
+   110→   110→              </div>
+   111→   111→            </motion.div>
+   112→   112→          )}
+   113→   113→        </AnimatePresence>
+   114→   114→      </Card>
+   115→   115→    </motion.div>
+   116→   116→  )
+   117→   117→}
+   118→   118→
+   119→   119→export default function Landing() {
+   120→   120→  const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+   121→   121→  const liveStats = usePublicStats()
+   122→   122→  const personasRef = useRef<HTMLDivElement>(null)
+   123→   123→  const pricingRef = useRef<HTMLDivElement>(null)
+   124→   124→
+   125→   125→  function scrollToPersonas() {
+   126→   126→    personasRef.current?.scrollIntoView({ behavior: 'smooth' })
+   127→   127→  }
+   128→   128→  function scrollToPricing() {
+   129→   129→    pricingRef.current?.scrollIntoView({ behavior: 'smooth' })
+   130→   130→  }
+   131→   131→  const { data: session } = useSession()
+   132→   132→  const [authModalOpen, setAuthModalOpen] = useState(false)
+   133→   133→  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+   134→   134→  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+   135→   135→  const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
+   136→   136→  const [pendingAction, setPendingAction] = useState<'form' | 'clForm' | null>(null)
+   137→   137→  const [adminEmail, setAdminEmail] = useState('')
+   138→   138→  const [isAdminOpen, setIsAdminOpen] = useState(false)
+   139→   139→
+   140→   140→  const isUsd = currency === 'usd'
+   141→   141→  const isGbp = currency === 'gbp'
+   142→   142→
+   143→   143→  const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
+   144→   144→  const isLoggedIn = !!session?.user
+   145→   145→  const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
+   146→   146→
+   147→   147→  function requireAuthAndPlan(action: 'form' | 'clForm') {
+   148→   148→    if (!isLoggedIn) {
+   149→   149→      setPendingAction(action)
+   150→   150→      setAuthMode('register')
+   151→   151→      setAuthModalOpen(true)
+   152→   152→      return
+   153→   153→    }
+   154→   154→    if (!hasActivePlan) {
+   155→   155→      toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+   156→   156→      scrollToPricing()
+   157→   157→      return
+   158→   158→    }
+   159→   159→    if (action === 'clForm') {
+   160→   160→      setStep('clForm')
+   161→   161→    }
+   162→   162→  }
+   163→   163→
+   164→   164→  function handleAuthSuccess() {
+   165→   165→    // After login/register, check plan and execute pending action
+   166→   166→    if (pendingAction && hasActivePlan) {
+   167→   167→      if (pendingAction === 'clForm') {
+   168→   168→        setStep('clForm')
+   169→   169→      }
+   170→   170→      setPendingAction(null)
+   171→   171→    } else if (pendingAction && !hasActivePlan) {
+   172→   172→      // User logged in but no paid plan yet
+   173→   173→      setTimeout(() => {
+   174→   174→        toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+   175→   175→        scrollToPricing()
+   176→   176→      }, 500)
+   177→   177→      setPendingAction(null)
+   178→   178→    }
+   179→   179→  }
+   180→   180→
+   181→   181→  // Listen for scroll-to-pricing custom event from profile button
+   182→   182→  useEffect(() => {
+   183→   183→    const handler = () => {
+   184→   184→      setStep('landing')
+   185→   185→      setTimeout(scrollToPricing, 100)
+   186→   186→    }
+   187→   187→    document.addEventListener('scroll-to-pricing', handler)
+   188→   188→    return () => document.removeEventListener('scroll-to-pricing', handler)
+   189→   189→  }, [setStep])
+   190→   190→
+   191→   191→  // Fetch admin email config
+   192→   192→  useEffect(() => {
+   193→   193→    fetch('/api/admin/config')
+   194→   194→      .then((r) => r.json())
+   195→   195→      .then((data) => {
+   196→   196→        if (data.adminEmail) setAdminEmail(data.adminEmail)
+   197→   197→      })
+   198→   198→      .catch(() => {})
+   199→   199→  }, [])
+   200→   200→
+   201→   201→  const isAdmin = !!adminEmail && session?.user?.email === adminEmail
+   202→   202→
+   203→   203→  async function handleCheckout(planType: 'pro' | 'annual') {
+   204→   204→    if (!session?.user) {
+   205→   205→      setAuthMode('register')
+   206→   206→      setAuthModalOpen(true)
+   207→   207→      return
+   208→   208→    }
+   209→   209→    setCheckoutLoading(planType)
+   210→   210→    try {
+   211→   211→      // LemonSqueezy for EUR/USD
+   212→   212→      const res = await fetch('/api/checkout', {
+   213→   213→        method: 'POST',
+   214→   214→        headers: { 'Content-Type': 'application/json' },
+   215→   215→        body: JSON.stringify({ planType, currency }),
+   216→   216→      })
+   217→   217→      const data = await res.json()
+   218→   218→      if (data.url) {
+   219→   219→        window.location.href = data.url
+   220→   220→      } else if (data.code === 'PAYMENT_NOT_READY') {
+   221→   221→        toast.info(data.error, { duration: 5000 })
+   222→   222→      } else {
+   223→   223→        toast.error(data.error || 'Erreur')
+   224→   224→      }
+   225→   225→    } catch {
+   226→   226→      toast.error('Erreur de connexion')
+   227→   227→    } finally {
+   228→   228→      setCheckoutLoading(null)
+   229→   229→    }
+   230→   230→  }
+   231→   231→
+   232→   232→  return (
+   233→   233→    <div className="min-h-screen flex flex-col">
+   234→   234→      {/* Header */}
+   235→   235→      <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
+   236→   236→        <div className="max-w-6xl mx-auto flex items-center justify-between">
+   237→   237→          <div className="flex items-center gap-2">
+   238→   238→            <div className="flex flex-col items-center">
+   239→   239→              <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
+   240→   240→              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+   241→   241→            </div>
+   242→   242→            <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
+   243→   243→          </div>
+   244→   244→          <div className="flex items-center gap-3">
+   245→   245→            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+   246→   246→              {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
+   247→   247→                <button
+   248→   248→                  key={lang}
+   249→   249→                  onClick={() => setLanguage(lang)}
+   250→   250→                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+   251→   251→                    language === lang
+   252→   252→                      ? 'bg-white shadow-sm text-foreground'
+   253→   253→                      : 'text-muted-foreground hover:text-foreground'
+   254→   254→                  }`}
+   255→   255→                >
+   256→   256→                  <span className="mr-1">{flagEmoji[lang]}</span>
+   257→   257→                  <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+   258→   258→                </button>
+   259→   259→              ))}
+   260→   260→            </div>
+   261→   261→            {isAdmin && (
+   262→   262→              <Button
+   263→   263→                variant="outline"
+   264→   264→                size="icon"
+   265→   265→                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-lg cursor-pointer transition-all"
+   266→   266→                onClick={() => setIsAdminOpen(true)}
+   267→   267→                aria-label="Admin Dashboard"
+   268→   268→              >
+   269→   269→                <Shield className="w-4 h-4" />
+   270→   270→              </Button>
+   271→   271→            )}
+   272→   272→            <ProfileButton />
+   273→   273→          </div>
+   274→   274→        </div>
+   275→   275→      </header>
+   276→   276→
+   277→   277→      {/* Hero Section */}
+   278→   278→      <main className="flex-1">
+   279→   279→        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/30 to-amber-50/20">
+   280→   280→          {/* Background image + overlay */}
+   281→   281→          <div className="absolute inset-0 -z-10">
+   282→   282→            <Image src="/images/hero-career.jpg" alt="" fill className="object-cover opacity-[0.38]" priority />
+   283→   283→            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-white/50" />
+   284→   284→            <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/15 to-white/45" />
+   285→   285→            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-200/20 via-teal-100/15 to-transparent rounded-full blur-3xl" />
+   286→   286→            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-200/15 to-transparent rounded-full blur-3xl" />
+   287→   287→          </div>
+   288→   288→
+   289→   289→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16">
+   290→   290→            <div className="text-center max-w-3xl mx-auto">
+   291→   291→              <motion.div
+   292→   292→                initial={{ opacity: 0, y: 20 }}
+   293→   293→                animate={{ opacity: 1, y: 0 }}
+   294→   294→                transition={{ duration: 0.6 }}
+   295→   295→              >
+   296→   296→                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   297→   297→                  <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+   298→   298→                  <span>{t(language, 'freeNoSignup')}</span>
+   299→   299→                </div>
+   300→   300→              </motion.div>
+   301→   301→
+   302→   302→              <motion.div
+   303→   303→                initial={{ opacity: 0, y: 20 }}
+   304→   304→                animate={{ opacity: 1, y: 0 }}
+   305→   305→                transition={{ duration: 0.6, delay: 0.05 }}
+   306→   306→                className="mb-6"
+   307→   307→              >
+   308→   308→                <div className="inline-flex items-center gap-2 bg-white text-muted-foreground px-4 py-1.5 rounded-full text-xs font-medium border border-emerald-200 shadow-sm">
+   309→   309→                  <Languages className="w-3.5 h-3.5 text-emerald-600" />
+   310→   310→                  <span>🇫🇷 🇬🇧 🇪🇸 🇸🇦</span>
+   311→   311→                  <span className="text-emerald-700">{t(language, 'availableLangs')}</span>
+   312→   312→                </div>
+   313→   313→              </motion.div>
+   314→   314→
+   315→   315→              <motion.div
+   316→   316→                initial={{ opacity: 0, scale: 0.8 }}
+   317→   317→                animate={{ opacity: 1, scale: 1 }}
+   318→   318→                transition={{ duration: 0.5, delay: 0.05 }}
+   319→   319→                className="mb-6"
+   320→   320→              >
+   321→   321→                <div className="flex flex-col items-center">
+   322→   322→                  <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+   323→   323→                  <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+   324→   324→                </div>
+   325→   325→              </motion.div>
+   326→   326→
+   327→   327→              <motion.h1
+   328→   328→                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6"
+   329→   329→                initial={{ opacity: 0, y: 20 }}
+   330→   330→                animate={{ opacity: 1, y: 0 }}
+   331→   331→                transition={{ duration: 0.6, delay: 0.1 }}
+   332→   332→              >
+   333→   333→                {t(language, 'siteTitle')}
+   334→   334→                <span className="block text-emerald-600 mt-2">{t(language, 'siteSubtitle')}</span>
+   335→   335→              </motion.h1>
+   336→   336→
+   337→   337→              <motion.p
+   338→   338→                className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+   339→   339→                initial={{ opacity: 0, y: 20 }}
+   340→   340→                animate={{ opacity: 1, y: 0 }}
+   341→   341→                transition={{ duration: 0.6, delay: 0.2 }}
+   342→   342→              >
+   343→   343→                {t(language, 'siteDescription')}
+   344→   344→              </motion.p>
+   345→   345→
+   346→   346→              <motion.div
+   347→   347→                initial={{ opacity: 0, y: 20 }}
+   348→   348→                animate={{ opacity: 1, y: 0 }}
+   349→   349→                transition={{ duration: 0.6, delay: 0.3 }}
+   350→   350→                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+   351→   351→              >
+   352→   352→                <Button
+   353→   353→                  size="lg"
+   354→   354→                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
+   355→   355→                  onClick={() => requireAuthAndPlan('form')}
+   356→   356→                >
+   357→   357→                  <FileText className="mr-2 w-5 h-5" />
+   358→   358→                  {t(language, 'ctaChooseProfile')}
+   359→   359→                  <ArrowRight className="ml-2 w-5 h-5" />
+   360→   360→                </Button>
+   361→   361→                <Button
+   362→   362→                  size="lg"
+   363→   363→                  variant="outline"
+   364→   364→                  className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
+   365→   365→                  onClick={() => requireAuthAndPlan('clForm')}
+   366→   366→                >
+   367→   367→                  <PenLine className="mr-2 w-5 h-5" />
+   368→   368→                  {t(language, 'clCta')}
+   369→   369→                  <ArrowRight className="ml-2 w-5 h-5" />
+   370→   370→                </Button>
+   371→   371→              </motion.div>
+   372→   372→            </div>
+   373→   373→
+   374→   374→            {/* Stats */}
+   375→   375→            <motion.div
+   376→   376→              className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto"
+   377→   377→              initial={{ opacity: 0, y: 30 }}
+   378→   378→              animate={{ opacity: 1, y: 0 }}
+   379→   379→              transition={{ duration: 0.6, delay: 0.4 }}
+   380→   380→            >
+   381→   381→              <div className="text-center">
+   382→   382→                <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{liveStats.documents}</div>
+   383→   383→                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
+   384→   384→              </div>
+   385→   385→              {staticStats.map((stat) => (
+   386→   386→                <div key={stat.value} className="text-center">
+   387→   387→                  <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{stat.value}</div>
+   388→   388→                  <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label[language]}</div>
+   389→   389→                </div>
+   390→   390→              ))}
+   391→   391→            </motion.div>
+   392→   392→          </div>
+   393→   393→        </section>
+   394→   394→
+   395→   395→        {/* Persona Selection Section */}
+   396→   396→        <section ref={personasRef} className="relative py-16 sm:py-20 bg-gradient-to-b from-white to-emerald-50/50">
+   397→   397→          <div className="absolute inset-0 -z-10">
+   398→   398→            <Image src="/images/hero-coaching.jpg" alt="" fill className="object-cover opacity-[0.22]" />
+   399→   399→            <div className="absolute inset-0 bg-gradient-to-b from-white/75 to-emerald-50/50" />
+   400→   400→          </div>
+   401→   401→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   402→   402→            <motion.div
+   403→   403→              className="text-center mb-10"
+   404→   404→              initial={{ opacity: 0, y: 30 }}
+   405→   405→              whileInView={{ opacity: 1, y: 0 }}
+   406→   406→              viewport={{ once: true, margin: '-100px' }}
+   407→   407→              transition={{ duration: 0.5 }}
+   408→   408→            >
+   409→   409→              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Qui êtes-vous ?</h2>
+   410→   410→              <p className="text-muted-foreground max-w-xl mx-auto">Sélectionnez votre profil pour un CV personnalisé</p>
+   411→   411→            </motion.div>
+   412→   412→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   413→   413→              {([{
+   414→   414→                type: 'student' as PersonaType,
+   415→   415→                emoji: '\uD83C\uDF93',
+   416→   416→                icon: GraduationCap,
+   417→   417→                nameKey: 'personaStudent' as TranslationKey,
+   418→   418→                descKey: 'personaStudentDesc' as TranslationKey,
+   419→   419→                color: 'emerald',
+   420→   420→              }, {
+   421→   421→                type: 'graduate' as PersonaType,
+   422→   422→                emoji: '\uD83C\uDF1F',
+   423→   423→                icon: Award,
+   424→   424→                nameKey: 'personaGraduate' as TranslationKey,
+   425→   425→                descKey: 'personaGraduateDesc' as TranslationKey,
+   426→   426→                color: 'blue',
+   427→   427→              }, {
+   428→   428→                type: 'professional' as PersonaType,
+   429→   429→                emoji: '\uD83D\uDCBC',
+   430→   430→                icon: Briefcase,
+   431→   431→                nameKey: 'personaProfessional' as TranslationKey,
+   432→   432→                descKey: 'personaProfessionalDesc' as TranslationKey,
+   433→   433→                color: 'violet',
+   434→   434→              }, {
+   435→   435→                type: 'executive' as PersonaType,
+   436→   436→                emoji: '\uD83D\uDC54',
+   437→   437→                icon: UserCheck,
+   438→   438→                nameKey: 'personaExecutive' as TranslationKey,
+   439→   439→                descKey: 'personaExecutiveDesc' as TranslationKey,
+   440→   440→                color: 'amber',
+   441→   441→              }, {
+   442→   442→                type: 'freelance' as PersonaType,
+   443→   443→                emoji: '\uD83D\uDE80',
+   444→   444→                icon: Rocket,
+   445→   445→                nameKey: 'personaFreelance' as TranslationKey,
+   446→   446→                descKey: 'personaFreelanceDesc' as TranslationKey,
+   447→   447→                color: 'rose',
+   448→   448→              }, {
+   449→   449→                type: 'expat' as PersonaType,
+   450→   450→                emoji: '\u2708\uFE0F',
+   451→   451→                icon: Plane,
+   452→   452→                nameKey: 'personaExpat' as TranslationKey,
+   453→   453→                descKey: 'personaExpatDesc' as TranslationKey,
+   454→   454→                color: 'sky',
+   455→   455→              }]).map((persona, index) => (
+   456→   456→                <motion.div
+   457→   457→                  key={persona.type}
+   458→   458→                  initial={{ opacity: 0, y: 30 }}
+   459→   459→                  whileInView={{ opacity: 1, y: 0 }}
+   460→   460→                  viewport={{ once: true, margin: '-50px' }}
+   461→   461→                  transition={{ duration: 0.4, delay: index * 0.08 }}
+   462→   462→                >
+   463→   463→                  <Card
+   464→   464→                    className="h-full cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-400 group min-w-0 overflow-hidden"
+   465→   465→                    onClick={() => {
+   466→   466→                      if (!isLoggedIn) {
+   467→   467→                        setPendingAction('form')
+   468→   468→                        setAuthMode('register')
+   469→   469→                        setAuthModalOpen(true)
+   470→   470→                        return
+   471→   471→                      }
+   472→   472→                      if (!hasActivePlan) {
+   473→   473→                        toast.warning(t(language, 'subscriptionRequiredDesc'), { duration: 4000 })
+   474→   474→                        scrollToPricing()
+   475→   475→                        return
+   476→   476→                      }
+   477→   477→                      setSelectedPersona(persona.type)
+   478→   478→                      setStep('form')
+   479→   479→                    }}
+   480→   480→                  >
+   481→   481→                    <CardContent className="p-4 sm:p-5">
+   482→   482→                      <div className="flex items-start gap-3">
+   483→   483→                        <div className={`w-10 h-10 rounded-xl bg-${persona.color}-100 flex items-center justify-center shrink-0`}
+   484→   484→                        >
+   485→   485→                          <span className="text-xl">{persona.emoji}</span>
+   486→   486→                        </div>
+   487→   487→                        <div className="min-w-0">
+   488→   488→                          <h3 className="font-semibold text-foreground text-sm">{t(language, persona.nameKey)}</h3>
+   489→   489→                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2"><span className="truncate block max-w-full">{t(language, persona.descKey)}</span></p>
+   490→   490→                        </div>
+   491→   491→                      </div>
+   492→   492→                      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-emerald-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+   493→   493→                        <span>{t(language, 'personaChoose')}</span>
+   494→   494→                        <ArrowRight className="w-3 h-3" />
+   495→   495→                      </div>
+   496→   496→                    </CardContent>
+   497→   497→                  </Card>
+   498→   498→                </motion.div>
+   499→   499→              ))}
+   500→   500→            </div>
+   501→   501→          </div>
+   502→   502→        </section>
+   503→   503→
+   504→   504→        {/* Features Section */}
+   505→   505→        <section className="py-16 sm:py-24 bg-muted/30">
+   506→   506→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   507→   507→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+   508→   508→              {features.map((feature, index) => (
+   509→   509→                <motion.div
+   510→   510→                  key={feature.titleKey}
+   511→   511→                  initial={{ opacity: 0, y: 30 }}
+   512→   512→                  animate={{ opacity: 1, y: 0 }}
+   513→   513→                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+   514→   514→                >
+   515→   515→                  <Card className="h-full border-0 shadow-sm hover:shadow-md transition-shadow bg-white">
+   516→   516→                    <CardContent className="p-6">
+   517→   517→                      <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+   518→   518→                        <feature.icon className="w-6 h-6 text-emerald-600" />
+   519→   519→                      </div>
+   520→   520→                      <h3 className="font-semibold text-foreground mb-2">
+   521→   521→                        {t(language, feature.titleKey)}
+   522→   522→                      </h3>
+   523→   523→                      <p className="text-sm text-muted-foreground leading-relaxed">
+   524→   524→                        {t(language, feature.descKey)}
+   525→   525→                      </p>
+   526→   526→                    </CardContent>
+   527→   527→                  </Card>
+   528→   528→                </motion.div>
+   529→   529→              ))}
+   530→   530→            </div>
+   531→   531→          </div>
+   532→   532→        </section>
+   533→   533→
+   534→   534→        {/* Pricing Section */}
+   535→   535→        <section ref={pricingRef} className="relative py-16 sm:py-24 bg-gradient-to-br from-amber-50/50 via-white to-emerald-50/30">
+   536→   536→          <div className="absolute inset-0 -z-10">
+   537→   537→            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-emerald-200/20 to-transparent rounded-full blur-3xl" />
+   538→   538→            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/20 to-transparent rounded-full blur-3xl" />
+   539→   539→          </div>
+   540→   540→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   541→   541→            <motion.div
+   542→   542→              className="text-center mb-12"
+   543→   543→              initial={{ opacity: 0, y: 30 }}
+   544→   544→              whileInView={{ opacity: 1, y: 0 }}
+   545→   545→              viewport={{ once: true, margin: '-100px' }}
+   546→   546→              transition={{ duration: 0.5 }}
+   547→   547→            >
+   548→   548→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+   549→   549→                {t(language, 'pricingTitle')}
+   550→   550→              </h2>
+   551→   551→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+   552→   552→                {t(language, 'pricingSubtitle')}
+   553→   553→              </p>
+   554→   554→              {/* Currency Toggle */}
+   555→   555→              <div className="flex items-center justify-center gap-2">
+   556→   556→                <button
+   557→   557→                  onClick={() => setCurrency('eur')}
+   558→   558→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'eur' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   559→   559→                >
+   560→   560→                  EUR €
+   561→   561→                </button>
+   562→   562→                <button
+   563→   563→                  onClick={() => setCurrency('usd')}
+   564→   564→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'usd' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   565→   565→                >
+   566→   566→                  USD $
+   567→   567→                </button>
+   568→   568→                <button
+   569→   569→                  onClick={() => setCurrency('gbp')}
+   570→   570→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'gbp' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   571→   571→                >
+   572→   572→                  GBP £
+   573→   573→                </button>
+   574→   574→              </div>
+   575→   575→            </motion.div>
+   576→   576→
+   577→   577→            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start max-w-4xl mx-auto">
+   578→   578→              {/* Pro Plan */}
+   579→   579→              <motion.div
+   580→   580→                initial={{ opacity: 0, y: 40 }}
+   581→   581→                whileInView={{ opacity: 1, y: 0 }}
+   582→   582→                viewport={{ once: true, margin: '-50px' }}
+   583→   583→                transition={{ duration: 0.5, delay: 0.1 }}
+   584→   584→              >
+   585→   585→                <Card className="relative border-2 border-emerald-600 bg-white shadow-lg shadow-emerald-600/10">
+   586→   586→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   587→   587→                    <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   588→   588→                      <Sparkles className="w-3 h-3 mr-1" />
+   589→   589→                      {t(language, 'planProPopular')}
+   590→   590→                    </Badge>
+   591→   591→                  </div>
+   592→   592→                  <CardContent className="p-6 sm:p-8 pt-8">
+   593→   593→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   594→   594→                      <Crown className="w-5 h-5 text-emerald-600" />
+   595→   595→                      {t(language, 'planPro')}
+   596→   596→                    </h3>
+   597→   597→                    <div className="flex items-baseline gap-1 mb-2">
+   598→   598→                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : isGbp ? t(language, 'pricingProPriceGbp') : t(language, 'planProPrice')}</span>
+   599→   599→                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
+   600→   600→                    </div>
+   601→   601→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
+   602→   602→
+   603→   603→                    <div className="space-y-3 mb-8">
+   604→   604→                      {pricingFeatures.map((feature) => (
+   605→   605→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   606→   606→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   607→   607→                          <span className={`font-medium ${feature.pro === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+   608→   608→                            {feature.pro === false ? (
+   609→   609→                              <X className="w-4 h-4 text-stone-300" />
+   610→   610→                            ) : typeof feature.pro === 'string' ? (
+   611→   611→                              feature.pro
+   612→   612→                            ) : (
+   613→   613→                              <Check className="w-4 h-4 text-emerald-600" />
+   614→   614→                            )}
+   615→   615→                          </span>
+   616→   616→                        </div>
+   617→   617→                      ))}
+   618→   618→                    </div>
+   619→   619→
+   620→   620→                    <Button
+   621→   621→                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-emerald-600/20"
+   622→   622→                      onClick={() => handleCheckout('pro')}
+   623→   623→                      disabled={checkoutLoading === 'pro'}
+   624→   624→                    >
+   625→   625→                      {checkoutLoading === 'pro' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Crown className="mr-2 w-4 h-4" />}
+   626→   626→                      {checkoutLoading === 'pro' ? 'Chargement...' : t(language, 'planPro')}
+   627→   627→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   628→   628→                    </Button>
+   629→   629→                  </CardContent>
+   630→   630→                </Card>
+   631→   631→              </motion.div>
+   632→   632→
+   633→   633→              {/* Annual Plan */}
+   634→   634→              <motion.div
+   635→   635→                initial={{ opacity: 0, y: 40 }}
+   636→   636→                whileInView={{ opacity: 1, y: 0 }}
+   637→   637→                viewport={{ once: true, margin: '-50px' }}
+   638→   638→                transition={{ duration: 0.5, delay: 0.2 }}
+   639→   639→              >
+   640→   640→                <Card className="relative border-2 border-amber-500 bg-gradient-to-br from-amber-50/50 to-white shadow-lg shadow-amber-500/10">
+   641→   641→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   642→   642→                    <Badge className="bg-amber-500 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   643→   643→                      <Zap className="w-3 h-3 mr-1" />
+   644→   644→                      {t(language, 'planAnnualBest')}
+   645→   645→                    </Badge>
+   646→   646→                  </div>
+   647→   647→                  <CardContent className="p-6 sm:p-8 pt-8">
+   648→   648→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   649→   649→                      <Zap className="w-5 h-5 text-amber-500" />
+   650→   650→                      {t(language, 'planAnnual')}
+   651→   651→                    </h3>
+   652→   652→                    <div className="flex items-baseline gap-1 mb-2">
+   653→   653→                      <span className="text-4xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingAnnualPriceUsd') : isGbp ? t(language, 'pricingAnnualPriceGbp') : t(language, 'planAnnualPrice')}</span>
+   654→   654→                      <span className="text-muted-foreground text-sm">{isUsd ? t(language, 'pricingAnnualUsd') : isGbp ? t(language, 'pricingAnnualGbp') : t(language, 'pricingAnnual')}</span>
+   655→   655→                    </div>
+   656→   656→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planAnnualDesc')}</p>
+   657→   657→
+   658→   658→                    <div className="space-y-3 mb-8">
+   659→   659→                      {pricingFeatures.map((feature) => (
+   660→   660→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   661→   661→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   662→   662→                          <span className="font-medium text-foreground">
+   663→   663→                            {typeof feature.annual === 'string' ? (
+   664→   664→                              feature.annual
+   665→   665→                            ) : (
+   666→   666→                              <Check className="w-4 h-4 text-emerald-600" />
+   667→   667→                            )}
+   668→   668→                          </span>
+   669→   669→                        </div>
+   670→   670→                      ))}
+   671→   671→                    </div>
+   672→   672→
+   673→   673→                    <Button
+   674→   674→                      className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-amber-500/20"
+   675→   675→                      onClick={() => handleCheckout('annual')}
+   676→   676→                      disabled={checkoutLoading === 'annual'}
+   677→   677→                    >
+   678→   678→                      {checkoutLoading === 'annual' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
+   679→   679→                      {checkoutLoading === 'annual' ? 'Chargement...' : t(language, 'planAnnual')}
+   680→   680→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   681→   681→                    </Button>
+   682→   682→                  </CardContent>
+   683→   683→                </Card>
+   684→   684→              </motion.div>
+   685→   685→            </div>
+   686→   686→
+   687→   687→          </div>
+   688→   688→        </section>
+   689→   689→
+   690→   690→        {/* HireNova Ecosystem — Future Products Roadmap */}
+   691→   691→        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-teal-50/40 via-white to-emerald-50/30">
+   692→   692→          <div className="absolute inset-0 -z-10">
+   693→   693→            <Image src="/images/bg-pattern.jpg" alt="" fill className="object-cover opacity-8" />
+   694→   694→            <div className="absolute inset-0 bg-white/85" />
+   695→   695→          </div>
+   696→   696→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   697→   697→            <motion.div
+   698→   698→              className="text-center mb-12"
+   699→   699→              initial={{ opacity: 0, y: 30 }}
+   700→   700→              whileInView={{ opacity: 1, y: 0 }}
+   701→   701→              viewport={{ once: true, margin: '-100px' }}
+   702→   702→              transition={{ duration: 0.5 }}
+   703→   703→            >
+   704→   704→              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   705→   705→                <Rocket className="w-4 h-4" />
+   706→   706→                <span>{t(language, 'roadmapTitle')}</span>
+   707→   707→              </div>
+   708→   708→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'ecosystemTitle')}</h2>
+   709→   709→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'ecosystemDesc')}</p>
+   710→   710→            </motion.div>
+   711→   711→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+   712→   712→              {[
+   713→   713→                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald' },
+   714→   714→                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald' },
+   715→   715→                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet' },
+   716→   716→                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky' },
+   717→   717→                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber' },
+   718→   718→                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose' },
+   719→   719→                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo' },
+   720→   720→                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal' },
+   721→   721→                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange' },
+   722→   722→              ].map((product, index) => (
+   723→   723→                <motion.div
+   724→   724→                  key={product.name}
+   725→   725→                  initial={{ opacity: 0, y: 30 }}
+   726→   726→                  whileInView={{ opacity: 1, y: 0 }}
+   727→   727→                  viewport={{ once: true, margin: '-50px' }}
+   728→   728→                  transition={{ duration: 0.4, delay: index * 0.06 }}
+   729→   729→                >
+   730→   730→                  <Card className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active ? 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white' : 'border-muted/50 bg-white'}`}>
+   731→   731→                    {product.active && (
+   732→   732→                      <div className="absolute top-3 right-3">
+   733→   733→                        <Badge className="bg-emerald-600 text-white px-2 py-0.5 text-[10px] font-semibold rounded-full">ACTIF</Badge>
+   734→   734→                      </div>
+   735→   735→                    )}
+   736→   736→                    {!product.active && (
+   737→   737→                      <div className="absolute top-3 right-3">
+   738→   738→                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">BIENTÔT</Badge>
+   739→   739→                      </div>
+   740→   740→                    )}
+   741→   741→                    <CardContent className="p-5">
+   742→   742→                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${product.active ? 'bg-emerald-100' : 'bg-muted'}`}>
+   743→   743→                        <product.icon className={`w-5 h-5 ${product.active ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+   744→   744→                      </div>
+   745→   745→                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-emerald-800' : 'text-foreground'}`}>{product.name}</h3>
+   746→   746→                      <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
+   747→   747→                    </CardContent>
+   748→   748→                  </Card>
+   749→   749→                </motion.div>
+   750→   750→              ))}
+   751→   751→            </div>
+   752→   752→          </div>
+   753→   753→        </section>
+   754→   754→
+   755→   755→        {/* FAQ Section — SEO Rich Content */}
+   756→   756→        <section className="relative py-16 sm:py-24 bg-white" id="faq">
+   757→   757→          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+   758→   758→            <motion.div
+   759→   759→              className="text-center mb-12"
+   760→   760→              initial={{ opacity: 0, y: 30 }}
+   761→   761→              whileInView={{ opacity: 1, y: 0 }}
+   762→   762→              viewport={{ once: true, margin: '-100px' }}
+   763→   763→              transition={{ duration: 0.5 }}
+   764→   764→            >
+   765→   765→              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   766→   766→                <HelpCircle className="w-4 h-4" />
+   767→   767→                <span>FAQ</span>
+   768→   768→              </div>
+   769→   769→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'faqTitle')}</h2>
+   770→   770→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'faqSubtitle')}</p>
+   771→   771→            </motion.div>
+   772→   772→
+   773→   773→            <div className="space-y-4">
+   774→   774→              {([
+   775→   775→                { q: 'faqQ1' as const, a: 'faqA1' as const },
+   776→   776→                { q: 'faqQ2' as const, a: 'faqA2' as const },
+   777→   777→                { q: 'faqQ3' as const, a: 'faqA3' as const },
+   778→   778→                { q: 'faqQ4' as const, a: 'faqA4' as const },
+   779→   779→                { q: 'faqQ5' as const, a: 'faqA5' as const },
+   780→   780→                { q: 'faqQ6' as const, a: 'faqA6' as const },
+   781→   781→                { q: 'faqQ7' as const, a: 'faqA7' as const },
+   782→   782→                { q: 'faqQ8' as const, a: 'faqA8' as const },
+   783→   783→              ]).map((item, index) => (
+   784→   784→                <FAQItem key={item.q} question={t(language, item.q)} answer={t(language, item.a)} index={index} />
+   785→   785→              ))}
+   786→   786→            </div>
+   787→   787→          </div>
+   788→   788→        </section>
+   789→   789→
+   790→   790→        {/* Trust / Social Proof Section — SEO */}
+   791→   791→        <section className="relative py-16 sm:py-20 bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/40">
+   792→   792→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   793→   793→            <motion.div
+   794→   794→              className="text-center mb-12"
+   795→   795→              initial={{ opacity: 0, y: 30 }}
+   796→   796→              whileInView={{ opacity: 1, y: 0 }}
+   797→   797→              viewport={{ once: true, margin: '-100px' }}
+   798→   798→              transition={{ duration: 0.5 }}
+   799→   799→            >
+   800→   800→              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">{t(language, 'trustTitle')}</h2>
+   801→   801→              <p className="text-muted-foreground max-w-xl mx-auto">{t(language, 'trustSubtitle')}</p>
+   802→   802→            </motion.div>
+   803→   803→            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+   804→   804→              {([
+   805→   805→                { icon: Users, value: liveStats.satisfiedUsers > 0 ? String(liveStats.satisfiedUsers) : '—', label: t(language, 'trustStats'), color: 'emerald' },
+   806→   806→                { icon: ThumbsUp, value: liveStats.avgRating > 0 ? `${liveStats.avgRating}/5` : '—', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
+   807→   807→                { icon: Lock, value: '100%', label: { fr: 'Données sécurisées', en: 'Data secured', ar: 'بيانات آمنة', es: 'Datos seguros' }[language], color: 'teal' },
+   808→   808→              ]).map((item, index) => (
+   809→   809→                <motion.div
+   810→   810→                  key={item.label}
+   811→   811→                  initial={{ opacity: 0, y: 30 }}
+   812→   812→                  whileInView={{ opacity: 1, y: 0 }}
+   813→   813→                  viewport={{ once: true, margin: '-50px' }}
+   814→   814→                  transition={{ duration: 0.4, delay: index * 0.1 }}
+   815→   815→                >
+   816→   816→                  <Card className="border-0 shadow-sm bg-white text-center">
+   817→   817→                    <CardContent className="p-6">
+   818→   818→                      <div className={`w-12 h-12 rounded-xl bg-${item.color}-100 flex items-center justify-center mx-auto mb-3`}>
+   819→   819→                        <item.icon className={`w-6 h-6 text-${item.color}-600`} />
+   820→   820→                      </div>
+   821→   821→                      <div className="text-2xl font-extrabold text-foreground mb-1">{item.value}</div>
+   822→   822→                      <div className="text-sm text-muted-foreground">{item.label}</div>
+   823→   823→                    </CardContent>
+   824→   824→                  </Card>
+   825→   825→                </motion.div>
+   826→   826→              ))}
+   827→   827→            </div>
+   828→   828→            <motion.div
+   829→   829→              className="mt-8 text-center"
+   830→   830→              initial={{ opacity: 0 }}
+   831→   831→              whileInView={{ opacity: 1 }}
+   832→   832→              viewport={{ once: true }}
+   833→   833→              transition={{ delay: 0.3 }}
+   834→   834→            >
+   835→   835→              <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">{t(language, 'trustGuarantee')}</p>
+   836→   836→            </motion.div>
+   837→   837→          </div>
+   838→   838→        </section>
+   839→   839→
+   840→   840→        {/* CTA Section */}
+   841→   841→        <section className="relative py-16 sm:py-20">
+   842→   842→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   843→   843→            <motion.div
+   844→   844→              className="relative text-center bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden"
+   845→   845→              initial={{ opacity: 0, scale: 0.95 }}
+   846→   846→              whileInView={{ opacity: 1, scale: 1 }}
+   847→   847→              viewport={{ once: true, margin: '-100px' }}
+   848→   848→              transition={{ duration: 0.6 }}
+   849→   849→            >
+   850→   850→              <div className="absolute inset-0">
+   851→   851→                <Image src="/images/gradient-emerald.jpg" alt="" fill className="object-cover opacity-20" />
+   852→   852→              </div>
+   853→   853→              <div className="relative z-10">
+   854→   854→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+   855→   855→                {t(language, 'ctaReadyTitle')}
+   856→   856→              </h2>
+   857→   857→              <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
+   858→   858→                {t(language, 'ctaReadyDesc')}
+   859→   859→              </p>
+   860→   860→              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+   861→   861→                <Button
+   862→   862→                  size="lg"
+   863→   863→                  className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
+   864→   864→                  onClick={() => requireAuthAndPlan('form')}
+   865→   865→                >
+   866→   866→                  <FileText className="mr-2 w-5 h-5" />
+   867→   867→                  {t(language, 'ctaChooseProfile')}
+   868→   868→                  <ArrowRight className="ml-2 w-5 h-5" />
+   869→   869→                </Button>
+   870→   870→                <Button
+   871→   871→                  size="lg"
+   872→   872→                  variant="outline"
+   873→   873→                  className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
+   874→   874→                  onClick={() => requireAuthAndPlan('clForm')}
+   875→   875→                >
+   876→   876→                  <PenLine className="mr-2 w-5 h-5" />
+   877→   877→                  {t(language, 'clCta')}
+   878→   878→                  <ArrowRight className="ml-2 w-5 h-5" />
+   879→   879→                </Button>
+   880→   880→              </div>
+   881→   881→              </div>
+   882→   882→            </motion.div>
+   883→   883→          </div>
+   884→   884→        </section>
+   885→   885→      </main>
+   886→   886→
+   887→   887→      {/* Auth Modal */}
+   888→   888→      <AuthModal
+   889→   889→        isOpen={authModalOpen}
+   890→   890→        onClose={() => setAuthModalOpen(false)}
+   891→   891→        initialMode={authMode}
+   892→   892→        onAuthSuccess={handleAuthSuccess}
+   893→   893→      />
+   894→   894→
+   895→   895→      <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+   896→   896→
+   897→   897→      {/* Footer */}
+   898→   898→      <footer className="border-t bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+   899→   899→        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
+   900→   900→          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+   901→   901→          <div className="flex items-center flex-wrap justify-center gap-2 text-xs">
+   902→   902→            <span className="text-emerald-600 font-medium">Paiement sécurisé :</span>
+   903→   903→            <span>🇫🇷 FR</span><span>🇧🇪 BE</span><span>🇨🇭 CH</span><span>🇱🇺 LU</span><span>🇲🇨 MC</span><span>🇪🇸 ES</span><span>🇬🇧 UK</span><span>🇺🇸 US</span><span>🇨🇦 CA</span><span>🇦🇺 AU</span><span>🇸🇦 SA</span><span>🇦🇪 AE</span><span>🇶🇦 QA</span><span>🇰🇼 KW</span><span>🇧🇭 BH</span><span>🇴🇲 OM</span>
+   904→   904→          </div>
+   905→   905→          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+   906→   906→        </div>
+   907→   907→      </footer>
+   908→   908→    </div>
+   909→   909→  )
+   910→   910→}
+   911→   911→

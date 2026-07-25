@@ -16,13 +16,17 @@ model User {
   name             String?
   password         String?
   image            String?
-  plan             String   @default("free") // free | pro | lifetime
+  plan             String   @default("free") // free | pro | annual
+  role             String   @default("candidate") // candidate | employer
+  companyName      String?
+  industry         String?
+  companyWebsite   String?
   cvCountThisMonth Int      @default(0)
   clCountThisMonth Int      @default(0)
   lastResetMonth   Int      @default(0)
-  lsCustomerId  String?
-  lsVariantId   String?
-  lsSubId       String?
+  lsCustomerId     String?
+  lsVariantId      String?
+  lsSubId          String?
   paymobOrderId    String?
   paymobPaymentId  String?
   paymobProvider   String?
@@ -35,6 +39,8 @@ model User {
   coverLetters CoverLetter[]
   satisfactionRatings SatisfactionRating[]
   supportTickets      SupportTicket[]
+  jobListings         JobListing[]
+  applications        Application[]
 }
 
 model SatisfactionRating {
@@ -122,4 +128,79 @@ model CoverLetter {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model JobListing {
+  id               String   @id @default(cuid())
+  employerId       String?
+  title            String
+  company          String
+  location         String
+  country          String   @default("Maroc")
+  type             String   @default("CDI")
+  salaryMin        Int?
+  salaryMax        Int?
+  currency         String   @default("MAD")
+  description      String
+  requirements      String
+  skills           String?
+  language         String   @default("fr")
+  isRemote         Boolean  @default(false)
+  isPaid           Boolean  @default(false)
+  status           String   @default("active")
+  viewsCount       Int      @default(0)
+  applicationsCount Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  employer         User?       @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  applications     Application[]
+}
+
+model Application {
+  id            String   @id @default(cuid())
+  jobId         String
+  candidateId   String?
+  candidateName String
+  candidateEmail String
+  coverNote     String?
+  matchScore    Int?
+  matchAnalysis String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  job           JobListing @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate     User?      @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+}
+
+model ApiSubscriber {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  company         String
+  website         String?
+  industry        String?
+  phone           String?
+  apiKey          String   @unique
+  apiSecretHash   String
+  plan            String   @default("starter")
+  status          String   @default("active")
+  creditsUsed     Int      @default(0)
+  creditsLimit    Int      @default(100)
+  lastResetDate   String   @default("")
+  webhookUrl      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  usageLogs       ApiUsageLog[]
+}
+
+model ApiUsageLog {
+  id            String   @id @default(cuid())
+  subscriberId  String
+  endpoint      String
+  credits       Int      @default(1)
+  status        String   @default("success")
+  errorMessage  String?
+  ip            String?
+  createdAt     DateTime @default(now())
+  subscriber    ApiSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
 }
