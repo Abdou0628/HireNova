@@ -17,24 +17,27 @@ function getClientIP(request: NextRequest): string {
 
 /**
  * In-memory rate limiter + security headers middleware.
- * Applied to /api/* routes only (except /api/security/* which is internal).
+ * Rate limiting: /api/* routes only.
+ * Security headers: all responses, but iframe-friendly for non-API routes.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Apply security headers to ALL responses
   const response = NextResponse.next()
 
-  // Security headers
+  // Security headers (safe for all routes)
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+
+  // Allow the Preview Panel iframe to embed the site (Caddy proxy on port 81)
+  // X-Frame-Options and frame-ancestors must allow embedding from the gateway
+  response.headers.set('X-Frame-Options', 'ALLOWALL')
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' https:; connect-src 'self' https: wss:; frame-ancestors 'none';"
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' https:; connect-src 'self' https: wss:; frame-ancestors *;"
   )
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
   // Rate limiting only for /api/* routes
   if (pathname.startsWith('/api/')) {
@@ -43,7 +46,6 @@ export function middleware(request: NextRequest) {
     const { allowed, retryAfterMs } = checkRateLimit(ip, category)
 
     if (!allowed) {
-      // Log the rate limit violation
       logSecurityEvent({
         type: 'rate_limit',
         severity: 'medium',
@@ -73,7 +75,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all API routes and all pages
     '/api/:path*',
     '/((?!_next/static|_next/image|favicon.ico|images/).*)',
   ],
