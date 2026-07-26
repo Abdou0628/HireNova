@@ -145,3 +145,44 @@ Page blanche répétée dans le Preview Panel malgré serveur répondant HTTP 20
 
 ### Note stabilité
 Le sandbox cloud tue les processus d'arrière-plan entre les appels Bash. Le serveur dev peut mourir. Solution : redémarrer avec `setsid bash -c 'cd /home/z/my-project && exec bun run dev'` à chaque fois que la page devient blanche.
+
+---
+
+## Phase 11 : Ajout modules Global/Jobs/Mobilité/API dans Écosystème
+> Date : 2026-07-26
+
+### Demande utilisateur
+Ajouter HireNova Global, Jobs, Mobilité et API dans le panneau écosystème HireNova.
+
+### Modifications appliquées
+**Fichier modifié :** `src/components/cv/landing.tsx` (section Écosystème, ~ligne 712)
+
+1. **Ajout de 4 modules actifs** dans le tableau `products` :
+   - `HireNova Jobs` (icône Briefcase, accent emerald, step → `jobMarket`)
+   - `HireNova Global` (icône Globe, accent teal, step → `globalMarket`)
+   - `HireNova Mobilité` (icône Plane, accent purple, step → `mobilityHome`)
+   - `HireNova API` (icône Code2, accent sky, step → `apiDocs`)
+
+2. **Cartes cliquables** : ajout propriété `step` + `onClick={() => setStep(product.step as AppStep)}` pour les modules actifs avec destination.
+
+3. **Système de couleurs par accent** : chaque module actif a sa propre couleur (border, badge, icône, fond) :
+   - emerald (CV, ATS, Jobs)
+   - teal (Global)
+   - purple (Mobilité)
+   - sky (API)
+
+4. **Indicateur "Ouvrir"** : les cartes actives affichent un lien "Ouvrir →" en bas pour indiquer qu'elles sont cliquables.
+
+5. **Import `AppStep`** ajouté dans landing.tsx pour le typage du step.
+
+### Vérification (agent-browser) ✅
+- Page rendue : HTTP 200, 20211 bytes, body complet
+- 13 modules écosystème affichés : CV, ATS, Jobs, Global, Mobilité, API (6 ACTIFS) + Interview, LinkedIn, Recruiter, Career, Coach, Formation, Freelance (7 BIENTÔT)
+- Navigation testée : clic "HireNova Jobs" → page JobMarket affichée ("Trouvez votre prochaine opportunité professionnelle")
+- Lint : clean
+- Build production : OK
+
+### État final
+- Serveur : production standalone (512MB, stable)
+- Code : original restauré + ajout écosystème
+- Sauvegarde : `public/hirenova-full-backup-20260726-105108.tar.gz` (252 fichiers)
