@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCVStore, type PersonaType } from '@/store/cv-store'
+import { useCVStore, type PersonaType, type AppStep } from '@/store/cv-store'
 import { t } from '@/lib/i18n'
 import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
@@ -711,15 +711,19 @@ export default function Landing() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {[
-                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald' },
-                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald' },
-                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet' },
-                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky' },
-                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber' },
-                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose' },
-                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo' },
-                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal' },
-                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange' },
+                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald', step: 'form' },
+                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald', step: null },
+                { icon: Briefcase, name: 'HireNova Jobs', desc: 'Marketplace d\'emplois — publiez et postulez à des offres locales', active: true, accent: 'emerald', step: 'jobMarket' },
+                { icon: Globe, name: 'HireNova Global', desc: 'Recrutement international — 40+ pays, visa & relocation', active: true, accent: 'teal', step: 'globalMarket' },
+                { icon: Plane, name: 'HireNova Mobilité', desc: 'OCR + IA — adaptez votre CV aux standards de chaque pays', active: true, accent: 'purple', step: 'mobilityHome' },
+                { icon: Code2, name: 'HireNova API', desc: 'API REST — intégrez CV, lettre & ATS dans vos apps', active: true, accent: 'sky', step: 'apiDocs' },
+                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet', step: null },
+                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky', step: null },
+                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber', step: null },
+                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose', step: null },
+                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo', step: null },
+                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal', step: null },
+                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange', step: null },
               ].map((product, index) => (
                 <motion.div
                   key={product.name}
@@ -728,10 +732,28 @@ export default function Landing() {
                   viewport={{ once: true, margin: '-50px' }}
                   transition={{ duration: 0.4, delay: index * 0.06 }}
                 >
-                  <Card className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active ? 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white' : 'border-muted/50 bg-white'}`}>
+                  <Card
+                    onClick={product.active && product.step ? () => setStep(product.step as AppStep) : undefined}
+                    className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active && product.step ? 'cursor-pointer' : ''} ${
+                      product.active
+                        ? product.accent === 'teal'
+                          ? 'border-teal-500 shadow-md bg-gradient-to-br from-teal-50/50 to-white'
+                          : product.accent === 'purple'
+                            ? 'border-purple-500 shadow-md bg-gradient-to-br from-purple-50/50 to-white'
+                            : product.accent === 'sky'
+                              ? 'border-sky-500 shadow-md bg-gradient-to-br from-sky-50/50 to-white'
+                              : 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white'
+                        : 'border-muted/50 bg-white'
+                    }`}
+                  >
                     {product.active && (
                       <div className="absolute top-3 right-3">
-                        <Badge className="bg-emerald-600 text-white px-2 py-0.5 text-[10px] font-semibold rounded-full">ACTIF</Badge>
+                        <Badge className={`px-2 py-0.5 text-[10px] font-semibold rounded-full text-white ${
+                          product.accent === 'teal' ? 'bg-teal-600'
+                            : product.accent === 'purple' ? 'bg-purple-600'
+                            : product.accent === 'sky' ? 'bg-sky-600'
+                            : 'bg-emerald-600'
+                        }`}>ACTIF</Badge>
                       </div>
                     )}
                     {!product.active && (
@@ -740,11 +762,31 @@ export default function Landing() {
                       </div>
                     )}
                     <CardContent className="p-5">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${product.active ? 'bg-emerald-100' : 'bg-muted'}`}>
-                        <product.icon className={`w-5 h-5 ${product.active ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${
+                        product.active
+                          ? product.accent === 'teal' ? 'bg-teal-100'
+                            : product.accent === 'purple' ? 'bg-purple-100'
+                            : product.accent === 'sky' ? 'bg-sky-100'
+                            : 'bg-emerald-100'
+                          : 'bg-muted'
+                      }`}>
+                        <product.icon className={`w-5 h-5 ${
+                          product.active
+                            ? product.accent === 'teal' ? 'text-teal-600'
+                              : product.accent === 'purple' ? 'text-purple-600'
+                              : product.accent === 'sky' ? 'text-sky-600'
+                              : 'text-emerald-600'
+                            : 'text-muted-foreground'
+                        }`} />
                       </div>
-                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-emerald-800' : 'text-foreground'}`}>{product.name}</h3>
+                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-foreground' : 'text-foreground'}`}>{product.name}</h3>
                       <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
+                      {product.active && product.step && (
+                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-emerald-600">
+                          <span>Ouvrir</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
