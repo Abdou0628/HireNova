@@ -711,12 +711,12 @@ export default function Landing() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {[
-                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald', step: 'form' },
-                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald', step: null },
-                { icon: Briefcase, name: 'HireNova Jobs', desc: 'Marketplace d\'emplois — publiez et postulez à des offres locales', active: true, accent: 'emerald', step: 'jobMarket' },
-                { icon: Globe, name: 'HireNova Global', desc: 'Recrutement international — 40+ pays, visa & relocation', active: true, accent: 'teal', step: 'globalMarket' },
-                { icon: Plane, name: 'HireNova Mobilité', desc: 'OCR + IA — adaptez votre CV aux standards de chaque pays', active: true, accent: 'purple', step: 'mobilityHome' },
-                { icon: Code2, name: 'HireNova API', desc: 'API REST — intégrez CV, lettre & ATS dans vos apps', active: true, accent: 'sky', step: 'apiDocs' },
+                { icon: FileText, name: 'HireNova CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
+                { icon: Search, name: 'HireNova ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
+                { icon: Briefcase, name: 'HireNova Jobs', desc: 'Marketplace d\'emplois — publiez et postulez à des offres locales', active: true, accent: 'emerald', step: 'jobMarket' as AppStep | null },
+                { icon: Globe, name: 'HireNova Global', desc: 'Recrutement international — 40+ pays, visa & relocation', active: true, accent: 'teal', step: 'globalMarket' as AppStep | null },
+                { icon: Plane, name: 'HireNova Mobilité', desc: 'OCR + IA — adaptez votre CV aux standards de chaque pays', active: true, accent: 'purple', step: 'mobilityHome' as AppStep | null },
+                { icon: Code2, name: 'HireNova API', desc: 'API REST — intégrez CV, lettre & ATS dans vos apps', active: true, accent: 'sky', step: 'apiDocs' as AppStep | null },
                 { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet', step: null },
                 { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky', step: null },
                 { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber', step: null },
@@ -724,7 +724,10 @@ export default function Landing() {
                 { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo', step: null },
                 { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal', step: null },
                 { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange', step: null },
-              ].map((product, index) => (
+              ].map((product, index) => {
+                const isClickable = Boolean(product.active)
+                const handleNav = () => { if (product.step) setStep(product.step as AppStep) }
+                return (
                 <motion.div
                   key={product.name}
                   initial={{ opacity: 0, y: 30 }}
@@ -733,8 +736,11 @@ export default function Landing() {
                   transition={{ duration: 0.4, delay: index * 0.06 }}
                 >
                   <Card
-                    onClick={product.active && product.step ? () => setStep(product.step as AppStep) : undefined}
-                    className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${product.active && product.step ? 'cursor-pointer' : ''} ${
+                    onClick={isClickable ? handleNav : undefined}
+                    onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNav() } } : undefined}
+                    role={isClickable ? 'button' : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isClickable ? 'cursor-pointer' : ''} ${
                       product.active
                         ? product.accent === 'teal'
                           ? 'border-teal-500 shadow-md bg-gradient-to-br from-teal-50/50 to-white'
@@ -781,16 +787,17 @@ export default function Landing() {
                       </div>
                       <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-foreground' : 'text-foreground'}`}>{product.name}</h3>
                       <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
-                      {product.active && product.step && (
+                      {isClickable && (
                         <div className="mt-3 flex items-center gap-1 text-xs font-medium text-emerald-600">
-                          <span>Ouvrir</span>
-                          <ArrowRight className="w-3 h-3" />
+                          <span>{product.step ? 'Ouvrir' : 'Bientôt disponible'}</span>
+                          {product.step && <ArrowRight className="w-3 h-3" />}
                         </div>
                       )}
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>

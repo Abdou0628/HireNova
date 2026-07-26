@@ -186,3 +186,40 @@ Ajouter HireNova Global, Jobs, Mobilité et API dans le panneau écosystème Hir
 - Serveur : production standalone (512MB, stable)
 - Code : original restauré + ajout écosystème
 - Sauvegarde : `public/hirenova-full-backup-20260726-105108.tar.gz` (252 fichiers)
+
+---
+
+## Phase 12 : Fix cartes écosystème cliquables (CV + ATS)
+> Date : 2026-07-26
+
+### Problème
+HireNova CV et HireNova ATS marqués "ACTIF" mais non cliquables dans le panneau écosystème.
+
+### Cause racine
+**Cache statique Next.js** (`x-nextjs-cache: HIT`, `s-maxage=31536000`) :
+- La page `/` était prerendered comme contenu statique lors du build
+- Le HTML servi était une VERSION CACHÉE d'un build précédent
+- Les modifications de code n'étaient jamais servies au navigateur
+- Même après `rm -rf .next` + rebuild, le cache persistait
+
+### Solution appliquée
+1. **Séparation page.tsx en 2 fichiers** :
+   - `src/app/page.tsx` — Server Component avec `export const dynamic = 'force-dynamic'` + `headers()` pour forcer le rendu dynamique
+   - `src/app/page-client.tsx` — Client Component (ancien page.tsx avec `'use client'`)
+
+2. **`isClickable = Boolean(product.active)`** — toutes les cartes actives sont cliquables, indépendamment de `step`
+3. **`handleNav()`** — vérifie `product.step` avant de naviguer
+4. **ATS `step: 'form'`** — l'analyse ATS fait partie du flux de création CV
+
+### Résultat vérifié (agent-browser) ✅
+Les 6 cartes ACTIVES sont toutes cliquables :
+- HireNova CV: ✓ CLICKABLE (→ form)
+- HireNova ATS: ✓ CLICKABLE (→ form)
+- HireNova Jobs: ✓ CLICKABLE (→ jobMarket)
+- HireNova Global: ✓ CLICKABLE (→ globalMarket)
+- HireNova Mobilité: ✓ CLICKABLE (→ mobilityHome)
+- HireNova API: ✓ CLICKABLE (→ apiDocs)
+
+Navigation testée : clic "HireNova ATS" → page formulaire CV affichée ✅
+Headers: `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate` ✅
+Lint: clean ✅
