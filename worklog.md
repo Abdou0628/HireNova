@@ -112,3 +112,36 @@ Page entièrement rendue avec toutes les sections :
 - `start-dev.sh` / `start-production.sh` / `keep-alive.sh` — scripts de démarrage
 - `public/hirenova-backup.tar.gz` — snapshot projet précédent
 
+
+---
+
+## Phase 10 : Fix page blanche — middleware + next-auth
+> Date : 2026-07-26
+
+### Problème
+Page blanche répétée dans le Preview Panel malgré serveur répondant HTTP 200.
+
+### Diagnostic
+1. **`src/middleware.ts` toujours présent** — était censé être supprimé (Phase précédente) car il cause un overhead Edge Runtime sur CHAQUE requête (matcher trop large: `/((?!_next/static|...).*)`). Le warning `⚠ The "middleware" file convention is deprecated` apparaissait dans dev.log.
+2. **`.env` sans NEXTAUTH_SECRET ni NEXTAUTH_URL** — next-auth affichait warnings `NO_SECRET` et `NEXTAUTH_URL`, causant des `CLIENT_FETCH_ERROR` répétés sur `/api/auth/session` (7+ erreurs dans la console navigateur).
+3. **`next.config.ts` sans headers de sécurité** — les headers étaient seulement dans le middleware (qui devait être supprimé).
+
+### Correctifs appliqués
+1. **Suppression de `src/middleware.ts`** — fini l'overhead Edge Runtime
+2. **Ajout des security headers dans `next.config.ts`** (source: `/(.*)` ) :
+   - X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+   - X-Frame-Options: ALLOWALL (pour iframe Preview Panel)
+   - CSP permissive (frame-ancestors *)
+3. **Ajout dans `.env`** :
+   - `NEXTAUTH_SECRET=hirenova-dev-secret-2050-secure-key-zai-2026`
+   - `NEXTAUTH_URL=http://localhost:3000`
+
+### Résultat vérifié (agent-browser)
+- HTTP 200 en 0.1s
+- Page titre : "HireNova — Générateur de CV IA, Lettre de Motivation & Score ATS"
+- Body : 9223px / 5984 chars (contenu complet)
+- **Console errors : VIDE** ✅
+- dev.log : propre, toutes réponses 200, plus de warnings next-auth
+
+### Note stabilité
+Le sandbox cloud tue les processus d'arrière-plan entre les appels Bash. Le serveur dev peut mourir. Solution : redémarrer avec `setsid bash -c 'cd /home/z/my-project && exec bun run dev'` à chaque fois que la page devient blanche.
