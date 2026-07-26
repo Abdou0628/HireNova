@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { scanInput, sanitizeString, logSecurityEvent } from "@/lib/security";
-import { sendEmail, emailTemplates } from "@/lib/email";
+import { scheduleOnboardingEmails } from "@/lib/email";
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -103,13 +103,10 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send welcome email (async, non-blocking — don't fail registration if email fails)
+    // Trigger full onboarding email sequence (J0 welcome sent immediately, J1/J3/J7/J14 scheduled)
     const displayName = user.name || user.email.split("@")[0];
-    sendEmail({
-      to: user.email,
-      ...emailTemplates.welcome(displayName),
-    }).catch((err) => {
-      console.error("[register] welcome email failed:", err instanceof Error ? err.message : String(err));
+    scheduleOnboardingEmails(user.id, user.email, displayName).catch((err) => {
+      console.error("[register] onboarding sequence failed:", err instanceof Error ? err.message : String(err));
     });
 
     return NextResponse.json(

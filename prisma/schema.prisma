@@ -38,6 +38,7 @@ model User {
   referralCode       String?  @unique
   referralsMade      Referral[]  @relation("ReferrerReferrals")
   referralReceived   Referral?  @relation("ReferredReferral")
+  emailLogs          EmailLog[]  @relation("EmailLogs")
 
   resumes      Resume[]
   coverLetters CoverLetter[]
@@ -298,4 +299,24 @@ model Referral {
   referred User? @relation("ReferredReferral", fields: [referredUserId], references: [id])
 
   @@unique([referrerId, referredEmail])
+}
+
+// ===== Email Onboarding — Suivi des emails envoyés =====
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  template  String   // welcome | firstCV | atsTips | ecosystem | proOffer | custom
+  step      String   @default("onboarding") // onboarding | referral | campus | transactional
+  subject   String
+  status    String   @default("sent") // sent | failed | bounced
+  error     String?
+  sentAt    DateTime @default(now())
+
+  user      User?    @relation("EmailLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([email])
+  @@index([template])
 }
