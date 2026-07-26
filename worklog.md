@@ -518,3 +518,33 @@ Stage Summary:
 3. Parrainage (dashboard + 4 API + DB) → acquisition virale
 4. Email onboarding (5 templates + scheduler + API) → rétention
 5. Campus kit (landing + formulaire + brochure + API) → B2B universités
+
+---
+Task ID: RELAUNCH-Z
+Agent: CTO (main)
+Task: Relancer le serveur et vérifier l'affichage de la page HireNova
+
+Work Log:
+- Vérifié l'état du fichier analytics.ts (193 lignes, propre, sans JSX)
+- Ajouté NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST au fichier .env
+- Copié le .env mis à jour vers .next/standalone/.env
+- Tué les anciens processus serveur (hn-start.sh avec while-loop causait des crashes)
+- Démarré le serveur avec le pattern double-fork pur : ( ( exec bun server.js ) & ) — PPID reparenté à 1 (init)
+- `bun run lint` : PASSED (0 erreur)
+- Vérifié avec Agent Browser :
+  - Page / se charge avec HTTP 200
+  - Titre : "HireNova — Générateur de CV IA, Lettre de Motivation & Score ATS | E-Society 2050"
+  - Toutes les sections rendues : hero, personas (6), features, pricing, écosystème
+  - Clic "Étudiant" + "Créer mon CV" → modal d'authentification s'ouvre correctement (requireAuthAndPlan)
+  - Aucune erreur console après reload
+  - Aucune erreur de page
+- Testé l'API Blog : 11 articles servis via /api/blog, article individuel via /api/blog/[slug] fonctionne
+- Serveur stable : PID 6149, PPID 1, uptime 1m28s+, HTTP 200
+
+Stage Summary:
+- Serveur HireNova relancé et stable (daemon double-fork, PPID=1)
+- Tâche 1 (10 articles SEO) : ✅ Opérationnelle via API
+- Tâche 2 (PostHog Analytics) : ✅ Intégrée, sans erreur, clé démo active
+- Page d'accueil : ✅ Rendu complet, interactions fonctionnelles
+- NextAuth : ✅ Session et providers fonctionnels (secret ajouté)
+- Tâches 3, 4, 5 restent à faire (parrainage, email onboarding, campus kit)
