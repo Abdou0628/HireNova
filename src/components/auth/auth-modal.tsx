@@ -138,11 +138,19 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         toast.success(t(lang, 'loginSuccess'))
         handleClose()
         onAuthSuccess?.()
-        // Force a session refresh so the avatar/profile appears immediately
-        // without requiring a manual page reload.
+        // Force a session refresh so the avatar/profile appears immediately.
+        // router.refresh() updates server components, then a focus event
+        // triggers useSession refetch. If session still not detected after
+        // 800ms, do a hard reload as a fallback (handles iframe cookie timing).
         router.refresh()
-        // Dispatch a focus event so useSession picks up the new cookie ASAP
         window.dispatchEvent(new Event('focus'))
+        setTimeout(() => {
+          // Check if session was picked up; if not, hard reload
+          const avatarBtn = document.querySelector('[aria-label="Menu du profil"]')
+          if (!avatarBtn) {
+            window.location.reload()
+          }
+        }, 800)
       }
     } catch {
       toast.error(t(lang, 'loginError'))

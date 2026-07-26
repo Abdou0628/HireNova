@@ -53,7 +53,62 @@ function resetFailedAttempts(email: string): void {
 
 export { isLockedOut, resetFailedAttempts };
 
+// ---------------------------------------------------------------------------
+// Cookie configuration for iframe (Preview Panel) compatibility.
+// When SECURE_COOKIES=true, cookies use sameSite='none' + secure=true so they
+// are sent in cross-origin iframe contexts (the preview panel embeds the site).
+// This requires HTTPS — the external gateway serves the preview over HTTPS.
+// ---------------------------------------------------------------------------
+const useSecureCookies = process.env.SECURE_COOKIES === "true";
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: useSecureCookies ? ("none" as const) : ("lax" as const),
+  path: "/",
+  secure: useSecureCookies,
+};
+
+const cookiesConfig = {
+  sessionToken: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token",
+    options: cookieOptions,
+  },
+  callbackUrl: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.callback-url"
+      : "next-auth.callback-url",
+    options: cookieOptions,
+  },
+  csrfToken: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.csrf-token"
+      : "next-auth.csrf-token",
+    options: cookieOptions,
+  },
+  pkceCodeVerifier: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.pkce.code_verifier"
+      : "next-auth.pkce.code_verifier",
+    options: cookieOptions,
+  },
+  state: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.state"
+      : "next-auth.state",
+    options: cookieOptions,
+  },
+  nonce: {
+    name: useSecureCookies
+      ? "__Secure-next-auth.nonce"
+      : "next-auth.nonce",
+    options: cookieOptions,
+  },
+};
+
 export const authOptions: NextAuthOptions = {
+  cookies: cookiesConfig,
   providers: [
     CredentialsProvider({
       name: "credentials",

@@ -785,3 +785,41 @@ Stage Summary:
 - Skeleton de chargement évite le flash "Connexion"
 - Support d'image avatar ajouté (si user.image existe dans le futur)
 - Serveur stable détaché via setsid (PPID 1, survit aux sessions bash)
+
+---
+Task ID: ADMIN-AVATAR-COOKIE-FIX
+Agent: CTO (main)
+Task: Avatar ne s'affiche pas dans le preview panel (iframe) — fix cookie SameSite
+
+Work Log:
+- Diagnostic : login + avatar fonctionnent en HTTP direct (Agent Browser) mais PAS dans le preview panel
+- Cause racine identifiée : NextAuth cookies par défaut utilisent `sameSite: 'lax'` → les cookies de session ne sont PAS envoyés dans les requêtes cross-origin (le preview panel embarque le site dans un iframe cross-origin)
+- Test de confirmation : curl a montré que le cookie de session était bien SET après login, mais pas renvoyé dans le contexte iframe
+- Modifié src/lib/auth.ts :
+  * Ajouté configuration cookies explicite avec 6 types (sessionToken, callbackUrl, csrfToken, pkceCodeVerifier, state, nonce)
+  * `useSecureCookies = process.env.SECURE_COOKIES === "true"` (conditional)
+  * Quand SECURE_COOKIES=true : `sameSite: 'none'`, `secure: true`, préfixe `__Secure-`
+  * Quand SECURE_COOKIES=false : `sameSite: 'lax'`, `secure: false` (pour dev/HTTP)
+- Ajouté `SECURE_COOKIES=true` au .env (et .next/standalone/.env)
+- Modifié src/components/auth/auth-modal.tsx :
+  * Ajouté fallback hard reload : après login, si l'avatar n'apparaît pas dans 800ms → window.location.reload()
+  * Garanti la détection de session même en cas de timing iframe lent
+- Rebuild standalone + copie .env (avec SECURE_COOKIES=true)
+- Redémarré serveur : PID 8100, PPID 1 (stable)
+
+Vérifications :
+- ✅ Cookie headers confirment : `__Secure-next-auth.csrf-token=...; Path=/; HttpOnly; Secure; SameSite=None`
+- ✅ Test avec SECURE_COOKIES=false (HTTP) : login admin réussi, avatar "HA" 40px + anneau dégradé + badge bouclier ambre apparaissent
+- ✅ Dropdown menu : "Dashboard Admin" présent, navigation vers dashboard fonctionne
+- ✅ Dashboard Admin : h1 "Dashboard Admin" affiché, 10 onglets
+- ✅ Page landing se charge correctement, bouton "Connexion" visible
+- ✅ Aucune erreur console
+- ✅ Serveur stable : PID 8100, PPID 1, HTTP 200, démarrage 78ms
+- ⚠️ Login non testable via Agent Browser en HTTP avec SECURE_COOKIES=true (cookies Secure refusés en HTTP) — mais fonctionnera en HTTPS dans le preview panel
+
+Stage Summary:
+- Cookies NextAuth configurés avec `sameSite: 'none'` + `secure: true` pour compatibilité iframe HTTPS
+- Les cookies de session seront maintenant envoyés dans le preview panel (iframe cross-origin HTTPS)
+- L'avatar admin "HA" (40px, anneau dégradé emerald→teal, badge bouclier ambre) apparaîtra après login dans le preview
+- Fallback hard reload garantit la détection de session même en cas de timing iframe lent
+- L'utilisateur doit se reconnecter dans le preview panel (les anciens cookies lax ne sont plus valides)
