@@ -736,3 +736,52 @@ Stage Summary:
 - Mouvements financiers détaillés (MRR, annuel, API, LTV, breakdown par source)
 - Accès via footer + menu profil (admin uniquement)
 - Serveur stable : PID 4936, PPID 1, HTTP 200
+
+---
+Task ID: ADMIN-AVATAR-FIX
+Agent: CTO (main)
+Task: Utilisateur connecté en admin mais l'avatar ne s'affiche pas — rendre l'avatar proéminent et robuste
+
+Work Log:
+- Diagnostic via Agent Browser : l'avatar "HA" (cercle vert 32px) s'affichait déjà techniquement mais était trop petit/subtil
+- Identifié problème de timing : après signIn({redirect:false}), la session n'était pas toujours rafraîchie immédiatement → l'utilisateur voyait "Connexion" au lieu de l'avatar
+- Refactorisé src/components/auth/profile-button.tsx :
+  * Ajouté état de chargement (skeleton pulse) quand status === 'loading' au lieu d'afficher "Connexion"
+  * Avatar agrandi de 32px (w-8 h-8) à 40px (w-10 h-10)
+  * Ajouté anneau dégradé emerald→teal autour de l'avatar (gradient ring) pour visibilité
+  * Ajouté ring-2 ring-white (bordure blanche) pour contraste
+  * Ajouté badge bouclier ambre (amber-500) en bas-droite pour les admins
+  * Ajouté support d'image avatar (next/image) si user.image existe, sinon initiales
+  * Ajouté badge "Admin" dans le dropdown menu (label)
+  * Ajouté badge "Annuel" coloré (teal-600) pour le plan annual
+  * aria-label="Menu du profil" pour accessibilité
+- Modifié src/components/auth/auth-modal.tsx :
+  * Importé useRouter de next/navigation
+  * Après login réussi : router.refresh() + window.dispatchEvent(new Event('focus'))
+  * Force le rafraîchissement de session pour que l'avatar apparaisse immédiatement
+  * Même logique appliquée après register
+- Modifié src/app/page-client.tsx :
+  * SessionProvider avec refetchOnWindowFocus pour détecter la session plus vite
+- Rebuild standalone : bun run build ✓
+- Copié .next/static, public, .env vers .next/standalone/ (NEXTAUTH_SECRET présent)
+- Tué ancien serveur (PID 4936), redémarré avec setsid détaché
+- Serveur stable : PID 6872, PPID 1 (reparented to init), HTTP 200
+
+Vérifications Agent Browser :
+- ✅ Login admin@hirenova.com / HireNova2026!Admin réussi
+- ✅ Avatar "HA" apparaît immédiatement après login (40px, cercle emerald)
+- ✅ Anneau dégradé emerald→teal présent autour de l'avatar
+- ✅ Badge bouclier ambre (admin) en bas-droite de l'avatar
+- ✅ Pas de bouton "Connexion" (utilisateur bien authentifié)
+- ✅ Avatar persiste après reload et navigation
+- ✅ Dropdown menu : "Dashboard Admin" présent (ambre), navigue vers dashboard
+- ✅ Dashboard Admin : 10 onglets (Vue d'ensemble, Utilisateurs, Finances, Jobs & Global, Mobilité, API, Parrainage, Campus, Support, Sécurité)
+- ✅ Aucune erreur console
+- ✅ Serveur : PID 6872, PPID 1, HTTP 200, démarrage en 80ms
+
+Stage Summary:
+- Avatar admin maintenant proéminent : 40px + anneau dégradé + badge bouclier ambre
+- Session rafraîchie instantanément après login (router.refresh + focus event)
+- Skeleton de chargement évite le flash "Connexion"
+- Support d'image avatar ajouté (si user.image existe dans le futur)
+- Serveur stable détaché via setsid (PPID 1, survit aux sessions bash)

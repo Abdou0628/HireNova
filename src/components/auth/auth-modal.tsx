@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -100,6 +101,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
 
   const { language } = useCVStore()
   const lang = language
+  const router = useRouter()
 
   const resetForm = () => {
     setEmail('')
@@ -136,6 +138,11 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         toast.success(t(lang, 'loginSuccess'))
         handleClose()
         onAuthSuccess?.()
+        // Force a session refresh so the avatar/profile appears immediately
+        // without requiring a manual page reload.
+        router.refresh()
+        // Dispatch a focus event so useSession picks up the new cookie ASAP
+        window.dispatchEvent(new Event('focus'))
       }
     } catch {
       toast.error(t(lang, 'loginError'))
@@ -165,6 +172,8 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
           toast.success(t(lang, 'loginSuccess'))
           handleClose()
           onAuthSuccess?.()
+          router.refresh()
+          window.dispatchEvent(new Event('focus'))
         }
       } else {
         toast.error(t(lang, 'registerError'))

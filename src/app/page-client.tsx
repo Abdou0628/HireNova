@@ -64,7 +64,7 @@ export default function Home() {
   const { step } = useCVStore()
 
   return (
-    <SessionProvider>
+    <SessionProvider refetchOnWindowFocus refetchInterval={0}>
       <AnalyticsBootstrap />
       <ErrorBoundary stepName="HireNova">
         {step === 'landing' && <Landing />}

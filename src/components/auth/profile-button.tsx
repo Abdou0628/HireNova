@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap, Loader2 } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +30,7 @@ export default function ProfileButton() {
   const [adminEmail, setAdminEmail] = useState('')
 
   const user = session?.user
+  const isLoading = status === 'loading'
   const isLoggedIn = status === 'authenticated' && user
   const isAdmin = !!adminEmail && user?.email === adminEmail
 
@@ -44,6 +46,15 @@ export default function ProfileButton() {
   const handleLogout = async () => {
     await signOut({ redirect: false })
     toast.success(t(lang, 'logout'))
+  }
+
+  // Loading skeleton — prevents the "Connexion" flash when session is loading
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+      </div>
+    )
   }
 
   if (!isLoggedIn) {
@@ -76,14 +87,40 @@ export default function ProfileButton() {
     : user.email?.slice(0, 2).toUpperCase() ?? 'U'
 
   const plan = (user as { plan?: string }).plan ?? 'free'
+  const userImage = (user as { image?: string | null }).image
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-muted transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
-              {initials}
+          <button
+            className="flex items-center gap-2 rounded-full p-0.5 hover:bg-muted transition-colors cursor-pointer group"
+            aria-label="Menu du profil"
+          >
+            <div className="relative">
+              {/* Gradient ring for visibility */}
+              <div className={`absolute -inset-0.5 rounded-full ${isAdmin ? 'bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600' : 'bg-gradient-to-br from-emerald-400 to-teal-500'} opacity-80 group-hover:opacity-100 transition-opacity`} />
+              {/* Avatar circle */}
+              <div className="relative w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white text-sm font-bold bg-emerald-600 ring-2 ring-white">
+                {userImage ? (
+                  <Image
+                    src={userImage}
+                    alt={user.name || user.email || 'Avatar'}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                    unoptimized
+                  />
+                ) : (
+                  <span>{initials}</span>
+                )}
+              </div>
+              {/* Admin shield badge */}
+              {isAdmin && (
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center" title="Administrateur">
+                  <Shield className="w-2.5 h-2.5 text-white" />
+                </div>
+              )}
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden sm:block" />
           </button>
@@ -91,27 +128,56 @@ export default function ProfileButton() {
         <DropdownMenuContent align="end" className="w-64 rounded-xl p-2">
           <DropdownMenuLabel className="px-3 py-2">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                {initials}
+              <div className="relative shrink-0">
+                <div className={`absolute -inset-0.5 rounded-full ${isAdmin ? 'bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600' : 'bg-gradient-to-br from-emerald-400 to-teal-500'} opacity-80`} />
+                <div className="relative w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white text-sm font-bold bg-emerald-600 ring-2 ring-white">
+                  {userImage ? (
+                    <Image
+                      src={userImage}
+                      alt={user.name || user.email || 'Avatar'}
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                      unoptimized
+                    />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </div>
+                {isAdmin && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center">
+                    <Shield className="w-2.5 h-2.5 text-white" />
+                  </div>
+                )}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">
                   {user.name || user.email}
                 </p>
-                <Badge
-                  variant={plan === 'free' ? 'secondary' : 'default'}
-                  className={`text-xs mt-0.5 ${
-                    plan === 'pro'
-                      ? 'bg-emerald-600 text-white'
-                      : plan === 'lifetime'
-                        ? 'bg-amber-500 text-white'
-                        : ''
-                  }`}
-                >
-                  {plan === 'pro' && <Crown className="w-3 h-3 mr-1" />}
-                  {plan === 'lifetime' && <Crown className="w-3 h-3 mr-1" />}
-                  {plan.charAt(0).toUpperCase() + plan.slice(1)}
-                </Badge>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Badge
+                    variant={plan === 'free' ? 'secondary' : 'default'}
+                    className={`text-xs ${
+                      plan === 'pro'
+                        ? 'bg-emerald-600 text-white'
+                        : plan === 'lifetime'
+                          ? 'bg-amber-500 text-white'
+                          : plan === 'annual'
+                            ? 'bg-teal-600 text-white'
+                            : ''
+                    }`}
+                  >
+                    {plan === 'pro' && <Crown className="w-3 h-3 mr-1" />}
+                    {plan === 'lifetime' && <Crown className="w-3 h-3 mr-1" />}
+                    {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                  </Badge>
+                  {isAdmin && (
+                    <Badge className="text-xs bg-amber-500 text-white">
+                      <Shield className="w-3 h-3 mr-1" />
+                      Admin
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </DropdownMenuLabel>
@@ -189,7 +255,7 @@ export default function ProfileButton() {
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="px-3 py-2.5 text-sm font-semibold text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+                className="px-3 py-2.5 text-sm font-semibold text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
                 onSelect={(e) => {
                   e.preventDefault()
                   setStep('admin')
