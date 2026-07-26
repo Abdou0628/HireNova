@@ -26,6 +26,7 @@ import CVDocument from './cv-document'
 import CoverLetterDocument from '@/components/cl/cover-letter-document'
 import SatisfactionPrompt from '@/components/support/satisfaction-prompt'
 import ATSAnalysis from '@/components/cv/ats-analysis'
+import { events } from '@/lib/analytics'
 
 type PreviewTab = 'cv' | 'cl'
 
@@ -62,6 +63,7 @@ export default function Preview() {
     const title = type === 'cv'
       ? `CV - ${formData.fullName}`
       : `Lettre - ${clFormData.fullName || formData.fullName}`
+    if (type === 'cv') { events.cvDownloaded('pdf', language) } else { events.clDownloaded('pdf') }
 
     const printWindow = window.open('', '_blank')
     if (!printWindow || !ref.current) return
@@ -119,6 +121,7 @@ export default function Preview() {
     const filename = type === 'cv'
       ? `CV_${formData.fullName.replace(/\s+/g, '_')}.doc`
       : `Lettre_${(clFormData.fullName || formData.fullName).replace(/\s+/g, '_')}.doc`
+    if (type === 'cv') { events.cvDownloaded('word', language) } else { events.clDownloaded('word') }
 
     if (!ref.current) return
     const html = ref.current.innerHTML

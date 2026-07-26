@@ -318,3 +318,117 @@ Stage Summary:
 - ✅ HireNova API → documentation API avec endpoints (public)
 - ✅ Chatbot → répond correctement à "comment fonctionne HireNova Global" (réponse complète, pas d'ERREUR)
 - ✅ Serveur persistant : bun + double-fork daemon, PPID=1, survit entre appels bash
+
+---
+
+## Phase SEO-1 : 10 articles SEO blog FR + 1 article EN + API blog
+> Task ID : SEO-1
+> Agent : CTO (SEO content)
+> Date : 2026-07-26
+
+### Objectif
+Créer 10 articles SEO en français (1500-2500 mots chacun) + 1 version anglaise pour le blog HireNova, avec 2 routes API pour exposer le contenu.
+
+### Livrables créés
+
+#### 1. Répertoire de contenu
+- `content/blog/` — créé (n'existait pas avant)
+
+#### 2. Articles SEO (11 fichiers markdown)
+Chaque article contient :
+- Frontmatter YAML complet (title, slug, description ≤155 chars, keywords[], lang, category, author, date, readingTime, excerpt)
+- Introduction avec hook
+- Sommaire
+- Structure H2/H3 avec mots-clés
+- Exemples concrets et tableaux
+- Mentions naturelles de HireNova (non commerciale)
+- FAQ (3-5 questions)
+- CTA vers HireNova
+- Liens internes suggérés en commentaires markdown
+
+| # | Fichier | Mots | Catégorie | Lang |
+|---|---------|------|-----------|------|
+| a | `comment-faire-cv-etudiant-maroc.md` | 2380 | CV | fr |
+| b | `erreurs-cv-qui-eliminent-candidature.md` | 2268 | CV | fr |
+| c | `score-ats-comment-passer-filtres.md` | 2335 | ATS | fr |
+| d | `adaptation-cv-international-guide-pays.md` | 2542 | Mobilité | fr |
+| e | `lettre-motivation-ia-revolution.md` | 2089 | Lettre de motivation | fr |
+| f | `mobilite-internationale-cv-france.md` | 2719 | Mobilité | fr |
+| g | `cv-canadien-vs-francais-differences.md` | 2173 | Mobilité | fr |
+| h | `trouver-emploi-maroc-guide-2026.md` | 3340 | Emploi | fr |
+| i | `mots-cles-cv-optimisation-ats.md` | 2856 | ATS | fr |
+| j | `reconversion-professionnelle-cv.md` | 3280 | Carrière | fr |
+| EN | `how-to-make-student-cv-morocco.md` | 2173 | CV | en |
+
+**Total** : ~28 155 mots de contenu SEO original.
+
+#### 3. API Routes
+
+**`src/app/api/blog/route.ts`** — GET liste articles
+- Lit le dossier `content/blog/`
+- Parse chaque `.md` avec `gray-matter` (déjà installé)
+- Retourne uniquement les métadonnées (slug, title, description, excerpt, category, date, readingTime, keywords, lang, author)
+- Tri par date décroissante
+- Filtres optionnels : `?category=`, `?lang=`, `?limit=`
+- Réponse : `{ success: true, data: { articles: [...], total: N } }`
+- 200 OK testé : retourne bien les 11 articles
+- Filtre `?category=CV` testé : 3 articles (2 FR + 1 EN)
+- Filtre `?lang=en` testé : 1 article
+- Filtre `?category=ATS` testé : 2 articles
+
+**`src/app/api/blog/[slug]/route.ts`** — GET article unique
+- Lit `content/blog/{slug}.md`
+- Parse avec gray-matter
+- Retourne frontmatter + corps markdown
+- Slug sanitization (regex `^[a-z0-9-]+$`)
+- 200 OK testé sur `comment-faire-cv-etudiant-maroc` (renvoie contenu complet)
+- 200 OK testé sur `how-to-make-student-cv-morocco` (version EN)
+- 404 testé sur slug inexistant → `{ success: false, error: { code: 404, message: 'Article introuvable' } }`
+
+### Stack technique utilisée
+- `gray-matter@4.0.3` — parsing YAML frontmatter (déjà dans package.json)
+- `fs/promises` + `path` — lecture filesystem
+- `NextResponse` — réponse API standardisée
+- Pattern API existant (`{ success: true, data }` / `{ success: false, error: { code, message } }`) respecté
+
+### Vérifications
+- ✅ `bun run lint` — clean (aucune erreur)
+- ✅ Dev server répond 200 sur `/api/blog` et `/api/blog/[slug]`
+- ✅ Tous les 11 articles sont détectés et parsables
+- ✅ Filtres category/lang/limit fonctionnels
+- ✅ Cas 404 géré proprement
+- ✅ Tous les articles ont les 6 catégories représentées : CV (3), ATS (2), Mobilité (3), Emploi (1), Lettre de motivation (1), Carrière (1)
+- ✅ Multilingue : 10 FR + 1 EN (test SEO multilingue)
+
+### Notes SEO
+- Chaque article a un mot-clé primaire dans : title, H1, première phrase, meta description
+- Mots-clés LSI intégrés naturellement
+- Mots-clés secondaires (3-7 par article) dans le champ `keywords[]`
+- Liens internes bidirectionnels entre articles via commentaires markdown
+- Reading time calculée (8-13 minutes par article)
+- Format mobile-friendly : paragraphes courts, listes à puces, tableaux, gras sur termes clés
+- Ton professionnel mais accessible
+- Tous les articles mentionnent HireNova comme solution (sans ton commercial agressif)
+
+### Fichiers créés (13 fichiers)
+1. `content/blog/comment-faire-cv-etudiant-maroc.md`
+2. `content/blog/erreurs-cv-qui-eliminent-candidature.md`
+3. `content/blog/score-ats-comment-passer-filtres.md`
+4. `content/blog/adaptation-cv-international-guide-pays.md`
+5. `content/blog/lettre-motivation-ia-revolution.md`
+6. `content/blog/mobilite-internationale-cv-france.md`
+7. `content/blog/cv-canadien-vs-francais-differences.md`
+8. `content/blog/trouver-emploi-maroc-guide-2026.md`
+9. `content/blog/mots-cles-cv-optimisation-ats.md`
+10. `content/blog/reconversion-professionnelle-cv.md`
+11. `content/blog/how-to-make-student-cv-morocco.md` (version EN)
+12. `src/app/api/blog/route.ts`
+13. `src/app/api/blog/[slug]/route.ts`
+
+### État final
+- Contenu SEO blog complet et prêt à être consommé par un frontend blog
+- API REST fonctionnelle et testée
+- Multilingue FR/EN opérationnel
+- Architecture extensible : ajouter un article = juste créer un .md dans `content/blog/`
+- Aucune dépendance ajoutée (gray-matter déjà présent)
+- Aucune modification du schéma Prisma (le blog est filesystem-based pour la performance et la simplicité d'édition)

@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 import { useCVStore } from '@/store/cv-store'
 import ErrorBoundary from '@/components/error-boundary'
+import AnalyticsBootstrap from '@/components/analytics-bootstrap'
+import { events } from '@/lib/analytics'
 
 function Loading() {
   return (
@@ -56,6 +58,7 @@ export default function Home() {
 
   return (
     <SessionProvider>
+      <AnalyticsBootstrap />
       <ErrorBoundary stepName="HireNova">
         {step === 'landing' && <Landing />}
         {step === 'form' && <CVForm />}

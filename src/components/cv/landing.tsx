@@ -13,6 +13,7 @@ import { t } from '@/lib/i18n'
 import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
 import AuthModal from '@/components/auth/auth-modal'
+import { events } from '@/lib/analytics'
 import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import { useSession } from 'next-auth/react'
@@ -127,6 +128,7 @@ export default function Landing() {
     personasRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   function scrollToPricing() {
+    events.pricingViewed()
     pricingRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   const { data: session } = useSession()
@@ -204,6 +206,9 @@ export default function Landing() {
       return
     }
     setCheckoutLoading(planType)
+    const prices = { pro: 19, annual: 179 }
+    const amount = currency === 'usd' ? prices[planType] * 1.1 : currency === 'gbp' ? prices[planType] * 0.85 : prices[planType]
+    events.checkoutStarted(planType, Math.round(amount), currency)
     try {
       // LemonSqueezy for EUR/USD
       const res = await fetch('/api/checkout', {
@@ -243,7 +248,7 @@ export default function Landing() {
               {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
                 <button
                   key={lang}
-                  onClick={() => setLanguage(lang)}
+                  onClick={() => { events.languageChanged(language, lang); setLanguage(lang) }}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                     language === lang
                       ? 'bg-white shadow-sm text-foreground'
@@ -472,6 +477,8 @@ export default function Landing() {
                         return
                       }
                       setSelectedPersona(persona.type)
+                      events.personaSelected(persona.type)
+                      events.cvFormStarted(persona.type)
                       setStep('form')
                     }}
                   >
@@ -724,6 +731,8 @@ export default function Landing() {
                 const isClickable = Boolean(product.active)
                 const handleNav = () => {
                   if (!product.step) return
+                  // Track ecosystem card click
+                  events.ecosystemCardClicked(product.name)
                   // CV and ATS require auth + active plan (premium features)
                   if (product.step === 'form') {
                     requireAuthAndPlan('form')

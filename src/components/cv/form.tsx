@@ -43,6 +43,7 @@ import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { countries, findCountryByDial } from '@/lib/countries'
 import type { TranslationKey } from '@/lib/i18n'
+import { events } from '@/lib/analytics'
 const stepIcons = [User, Briefcase, GraduationCap, Code2]
 const stepTitles = ['step1Title', 'step2TitleNew', 'step3Title', 'step4Title'] as const
 
@@ -238,6 +239,7 @@ export default function CVForm() {
 
       const generatedCV = data.cv
       setGeneratedCV(generatedCV)
+      events.cvGenerated(formData.language || 'fr', template)
 
       // If company name provided, auto-generate cover letter simultaneously
       if (hasCompany) {

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import type { CVLanguage } from '@/lib/i18n'
 import { toast } from 'sonner'
+import { events } from '@/lib/analytics'
 
 const categoryIcons: Record<string, React.ElementType> = {
   keywords_seo: Target,
@@ -212,6 +213,7 @@ export default function ATSAnalysis({ isOpen, onClose }: ATSAnalysisProps) {
       }
 
       setATSResult(data.result)
+      events.atsAnalyzed(data.result?.score ?? 0)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors de l\'analyse ATS'
       setATSError(message)

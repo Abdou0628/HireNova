@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { events } from '@/lib/analytics'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -44,6 +45,7 @@ export default function ChatbotWidget() {
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMsg }])
     setIsLoading(true)
+    events.chatbotMessageSent(mode)
 
     try {
       const res = await fetch('/api/chatbot', {
