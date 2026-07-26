@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export type AppStep =
   // Core CV
@@ -196,51 +197,60 @@ const initialCLFormData: CoverLetterFormData = {
   tone: 'semi-formal', additionalNotes: '',
 }
 
-export const useCVStore = create<CVStore>((set) => ({
-  step: 'landing',
-  stepData: {},
-  formStep: 0,
-  language: 'fr',
-  template: 'modern',
-  formData: { ...initialFormData },
-  generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
-  clFormData: { ...initialCLFormData },
-  generatedCL: null, isCLGenerating: false, clError: null,
-  atsResult: null, isATSAnalyzing: false, atsError: null,
-  extractedProfile: null, mobilityResult: null, isProcessing: false,
+export const useCVStore = create<CVStore>()(
+  persist(
+    (set) => ({
+      step: 'landing',
+      stepData: {},
+      formStep: 0,
+      language: 'fr',
+      template: 'modern',
+      formData: { ...initialFormData },
+      generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
+      clFormData: { ...initialCLFormData },
+      generatedCL: null, isCLGenerating: false, clError: null,
+      atsResult: null, isATSAnalyzing: false, atsError: null,
+      extractedProfile: null, mobilityResult: null, isProcessing: false,
 
-  setStep: (step, data) => set({ step, stepData: data ?? {} }),
-  setFormStep: (formStep) => set({ formStep }),
-  setLanguage: (language) => set({ language }),
-  setTemplate: (template) => set({ template }),
-  updateFormData: (data) => set((state) => ({ formData: { ...state.formData, ...data } })),
-  setGeneratedCV: (generatedCV) => set({ generatedCV }),
-  setIsGenerating: (isGenerating) => set({ isGenerating }),
-  setError: (error) => set({ error }),
-  setSelectedPersona: (selectedPersona) => set({ selectedPersona }),
-  updateCLFormData: (data) => set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
-  setGeneratedCL: (generatedCL) => set({ generatedCL }),
-  setIsCLGenerating: (isCLGenerating) => set({ isCLGenerating }),
-  setCLError: (clError) => set({ clError }),
-  setATSResult: (atsResult) => set({ atsResult }),
-  setIsATSAnalyzing: (isATSAnalyzing) => set({ isATSAnalyzing }),
-  setATSError: (atsError) => set({ atsError }),
-  setExtractedProfile: (extractedProfile) => set({ extractedProfile }),
-  setMobilityResult: (mobilityResult) => set({ mobilityResult }),
-  setIsProcessing: (isProcessing) => set({ isProcessing }),
-  resetCL: () => set({
-    step: 'landing', stepData: {},
-    clFormData: { ...initialCLFormData },
-    generatedCL: null, isCLGenerating: false, clError: null,
-    atsResult: null, isATSAnalyzing: false, atsError: null,
-  }),
-  reset: () => set({
-    step: 'landing', stepData: {}, formStep: 0, template: 'modern',
-    formData: { ...initialFormData },
-    generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
-    clFormData: { ...initialCLFormData },
-    generatedCL: null, isCLGenerating: false, clError: null,
-    atsResult: null, isATSAnalyzing: false, atsError: null,
-    extractedProfile: null, mobilityResult: null, isProcessing: false,
-  }),
-}))
+      setStep: (step, data) => set({ step, stepData: data ?? {} }),
+      setFormStep: (formStep) => set({ formStep }),
+      setLanguage: (language) => set({ language }),
+      setTemplate: (template) => set({ template }),
+      updateFormData: (data) => set((state) => ({ formData: { ...state.formData, ...data } })),
+      setGeneratedCV: (generatedCV) => set({ generatedCV }),
+      setIsGenerating: (isGenerating) => set({ isGenerating }),
+      setError: (error) => set({ error }),
+      setSelectedPersona: (selectedPersona) => set({ selectedPersona }),
+      updateCLFormData: (data) => set((state) => ({ clFormData: { ...state.clFormData, ...data } })),
+      setGeneratedCL: (generatedCL) => set({ generatedCL }),
+      setIsCLGenerating: (isCLGenerating) => set({ isCLGenerating }),
+      setCLError: (clError) => set({ clError }),
+      setATSResult: (atsResult) => set({ atsResult }),
+      setIsATSAnalyzing: (isATSAnalyzing) => set({ isATSAnalyzing }),
+      setATSError: (atsError) => set({ atsError }),
+      setExtractedProfile: (extractedProfile) => set({ extractedProfile }),
+      setMobilityResult: (mobilityResult) => set({ mobilityResult }),
+      setIsProcessing: (isProcessing) => set({ isProcessing }),
+      resetCL: () => set({
+        step: 'landing', stepData: {},
+        clFormData: { ...initialCLFormData },
+        generatedCL: null, isCLGenerating: false, clError: null,
+        atsResult: null, isATSAnalyzing: false, atsError: null,
+      }),
+      reset: () => set({
+        step: 'landing', stepData: {}, formStep: 0, template: 'modern',
+        formData: { ...initialFormData },
+        generatedCV: null, isGenerating: false, error: null, selectedPersona: null,
+        clFormData: { ...initialCLFormData },
+        generatedCL: null, isCLGenerating: false, clError: null,
+        atsResult: null, isATSAnalyzing: false, atsError: null,
+        extractedProfile: null, mobilityResult: null, isProcessing: false,
+      }),
+    }),
+    {
+      name: 'hirenova-step',
+      // Only persist the step + stepData so navigation survives chunk-retry reloads
+      partialize: (state) => ({ step: state.step, stepData: state.stepData }),
+    }
+  )
+)

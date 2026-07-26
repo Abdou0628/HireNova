@@ -216,6 +216,34 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-background text-foreground">
+        {/* Global ChunkLoadError retry — auto-reload when server restarts (persistent loop) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var reloading = false;
+                function handleChunkError(e) {
+                  try {
+                    var msg = (e && e.message) || (e && e.error && e.error.message) || String(e);
+                    if (msg.indexOf('Failed to load chunk') !== -1 || msg.indexOf('ChunkLoadError') !== -1) {
+                      if (reloading) return;
+                      reloading = true;
+                      console.warn('[ChunkLoadRetry] Server may be restarting. Auto-reload in 1.5s...');
+                      setTimeout(function() { window.location.reload(); }, 1500);
+                    }
+                  } catch (_) {}
+                }
+                window.addEventListener('error', handleChunkError);
+                window.addEventListener('unhandledrejection', function(e) {
+                  var msg = (e && e.reason && e.reason.message) || String(e && e.reason);
+                  if (msg.indexOf('Failed to load chunk') !== -1 || msg.indexOf('ChunkLoadError') !== -1) {
+                    handleChunkError({ message: msg });
+                  }
+                });
+              })();
+            `,
+          }}
+        />
         {children}
       </body>
     </html>
