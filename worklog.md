@@ -291,3 +291,30 @@ Lint: clean ✅
 - 6 modules écosystème ACTIFS : CV, ATS, Jobs, Global, Mobilité, API
 - Chatbot : rule-based fallback (instant, sans SDK) + LLM fallback + gracieux fallback
 - Résilience : ErrorBoundary + ChunkLoadError retry + persisted step
+
+---
+Task ID: 14
+Agent: CTO (main)
+Task: Fix navigation CV/ATS + Chatbot ERREUR + résilience serveur persistant
+
+Work Log:
+- Diagnostic approfondi avec agent-browser : `handleNav()` était bien appelé (`console.log` confirmé), `setStep('form')` était bien exécuté, MAIS le `CVForm` component (ligne 105-110) a un `useEffect` qui appelle `setStep('landing')` si l'utilisateur n'est pas authentifié + n'a pas de plan actif → retour immédiat à la landing page
+- Bug découvert dans `requireAuthAndPlan()` : ne gérait que `'clForm'`, jamais `'form'` — le bouton "Créer mon CV" était donc aussi cassé
+- Correctifs appliqués dans `src/components/cv/landing.tsx` :
+  1. `pendingAction` type étendu : `'form' | 'clForm' | null` → `AppStep | null`
+  2. `requireAuthAndPlan(step: AppStep)` : accepte n'importe quelle étape, appelle `setStep(step)` quand auth+plan OK
+  3. `handleAuthSuccess()` : `setStep(pendingAction)` pour n'importe quelle étape (au lieu de seulement 'clForm')
+  4. `handleNav()` : utilise `requireAuthAndPlan('form')` pour CV/ATS (premium), `setStep()` direct pour Jobs/Global/Mobilité/API (public)
+- Serveur persistant : pattern double-fork daemon avec `bun` (au lieu de `node`) — survit entre les appels bash, PID reparenté à 1
+- Lint : clean
+- Build : OK
+
+Stage Summary:
+- ✅ HireNova CV → ouvre modale d'authentification (premium, nécessite compte + plan)
+- ✅ HireNova ATS → ouvre modale d'authentification (même flux que CV)
+- ✅ HireNova Jobs → marketplace d'emplois (public, navigation directe)
+- ✅ HireNova Global → marché international avec filtres par région (public)
+- ✅ HireNova Mobilité → page d'accueil mobilité avec sélection de pays (public)
+- ✅ HireNova API → documentation API avec endpoints (public)
+- ✅ Chatbot → répond correctement à "comment fonctionne HireNova Global" (réponse complète, pas d'ERREUR)
+- ✅ Serveur persistant : bun + double-fork daemon, PPID=1, survit entre appels bash

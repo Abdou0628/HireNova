@@ -134,7 +134,7 @@ export default function Landing() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
-  const [pendingAction, setPendingAction] = useState<'form' | 'clForm' | null>(null)
+  const [pendingAction, setPendingAction] = useState<AppStep | null>(null)
   const [adminEmail, setAdminEmail] = useState('')
   const [isAdminOpen, setIsAdminOpen] = useState(false)
 
@@ -145,9 +145,9 @@ export default function Landing() {
   const isLoggedIn = !!session?.user
   const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
 
-  function requireAuthAndPlan(action: 'form' | 'clForm') {
+  function requireAuthAndPlan(step: AppStep) {
     if (!isLoggedIn) {
-      setPendingAction(action)
+      setPendingAction(step)
       setAuthMode('register')
       setAuthModalOpen(true)
       return
@@ -157,17 +157,13 @@ export default function Landing() {
       scrollToPricing()
       return
     }
-    if (action === 'clForm') {
-      setStep('clForm')
-    }
+    setStep(step)
   }
 
   function handleAuthSuccess() {
     // After login/register, check plan and execute pending action
     if (pendingAction && hasActivePlan) {
-      if (pendingAction === 'clForm') {
-        setStep('clForm')
-      }
+      setStep(pendingAction)
       setPendingAction(null)
     } else if (pendingAction && !hasActivePlan) {
       // User logged in but no paid plan yet
@@ -726,7 +722,15 @@ export default function Landing() {
                 { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange', step: null },
               ].map((product, index) => {
                 const isClickable = Boolean(product.active)
-                const handleNav = () => { if (product.step) setStep(product.step as AppStep) }
+                const handleNav = () => {
+                  if (!product.step) return
+                  // CV and ATS require auth + active plan (premium features)
+                  if (product.step === 'form') {
+                    requireAuthAndPlan('form')
+                  } else {
+                    setStep(product.step as AppStep)
+                  }
+                }
                 return (
                 <motion.div
                   key={product.name}
