@@ -89,6 +89,19 @@ export default function ProfileButton() {
   const plan = (user as { plan?: string }).plan ?? 'free'
   const userImage = (user as { image?: string | null }).image
 
+  // Plan display config: label + badge color
+  const planConfig: Record<string, { label: string; badgeClass: string }> = {
+    free: { label: 'Free', badgeClass: '' },
+    starter: { label: 'Starter', badgeClass: 'bg-emerald-500 text-white' },
+    pro: { label: 'Pro', badgeClass: 'bg-emerald-600 text-white' },
+    career_plus: { label: 'Career+', badgeClass: 'bg-purple-600 text-white' },
+    employer: { label: 'Employeur', badgeClass: 'bg-amber-500 text-white' },
+    enterprise: { label: 'Enterprise', badgeClass: 'bg-slate-700 text-white' },
+    annual: { label: 'Annuel', badgeClass: 'bg-teal-600 text-white' },
+    api: { label: 'API', badgeClass: 'bg-sky-600 text-white' },
+  }
+  const planInfo = planConfig[plan] ?? planConfig.free
+
   return (
     <>
       <DropdownMenu>
@@ -157,19 +170,10 @@ export default function ProfileButton() {
                 <div className="flex items-center gap-1 mt-0.5">
                   <Badge
                     variant={plan === 'free' ? 'secondary' : 'default'}
-                    className={`text-xs ${
-                      plan === 'pro'
-                        ? 'bg-emerald-600 text-white'
-                        : plan === 'lifetime'
-                          ? 'bg-amber-500 text-white'
-                          : plan === 'annual'
-                            ? 'bg-teal-600 text-white'
-                            : ''
-                    }`}
+                    className={`text-xs ${planInfo.badgeClass}`}
                   >
-                    {plan === 'pro' && <Crown className="w-3 h-3 mr-1" />}
-                    {plan === 'lifetime' && <Crown className="w-3 h-3 mr-1" />}
-                    {plan.charAt(0).toUpperCase() + plan.slice(1)}
+                    {(plan === 'pro' || plan === 'career_plus') && <Crown className="w-3 h-3 mr-1" />}
+                    {planInfo.label}
                   </Badge>
                   {isAdmin && (
                     <Badge className="text-xs bg-amber-500 text-white">

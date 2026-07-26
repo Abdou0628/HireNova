@@ -823,3 +823,63 @@ Stage Summary:
 - L'avatar admin "HA" (40px, anneau dégradé emerald→teal, badge bouclier ambre) apparaîtra après login dans le preview
 - Fallback hard reload garantit la détection de session même en cas de timing iframe lent
 - L'utilisateur doit se reconnecter dans le preview panel (les anciens cookies lax ne sont plus valides)
+
+---
+Task ID: PRICING-STRATEGY-IMPLEMENTATION
+Agent: CTO (main)
+Task: Implémenter la feuille de route de la stratégie de prix (7 tiers)
+
+Work Log:
+- Conçu stratégie de prix 7 tiers : Free / Starter 9€ / Pro 19€ / Career+ 39€ / Employeur 49€ / Enterprise sur devis / API
+- Mis à jour src/lib/i18n.ts :
+  * Ajouté ~60 nouvelles clés de traduction (plans, features, badges, CTA) en FR/EN/AR/ES
+  * Ajouté au type TranslationKey union : planStarter, planCareer, planEmployer, planEnterprise, planApi + toutes les clés de features
+  * Prix EUR : Starter 9€, Pro 19€ (était 6,99€), Career+ 39€, Employeur 49€, Annuel 70€ (legacy)
+  * Prix USD : $9.99, $19.99, $39.99, $49.99
+  * Prix GBP : £7.99, £15.99, £31.99, £39.99
+  * Nouvelles features : pricingCvLimit2/10/Unlimited, pricingMobility, pricingGlobalJobs, pricingCoach, pricingJobPostings, pricingRecruiterDashboard, pricingSso, pricingSla, pricingApiRest, etc.
+  * Mis à jour faqA4 dans les 4 langues pour refléter les 5 plans payants
+- Redesign complet de la section pricing dans src/components/cv/landing.tsx :
+  * Grille 5 tiers responsive (grid-cols-1 sm:grid-cols-2 lg:grid-cols-5)
+  * Carte Free (slate, icône Gift)
+  * Carte Starter (emerald-300, badge "Nouveau", icône Rocket)
+  * Carte Pro (emerald-600, badge "Le plus populaire", icône Crown, surélevée lg:-mt-2)
+  * Carte Career+ (purple-500, badge "Premium", icône Sparkles)
+  * Carte Employeur (amber-500, badge "Business", icône Briefcase)
+  * 2 cartes larges en bas : Enterprise (slate, mailto) + API (sky, setStep('apiDocs'))
+  * Chaque carte : icône colorée, prix, description, liste de features avec Check, CTA button
+  * Boutons CTA : Free → auth modal ou form, Starter/Pro/Career+/Employeur → handleCheckout, Enterprise → mailto, API → apiDocs
+- Mis à jour handleCheckout pour accepter : 'starter' | 'pro' | 'career_plus' | 'employer' | 'annual'
+- Mis à jour src/lib/lemonsqueezy.ts :
+  * VARIANTS : ajouté starter, career_plus, employer pour les 3 devises
+  * getPlans : retourne 5 plans (starter, pro, career_plus, employer, annual)
+  * PRICES : mis à jour avec les nouveaux prix
+  * Exporté type PlanType
+- Mis à jour src/app/api/checkout/route.ts : validPlans étendu à 5 types
+- Mis à jour prisma/schema.prisma : commentaire plan field documente toutes les valeurs
+- Mis à jour src/components/auth/profile-button.tsx :
+  * planConfig : 8 plans avec label + couleur de badge
+  * Badge plan utilise planInfo (Free=gray, Starter=emerald-500, Pro=emerald-600, Career+=purple-600, Employeur=amber-500, Enterprise=slate-700, Annuel=teal-600, API=sky-600)
+  * Couronne affichée pour Pro et Career+
+- bun run db:push : schéma synchronisé
+- bun run lint : ✓ sans erreur
+- bun run build : ✓ succès
+- Copié .next/static, public, .env (avec SECURE_COOKIES=true) vers standalone
+- Redémarré serveur : PID 9517, PPID 1, HTTP 200
+
+Vérifications Agent Browser :
+- ✅ Page se charge (HTTP 200)
+- ✅ Section pricing affiche 7 cartes : Gratuit, Starter, Pro, Career+, Employeur, Enterprise, API
+- ✅ Prix EUR corrects : 0€, 9€, 19€, 39€, 49€
+- ✅ Toggle USD fonctionne : $9.99, $19.99, $39.99, $49.99
+- ✅ 7 boutons CTA présents : "Commencer gratuitement", "Starter", "Pro", "Career+", "Employeur", "Contacter les ventes", "Voir le portail API"
+- ✅ Aucune erreur console
+- ✅ Serveur stable : PID 9517, PPID 1, démarrage 74ms
+
+Stage Summary:
+- Stratégie de prix 7 tiers implémentée et opérationnelle
+- 4 langues supportées (FR/EN/AR/ES) avec ~60 nouvelles clés chacune
+- Design responsive : 5 cartes en grille desktop + 2 cartes larges Enterprise/API
+- Checkout API étendu pour 5 types de plans (LemonSqueezy non configuré → PAYMENT_NOT_READY)
+- Profile button badges colorés selon le plan
+- FAQ mise à jour dans les 4 langues

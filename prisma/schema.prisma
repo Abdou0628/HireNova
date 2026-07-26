@@ -16,7 +16,7 @@ model User {
   name             String?
   password         String?
   image            String?
-  plan             String   @default("free") // free | pro | annual
+  plan             String   @default("free") // free | starter | pro | career_plus | employer | enterprise | annual | api
   role             String   @default("candidate") // candidate | employer
   companyName      String?
   industry         String?

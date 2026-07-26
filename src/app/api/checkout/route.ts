@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { getPlans, STORE_ID } from '@/lib/lemonsqueezy'
+import { getPlans, STORE_ID, type PlanType as LSPlanType } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
 
-type PlanType = 'pro' | 'annual'
 type Currency = 'eur' | 'usd' | 'gbp'
 
 export async function POST(request: NextRequest) {
@@ -19,8 +18,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { planType, currency: currencyParam } = body as { planType?: string; currency?: string }
 
-    const validPlans: PlanType[] = ['pro', 'annual']
-    if (!planType || !validPlans.includes(planType as PlanType)) {
+    const validPlans: LSPlanType[] = ['starter', 'pro', 'career_plus', 'employer', 'annual']
+    if (!planType || !validPlans.includes(planType as LSPlanType)) {
       return NextResponse.json(
         { error: `Invalid planType. Must be one of: ${validPlans.join(', ')}` },
         { status: 400 }
@@ -29,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     const currency: Currency = ['eur', 'usd', 'gbp'].includes(currencyParam) ? currencyParam : 'eur'
     const plans = getPlans(currency)
-    const plan = plans[planType as PlanType]
+    const plan = plans[planType as LSPlanType]
     const userId = session.user.id
 
     // Check if LemonSqueezy is properly configured
