@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { scanInput, sanitizeString, logSecurityEvent } from "@/lib/security";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -100,6 +101,15 @@ export async function POST(request: Request) {
         name: name ? sanitizeString(name.trim()) : null,
         password: hashedPassword,
       },
+    });
+
+    // Send welcome email (async, non-blocking — don't fail registration if email fails)
+    const displayName = user.name || user.email.split("@")[0];
+    sendEmail({
+      to: user.email,
+      ...emailTemplates.welcome(displayName),
+    }).catch((err) => {
+      console.error("[register] welcome email failed:", err instanceof Error ? err.message : String(err));
     });
 
     return NextResponse.json(

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, LayoutDashboard, PlusCircle } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -169,6 +169,20 @@ export default function ProfileButton() {
           >
             <FileText className="w-4 h-4 mr-2 text-amber-600" />
             Mes candidatures
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('referral') }}
+          >
+            <Gift className="w-4 h-4 mr-2 text-emerald-600" />
+            Programme Parrainage
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('campus') }}
+          >
+            <GraduationCap className="w-4 h-4 mr-2 text-emerald-600" />
+            HireNova Campus
           </DropdownMenuItem>
 
           {isAdmin && (

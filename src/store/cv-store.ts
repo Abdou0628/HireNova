@@ -17,6 +17,10 @@ export type AppStep =
   | 'globalEmployerDashboard' | 'globalPostJob'
   // HireNova Mobilité — OCR + NLP Pipeline
   | 'mobilityHome' | 'mobilityUpload' | 'mobilityProfile' | 'mobilityResult'
+  // Programme Parrainage
+  | 'referral'
+  // HireNova Campus — Universités Partenaires
+  | 'campus'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

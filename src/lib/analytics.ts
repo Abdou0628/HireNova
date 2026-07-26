@@ -1,7 +1,6 @@
 'use client'
 
 import posthog from 'posthog-js'
-import { PostHogProvider } from 'posthog-js/react'
 
 /**
  * HireNova Analytics — PostHog integration
@@ -189,10 +188,6 @@ export const events = {
     track('language_changed', { from, to }),
 }
 
-// React provider wrapper
-export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
-  if (typeof window !== 'undefined') {
-    initAnalytics()
-  }
-  return <PostHogProvider client={posthog}>{children}</PostHogProvider>
-}
+// React provider is handled by AnalyticsBootstrap component
+// (src/components/analytics-bootstrap.tsx) which calls initAnalytics()
+// and syncs user identity with NextAuth session state.

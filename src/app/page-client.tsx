@@ -47,6 +47,11 @@ const GlobalApply = dynamic(() => import('@/components/global/global-apply'), { 
 const GlobalEmployerDashboard = dynamic(() => import('@/components/global/global-employer-dashboard'), { ssr: false, loading: () => <Loading /> })
 const GlobalPostJob = dynamic(() => import('@/components/global/global-post-job'), { ssr: false, loading: () => <Loading /> })
 
+
+// Programme Parrainage
+const ReferralDashboard = dynamic(() => import('@/components/referral/referral-dashboard'), { ssr: false, loading: () => <Loading /> })
+// HireNova Campus
+const CampusKit = dynamic(() => import('@/components/campus/campus-kit'), { ssr: false, loading: () => <Loading /> })
 // HireNova Mobilité — OCR + NLP Pipeline
 const MobilityHome = dynamic(() => import('@/components/mobility/mobility-home'), { ssr: false, loading: () => <Loading /> })
 const MobilityUpload = dynamic(() => import('@/components/mobility/mobility-upload'), { ssr: false, loading: () => <Loading /> })
@@ -93,6 +98,10 @@ export default function Home() {
         {step === 'mobilityUpload' && <MobilityUpload />}
         {step === 'mobilityProfile' && <MobilityProfile />}
         {step === 'mobilityResult' && <MobilityResult />}
+        {/* Programme Parrainage */}
+        {step === 'referral' && <ReferralDashboard />}
+        {/* HireNova Campus */}
+        {step === 'campus' && <CampusKit />}
       </ErrorBoundary>
     </SessionProvider>
   )
