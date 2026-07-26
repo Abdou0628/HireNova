@@ -13,6 +13,7 @@ import { t } from '@/lib/i18n'
 import type { CVLanguage, TranslationKey } from '@/lib/i18n'
 import ProfileButton from '@/components/auth/profile-button'
 import AuthModal from '@/components/auth/auth-modal'
+import EnterpriseContactForm from '@/components/enterprise/enterprise-contact-form'
 import { events } from '@/lib/analytics'
 import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
@@ -134,6 +135,7 @@ export default function Landing() {
   const { data: session } = useSession()
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+  const [enterpriseFormOpen, setEnterpriseFormOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
   const [pendingAction, setPendingAction] = useState<AppStep | null>(null)
@@ -844,7 +846,7 @@ export default function Landing() {
                       <Button
                         variant="outline"
                         className="rounded-xl py-2.5 text-sm font-semibold cursor-pointer border-slate-400 text-slate-700 hover:bg-slate-100 w-full sm:w-auto"
-                        onClick={() => window.location.href = 'mailto:hello@hirenova.com?subject=Demande Enterprise'}
+                        onClick={() => setEnterpriseFormOpen(true)}
                       >
                         <Mail className="mr-1.5 w-3.5 h-3.5" />
                         {t(language, 'planEnterpriseCta')}
@@ -1310,6 +1312,12 @@ export default function Landing() {
         onClose={() => setAuthModalOpen(false)}
         initialMode={authMode}
         onAuthSuccess={handleAuthSuccess}
+      />
+
+      {/* Enterprise Contact Form Modal */}
+      <EnterpriseContactForm
+        isOpen={enterpriseFormOpen}
+        onClose={() => setEnterpriseFormOpen(false)}
       />
 
       <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />

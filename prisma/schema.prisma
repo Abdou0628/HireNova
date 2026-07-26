@@ -301,6 +301,35 @@ model Referral {
   @@unique([referrerId, referredEmail])
 }
 
+// ===== Enterprise Inquiries — Demandes de devis sur mesure =====
+
+model EnterpriseInquiry {
+  id              String   @id @default(cuid())
+  // Contact
+  contactName     String
+  workEmail       String
+  phone           String?
+  // Company
+  companyName     String
+  jobTitle        String?
+  industry        String?
+  companySize     String?  // 1-10 | 11-50 | 51-200 | 201-1000 | 1000+
+  country         String?
+  website         String?
+  // Needs
+  usersCount      String?  // number of expected users
+  useCase         String?  // CV generation | ATS | Recruiting | API | All
+  message         String
+  budget          String?  // <5k | 5k-20k | 20k-50k | 50k+ | unknown
+  status          String   @default("new") // new | contacted | qualified | won | lost
+  source          String   @default("pricing_page")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
 // ===== Email Onboarding — Suivi des emails envoyés =====
 
 model EmailLog {

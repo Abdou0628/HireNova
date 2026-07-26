@@ -171,6 +171,58 @@ export type TranslationKey =
   | 'planEnterpriseDesc'
   | 'planEnterpriseBadge'
   | 'planEnterpriseCta'
+  | 'entFormTitle'
+  | 'entFormSubtitle'
+  | 'entFormContactName'
+  | 'entFormContactNamePh'
+  | 'entFormWorkEmail'
+  | 'entFormWorkEmailPh'
+  | 'entFormWorkEmailHint'
+  | 'entFormPhone'
+  | 'entFormPhonePh'
+  | 'entFormCompanyName'
+  | 'entFormCompanyNamePh'
+  | 'entFormJobTitle'
+  | 'entFormJobTitlePh'
+  | 'entFormIndustry'
+  | 'entFormIndustryPh'
+  | 'entFormCompanySize'
+  | 'entFormCompanySizeOpt1'
+  | 'entFormCompanySizeOpt2'
+  | 'entFormCompanySizeOpt3'
+  | 'entFormCompanySizeOpt4'
+  | 'entFormCompanySizeOpt5'
+  | 'entFormCountry'
+  | 'entFormCountryPh'
+  | 'entFormWebsite'
+  | 'entFormWebsitePh'
+  | 'entFormUsersCount'
+  | 'entFormUsersCountOpt1'
+  | 'entFormUsersCountOpt2'
+  | 'entFormUsersCountOpt3'
+  | 'entFormUsersCountOpt4'
+  | 'entFormUseCase'
+  | 'entFormUseCaseOpt1'
+  | 'entFormUseCaseOpt2'
+  | 'entFormUseCaseOpt3'
+  | 'entFormUseCaseOpt4'
+  | 'entFormUseCaseOpt5'
+  | 'entFormBudget'
+  | 'entFormBudgetOpt1'
+  | 'entFormBudgetOpt2'
+  | 'entFormBudgetOpt3'
+  | 'entFormBudgetOpt4'
+  | 'entFormBudgetOpt5'
+  | 'entFormMessage'
+  | 'entFormMessagePh'
+  | 'entFormMessageHint'
+  | 'entFormSubmit'
+  | 'entFormSubmitting'
+  | 'entFormSuccess'
+  | 'entFormSuccessDesc'
+  | 'entFormSuccessCta'
+  | 'entFormError'
+  | 'entFormRequired'
   | 'planApi'
   | 'planApiDesc'
   | 'planApiBadge'
@@ -593,6 +645,58 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planEnterpriseDesc: 'Grandes entreprises',
     planEnterpriseBadge: 'Sur mesure',
     planEnterpriseCta: 'Contacter les ventes',
+    entFormTitle: 'Demander un devis Enterprise',
+    entFormSubtitle: 'Parlons de votre projet. Notre équipe vous recontacte sous 24-48h avec une proposition sur mesure.',
+    entFormContactName: 'Nom complet',
+    entFormContactNamePh: 'Jean Dupont',
+    entFormWorkEmail: 'Email professionnel',
+    entFormWorkEmailPh: 'jean.dupont@entreprise.com',
+    entFormWorkEmailHint: 'Utilisez votre email professionnel (pas d\'email personnel)',
+    entFormPhone: 'Téléphone',
+    entFormPhonePh: '+33 6 12 34 56 78',
+    entFormCompanyName: 'Nom de l\'entreprise',
+    entFormCompanyNamePh: 'Acme Corp',
+    entFormJobTitle: 'Votre fonction',
+    entFormJobTitlePh: 'Directeur RH, CTO, CEO…',
+    entFormIndustry: 'Secteur d\'activité',
+    entFormIndustryPh: 'Banque, Tech, Santé, Retail…',
+    entFormCompanySize: 'Taille de l\'entreprise',
+    entFormCompanySizeOpt1: '1-10 employés',
+    entFormCompanySizeOpt2: '11-50 employés',
+    entFormCompanySizeOpt3: '51-200 employés',
+    entFormCompanySizeOpt4: '201-1000 employés',
+    entFormCompanySizeOpt5: '1000+ employés',
+    entFormCountry: 'Pays',
+    entFormCountryPh: 'France, Maroc, Espagne…',
+    entFormWebsite: 'Site web',
+    entFormWebsitePh: 'https://entreprise.com',
+    entFormUsersCount: 'Utilisateurs attendus',
+    entFormUsersCountOpt1: '1-50 utilisateurs',
+    entFormUsersCountOpt2: '51-200 utilisateurs',
+    entFormUsersCountOpt3: '201-1000 utilisateurs',
+    entFormUsersCountOpt4: '1000+ utilisateurs',
+    entFormUseCase: 'Cas d\'usage principal',
+    entFormUseCaseOpt1: 'Génération de CV',
+    entFormUseCaseOpt2: 'Analyse ATS',
+    entFormUseCaseOpt3: 'Recrutement & offres d\'emploi',
+    entFormUseCaseOpt4: 'Intégration API',
+    entFormUseCaseOpt5: 'Tous / solution complète',
+    entFormBudget: 'Budget annuel estimé',
+    entFormBudgetOpt1: 'Moins de 5 000 €',
+    entFormBudgetOpt2: '5 000 € - 20 000 €',
+    entFormBudgetOpt3: '20 000 € - 50 000 €',
+    entFormBudgetOpt4: 'Plus de 50 000 €',
+    entFormBudgetOpt5: 'À définir ensemble',
+    entFormMessage: 'Votre message',
+    entFormMessagePh: 'Décrivez vos besoins : nombre d\'utilisateurs, intégrations attendues (SSO, API, ATS), contraintes spécifiques, délais…',
+    entFormMessageHint: 'Minimum 20 caractères',
+    entFormSubmit: 'Envoyer la demande',
+    entFormSubmitting: 'Envoi en cours…',
+    entFormSuccess: 'Demande envoyée !',
+    entFormSuccessDesc: 'Merci ! Notre équipe Enterprise vous recontacte sous 24-48h ouvrées avec une proposition personnalisée. Une confirmation a été envoyée à votre email professionnel.',
+    entFormSuccessCta: 'Fermer',
+    entFormError: 'Erreur lors de l\'envoi. Réessayez ou écrivez à hello@hirenova.com',
+    entFormRequired: 'Ce champ est requis',
     planApi: 'API',
     planApiDesc: 'Développeurs & intégrateurs',
     planApiBadge: 'Développeurs',
@@ -1029,6 +1133,58 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planEnterpriseDesc: 'Large enterprises',
     planEnterpriseBadge: 'Custom',
     planEnterpriseCta: 'Contact sales',
+    entFormTitle: 'Request an Enterprise quote',
+    entFormSubtitle: 'Let\'s talk about your project. Our team will get back to you within 24-48h with a tailored proposal.',
+    entFormContactName: 'Full name',
+    entFormContactNamePh: 'John Doe',
+    entFormWorkEmail: 'Work email',
+    entFormWorkEmailPh: 'john.doe@company.com',
+    entFormWorkEmailHint: 'Use your work email (no personal email)',
+    entFormPhone: 'Phone',
+    entFormPhonePh: '+1 555 123 4567',
+    entFormCompanyName: 'Company name',
+    entFormCompanyNamePh: 'Acme Corp',
+    entFormJobTitle: 'Your role',
+    entFormJobTitlePh: 'HR Director, CTO, CEO…',
+    entFormIndustry: 'Industry',
+    entFormIndustryPh: 'Banking, Tech, Healthcare, Retail…',
+    entFormCompanySize: 'Company size',
+    entFormCompanySizeOpt1: '1-10 employees',
+    entFormCompanySizeOpt2: '11-50 employees',
+    entFormCompanySizeOpt3: '51-200 employees',
+    entFormCompanySizeOpt4: '201-1000 employees',
+    entFormCompanySizeOpt5: '1000+ employees',
+    entFormCountry: 'Country',
+    entFormCountryPh: 'France, Morocco, Spain…',
+    entFormWebsite: 'Website',
+    entFormWebsitePh: 'https://company.com',
+    entFormUsersCount: 'Expected users',
+    entFormUsersCountOpt1: '1-50 users',
+    entFormUsersCountOpt2: '51-200 users',
+    entFormUsersCountOpt3: '201-1000 users',
+    entFormUsersCountOpt4: '1000+ users',
+    entFormUseCase: 'Main use case',
+    entFormUseCaseOpt1: 'Resume generation',
+    entFormUseCaseOpt2: 'ATS analysis',
+    entFormUseCaseOpt3: 'Recruiting & job postings',
+    entFormUseCaseOpt4: 'API integration',
+    entFormUseCaseOpt5: 'All / full solution',
+    entFormBudget: 'Estimated annual budget',
+    entFormBudgetOpt1: 'Less than $5,000',
+    entFormBudgetOpt2: '$5,000 - $20,000',
+    entFormBudgetOpt3: '$20,000 - $50,000',
+    entFormBudgetOpt4: 'More than $50,000',
+    entFormBudgetOpt5: 'To be discussed',
+    entFormMessage: 'Your message',
+    entFormMessagePh: 'Describe your needs: number of users, expected integrations (SSO, API, ATS), specific constraints, timelines…',
+    entFormMessageHint: 'Minimum 20 characters',
+    entFormSubmit: 'Send request',
+    entFormSubmitting: 'Sending…',
+    entFormSuccess: 'Request sent!',
+    entFormSuccessDesc: 'Thank you! Our Enterprise team will contact you within 24-48 business hours with a tailored proposal. A confirmation has been sent to your work email.',
+    entFormSuccessCta: 'Close',
+    entFormError: 'Error sending. Try again or write to hello@hirenova.com',
+    entFormRequired: 'This field is required',
     planApi: 'API',
     planApiDesc: 'Developers & integrators',
     planApiBadge: 'Developers',
@@ -1464,6 +1620,58 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planEnterpriseDesc: 'الشركات الكبيرة',
     planEnterpriseBadge: 'مخصص',
     planEnterpriseCta: 'اتصل بالمبيعات',
+    entFormTitle: 'طلب عرض سعر Enterprise',
+    entFormSubtitle: 'لنتحدث عن مشروعك. سيتواصل معك فريقنا خلال 24-48 ساعة بعرض مخصص.',
+    entFormContactName: 'الاسم الكامل',
+    entFormContactNamePh: 'محمد أحمد',
+    entFormWorkEmail: 'البريد الإلكتروني المهني',
+    entFormWorkEmailPh: 'mohammed@company.com',
+    entFormWorkEmailHint: 'استخدم بريدك المهني (ليس البريد الشخصي)',
+    entFormPhone: 'الهاتف',
+    entFormPhonePh: '+212 6 12 34 56 78',
+    entFormCompanyName: 'اسم الشركة',
+    entFormCompanyNamePh: 'Acme Corp',
+    entFormJobTitle: 'منصبك',
+    entFormJobTitlePh: 'مدير الموارد البشرية، CTO، CEO…',
+    entFormIndustry: 'قطاع النشاط',
+    entFormIndustryPh: 'بنك، تقنية، صحة، تجزئة…',
+    entFormCompanySize: 'حجم الشركة',
+    entFormCompanySizeOpt1: '1-10 موظفين',
+    entFormCompanySizeOpt2: '11-50 موظفين',
+    entFormCompanySizeOpt3: '51-200 موظفين',
+    entFormCompanySizeOpt4: '201-1000 موظفين',
+    entFormCompanySizeOpt5: '1000+ موظفين',
+    entFormCountry: 'البلد',
+    entFormCountryPh: 'فرنسا، المغرب، إسبانيا…',
+    entFormWebsite: 'الموقع الإلكتروني',
+    entFormWebsitePh: 'https://company.com',
+    entFormUsersCount: 'المستخدمون المتوقعون',
+    entFormUsersCountOpt1: '1-50 مستخدم',
+    entFormUsersCountOpt2: '51-200 مستخدم',
+    entFormUsersCountOpt3: '201-1000 مستخدم',
+    entFormUsersCountOpt4: '1000+ مستخدم',
+    entFormUseCase: 'حالة الاستخدام الرئيسية',
+    entFormUseCaseOpt1: 'إنشاء السيرة الذاتية',
+    entFormUseCaseOpt2: 'تحليل ATS',
+    entFormUseCaseOpt3: 'التوظيف وعروض العمل',
+    entFormUseCaseOpt4: 'تكامل API',
+    entFormUseCaseOpt5: 'الكل / حل كامل',
+    entFormBudget: 'الميزانية السنوية المقدرة',
+    entFormBudgetOpt1: 'أقل من 5,000 €',
+    entFormBudgetOpt2: '5,000 € - 20,000 €',
+    entFormBudgetOpt3: '20,000 € - 50,000 €',
+    entFormBudgetOpt4: 'أكثر من 50,000 €',
+    entFormBudgetOpt5: 'للنقاش',
+    entFormMessage: 'رسالتك',
+    entFormMessagePh: 'صف احتياجاتك: عدد المستخدمين، التكاملات المتوقعة (SSO، API، ATS)، القيود المحددة، المواعيد…',
+    entFormMessageHint: 'الحد الأدنى 20 حرفًا',
+    entFormSubmit: 'إرسال الطلب',
+    entFormSubmitting: 'جارٍ الإرسال…',
+    entFormSuccess: 'تم إرسال الطلب!',
+    entFormSuccessDesc: 'شكرًا! سيتواصل معك فريق Enterprise خلال 24-48 ساعة عمل بعرض مخصص. تم إرسال تأكيد إلى بريدك المهني.',
+    entFormSuccessCta: 'إغلاق',
+    entFormError: 'خطأ في الإرسال. أعد المحاولة أو اكتب إلى hello@hirenova.com',
+    entFormRequired: 'هذا الحقل مطلوب',
     planApi: 'API',
     planApiDesc: 'المطورون والمتكاملون',
     planApiBadge: 'مطورون',
@@ -1900,6 +2108,58 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     planEnterpriseDesc: 'Grandes empresas',
     planEnterpriseBadge: 'Personalizado',
     planEnterpriseCta: 'Contactar ventas',
+    entFormTitle: 'Solicitar presupuesto Enterprise',
+    entFormSubtitle: 'Hablemos de tu proyecto. Nuestro equipo te contacta en 24-48h con una propuesta a medida.',
+    entFormContactName: 'Nombre completo',
+    entFormContactNamePh: 'Juan Pérez',
+    entFormWorkEmail: 'Email profesional',
+    entFormWorkEmailPh: 'juan.perez@empresa.com',
+    entFormWorkEmailHint: 'Usa tu email profesional (no personal)',
+    entFormPhone: 'Teléfono',
+    entFormPhonePh: '+34 612 34 56 78',
+    entFormCompanyName: 'Nombre de la empresa',
+    entFormCompanyNamePh: 'Acme Corp',
+    entFormJobTitle: 'Tu cargo',
+    entFormJobTitlePh: 'Director RRHH, CTO, CEO…',
+    entFormIndustry: 'Sector',
+    entFormIndustryPh: 'Banca, Tech, Salud, Retail…',
+    entFormCompanySize: 'Tamaño de la empresa',
+    entFormCompanySizeOpt1: '1-10 empleados',
+    entFormCompanySizeOpt2: '11-50 empleados',
+    entFormCompanySizeOpt3: '51-200 empleados',
+    entFormCompanySizeOpt4: '201-1000 empleados',
+    entFormCompanySizeOpt5: '1000+ empleados',
+    entFormCountry: 'País',
+    entFormCountryPh: 'Francia, Marruecos, España…',
+    entFormWebsite: 'Sitio web',
+    entFormWebsitePh: 'https://empresa.com',
+    entFormUsersCount: 'Usuarios esperados',
+    entFormUsersCountOpt1: '1-50 usuarios',
+    entFormUsersCountOpt2: '51-200 usuarios',
+    entFormUsersCountOpt3: '201-1000 usuarios',
+    entFormUsersCountOpt4: '1000+ usuarios',
+    entFormUseCase: 'Caso de uso principal',
+    entFormUseCaseOpt1: 'Generación de CV',
+    entFormUseCaseOpt2: 'Análisis ATS',
+    entFormUseCaseOpt3: 'Reclutamiento y ofertas',
+    entFormUseCaseOpt4: 'Integración API',
+    entFormUseCaseOpt5: 'Todos / solución completa',
+    entFormBudget: 'Presupuesto anual estimado',
+    entFormBudgetOpt1: 'Menos de 5.000 €',
+    entFormBudgetOpt2: '5.000 € - 20.000 €',
+    entFormBudgetOpt3: '20.000 € - 50.000 €',
+    entFormBudgetOpt4: 'Más de 50.000 €',
+    entFormBudgetOpt5: 'A definir',
+    entFormMessage: 'Tu mensaje',
+    entFormMessagePh: 'Describe tus necesidades: número de usuarios, integraciones esperadas (SSO, API, ATS), restricciones específicas, plazos…',
+    entFormMessageHint: 'Mínimo 20 caracteres',
+    entFormSubmit: 'Enviar solicitud',
+    entFormSubmitting: 'Enviando…',
+    entFormSuccess: '¡Solicitud enviada!',
+    entFormSuccessDesc: '¡Gracias! Nuestro equipo Enterprise te contactará en 24-48 horas laborables con una propuesta personalizada. Se ha enviado una confirmación a tu email profesional.',
+    entFormSuccessCta: 'Cerrar',
+    entFormError: 'Error al enviar. Reintenta o escribe a hello@hirenova.com',
+    entFormRequired: 'Este campo es obligatorio',
     planApi: 'API',
     planApiDesc: 'Desarrolladores e integradores',
     planApiBadge: 'Desarrolladores',

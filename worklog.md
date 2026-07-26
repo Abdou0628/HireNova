@@ -883,3 +883,69 @@ Stage Summary:
 - Checkout API étendu pour 5 types de plans (LemonSqueezy non configuré → PAYMENT_NOT_READY)
 - Profile button badges colorés selon le plan
 - FAQ mise à jour dans les 4 langues
+
+---
+Task ID: ENTERPRISE-CONTACT-FORM
+Agent: CTO (main)
+Task: Remplacer le simple mailto Enterprise par un vrai formulaire de contact
+
+Work Log:
+- Conçu formulaire Enterprise complet avec champs B2B :
+  * Contact : Nom complet*, Email pro*, Téléphone, Fonction
+  * Company : Nom entreprise*, Industrie, Taille (dropdown 1-10 → 1000+), Pays, Site web
+  * Needs : Utilisateurs attendus (1-50 → 1000+), Cas d'usage (CV/ATS/Recruiting/API/All), Budget (<5k → 50k+)
+  * Message* (min 20 chars, max 3000)
+- Ajouté model EnterpriseInquiry à prisma/schema.prisma (15 champs + status + source + timestamps)
+- bun run db:push : schéma synchronisé
+- Créé /api/enterprise-contact/route.ts :
+  * Validation champs requis + email regex + longueur message
+  * Détection soft des emails perso (gmail/outlook/hotmail/yahoo/icloud)
+  * Sauvegarde en DB (EnterpriseInquiry)
+  * Email admin avec tous les détails + flag email perso
+  * Auto-reply au contact avec confirmation + détail du process Enterprise
+- Ajouté 50+ clés i18n (entForm*) dans 4 langues : FR/EN/AR/ES
+- Créé src/components/enterprise/enterprise-contact-form.tsx :
+  * Modal Dialog max-w-2xl avec scroll vertical
+  * Header : icône Building2 dégradé slate + badge Enterprise
+  * 3 sections visuelles : Contact / Company / Needs (séparateurs border-t)
+  * Icônes lucide pour chaque section (Mail, Briefcase, Users)
+  * 4 dropdowns Radix Select (Taille, Users, UseCase, Budget)
+  * Textarea pour message avec compteur 0/3000
+  * Validation required + email regex + message ≥ 20 chars
+  * États : loading (spinner), error (toast), success (écran confirmation CheckCircle2)
+  * Boutons Annuler / Envoyer la demande (slate-700)
+  * Note RGPD en bas
+- Modifié src/components/cv/landing.tsx :
+  * Import EnterpriseContactForm
+  * État enterpriseFormOpen
+  * Carte Enterprise : onClick → setEnterpriseFormOpen(true) (au lieu de mailto:)
+  * Modal rendu à côté de AuthModal
+- bun run lint : ✓ sans erreur
+- bun run build : ✓ succès, /api/enterprise-contact enregistré
+- Copié static/public/.env/db vers standalone
+- Redémarré serveur : PID 10445, PPID 1, HTTP 200
+
+Vérifications Agent Browser :
+- ✅ Page se charge (HTTP 200)
+- ✅ Bouton "Contacter les ventes" ouvre le modal (titre : "Demander un devis Enterprise")
+- ✅ Tous les champs présents : 4 requis (Nom, Email, Entreprise, Message) + 9 optionnels
+- ✅ 4 dropdowns Radix Select fonctionnels :
+  * Taille entreprise : 5 options (1-10 → 1000+)
+  * Utilisateurs : 4 options (1-50 → 1000+)
+  * Cas d'usage : 5 options (CV / ATS / Recruiting / API / All)
+  * Budget : 5 options (<5k → 50k+ / À définir)
+- ✅ Submit avec champs remplis → écran succès "Demande envoyée !"
+- ✅ DB : record EnterpriseInquiry créé avec tous les champs (dropdowns stockés comme size_3/users_3/usecase_5/budget_2)
+- ✅ Email admin envoyé avec tous les détails
+- ✅ Auto-reply envoyé au contact (sophie.martin@techcorp.io)
+- ✅ Fermer le modal retourne à la page pricing
+- ✅ Aucune erreur console
+- ✅ Serveur stable : PID 10445, PPID 1
+
+Stage Summary:
+- Formulaire Enterprise complet opérationnel (remplace le mailto:)
+- 13 champs B2B collectés (contact + company + needs + message)
+- Persistance DB (EnterpriseInquiry) + double email (admin + auto-reply)
+- 4 langues supportées (FR/EN/AR/ES)
+- UX soignée : sections visuelles, dropdowns Radix, validation, états loading/success
+- Le bouton "Contacter les ventes" ouvre maintenant un vrai formulaire au lieu d'un simple mailto
