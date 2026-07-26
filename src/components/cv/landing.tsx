@@ -1121,6 +1121,12 @@ export default function Landing() {
               <Gift className="w-3 h-3" />
               Parrainage
             </button>
+            {isAdmin && (
+              <button onClick={() => setStep('admin')} className="text-emerald-700 hover:underline cursor-pointer flex items-center gap-1 font-semibold">
+                <Shield className="w-3 h-3" />
+                Dashboard Admin
+              </button>
+            )}
           </div>
         </div>
       </footer>

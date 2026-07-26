@@ -636,3 +636,103 @@ Stage Summary:
 - Cas d'usage type vidée des stats figées, remplacée par 6 compteurs temps réel depuis la DB
 - API /api/campus/stats créée (9 compteurs, Promise.all parallèle)
 - Serveur stable : PID 2664, PPID 1, HTTP 200
+
+---
+Task ID: ADMIN-DASHBOARD-FULL
+Agent: general-purpose
+Task: Create full-page admin dashboard component
+
+Work Log:
+- Analyzed existing admin-dashboard.tsx (modal version) for patterns, types, and styling conventions
+- Read cv-store to confirm AppStep includes 'admin' and setStep API
+- Checked available shadcn/ui components (card, tabs, table, badge, button, skeleton, scroll-area, progress, etc.)
+- Created /home/z/my-project/src/components/admin/admin-dashboard-full.tsx (1626 lines)
+- Defined full ComprehensiveStats TypeScript interface matching the API response structure
+- Built 10 tab content components: OverviewTab, UsersTab, FinancesTab, JobsTab, MobilityTab, ApiTab, ReferralTab, CampusTab, SupportTab, SecurityTab
+- Sticky header with back button (setStep('landing')), title, live clock, and refresh button
+- Overview tab: 4 primary KPI cards, 4 secondary KPI cards, last 30 days stats, 14-day bar chart (pure div-based)
+- Finances tab: 4 revenue cards (MRR, Annual, API, LTV), financial summary with colored boxes, revenue breakdown table with type badges
+- Users tab: plan distribution with progress bars, user stats cards, recent users table with plan badges
+- Jobs & Global tab: 4 stat cards, international recruitment panel, country badges, recent applications table
+- Mobility tab: 3 stat cards, completion rate progress bar, pipeline OCR/NLP summary
+- API tab: 4 stat cards, API plans table
+- Referral tab: 4 stat cards, conversion/reward rates
+- Campus tab: 2 stat cards, resolution rate progress bar
+- Support tab: 3 stat cards, resolution rate, open rate
+- Security tab: 3 stat cards (critical/high/total), recent alerts with severity color-coded cards
+- Loading state: Skeleton grid + skeleton cards while fetching
+- Error state: AlertTriangle icon + retry button
+- Auto-refresh every 60 seconds via setInterval
+- Live timestamp clock updated every second
+- Emerald/green theme throughout (no indigo/blue)
+- French language for all labels, badges, and descriptions
+- French number/currency/date formatting (Intl.NumberFormat 'fr-FR', EUR suffix)
+- Responsive: grid-cols-2 mobile, grid-cols-4 desktop
+- Scrollable content: max-h-[calc(100vh-80px)] overflow-y-auto
+- Used shadcn Tabs with underline-style tab triggers
+- Appended work record to worklog.md
+
+Stage Summary:
+- Created comprehensive full-page admin dashboard at src/components/admin/admin-dashboard-full.tsx
+- 1626 lines, 10 tabs, fully typed with ComprehensiveStats interface
+- Complete financial tracking: MRR, annual revenue, API revenue, lifetime value, revenue breakdown table
+- All HireNova modules covered: CV/CL, ATS, Jobs, Global, Mobility, API, Referral, Campus, Support, Security
+- French UI, emerald theme, responsive, loading/error states, auto-refresh
+
+---
+Task ID: ADMIN-DASHBOARD-FULL-PAGE
+Agent: CTO (main) + full-stack-developer subagent
+Task: Créer dashboard admin plein écran supervisant toutes les fonctionnalités + data + mouvements financiers
+
+Work Log:
+- Ajouté 'admin' au type AppStep dans src/store/cv-store.ts
+- Créé API GET /api/admin/comprehensive-stats (13 sections de données) :
+  1. Overview (users, CVs, CLs, ATS, employer)
+  2. Last30days (nouveaux users/CVs/CLs)
+  3. PlanDistribution (free/pro/annual)
+  4. Jobs (totalJobs, activeJobs, applications, employers)
+  5. Global (international jobs, visa, countries)
+  6. Mobility (profiles, completed, this month)
+  7. API (subscribers, calls, plans)
+  8. Referral (total, completed, rewarded, pending)
+  9. Campus (tickets, open tickets)
+  10. Support (open, resolved, total)
+  11. Security (critical, high, total, recent + recentAlerts array)
+  12. Financial (MRR, annual, API, LTV, revenueBreakdown)
+  13. Recent activity (users, resumes, applications) + dailySignups chart
+- Créé composant src/components/admin/admin-dashboard-full.tsx (1627 lignes, 10 onglets) :
+  1. Vue d'ensemble — KPI cards + 14-day bar chart
+  2. Utilisateurs — plan distribution + recent users table
+  3. Finances — MRR, Annual, API, LTV + revenue breakdown table
+  4. Jobs & Global — marketplace + international recruitment
+  5. Mobilité — OCR/NLP pipeline stats
+  6. API — subscribers, calls, plans
+  7. Parrainage — referral program stats
+  8. Campus — university partnership requests
+  9. Support — ticket stats
+  10. Sécurité — security alerts with severity colors
+- Intégré dans page-client.tsx (step === 'admin' → AdminDashboardFull)
+- Ajouté bouton "Dashboard Admin" dans le footer (visible si isAdmin)
+- Modifié profile-button.tsx : menu déroulant ouvre le dashboard plein écran (setStep('admin'))
+- Corrigé bug : security.recent était un nombre, pas un array → ajouté recentAlerts array
+- Compte admin créé : admin@hirenova.com / HireNova2026!Admin (plan: annual, role: admin)
+- ADMIN_EMAIL ajouté au .env
+
+Vérifications Agent Browser :
+- ✅ Login admin réussi (admin@hirenova.com)
+- ✅ Bouton "Dashboard Admin" visible dans le footer ET le menu profil
+- ✅ Dashboard plein écran avec 10 onglets
+- ✅ Vue d'ensemble : 2 utilisateurs, 1 annuel, 0 Pro, revenu mensuel 0€
+- ✅ Finances : MRR 0€, Revenu Annuel 70€, LTV 70€, tableau revenus par source
+- ✅ Sécurité : 0 alertes, message "Aucune alerte — tout est normal"
+- ✅ Parrainage : 0 parrainages, taux conversion —
+- ✅ Campus : 2 demandes totales, 2 ouvertes, 0% résolution
+- ✅ Bouton "Retour à l'accueil" fonctionne → retour landing
+- ✅ Auto-refresh 60 secondes
+- ✅ Aucune erreur console après fix
+
+Stage Summary:
+- Dashboard admin plein écran opérationnel avec 10 onglets couvrant TOUTES les fonctionnalités
+- Mouvements financiers détaillés (MRR, annuel, API, LTV, breakdown par source)
+- Accès via footer + menu profil (admin uniquement)
+- Serveur stable : PID 4936, PPID 1, HTTP 200

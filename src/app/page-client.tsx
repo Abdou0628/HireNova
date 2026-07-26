@@ -52,6 +52,8 @@ const GlobalPostJob = dynamic(() => import('@/components/global/global-post-job'
 const ReferralDashboard = dynamic(() => import('@/components/referral/referral-dashboard'), { ssr: false, loading: () => <Loading /> })
 // HireNova Campus
 const CampusKit = dynamic(() => import('@/components/campus/campus-kit'), { ssr: false, loading: () => <Loading /> })
+// Admin Dashboard (full page)
+const AdminDashboardFull = dynamic(() => import('@/components/admin/admin-dashboard-full'), { ssr: false, loading: () => <Loading /> })
 // HireNova Mobilité — OCR + NLP Pipeline
 const MobilityHome = dynamic(() => import('@/components/mobility/mobility-home'), { ssr: false, loading: () => <Loading /> })
 const MobilityUpload = dynamic(() => import('@/components/mobility/mobility-upload'), { ssr: false, loading: () => <Loading /> })
@@ -102,6 +104,8 @@ export default function Home() {
         {step === 'referral' && <ReferralDashboard />}
         {/* HireNova Campus */}
         {step === 'campus' && <CampusKit />}
+        {/* Admin Dashboard */}
+        {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>
     </SessionProvider>
   )

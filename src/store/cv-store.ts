@@ -21,6 +21,8 @@ export type AppStep =
   | 'referral'
   // HireNova Campus — Universités Partenaires
   | 'campus'
+  // Admin Dashboard — Supervision globale
+  | 'admin'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

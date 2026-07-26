@@ -1,0 +1,639 @@
+     1→     1→# HireNova — Worklog complet
+     2→     2→> Projet : HireNova by E-Society 2050
+     3→     3→> Dernière MAJ : 2025-07-25
+     4→     4→
+     5→     5→---
+     6→     6→
+     7→     7→## Phase 8 : HireNova Global + Mobilité + OCR/NLP + Chatbot 2.0
+     8→     8→
+     9→     9→### Nouvelles fonctionnalités ajoutées
+    10→    10→
+    11→    11→#### HireNova Global — Recrutement International
+    12→    12→- **5 composants frontend** : global-market, global-job-detail, global-apply, global-employer-dashboard, global-post-job
+    13→    13→- **4 routes API** : GET /api/global-jobs, GET /api/global-jobs/[id], POST /api/global-jobs/[id]/apply, GET /api/global-jobs/employer
+    14→    14→- **Features** : Filtres par région (Europe, Asie, Afrique, Amériques, MENA), pays, mot-clé. Badges Visa/Relocation/Remote. Dashboard employeur avec stats.
+    15→    15→- **DB** : Modèles GlobalJobListing (visaSponsorship, relocationPackage, region) + GlobalApplication
+    16→    16→
+    17→    17→#### HireNova Mobilité — OCR + NLP Pipeline
+    18→    18→- **4 composants frontend** : mobility-home, mobility-upload, mobility-profile, mobility-result
+    19→    19→- **2 routes API** : POST /api/mobility/upload (OCR extraction), POST /api/mobility/format (reformulation pays cible)
+    20→    20→- **Architecture 2 étapes** :
+    21→    21→  1. OCR : extraction du texte depuis CV PDF/Image → profil structuré (skills, experience, education)
+    22→    22→  2. IA (LLM + NLP) : reformulation CV/CL selon standards du pays cible, calcul score compatibilité, détection skills gap
+    23→    23→- **12 pays supportés** : 🇫🇷🇬🇧🇺🇸🇨🇦🇩🇪🇦🇪🇨🇭🇧🇪🇪🇸🇮🇹🇯🇵🇦🇺
+    24→    24→- **DB** : Modèle MobilityProfile (extractedText, structuredData, skills, formattedCV, formattedCL, matchScore)
+    25→    25→
+    26→    26→#### Chatbot IA 2.0 — Knowledge Base Complète
+    27→    27→- Système prompt enrichi avec TOUTES les fonctionnalités HireNova (CV, CL, ATS, Jobs, API, Global, Mobilité)
+    28→    28→- Tarification détaillée
+    29→    29→- Pipeline OCR/NLP expliqué
+    30→    30→- Normes CV par pays
+    31→    31→- Conseils carrière
+    32→    32→- Mode Conseiller + Support technique
+    33→    33→
+    34→    34→### Fichiers créés/modifiés (cette session)
+    35→    35→
+    36→    36→**Nouveaux (18 fichiers)** :
+    37→    37→1. `src/components/global/global-market.tsx` — Marketplace international
+    38→    38→2. `src/components/global/global-job-detail.tsx` — Détail offre globale
+    39→    39→3. `src/components/global/global-apply.tsx` — Candidature internationale
+    40→    40→4. `src/components/global/global-employer-dashboard.tsx` — Dashboard recruteur global
+    41→    41→5. `src/components/global/global-post-job.tsx` — Publication offre internationale
+    42→    42→6. `src/components/mobility/mobility-home.tsx` — Landing Mobilité
+    43→    43→7. `src/components/mobility/mobility-upload.tsx` — Upload OCR + extraction
+    44→    44→8. `src/components/mobility/mobility-profile.tsx` — Profil structuré + analyse
+    45→    45→9. `src/components/mobility/mobility-result.tsx` — CV/CL reformattés
+    46→    46→10. `src/app/api/global-jobs/route.ts` — GET + POST offres internationales
+    47→    47→11. `src/app/api/global-jobs/[id]/route.ts` — GET détail offre
+    48→    48→12. `src/app/api/global-jobs/[id]/apply/route.ts` — POST candidature + AI matching
+    49→    49→13. `src/app/api/global-jobs/employer/route.ts` — GET stats employeur
+    50→    50→14. `src/app/api/mobility/upload/route.ts` — POST upload OCR
+    51→    51→15. `src/app/api/mobility/format/route.ts` — POST reformulation pays
+    52→    52→
+    53→    53→**Modifiés (4 fichiers)** :
+    54→    54→1. `prisma/schema.prisma` — +3 modèles (GlobalJobListing, GlobalApplication, MobilityProfile) + relations User
+    55→    55→2. `src/store/cv-store.ts` — +9 steps (global*, mobility*), +types (ExtractedProfile, MobilityResult), +state
+    56→    56→3. `src/app/page.tsx` — +9 imports dynamiques + step mappings
+    57→    57→4. `src/components/cv/landing.tsx` — +2 sections (HireNova Global, HireNova Mobilité)
+    58→    58→5. `src/app/api/chatbot/route.ts` — Remplacé avec knowledge base complète
+    59→    59→
+    60→    60→### Vérification navigateur ✅
+    61→    61→- 31 boutons interactifs
+    62→    62→- "HireNova Global" section visible avec boutons
+    63→    63→- "HireNova Mobilité" section visible avec OCR/NLP pipeline
+    64→    64→- 12 drapeaux de pays affichés
+    65→    65→- Build réussi, lint clean
+    66→    66→
+    67→    67→---
+    68→    68→
+    69→    69→## Phase 9 : Diagnostic page blanche + Sauvegarde complète
+    70→    70→> Date : $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+    71→    71→
+    72→    72→### Problème signalé
+    73→    73→- Utilisateur : "la page n'est pas affichée" / "affiche la page mon CTO et faire la sauvegarde"
+    74→    74→
+    75→    75→### Diagnostic
+    76→    76→- **Cause racine** : Le serveur dev Next.js (`bun run dev`) n'était PAS en cours d'exécution. Le sandbox cloud nettoie agressivement tous les processus d'arrière-plan entre les appels Bash, y compris ceux lancés avec `nohup` + `disown` et même `setsid`.
+    77→    77→- Le code du projet était intact (page.tsx, cv-store.ts, tous composants Global + Mobilité présents).
+    78→    78→- Seul le runtime serveur manquait.
+    79→    79→
+    80→    80→### Solution appliquée
+    81→    81→- Démarrage du serveur dev + vérification agent-browser **dans le même appel Bash** (évite le nettoyage inter-appels).
+    82→    82→- `keep-alive.sh` existant (boucle while true → bun run dev) pour redémarrage automatique.
+    83→    83→- Serveur confirmé : `GET / 200` en 0.03s, PID actif.
+    84→    84→
+    85→    85→### Vérification navigateur (agent-browser) ✅
+    86→    86→Page entièrement rendue avec toutes les sections :
+    87→    87→1. Header : sélecteurs FR/EN/AR/ES, bouton Connexion
+    88→    88→2. Hero : "Générez un CV professionnel en 60 secondes" + 2 CTA
+    89→    89→3. 6 Personas : Étudiant, Diplômé, Professionnel, Cadre, Freelance, Expatrié
+    90→    90→4. Features : IA Avancée, Multilingue, Optimisé ATS, Lettre IA
+    91→    91→5. Tarifs (EUR/USD/GBP, Pro/Annuel)
+    92→    92→6. Écosystème : 9 modules HireNova (CV, ATS, Interview, LinkedIn, Recruiter, Career, Coach, Formation, Freelance)
+    93→    93→7. FAQ (8 questions accordéon)
+    94→    94→8. Trust section
+    95→    95→9. HireNova Jobs (Marketplace + Publier offre)
+    96→    96→10. HireNova API (3 endpoints, 3 plans, Doc + Clé API)
+    97→    97→11. **HireNova Global** (40+ Pays, Visa, Relocation, Explorer, Dashboard)
+    98→    98→12. **HireNova Mobilité** (Étape 1 OCR, Étape 2 IA, Adapter CV)
+    99→    99→13. Footer + Chatbot widget (bouton flottant)
+   100→   100→
+   101→   101→### État du projet
+   102→   102→- **25 steps** dans cv-store.ts (AppStep)
+   103→   103→- **25 composants** dynamiques dans page.tsx
+   104→   104→- **~40 routes API** (auth, cv, cl, ats, jobs, global-jobs, mobility, chatbot, admin, api-portal, paymob, webhook)
+   105→   105→- **Prisma models** : User, Resume, CoverLetter, JobListing, Application, ApiSubscriber, ApiUsageLog, SatisfactionRating, SecurityAlert, GlobalJobListing, GlobalApplication, MobilityProfile
+   106→   106→- Lint : clean
+   107→   107→- Build : OK (Turbopack)
+   108→   108→
+   109→   109→### Artefacts de sauvegarde
+   110→   110→- `worklog.md` — cet fichier (historique complet Phases 1-9)
+   111→   111→- `ARCHITECTURE.md` — référence technique (stack, structure, SDK)
+   112→   112→- `start-dev.sh` / `start-production.sh` / `keep-alive.sh` — scripts de démarrage
+   113→   113→- `public/hirenova-backup.tar.gz` — snapshot projet précédent
+   114→   114→
+   115→   115→
+   116→   116→---
+   117→   117→
+   118→   118→## Phase 10 : Fix page blanche — middleware + next-auth
+   119→   119→> Date : 2026-07-26
+   120→   120→
+   121→   121→### Problème
+   122→   122→Page blanche répétée dans le Preview Panel malgré serveur répondant HTTP 200.
+   123→   123→
+   124→   124→### Diagnostic
+   125→   125→1. **`src/middleware.ts` toujours présent** — était censé être supprimé (Phase précédente) car il cause un overhead Edge Runtime sur CHAQUE requête (matcher trop large: `/((?!_next/static|...).*)`). Le warning `⚠ The "middleware" file convention is deprecated` apparaissait dans dev.log.
+   126→   126→2. **`.env` sans NEXTAUTH_SECRET ni NEXTAUTH_URL** — next-auth affichait warnings `NO_SECRET` et `NEXTAUTH_URL`, causant des `CLIENT_FETCH_ERROR` répétés sur `/api/auth/session` (7+ erreurs dans la console navigateur).
+   127→   127→3. **`next.config.ts` sans headers de sécurité** — les headers étaient seulement dans le middleware (qui devait être supprimé).
+   128→   128→
+   129→   129→### Correctifs appliqués
+   130→   130→1. **Suppression de `src/middleware.ts`** — fini l'overhead Edge Runtime
+   131→   131→2. **Ajout des security headers dans `next.config.ts`** (source: `/(.*)` ) :
+   132→   132→   - X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+   133→   133→   - X-Frame-Options: ALLOWALL (pour iframe Preview Panel)
+   134→   134→   - CSP permissive (frame-ancestors *)
+   135→   135→3. **Ajout dans `.env`** :
+   136→   136→   - `NEXTAUTH_SECRET=hirenova-dev-secret-2050-secure-key-zai-2026`
+   137→   137→   - `NEXTAUTH_URL=http://localhost:3000`
+   138→   138→
+   139→   139→### Résultat vérifié (agent-browser)
+   140→   140→- HTTP 200 en 0.1s
+   141→   141→- Page titre : "HireNova — Générateur de CV IA, Lettre de Motivation & Score ATS"
+   142→   142→- Body : 9223px / 5984 chars (contenu complet)
+   143→   143→- **Console errors : VIDE** ✅
+   144→   144→- dev.log : propre, toutes réponses 200, plus de warnings next-auth
+   145→   145→
+   146→   146→### Note stabilité
+   147→   147→Le sandbox cloud tue les processus d'arrière-plan entre les appels Bash. Le serveur dev peut mourir. Solution : redémarrer avec `setsid bash -c 'cd /home/z/my-project && exec bun run dev'` à chaque fois que la page devient blanche.
+   148→   148→
+   149→   149→---
+   150→   150→
+   151→   151→## Phase 11 : Ajout modules Global/Jobs/Mobilité/API dans Écosystème
+   152→   152→> Date : 2026-07-26
+   153→   153→
+   154→   154→### Demande utilisateur
+   155→   155→Ajouter HireNova Global, Jobs, Mobilité et API dans le panneau écosystème HireNova.
+   156→   156→
+   157→   157→### Modifications appliquées
+   158→   158→**Fichier modifié :** `src/components/cv/landing.tsx` (section Écosystème, ~ligne 712)
+   159→   159→
+   160→   160→1. **Ajout de 4 modules actifs** dans le tableau `products` :
+   161→   161→   - `HireNova Jobs` (icône Briefcase, accent emerald, step → `jobMarket`)
+   162→   162→   - `HireNova Global` (icône Globe, accent teal, step → `globalMarket`)
+   163→   163→   - `HireNova Mobilité` (icône Plane, accent purple, step → `mobilityHome`)
+   164→   164→   - `HireNova API` (icône Code2, accent sky, step → `apiDocs`)
+   165→   165→
+   166→   166→2. **Cartes cliquables** : ajout propriété `step` + `onClick={() => setStep(product.step as AppStep)}` pour les modules actifs avec destination.
+   167→   167→
+   168→   168→3. **Système de couleurs par accent** : chaque module actif a sa propre couleur (border, badge, icône, fond) :
+   169→   169→   - emerald (CV, ATS, Jobs)
+   170→   170→   - teal (Global)
+   171→   171→   - purple (Mobilité)
+   172→   172→   - sky (API)
+   173→   173→
+   174→   174→4. **Indicateur "Ouvrir"** : les cartes actives affichent un lien "Ouvrir →" en bas pour indiquer qu'elles sont cliquables.
+   175→   175→
+   176→   176→5. **Import `AppStep`** ajouté dans landing.tsx pour le typage du step.
+   177→   177→
+   178→   178→### Vérification (agent-browser) ✅
+   179→   179→- Page rendue : HTTP 200, 20211 bytes, body complet
+   180→   180→- 13 modules écosystème affichés : CV, ATS, Jobs, Global, Mobilité, API (6 ACTIFS) + Interview, LinkedIn, Recruiter, Career, Coach, Formation, Freelance (7 BIENTÔT)
+   181→   181→- Navigation testée : clic "HireNova Jobs" → page JobMarket affichée ("Trouvez votre prochaine opportunité professionnelle")
+   182→   182→- Lint : clean
+   183→   183→- Build production : OK
+   184→   184→
+   185→   185→### État final
+   186→   186→- Serveur : production standalone (512MB, stable)
+   187→   187→- Code : original restauré + ajout écosystème
+   188→   188→- Sauvegarde : `public/hirenova-full-backup-20260726-105108.tar.gz` (252 fichiers)
+   189→   189→
+   190→   190→---
+   191→   191→
+   192→   192→## Phase 12 : Fix cartes écosystème cliquables (CV + ATS)
+   193→   193→> Date : 2026-07-26
+   194→   194→
+   195→   195→### Problème
+   196→   196→HireNova CV et HireNova ATS marqués "ACTIF" mais non cliquables dans le panneau écosystème.
+   197→   197→
+   198→   198→### Cause racine
+   199→   199→**Cache statique Next.js** (`x-nextjs-cache: HIT`, `s-maxage=31536000`) :
+   200→   200→- La page `/` était prerendered comme contenu statique lors du build
+   201→   201→- Le HTML servi était une VERSION CACHÉE d'un build précédent
+   202→   202→- Les modifications de code n'étaient jamais servies au navigateur
+   203→   203→- Même après `rm -rf .next` + rebuild, le cache persistait
+   204→   204→
+   205→   205→### Solution appliquée
+   206→   206→1. **Séparation page.tsx en 2 fichiers** :
+   207→   207→   - `src/app/page.tsx` — Server Component avec `export const dynamic = 'force-dynamic'` + `headers()` pour forcer le rendu dynamique
+   208→   208→   - `src/app/page-client.tsx` — Client Component (ancien page.tsx avec `'use client'`)
+   209→   209→
+   210→   210→2. **`isClickable = Boolean(product.active)`** — toutes les cartes actives sont cliquables, indépendamment de `step`
+   211→   211→3. **`handleNav()`** — vérifie `product.step` avant de naviguer
+   212→   212→4. **ATS `step: 'form'`** — l'analyse ATS fait partie du flux de création CV
+   213→   213→
+   214→   214→### Résultat vérifié (agent-browser) ✅
+   215→   215→Les 6 cartes ACTIVES sont toutes cliquables :
+   216→   216→- HireNova CV: ✓ CLICKABLE (→ form)
+   217→   217→- HireNova ATS: ✓ CLICKABLE (→ form)
+   218→   218→- HireNova Jobs: ✓ CLICKABLE (→ jobMarket)
+   219→   219→- HireNova Global: ✓ CLICKABLE (→ globalMarket)
+   220→   220→- HireNova Mobilité: ✓ CLICKABLE (→ mobilityHome)
+   221→   221→- HireNova API: ✓ CLICKABLE (→ apiDocs)
+   222→   222→
+   223→   223→Navigation testée : clic "HireNova ATS" → page formulaire CV affichée ✅
+   224→   224→Headers: `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate` ✅
+   225→   225→Lint: clean ✅
+   226→   226→
+   227→   227→---
+   228→   228→
+   229→   229→## Phase 13 : Fix navigation CV/ATS + Chatbot ERREUR + Résilience serveur
+   230→   230→> Date : 2026-07-26
+   231→   231→
+   232→   232→### Problèmes signalés
+   233→   233→1. Cartes HireNova CV et HireNova ATS cliquables mais ne renvoient vers aucune page d'opération
+   234→   234→2. Chatbot retourne "ERREUR" quand on lui demande comment fonctionne HireNova Global
+   235→   235→
+   236→   236→### Diagnostic approfondi (agent-browser)
+   237→   237→- **ChunkLoadError** : Le serveur standalone meurt sous la charge parallèle de Chrome (requêtes de chunks JS). Quand l'utilisateur clique une carte écosystème, `setStep('form')` est appelé → React tente de charger le chunk du composant CVForm → le serveur meurt (OOM/sandbox reaper) → ChunkLoadError → "Application error: a client-side exception"
+   238→   238→- **Chatbot** : L'appel SDK ZAI échoue (timeout/erreur réseau) → le catch retourne `{ success: false, error: { code: 500, message: 'Erreur chatbot' } }` → le widget affiche "Désolé, une erreur est survenue"
+   239→   239→
+   240→   240→### Correctifs appliqués (6 fichiers)
+   241→   241→
+   242→   242→#### 1. Chatbot — Rule-based fallback (route.ts)
+   243→   243→**Fichier :** `src/app/api/chatbot/route.ts` (remplacé)
+   244→   244→- Knowledge base enrichie avec TOUS les 6 modules écosystème (CV, ATS, Jobs, Global, Mobilité, API) + tarification + conseils carrière
+   245→   245→- **Système de règles instantané** : détecte les questions sur Global, Mobilité, CV, ATS, Jobs, API, tarifs, bonjour → réponse immédiate SANS SDK (aucun ERREUR possible)
+   246→   246→- **Fallback LLM** : si aucune rène ne matche, essaie le SDK ZAI (deepseek-chat)
+   247→   247→- **Fallback final gracieux** : si le SDK échoue aussi, retourne une réponse listant les 6 modules au lieu de "ERREUR"
+   248→   248→- Testé via curl : Global, Mobilité, CV, ATS, Jobs, API, bonjour → tous retournent 200 avec réponse complète
+   249→   249→
+   250→   250→#### 2. ErrorBoundary — Capture des erreurs de rendu
+   251→   251→**Fichier :** `src/components/error-boundary.tsx` (nouveau)
+   252→   252→- Composant class-based ErrorBoundary
+   253→   253→- Détecte ChunkLoadError spécifiquement → auto-reload après 1.5s (le serveur redémarre via persistent loop)
+   254→   254→- UI gracieuse : "Module temporairement indisponible" + boutons Réessayer / Accueil
+   255→   255→- Remplace l'écran blanc "Application error" de Next.js
+   256→   256→
+   257→   257→#### 3. page-client.tsx — Loading states + ErrorBoundary
+   258→   258→**Fichier :** `src/app/page-client.tsx` (modifié)
+   259→   259→- Ajout d'un composant `Loading` (spinner) pour tous les 25 dynamic imports
+   260→   260→- Wrapping de toute l'application dans `<ErrorBoundary stepName="HireNova">`
+   261→   261→- Options inline (Turbopack n'accepte pas d'objet opts partagé)
+   262→   262→
+   263→   263→#### 4. cv-store.ts — Persistance du step
+   264→   264→**Fichier :** `src/store/cv-store.ts` (modifié)
+   265→   265→- Ajout du middleware `persist` de Zustand
+   266→   266→- `partialize` : ne persiste que `step` + `stepData` dans localStorage (clé `hirenova-step`)
+   267→   267→- **Bénéfice** : quand le ChunkLoadError déclenche un reload, la page restore automatiquement le step → l'utilisateur atterrit sur la bonne page (form, jobMarket, etc.) au lieu du landing
+   268→   268→
+   269→   269→#### 5. layout.tsx — Global ChunkLoadError handler
+   270→   270→**Fichier :** `src/app/layout.tsx` (modifié)
+   271→   271→- Script inline dans `<body>` : intercepte `error` et `unhandledrejection` globaux
+   272→   272→- Détecte "Failed to load chunk" / "ChunkLoadError" → auto-reload après 1.5s
+   273→   273→- Garde anti-boucle : `reloading` flag
+   274→   274→
+   275→   275→#### 6. db.ts — Fix fuite mémoire Prisma
+   276→   276→**Fichier :** `src/lib/db.ts` (modifié)
+   277→   277→- **Avant** : `log: ['query']` en production → chaque requête SQL loggée (centaines de logs par page) → mémoire gonflée
+   278→   278→- **Après** : logging désactivé en production, activé uniquement en dev
+   279→   279→- Cache du PrismaClient dans `globalThis` même en production (évite les fuites sur restart)
+   280→   280→
+   281→   281→### Vérifications
+   282→   282→- ✅ Lint : clean
+   283→   283→- ✅ Build production standalone : OK (Turbopack)
+   284→   284→- ✅ Serveur : HTTP 200, 23KB page
+   285→   285→- ✅ Chatbot API : 8 scénarios testés (Global, Mobilité, CV, ATS, Jobs, API, tarifs, bonjour) → tous retournent des réponses complètes sans ERREUR
+   286→   286→- ✅ Bundle JS : contient `step:"form"` pour CV/ATS, `globalMarket`, `mobilityHome`
+   287→   287→- ⚠️ Navigation CV/ATS : le code est correct (`setStep('form')`) mais le serveur meurt sous la charge parallèle de Chrome dans le sandbox. Les mécanismes de retry (ErrorBoundary + global handler + persisted step) assurent que la navigation réussit après reload.
+   288→   288→
+   289→   289→### État final
+   290→   290→- Serveur : production standalone (512MB, persistent loop)
+   291→   291→- 6 modules écosystème ACTIFS : CV, ATS, Jobs, Global, Mobilité, API
+   292→   292→- Chatbot : rule-based fallback (instant, sans SDK) + LLM fallback + gracieux fallback
+   293→   293→- Résilience : ErrorBoundary + ChunkLoadError retry + persisted step
+   294→   294→
+   295→   295→---
+   296→   296→Task ID: 14
+   297→   297→Agent: CTO (main)
+   298→   298→Task: Fix navigation CV/ATS + Chatbot ERREUR + résilience serveur persistant
+   299→   299→
+   300→   300→Work Log:
+   301→   301→- Diagnostic approfondi avec agent-browser : `handleNav()` était bien appelé (`console.log` confirmé), `setStep('form')` était bien exécuté, MAIS le `CVForm` component (ligne 105-110) a un `useEffect` qui appelle `setStep('landing')` si l'utilisateur n'est pas authentifié + n'a pas de plan actif → retour immédiat à la landing page
+   302→   302→- Bug découvert dans `requireAuthAndPlan()` : ne gérait que `'clForm'`, jamais `'form'` — le bouton "Créer mon CV" était donc aussi cassé
+   303→   303→- Correctifs appliqués dans `src/components/cv/landing.tsx` :
+   304→   304→  1. `pendingAction` type étendu : `'form' | 'clForm' | null` → `AppStep | null`
+   305→   305→  2. `requireAuthAndPlan(step: AppStep)` : accepte n'importe quelle étape, appelle `setStep(step)` quand auth+plan OK
+   306→   306→  3. `handleAuthSuccess()` : `setStep(pendingAction)` pour n'importe quelle étape (au lieu de seulement 'clForm')
+   307→   307→  4. `handleNav()` : utilise `requireAuthAndPlan('form')` pour CV/ATS (premium), `setStep()` direct pour Jobs/Global/Mobilité/API (public)
+   308→   308→- Serveur persistant : pattern double-fork daemon avec `bun` (au lieu de `node`) — survit entre les appels bash, PID reparenté à 1
+   309→   309→- Lint : clean
+   310→   310→- Build : OK
+   311→   311→
+   312→   312→Stage Summary:
+   313→   313→- ✅ HireNova CV → ouvre modale d'authentification (premium, nécessite compte + plan)
+   314→   314→- ✅ HireNova ATS → ouvre modale d'authentification (même flux que CV)
+   315→   315→- ✅ HireNova Jobs → marketplace d'emplois (public, navigation directe)
+   316→   316→- ✅ HireNova Global → marché international avec filtres par région (public)
+   317→   317→- ✅ HireNova Mobilité → page d'accueil mobilité avec sélection de pays (public)
+   318→   318→- ✅ HireNova API → documentation API avec endpoints (public)
+   319→   319→- ✅ Chatbot → répond correctement à "comment fonctionne HireNova Global" (réponse complète, pas d'ERREUR)
+   320→   320→- ✅ Serveur persistant : bun + double-fork daemon, PPID=1, survit entre appels bash
+   321→   321→
+   322→   322→---
+   323→   323→
+   324→   324→## Phase SEO-1 : 10 articles SEO blog FR + 1 article EN + API blog
+   325→   325→> Task ID : SEO-1
+   326→   326→> Agent : CTO (SEO content)
+   327→   327→> Date : 2026-07-26
+   328→   328→
+   329→   329→### Objectif
+   330→   330→Créer 10 articles SEO en français (1500-2500 mots chacun) + 1 version anglaise pour le blog HireNova, avec 2 routes API pour exposer le contenu.
+   331→   331→
+   332→   332→### Livrables créés
+   333→   333→
+   334→   334→#### 1. Répertoire de contenu
+   335→   335→- `content/blog/` — créé (n'existait pas avant)
+   336→   336→
+   337→   337→#### 2. Articles SEO (11 fichiers markdown)
+   338→   338→Chaque article contient :
+   339→   339→- Frontmatter YAML complet (title, slug, description ≤155 chars, keywords[], lang, category, author, date, readingTime, excerpt)
+   340→   340→- Introduction avec hook
+   341→   341→- Sommaire
+   342→   342→- Structure H2/H3 avec mots-clés
+   343→   343→- Exemples concrets et tableaux
+   344→   344→- Mentions naturelles de HireNova (non commerciale)
+   345→   345→- FAQ (3-5 questions)
+   346→   346→- CTA vers HireNova
+   347→   347→- Liens internes suggérés en commentaires markdown
+   348→   348→
+   349→   349→| # | Fichier | Mots | Catégorie | Lang |
+   350→   350→|---|---------|------|-----------|------|
+   351→   351→| a | `comment-faire-cv-etudiant-maroc.md` | 2380 | CV | fr |
+   352→   352→| b | `erreurs-cv-qui-eliminent-candidature.md` | 2268 | CV | fr |
+   353→   353→| c | `score-ats-comment-passer-filtres.md` | 2335 | ATS | fr |
+   354→   354→| d | `adaptation-cv-international-guide-pays.md` | 2542 | Mobilité | fr |
+   355→   355→| e | `lettre-motivation-ia-revolution.md` | 2089 | Lettre de motivation | fr |
+   356→   356→| f | `mobilite-internationale-cv-france.md` | 2719 | Mobilité | fr |
+   357→   357→| g | `cv-canadien-vs-francais-differences.md` | 2173 | Mobilité | fr |
+   358→   358→| h | `trouver-emploi-maroc-guide-2026.md` | 3340 | Emploi | fr |
+   359→   359→| i | `mots-cles-cv-optimisation-ats.md` | 2856 | ATS | fr |
+   360→   360→| j | `reconversion-professionnelle-cv.md` | 3280 | Carrière | fr |
+   361→   361→| EN | `how-to-make-student-cv-morocco.md` | 2173 | CV | en |
+   362→   362→
+   363→   363→**Total** : ~28 155 mots de contenu SEO original.
+   364→   364→
+   365→   365→#### 3. API Routes
+   366→   366→
+   367→   367→**`src/app/api/blog/route.ts`** — GET liste articles
+   368→   368→- Lit le dossier `content/blog/`
+   369→   369→- Parse chaque `.md` avec `gray-matter` (déjà installé)
+   370→   370→- Retourne uniquement les métadonnées (slug, title, description, excerpt, category, date, readingTime, keywords, lang, author)
+   371→   371→- Tri par date décroissante
+   372→   372→- Filtres optionnels : `?category=`, `?lang=`, `?limit=`
+   373→   373→- Réponse : `{ success: true, data: { articles: [...], total: N } }`
+   374→   374→- 200 OK testé : retourne bien les 11 articles
+   375→   375→- Filtre `?category=CV` testé : 3 articles (2 FR + 1 EN)
+   376→   376→- Filtre `?lang=en` testé : 1 article
+   377→   377→- Filtre `?category=ATS` testé : 2 articles
+   378→   378→
+   379→   379→**`src/app/api/blog/[slug]/route.ts`** — GET article unique
+   380→   380→- Lit `content/blog/{slug}.md`
+   381→   381→- Parse avec gray-matter
+   382→   382→- Retourne frontmatter + corps markdown
+   383→   383→- Slug sanitization (regex `^[a-z0-9-]+$`)
+   384→   384→- 200 OK testé sur `comment-faire-cv-etudiant-maroc` (renvoie contenu complet)
+   385→   385→- 200 OK testé sur `how-to-make-student-cv-morocco` (version EN)
+   386→   386→- 404 testé sur slug inexistant → `{ success: false, error: { code: 404, message: 'Article introuvable' } }`
+   387→   387→
+   388→   388→### Stack technique utilisée
+   389→   389→- `gray-matter@4.0.3` — parsing YAML frontmatter (déjà dans package.json)
+   390→   390→- `fs/promises` + `path` — lecture filesystem
+   391→   391→- `NextResponse` — réponse API standardisée
+   392→   392→- Pattern API existant (`{ success: true, data }` / `{ success: false, error: { code, message } }`) respecté
+   393→   393→
+   394→   394→### Vérifications
+   395→   395→- ✅ `bun run lint` — clean (aucune erreur)
+   396→   396→- ✅ Dev server répond 200 sur `/api/blog` et `/api/blog/[slug]`
+   397→   397→- ✅ Tous les 11 articles sont détectés et parsables
+   398→   398→- ✅ Filtres category/lang/limit fonctionnels
+   399→   399→- ✅ Cas 404 géré proprement
+   400→   400→- ✅ Tous les articles ont les 6 catégories représentées : CV (3), ATS (2), Mobilité (3), Emploi (1), Lettre de motivation (1), Carrière (1)
+   401→   401→- ✅ Multilingue : 10 FR + 1 EN (test SEO multilingue)
+   402→   402→
+   403→   403→### Notes SEO
+   404→   404→- Chaque article a un mot-clé primaire dans : title, H1, première phrase, meta description
+   405→   405→- Mots-clés LSI intégrés naturellement
+   406→   406→- Mots-clés secondaires (3-7 par article) dans le champ `keywords[]`
+   407→   407→- Liens internes bidirectionnels entre articles via commentaires markdown
+   408→   408→- Reading time calculée (8-13 minutes par article)
+   409→   409→- Format mobile-friendly : paragraphes courts, listes à puces, tableaux, gras sur termes clés
+   410→   410→- Ton professionnel mais accessible
+   411→   411→- Tous les articles mentionnent HireNova comme solution (sans ton commercial agressif)
+   412→   412→
+   413→   413→### Fichiers créés (13 fichiers)
+   414→   414→1. `content/blog/comment-faire-cv-etudiant-maroc.md`
+   415→   415→2. `content/blog/erreurs-cv-qui-eliminent-candidature.md`
+   416→   416→3. `content/blog/score-ats-comment-passer-filtres.md`
+   417→   417→4. `content/blog/adaptation-cv-international-guide-pays.md`
+   418→   418→5. `content/blog/lettre-motivation-ia-revolution.md`
+   419→   419→6. `content/blog/mobilite-internationale-cv-france.md`
+   420→   420→7. `content/blog/cv-canadien-vs-francais-differences.md`
+   421→   421→8. `content/blog/trouver-emploi-maroc-guide-2026.md`
+   422→   422→9. `content/blog/mots-cles-cv-optimisation-ats.md`
+   423→   423→10. `content/blog/reconversion-professionnelle-cv.md`
+   424→   424→11. `content/blog/how-to-make-student-cv-morocco.md` (version EN)
+   425→   425→12. `src/app/api/blog/route.ts`
+   426→   426→13. `src/app/api/blog/[slug]/route.ts`
+   427→   427→
+   428→   428→### État final
+   429→   429→- Contenu SEO blog complet et prêt à être consommé par un frontend blog
+   430→   430→- API REST fonctionnelle et testée
+   431→   431→- Multilingue FR/EN opérationnel
+   432→   432→- Architecture extensible : ajouter un article = juste créer un .md dans `content/blog/`
+   433→   433→- Aucune dépendance ajoutée (gray-matter déjà présent)
+   434→   434→- Aucune modification du schéma Prisma (le blog est filesystem-based pour la performance et la simplicité d'édition)
+   435→   435→
+   436→   436→---
+   437→   437→Task ID: 15-GTM
+   438→   438→Agent: CTO (main)
+   439→   439→Task: Go-to-Market — 5 livrables (SEO articles, PostHog, Parrainage, Email onboarding, Campus kit)
+   440→   440→
+   441→   441→Work Log:
+   442→   442→
+   443→   443→### 1. Articles SEO (10 FR + 1 EN = 11 articles, 28 155 mots)
+   444→   444→- Création du sous-agent full-stack-developer (Task SEO-1)
+   445→   445→- 11 fichiers markdown dans `/home/z/my-project/content/blog/` avec YAML frontmatter complet
+   446→   446→- 2 API routes : `/api/blog` (liste) et `/api/blog/[slug]` (article complet)
+   447→   447→- Filtres : ?category=, ?lang=, ?limit=
+   448→   448→- Testé via curl : 11 articles retournés, 1 article EN fonctionne, 404 géré
+   449→   449→
+   450→   450→### 2. PostHog Analytics
+   451→   451→- Dépendances installées : posthog-js, nodemailer, gray-matter
+   452→   452→- Fichier `/home/z/my-project/src/lib/analytics.ts` :
+   453→   453→  - initAnalytics(), identifyUser(), resetUser(), track()
+   454→   454→  - events object avec 30+ events pré-définis (signup, cv_generated, cv_downloaded, ats_analyzed, checkout_started, chatbot_message_sent, referral_shared, ecosystem_card_clicked, blog_article_viewed, etc.)
+   455→   455→- Composant `/home/z/my-project/src/components/analytics-bootstrap.tsx` :
+   456→   456→  - Initialise PostHog au montage
+   457→   457→  - Sync user identity avec session NextAuth
+   458→   458→- Intégration dans `page-client.tsx` (AnalyticsBootstrap wrappé)
+   459→   459→- Tracking ajouté dans :
+   460→   460→  - `landing.tsx` : ecosystem_card_clicked, personaSelected, cvFormStarted, pricingViewed, languageChanged, checkoutStarted
+   461→   461→  - `form.tsx` : cvGenerated
+   462→   462→  - `preview.tsx` : cvDownloaded (pdf/word), clDownloaded
+   463→   463→  - `ats-analysis.tsx` : atsAnalyzed (avec score)
+   464→   464→  - `chatbot-widget.tsx` : chatbotMessageSent
+   465→   465→
+   466→   466→### 3. Programme Parrainage (déjà créé par sous-agent précédent)
+   467→   467→- Modèle Prisma `Referral` (déjà présent)
+   468→   468→- 4 API routes : generate, stats, track, redeem
+   469→   469→- Composant `referral-dashboard.tsx` avec dashboard complet
+   470→   470→- AppStep 'referral' ajouté au store
+   471→   471→- Intégré dans profile-button.tsx (menu) + footer landing
+   472→   472→
+   473→   473→### 4. Email Onboarding (5 emails)
+   474→   474→- Fichier `/home/z/my-project/src/lib/email.ts` :
+   475→   475→  - Service nodemailer avec SMTP configurable (env vars)
+   476→   476→  - Mode dev : log to console si pas de SMTP
+   477→   477→  - 5 templates HTML responsive (welcome, firstCV, atsTips, ecosystem, proOffer)
+   478→   478→  - scheduleOnboardingEmails() — séquence J0/J1/J3/J7/J14
+   479→   479→- API route `/api/email/onboarding` :
+   480→   480→  - POST : envoie un email spécifique ou la séquence complète
+   481→   481→  - GET : retourne le statut de la séquence (jours écoulés, prochains emails)
+   482→   482→- Intégration dans `register/route.ts` : welcome email envoyé automatiquement à l'inscription
+   483→   483→
+   484→   484→### 5. Kit Campus HireNova
+   485→   485→- Composant `/home/z/my-project/src/components/campus/campus-kit.tsx` :
+   486→   486→  - Hero section avec CTA
+   487→   487→  - Stats (5000+ étudiants, 4 langues, 40+ pays, 0€ coût)
+   488→   488→  - 4 avantages (CV IA gratuit, Ateliers carrière, Statistiques, Réseau employeurs)
+   489→   489→  - 4 étapes de partenariat (Signature, Onboarding, Ateliers, Suivi)
+   490→   490→  - Cas d'usage type (université 3000 étudiants → 45 recrutements internationaux)
+   491→   491→  - Formulaire de contact (université, nom, email, téléphone, étudiants, message)
+   492→   492→  - Brochure téléchargeable
+   493→   493→  - Footer avec contact (email, tel, web)
+   494→   494→- API route `/api/campus/contact` :
+   495→   495→  - Sauvegarde dans SupportTicket
+   496→   496→  - Notifie admin par email
+   497→   497→  - Auto-reply au contact université
+   498→   498→- AppStep 'campus' ajouté au store
+   499→   499→- Intégré dans profile-button.tsx + footer landing
+   500→   500→
+   501→   501→### Vérifications
+   502→   502→- ✅ Lint clean (0 erreur)
+   503→   503→- ✅ Build production OK
+   504→   504→- ✅ Serveur standalone démarré (bun, port 3000)
+   505→   505→- ✅ Page Campus affichée (vérifiée via agent-browser) :
+   506→   506→  - "HireNova Campus" heading
+   507→   507→  - "Accompagnez vos étudiants vers l'employabilité internationale"
+   508→   508→  - Boutons "Télécharger la brochure" / "Devenir partenaire"
+   509→   509→  - Sections avantages + étapes + cas d'usage + formulaire
+   510→   510→- ✅ Footer links (Campus + Parrainage) visibles et cliquables
+   511→   511→- ✅ Blog API : 11 articles accessibles
+   512→   512→- ⚠️ Serveur instable sous charge Chrome (sandbox 4GB) — navigation testée individuellement
+   513→   513→
+   514→   514→Stage Summary:
+   515→   515→5 livrables Go-to-Market complets et fonctionnels :
+   516→   516→1. 11 articles SEO (28k mots) + 2 API routes → moteur SEO
+   517→   517→2. PostHog analytics (30+ events) → tracking funnel complet
+   518→   518→3. Parrainage (dashboard + 4 API + DB) → acquisition virale
+   519→   519→4. Email onboarding (5 templates + scheduler + API) → rétention
+   520→   520→5. Campus kit (landing + formulaire + brochure + API) → B2B universités
+   521→   521→
+   522→   522→---
+   523→   523→Task ID: RELAUNCH-Z
+   524→   524→Agent: CTO (main)
+   525→   525→Task: Relancer le serveur et vérifier l'affichage de la page HireNova
+   526→   526→
+   527→   527→Work Log:
+   528→   528→- Vérifié l'état du fichier analytics.ts (193 lignes, propre, sans JSX)
+   529→   529→- Ajouté NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST au fichier .env
+   530→   530→- Copié le .env mis à jour vers .next/standalone/.env
+   531→   531→- Tué les anciens processus serveur (hn-start.sh avec while-loop causait des crashes)
+   532→   532→- Démarré le serveur avec le pattern double-fork pur : ( ( exec bun server.js ) & ) — PPID reparenté à 1 (init)
+   533→   533→- `bun run lint` : PASSED (0 erreur)
+   534→   534→- Vérifié avec Agent Browser :
+   535→   535→  - Page / se charge avec HTTP 200
+   536→   536→  - Titre : "HireNova — Générateur de CV IA, Lettre de Motivation & Score ATS | E-Society 2050"
+   537→   537→  - Toutes les sections rendues : hero, personas (6), features, pricing, écosystème
+   538→   538→  - Clic "Étudiant" + "Créer mon CV" → modal d'authentification s'ouvre correctement (requireAuthAndPlan)
+   539→   539→  - Aucune erreur console après reload
+   540→   540→  - Aucune erreur de page
+   541→   541→- Testé l'API Blog : 11 articles servis via /api/blog, article individuel via /api/blog/[slug] fonctionne
+   542→   542→- Serveur stable : PID 6149, PPID 1, uptime 1m28s+, HTTP 200
+   543→   543→
+   544→   544→Stage Summary:
+   545→   545→- Serveur HireNova relancé et stable (daemon double-fork, PPID=1)
+   546→   546→- Tâche 1 (10 articles SEO) : ✅ Opérationnelle via API
+   547→   547→- Tâche 2 (PostHog Analytics) : ✅ Intégrée, sans erreur, clé démo active
+   548→   548→- Page d'accueil : ✅ Rendu complet, interactions fonctionnelles
+   549→   549→- NextAuth : ✅ Session et providers fonctionnels (secret ajouté)
+   550→   550→- Tâches 3, 4, 5 restent à faire (parrainage, email onboarding, campus kit)
+   551→   551→
+   552→   552→---
+   553→   553→Task ID: FINALIZE-3-4-5
+   554→   554→Agent: CTO (main)
+   555→   555→Task: Finaliser tâches 3 (Parrainage), 4 (Email Onboarding), 5 (Campus Kit)
+   556→   556→
+   557→   557→Work Log:
+   558→   558→- Découvert que les composants/API étaient déjà créés par une session précédente :
+   559→   559→  - src/components/referral/referral-dashboard.tsx (19KB)
+   560→   560→  - src/components/campus/campus-kit.tsx (18KB)
+   561→   561→  - src/lib/email.ts (16KB, 5 templates + scheduler)
+   562→   562→  - 4 routes API referral (generate, stats, track, redeem)
+   563→   563→  - 1 route API campus/contact
+   564→   564→  - 1 route API email/onboarding (GET + POST)
+   565→   565→- Ajouté le trigger onboarding dans src/app/api/auth/register/route.ts :
+   566→   566→  - Remplacé l'envoi manuel du welcome email par scheduleOnboardingEmails()
+   567→   567→  - La séquence complète J0/J1/J3/J7/J14 est maintenant déclenchée à l'inscription
+   568→   568→- Ajouté le modèle EmailLog au schema Prisma (suivi des emails envoyés)
+   569→   569→  - Champs: userId, email, template, step, subject, status, error, sentAt
+   570→   570→  - Relation ajoutée au modèle User (emailLogs)
+   571→   571→  - Index sur userId, email, template
+   572→   572→- Prisma db push --accept-data-loss : schema synchronisé
+   573→   573→- Lint : PASSED (0 erreur)
+   574→   574→- Build : PASSED (toutes routes compilées)
+   575→   575→- Serveur redémarré : PID 7019, PPID 1, HTTP 200
+   576→   576→
+   577→   577→Vérifications Agent Browser :
+   578→   578→- ✅ Campus page : rendu complet (hero, stats 5000+/4 langues/40+ pays/0€, 4 avantages, 4 étapes, cas d'usage, formulaire)
+   579→   579→- ✅ Campus contact form : soumission HTTP 200, ticket créé en DB
+   580→   580→- ✅ Register API : utilisateur créé, séquence onboarding déclenchée (5 emails loggés)
+   581→   581→- ✅ Login : session active (Test Onboarding, plan free)
+   582→   582→- ✅ Referral page (auth) : code auto-généré HN-CMS22D55, lien partage, 5 boutons sociaux (WhatsApp/LinkedIn/Twitter/Email/Copier), 2 onglets
+   583→   583→- ✅ Referral stats API : 0 parrainages (correct pour nouvel utilisateur)
+   584→   584→- ✅ Referral generate API : retourne code + shareLinks pour 4 plateformes
+   585→   585→- ✅ Email onboarding GET : séquence 5 emails avec statut (welcome=sent, 4 autres=pending)
+   586→   586→- ✅ Aucune erreur console, aucune erreur page
+   587→   587→
+   588→   588→Stage Summary:
+   589→   589→- Tâche 3 (Parrainage) : ✅ Complet — dashboard avec code, partage social, tracking, 4 APIs
+   590→   590→- Tâche 4 (Email Onboarding) : ✅ Complet — 5 templates (welcome/firstCV/atsTips/ecosystem/proOffer), scheduler J0-J14, trigger sur inscription
+   591→   591→- Tâche 5 (Campus Kit) : ✅ Complet — page présentation universités, formulaire partenariat, 0€ pour l'université
+   592→   592→- Modèle EmailLog ajouté pour suivi futur
+   593→   593→- Serveur stable et toutes les fonctionnalités vérifiées end-to-end
+   594→   594→
+   595→   595→---
+   596→   596→Task ID: FIX-CAMPUS-BACK-COUNTERS
+   597→   597→Agent: CTO (main)
+   598→   598→Task: Ajouter flèche retour sur Campus Kit + compteurs dynamiques temps réel
+   599→   599→
+   600→   600→Work Log:
+   601→   601→- Audit complet des pages fonctionnalités : toutes les pages top-level (referral, api-docs/register/dashboard, job-market, global-market, mobility-home) avaient déjà une flèche retour SAUF campus-kit
+   602→   602→- Ajouté flèche "Retour à l'accueil" avec ArrowLeft dans le header de campus-kit.tsx :
+   603→   603→  - Bouton ghost avec setStep('landing')
+   604→   604→  - Séparateur visuel (w-px h-8) entre le bouton retour et le logo
+   605→   605→  - aria-label pour accessibilité
+   606→   606→  - Responsive : icône seule sur mobile, "Retour" sur desktop
+   607→   607→- Section "Cas d'usage type" refactorisée :
+   608→   608→  - SUPPRIMÉ : statistiques figées (2 400 CV, 1 800 ATS, 320 candidatures, 45 recrutés)
+   609→   609→  - AJOUTÉ : 6 compteurs dynamiques temps réel avec loading state (animate-pulse)
+   610→   610→    1. CV générés (FileText)
+   611→   611→    2. Analyses ATS (Award)
+   612→   612→    3. Lettres motivation (Mail)
+   613→   613→    4. Candidatures envoyées (Users)
+   614→   614→    5. Pays Global (Globe) avec suffixe "+"
+   615→   615→    6. Utilisateurs inscrits (TrendingUp)
+   616→   616→  - Badge "Compteurs temps réel" avec point pulsant
+   617→   617→- Créé API GET /api/campus/stats (publique) :
+   618→   618→  - totalResumes, totalCoverLetters, totalAtsAnalyses
+   619→   619→  - totalJobApplications (local + global), totalLocalJobs, totalGlobalJobs
+   620→   620→  - totalUsers, totalCampusTickets, supportedCountries, totalDocuments
+   621→   621→  - Promise.all pour 9 requêtes DB parallèles
+   622→   622→- Conflit de nom résolu : renommé state `stats` → `liveStats` (tableau `stats` existait déjà pour le hero)
+   623→   623→- Build : PASSED après correction du conflit
+   624→   624→- NextAuth secret réajouté au .env (écrasé pendant le build) + copié vers standalone/.env
+   625→   625→
+   626→   626→Vérifications Agent Browser :
+   627→   627→- ✅ Page Campus : bouton "Retour à l'accueil" présent dans le header
+   628→   628→- ✅ Clic "Retour" : retourne à la landing page (Créer mon CV visible)
+   629→   629→- ✅ Cas d'usage type : 6 compteurs dynamiques affichés (0 CV, 0 ATS, 0 LM, 0 candidatures, 0+ pays, 1 utilisateur)
+   630→   630→- ✅ Loading state : skeleton pulse pendant le fetch
+   631→   631→- ✅ Aucune erreur console après reload
+   632→   632→- ✅ NextAuth session fonctionne ({} = non connecté)
+   633→   633→
+   634→   634→Stage Summary:
+   635→   635→- Flèche retour ajoutée sur HireNova Campus (la seule page qui manquait)
+   636→   636→- Cas d'usage type vidée des stats figées, remplacée par 6 compteurs temps réel depuis la DB
+   637→   637→- API /api/campus/stats créée (9 compteurs, Promise.all parallèle)
+   638→   638→- Serveur stable : PID 2664, PPID 1, HTTP 200
+   639→   639→
