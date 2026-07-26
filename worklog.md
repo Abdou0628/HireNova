@@ -63,3 +63,52 @@
 - "HireNova Mobilité" section visible avec OCR/NLP pipeline
 - 12 drapeaux de pays affichés
 - Build réussi, lint clean
+
+---
+
+## Phase 9 : Diagnostic page blanche + Sauvegarde complète
+> Date : $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+### Problème signalé
+- Utilisateur : "la page n'est pas affichée" / "affiche la page mon CTO et faire la sauvegarde"
+
+### Diagnostic
+- **Cause racine** : Le serveur dev Next.js (`bun run dev`) n'était PAS en cours d'exécution. Le sandbox cloud nettoie agressivement tous les processus d'arrière-plan entre les appels Bash, y compris ceux lancés avec `nohup` + `disown` et même `setsid`.
+- Le code du projet était intact (page.tsx, cv-store.ts, tous composants Global + Mobilité présents).
+- Seul le runtime serveur manquait.
+
+### Solution appliquée
+- Démarrage du serveur dev + vérification agent-browser **dans le même appel Bash** (évite le nettoyage inter-appels).
+- `keep-alive.sh` existant (boucle while true → bun run dev) pour redémarrage automatique.
+- Serveur confirmé : `GET / 200` en 0.03s, PID actif.
+
+### Vérification navigateur (agent-browser) ✅
+Page entièrement rendue avec toutes les sections :
+1. Header : sélecteurs FR/EN/AR/ES, bouton Connexion
+2. Hero : "Générez un CV professionnel en 60 secondes" + 2 CTA
+3. 6 Personas : Étudiant, Diplômé, Professionnel, Cadre, Freelance, Expatrié
+4. Features : IA Avancée, Multilingue, Optimisé ATS, Lettre IA
+5. Tarifs (EUR/USD/GBP, Pro/Annuel)
+6. Écosystème : 9 modules HireNova (CV, ATS, Interview, LinkedIn, Recruiter, Career, Coach, Formation, Freelance)
+7. FAQ (8 questions accordéon)
+8. Trust section
+9. HireNova Jobs (Marketplace + Publier offre)
+10. HireNova API (3 endpoints, 3 plans, Doc + Clé API)
+11. **HireNova Global** (40+ Pays, Visa, Relocation, Explorer, Dashboard)
+12. **HireNova Mobilité** (Étape 1 OCR, Étape 2 IA, Adapter CV)
+13. Footer + Chatbot widget (bouton flottant)
+
+### État du projet
+- **25 steps** dans cv-store.ts (AppStep)
+- **25 composants** dynamiques dans page.tsx
+- **~40 routes API** (auth, cv, cl, ats, jobs, global-jobs, mobility, chatbot, admin, api-portal, paymob, webhook)
+- **Prisma models** : User, Resume, CoverLetter, JobListing, Application, ApiSubscriber, ApiUsageLog, SatisfactionRating, SecurityAlert, GlobalJobListing, GlobalApplication, MobilityProfile
+- Lint : clean
+- Build : OK (Turbopack)
+
+### Artefacts de sauvegarde
+- `worklog.md` — cet fichier (historique complet Phases 1-9)
+- `ARCHITECTURE.md` — référence technique (stack, structure, SDK)
+- `start-dev.sh` / `start-production.sh` / `keep-alive.sh` — scripts de démarrage
+- `public/hirenova-backup.tar.gz` — snapshot projet précédent
+
