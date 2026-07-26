@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   GraduationCap,
@@ -14,9 +14,11 @@ import {
   Globe,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   Building2,
   FileText,
 } from 'lucide-react'
+import { useCVStore } from '@/store/cv-store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -26,7 +28,21 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { events } from '@/lib/analytics'
 
+interface CampusStats {
+  totalResumes: number
+  totalCoverLetters: number
+  totalAtsAnalyses: number
+  totalJobApplications: number
+  totalLocalJobs: number
+  totalGlobalJobs: number
+  totalUsers: number
+  totalCampusTickets: number
+  supportedCountries: number
+  totalDocuments: number
+}
+
 export default function CampusKit() {
+  const { setStep } = useCVStore()
   const [contactForm, setContactForm] = useState({
     university: '',
     contactName: '',
@@ -36,6 +52,32 @@ export default function CampusKit() {
     message: '',
   })
   const [submitting, setSubmitting] = useState(false)
+  const [liveStats, setLiveStats] = useState<CampusStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  // Fetch live platform counters
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/campus/stats')
+        const json = await res.json()
+        if (!cancelled && json.success) {
+          setLiveStats(json.data)
+        }
+      } catch (e) {
+ console.error('[campus] stats fetch failed:', e)
+      } finally {
+        if (!cancelled) setStatsLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Format a number with thousands separator (fr-FR)
+  const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n)
 
   const benefits = [
     {
@@ -172,13 +214,24 @@ E-Society 2050 — Casablanca, Maroc
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/30 via-white to-white">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep('landing')}
+              className="-ml-2 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+              aria-label="Retour à l'accueil"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1.5" />
+              <span className="hidden sm:inline">Retour</span>
+            </Button>
+            <div className="w-px h-8 bg-border hidden sm:block" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h1 className="font-bold text-base leading-tight">HireNova Campus</h1>
+            <div className="min-w-0">
+              <h1 className="font-bold text-base leading-tight truncate">HireNova Campus</h1>
               <p className="text-[10px] text-muted-foreground leading-tight">Programme Universités Partenaires</p>
             </div>
           </div>
@@ -186,7 +239,7 @@ E-Society 2050 — Casablanca, Maroc
             variant="ghost"
             size="sm"
             onClick={downloadBrochure}
-            className="gap-2 cursor-pointer"
+            className="gap-2 cursor-pointer shrink-0"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Brochure</span>
@@ -313,37 +366,115 @@ E-Society 2050 — Casablanca, Maroc
           </div>
         </section>
 
-        {/* Testimonial / Use case */}
+        {/* Live platform counters — Cas d'usage type */}
         <section className="mb-12 sm:mb-16">
           <Card className="bg-gradient-to-br from-emerald-50/50 to-white border-emerald-200">
             <CardContent className="p-6 sm:p-8">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 mb-6">
                 <div className="w-12 h-12 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Cas d'usage type</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     Une université marocaine de 3 000 étudiants signe le partenariat Campus.
-                    En 6 mois : <strong>2 400 CV générés</strong>, <strong>1 800 analyses ATS</strong>,
-                    <strong>320 candidatures envoyées</strong> via HireNova Jobs,
-                    <strong>45 étudiants recrutés</strong> à l'international (France, Canada, Émirats).
+                    Voici les compteurs en temps réel de la plateforme HireNova :
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      ROI mesurable
-                    </Badge>
-                    <Badge variant="outline" className="gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      Zéro coût université
-                    </Badge>
-                    <Badge variant="outline" className="gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      Impact direct employabilité
-                    </Badge>
-                  </div>
                 </div>
+              </div>
+
+              {/* Compteurs dynamiques temps réel */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <FileText className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      fmt(liveStats?.totalResumes ?? 0)
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">CV générés</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <Award className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      fmt(liveStats?.totalAtsAnalyses ?? 0)
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Analyses ATS</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <Mail className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      fmt(liveStats?.totalCoverLetters ?? 0)
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Lettres motivation</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <Users className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      fmt(liveStats?.totalJobApplications ?? 0)
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Candidatures envoyées</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <Globe className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      `${fmt(liveStats?.supportedCountries ?? 0)}+`
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Pays (Global)</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-emerald-100 p-3 sm:p-4 text-center">
+                  <TrendingUp className="w-5 h-5 text-emerald-600 mx-auto mb-1.5" />
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+                    {statsLoading ? (
+                      <span className="inline-block w-8 h-6 bg-emerald-100 rounded animate-pulse align-middle" />
+                    ) : (
+                      fmt(liveStats?.totalUsers ?? 0)
+                    )}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Utilisateurs inscrits</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-6">
+                <Badge variant="outline" className="gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  ROI mesurable
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  Zéro coût université
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  Impact direct employabilité
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Compteurs temps réel
+                </Badge>
               </div>
             </CardContent>
           </Card>

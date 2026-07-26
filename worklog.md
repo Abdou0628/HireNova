@@ -591,3 +591,48 @@ Stage Summary:
 - Tâche 5 (Campus Kit) : ✅ Complet — page présentation universités, formulaire partenariat, 0€ pour l'université
 - Modèle EmailLog ajouté pour suivi futur
 - Serveur stable et toutes les fonctionnalités vérifiées end-to-end
+
+---
+Task ID: FIX-CAMPUS-BACK-COUNTERS
+Agent: CTO (main)
+Task: Ajouter flèche retour sur Campus Kit + compteurs dynamiques temps réel
+
+Work Log:
+- Audit complet des pages fonctionnalités : toutes les pages top-level (referral, api-docs/register/dashboard, job-market, global-market, mobility-home) avaient déjà une flèche retour SAUF campus-kit
+- Ajouté flèche "Retour à l'accueil" avec ArrowLeft dans le header de campus-kit.tsx :
+  - Bouton ghost avec setStep('landing')
+  - Séparateur visuel (w-px h-8) entre le bouton retour et le logo
+  - aria-label pour accessibilité
+  - Responsive : icône seule sur mobile, "Retour" sur desktop
+- Section "Cas d'usage type" refactorisée :
+  - SUPPRIMÉ : statistiques figées (2 400 CV, 1 800 ATS, 320 candidatures, 45 recrutés)
+  - AJOUTÉ : 6 compteurs dynamiques temps réel avec loading state (animate-pulse)
+    1. CV générés (FileText)
+    2. Analyses ATS (Award)
+    3. Lettres motivation (Mail)
+    4. Candidatures envoyées (Users)
+    5. Pays Global (Globe) avec suffixe "+"
+    6. Utilisateurs inscrits (TrendingUp)
+  - Badge "Compteurs temps réel" avec point pulsant
+- Créé API GET /api/campus/stats (publique) :
+  - totalResumes, totalCoverLetters, totalAtsAnalyses
+  - totalJobApplications (local + global), totalLocalJobs, totalGlobalJobs
+  - totalUsers, totalCampusTickets, supportedCountries, totalDocuments
+  - Promise.all pour 9 requêtes DB parallèles
+- Conflit de nom résolu : renommé state `stats` → `liveStats` (tableau `stats` existait déjà pour le hero)
+- Build : PASSED après correction du conflit
+- NextAuth secret réajouté au .env (écrasé pendant le build) + copié vers standalone/.env
+
+Vérifications Agent Browser :
+- ✅ Page Campus : bouton "Retour à l'accueil" présent dans le header
+- ✅ Clic "Retour" : retourne à la landing page (Créer mon CV visible)
+- ✅ Cas d'usage type : 6 compteurs dynamiques affichés (0 CV, 0 ATS, 0 LM, 0 candidatures, 0+ pays, 1 utilisateur)
+- ✅ Loading state : skeleton pulse pendant le fetch
+- ✅ Aucune erreur console après reload
+- ✅ NextAuth session fonctionne ({} = non connecté)
+
+Stage Summary:
+- Flèche retour ajoutée sur HireNova Campus (la seule page qui manquait)
+- Cas d'usage type vidée des stats figées, remplacée par 6 compteurs temps réel depuis la DB
+- API /api/campus/stats créée (9 compteurs, Promise.all parallèle)
+- Serveur stable : PID 2664, PPID 1, HTTP 200
