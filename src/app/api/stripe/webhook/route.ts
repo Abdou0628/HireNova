@@ -132,6 +132,26 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
           paidAt: new Date(),
         })
         console.log(`[stripe/webhook] Receipt generated for ${userId}`)
+
+        // Create accounting entry
+        try {
+          await db.accountingEntry.create({
+            data: {
+              type: 'income',
+              category: 'subscription',
+              description: `Abonnement ${plan} — Stripe (${user.email})`,
+              amount: amountTotal / 100,
+              currency: currency.toUpperCase(),
+              status: 'confirmed',
+              userId,
+              reference: session.payment_intent as string || session.id,
+              metadata: JSON.stringify({ provider: 'stripe', plan, sessionId: session.id }),
+            },
+          })
+          console.log(`[stripe/webhook] Accounting entry created for ${userId}`)
+        } catch (acctErr) {
+          console.error('[stripe/webhook] Accounting entry failed:', acctErr)
+        }
       } catch (docErr) {
         console.error('[stripe/webhook] Auto-invoicing failed:', docErr instanceof Error ? docErr.message : docErr)
       }
@@ -190,6 +210,25 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
           paidAt: new Date(invoice.created_at * 1000),
         })
         console.log(`[stripe/webhook] Recurring invoice generated for ${user.id}`)
+
+        // Create accounting entry for recurring payment
+        try {
+          await db.accountingEntry.create({
+            data: {
+              type: 'income',
+              category: 'subscription',
+              description: `Abonnement récurrent — Stripe (${user.email})`,
+              amount: invoice.amount_paid / 100,
+              currency: (invoice.currency || 'eur').toUpperCase(),
+              status: 'confirmed',
+              userId: user.id,
+              reference: invoice.payment_intent as string || invoice.id,
+              metadata: JSON.stringify({ provider: 'stripe', recurring: true, invoiceId: invoice.id }),
+            },
+          })
+        } catch (acctErr) {
+          console.error('[stripe/webhook] Recurring accounting entry failed:', acctErr)
+        }
       } catch (err) {
         console.error('[stripe/webhook] Recurring invoice failed:', err)
       }

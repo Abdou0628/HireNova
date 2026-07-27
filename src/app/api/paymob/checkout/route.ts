@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { createPaymobCheckout, isPaymobConfigured, PAYMOB_PRICES } from '@/lib/paymob'
+import { createPaymobCheckout, isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan } from '@/lib/paymob'
 
-type PlanType = 'pro' | 'lifetime'
-
+/**
+ * PayMob Checkout API — Create a PayMob payment session.
+ *
+ * Note: The unified /api/checkout route is preferred for general use.
+ * This endpoint is kept for direct PayMob integration.
+ */
 export async function POST(request: NextRequest) {
   try {
     if (!isPaymobConfigured()) {
@@ -20,12 +24,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { planType: planTypeParam } = body as { planType?: string }
 
-    const validPlans: PlanType[] = ['pro', 'lifetime']
-    if (!planTypeParam || !validPlans.includes(planTypeParam as PlanType)) {
-      return NextResponse.json({ error: 'Invalid planType' }, { status: 400 })
+    const validPlans: PaymobPlan[] = ['starter', 'pro', 'career_plus', 'employer', 'annual']
+    if (!planTypeParam || !validPlans.includes(planTypeParam as PaymobPlan)) {
+      return NextResponse.json({ error: 'Invalid planType. Must be: ' + validPlans.join(', ') }, { status: 400 })
     }
 
-    const planType = planTypeParam as PlanType
+    const planType = planTypeParam as PaymobPlan
     const userId = session.user.id
 
     const user = await db.user.findUnique({
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: result.paymentUrl,
       orderId: result.orderId,
+      plan: planType,
       amount: PAYMOB_PRICES[planType],
       currency: 'MAD',
     })

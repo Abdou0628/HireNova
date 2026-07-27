@@ -3,10 +3,20 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { isStripeConfigured, type Currency, type HireNovaPlan, PLAN_PRICES } from '@/lib/stripe'
-import { isPaymobConfigured, PAYMOB_PRICES } from '@/lib/paymob'
+import { isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan } from '@/lib/paymob'
 import { STORE_ID, VARIANTS, getPlans, type PlanType as LSPlanType } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
 
+/**
+ * Unified Checkout API — Routes to the appropriate payment provider.
+ *
+ * Provider Priority (EUR/USD/GBP): Stripe → LemonSqueezy → Dev Payment
+ * MAD Payments: PayMob (Morocco) → Dev Payment
+ *
+ * Returns:
+ * - `{ url }` → redirect to payment provider
+ * - `{ code: 'DEV_PAYMENT', data: {...} }` → dev payment simulator result
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -44,42 +54,48 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-
-    // ─── MAD → PayMob ────────────────────────────────────
-    if (currency === 'mad') {
-      if (!isPaymobConfigured()) {
-        return NextResponse.json({
-          error: 'PayMob n\'est pas configuré pour les paiements MAD.',
-          code: 'PAYMOB_NOT_CONFIGURED'
-        }, { status: 503 })
-      }
-
-      const { createPaymobCheckout } = await import('@/lib/paymob')
-      // Map HireNova plans to PayMob plans
-      const pmPlan = planType === 'annual' ? 'lifetime' : 'pro'
-      const result = await createPaymobCheckout({
-        userId,
-        userEmail: user.email,
-        userName: user.name || 'User',
-        planType: pmPlan,
-      })
-
-      await db.user.update({
-        where: { id: userId },
-        data: { paymobOrderId: result.orderId },
-      })
-
-      return NextResponse.json({
-        url: result.paymentUrl,
-        orderId: result.orderId,
-        provider: 'paymob',
-        amount: PAYMOB_PRICES[pmPlan],
-        currency: 'MAD',
-      })
+    // Check if user already has a paid plan
+    if (user.plan !== 'free') {
+      return NextResponse.json({ error: 'Vous avez déjà un abonnement actif.', code: 'ALREADY_SUBSCRIBED' }, { status: 400 })
     }
 
-    // ─── EUR/USD/GBP → Stripe or LemonSqueezy ───────────
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+
+    // ════════════════════════════════════════════════════════
+    // ─── MAD → PayMob (Morocco) ──────────────────────────
+    // ════════════════════════════════════════════════════════
+    if (currency === 'mad') {
+      if (isPaymobConfigured()) {
+        const { createPaymobCheckout } = await import('@/lib/paymob')
+        const pmPlan = planType as PaymobPlan
+        const result = await createPaymobCheckout({
+          userId,
+          userEmail: user.email,
+          userName: user.name || 'User',
+          planType: pmPlan,
+        })
+
+        await db.user.update({
+          where: { id: userId },
+          data: { paymobOrderId: result.orderId },
+        })
+
+        return NextResponse.json({
+          url: result.paymentUrl,
+          orderId: result.orderId,
+          provider: 'paymob',
+          plan: pmPlan,
+          amount: PAYMOB_PRICES[pmPlan],
+          currency: 'MAD',
+        })
+      }
+      // PayMob not configured → fall through to dev payment simulator
+      console.log(`[checkout] PayMob not configured for MAD, using dev payment simulator for ${planType}`)
+    }
+
+    // ════════════════════════════════════════════════════════
+    // ─── EUR/USD/GBP → Stripe or LemonSqueezy ─────────────
+    // ════════════════════════════════════════════════════════
     // Priority: explicit provider > Stripe > LemonSqueezy > dev-payment
     const providers: { name: string; available: boolean }[] = []
 
@@ -133,6 +149,7 @@ export async function POST(request: NextRequest) {
             url: checkoutSession.url,
             sessionId: checkoutSession.id,
             provider: 'stripe',
+            plan: planType,
           })
         } catch (stripeErr) {
           console.error('[checkout] Stripe error:', stripeErr)
@@ -178,6 +195,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({
             url: data.data.attributes.url,
             provider: 'lemonsqueezy',
+            plan: planType,
           })
         } catch (lsErr) {
           console.error('[checkout] LemonSqueezy error:', lsErr)
@@ -186,10 +204,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ─── No real provider available → Dev payment simulator ──
+    // ════════════════════════════════════════════════════════
+    // ─── No real provider → Dev Payment Simulator ──────────
+    // ════════════════════════════════════════════════════════
     const prices: Record<string, number> = { starter: 9, pro: 19, career_plus: 39, employer: 49, annual: 179 }
     const basePrice = prices[planType] ?? 19
-    const amount = currency === 'usd' ? basePrice * 1.1 : currency === 'gbp' ? basePrice * 0.85 : basePrice
+    const amount = currency === 'usd' ? Math.round(basePrice * 1.1) : currency === 'gbp' ? Math.round(basePrice * 0.85) : currency === 'mad' ? Math.round(basePrice * 10.7) : basePrice
+    const currencyLabel = currency.toUpperCase()
 
     const { generateInvoiceForPayment, generateReceiptForPayment } = await import('@/lib/documents')
 
@@ -205,7 +226,7 @@ export async function POST(request: NextRequest) {
       userName: user.name || 'Client',
       plan: planType,
       amount,
-      currency: currency.toUpperCase(),
+      currency: currencyLabel,
       userId,
       paidAt: new Date(),
     })
@@ -215,11 +236,35 @@ export async function POST(request: NextRequest) {
       userEmail: user.email,
       userName: user.name || 'Client',
       amount,
-      currency: currency.toUpperCase(),
+      currency: currencyLabel,
       description: `Abonnement ${planType} — HireNova (Simulation)`,
       userId,
       paidAt: new Date(),
     })
+
+    // Create accounting entry
+    try {
+      await db.accountingEntry.create({
+        data: {
+          type: 'income',
+          category: 'subscription',
+          description: `Abonnement ${planType} — Dev Simulation (${user.email})`,
+          amount,
+          currency: currencyLabel,
+          status: 'confirmed',
+          userId,
+          metadata: JSON.stringify({
+            provider: 'dev_simulation',
+            plan: planType,
+            userEmail: user.email,
+            invoiceNumber: invoice.number,
+            receiptNumber: receipt.number,
+          }),
+        },
+      })
+    } catch (acctErr) {
+      console.error('[checkout] Dev accounting entry failed:', acctErr)
+    }
 
     return NextResponse.json({
       code: 'DEV_PAYMENT',
@@ -227,7 +272,7 @@ export async function POST(request: NextRequest) {
       data: {
         plan: planType,
         amount,
-        currency: currency.toUpperCase(),
+        currency: currencyLabel,
         invoice: {
           number: invoice.number,
           downloadUrl: `/api/documents/${invoice.id}`,

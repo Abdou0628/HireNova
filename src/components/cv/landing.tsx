@@ -63,6 +63,16 @@ interface PricingFeature {
   annual: boolean | string
 }
 
+// MAD prices for each plan (quick lookup for pricing cards)
+const MAD_PRICES: Record<string, string> = {
+  starter: '90 MAD',
+  pro: '190 MAD',
+  career_plus: '390 MAD',
+  employer: '490 MAD',
+  annual: '700 MAD',
+}
+const MAD_MONTHLY = { fr: '/mois', en: '/month', ar: '/شهر', es: '/mes' }
+
 const pricingFeatures: PricingFeature[] = [
   { key: 'pricingCv', pro: '∞', annual: '∞' },
   { key: 'pricingTemplates', pro: '3', annual: '3' },
@@ -144,17 +154,19 @@ export default function Landing() {
     invoice: { number: string; downloadUrl: string }
     receipt: { number: string; downloadUrl: string }
   } | null>(null)
-  const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
+  const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp' | 'mad'>('eur')
   const [pendingAction, setPendingAction] = useState<AppStep | null>(null)
   const [adminEmail, setAdminEmail] = useState('')
   const [isAdminOpen, setIsAdminOpen] = useState(false)
 
   const isUsd = currency === 'usd'
   const isGbp = currency === 'gbp'
+  const isMad = currency === 'mad'
 
   const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
   const isLoggedIn = !!session?.user
-  const hasActivePlan = userPlan === 'pro' || userPlan === 'annual' || userPlan === 'lifetime'
+  const paidPlans = ['starter', 'pro', 'career_plus', 'employer', 'annual', 'lifetime']
+  const hasActivePlan = paidPlans.includes(userPlan)
 
   function requireAuthAndPlan(step: AppStep) {
     if (!isLoggedIn) {
@@ -207,17 +219,60 @@ export default function Landing() {
   }, [])
 
   const isAdmin = !!adminEmail && session?.user?.email === adminEmail
+  const [paymobPolling, setPaymobPolling] = useState(false)
 
-  // Handle checkout success/cancel redirect from Stripe/LemonSqueezy
+  // Handle checkout success/cancel redirect from Stripe/LemonSqueezy/PayMob
   useEffect(() => {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const checkoutStatus = params.get('checkout')
+    const provider = params.get('provider')
+
     if (checkoutStatus === 'success') {
       const plan = params.get('plan') || 'pro'
-      toast.success(`🎉 Paiement réussi ! Plan ${plan} activé. Bienvenue !`, { duration: 5000 })
-      // Clean URL params
-      window.history.replaceState({}, '', window.location.pathname)
+      if (provider === 'paymob') {
+        // PayMob: poll status endpoint until payment is confirmed
+        setPaymobPolling(true)
+        toast.info('Vérification du paiement en cours...', { duration: 3000 })
+        let attempts = 0
+        const maxAttempts = 20
+        const interval = setInterval(async () => {
+          attempts++
+          try {
+            const res = await fetch('/api/paymob/status')
+            const data = await res.json()
+            if (data.status === 'paid') {
+              clearInterval(interval)
+              setPaymobPolling(false)
+              toast.success(`🎉 Paiement réussi ! Plan ${data.plan} activé. Bienvenue !`, { duration: 6000 })
+              if (data.invoice && data.receipt) {
+                setPaymentSuccess({
+                  plan: data.plan,
+                  amount: 0,
+                  currency: 'MAD',
+                  invoice: data.invoice,
+                  receipt: data.receipt,
+                })
+              }
+              window.history.replaceState({}, '', window.location.pathname)
+            } else if (data.status === 'expired') {
+              clearInterval(interval)
+              setPaymobPolling(false)
+              toast.error('La session de paiement a expiré. Veuillez réessayer.', { duration: 5000 })
+              window.history.replaceState({}, '', window.location.pathname)
+            } else if (attempts >= maxAttempts) {
+              clearInterval(interval)
+              setPaymobPolling(false)
+              toast.info('Le paiement est encore en cours de traitement. Actualisez la page dans quelques instants.', { duration: 6000 })
+            }
+          } catch {
+            // Silently retry
+          }
+        }, 3000) // poll every 3 seconds
+      } else {
+        toast.success(`🎉 Paiement réussi ! Plan ${plan} activé. Bienvenue !`, { duration: 5000 })
+        window.history.replaceState({}, '', window.location.pathname)
+      }
     } else if (checkoutStatus === 'canceled') {
       toast.info('Paiement annulé. Vous pouvez réessayer à tout moment.', { duration: 4000 })
       window.history.replaceState({}, '', window.location.pathname)
@@ -620,6 +675,12 @@ export default function Landing() {
                 >
                   GBP £
                 </button>
+                <button
+                  onClick={() => setCurrency('mad')}
+                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", currency === 'mad' ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+                >
+                  MAD 🇲🇦
+                </button>
               </div>
             </motion.div>
 
@@ -687,8 +748,8 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-foreground">{t(language, 'planStarter')}</h3>
                     </div>
                     <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-3xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingStarterPriceUsd') : isGbp ? t(language, 'pricingStarterPriceGbp') : t(language, 'planStarterPrice')}</span>
-                      <span className="text-muted-foreground text-xs">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-3xl font-extrabold text-foreground">{isMad ? MAD_PRICES.starter : isUsd ? t(language, 'pricingStarterPriceUsd') : isGbp ? t(language, 'pricingStarterPriceGbp') : t(language, 'planStarterPrice')}</span>
+                      <span className="text-muted-foreground text-xs">{isMad ? (MAD_MONTHLY[language] || '/mois') : isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{t(language, 'planStarterDesc')}</p>
                     <div className="space-y-2 mb-6 flex-grow">
@@ -734,8 +795,8 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-foreground">{t(language, 'planPro')}</h3>
                     </div>
                     <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-3xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingProPriceUsd') : isGbp ? t(language, 'pricingProPriceGbp') : t(language, 'planProPrice')}</span>
-                      <span className="text-muted-foreground text-xs">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-3xl font-extrabold text-foreground">{isMad ? MAD_PRICES.pro : isUsd ? t(language, 'pricingProPriceUsd') : isGbp ? t(language, 'pricingProPriceGbp') : t(language, 'planProPrice')}</span>
+                      <span className="text-muted-foreground text-xs">{isMad ? (MAD_MONTHLY[language] || '/mois') : isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{t(language, 'planProDesc')}</p>
                     <div className="space-y-2 mb-6 flex-grow">
@@ -779,8 +840,8 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-foreground">{t(language, 'planCareer')}</h3>
                     </div>
                     <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-3xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingCareerPriceUsd') : isGbp ? t(language, 'pricingCareerPriceGbp') : t(language, 'planCareerPrice')}</span>
-                      <span className="text-muted-foreground text-xs">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-3xl font-extrabold text-foreground">{isMad ? MAD_PRICES.career_plus : isUsd ? t(language, 'pricingCareerPriceUsd') : isGbp ? t(language, 'pricingCareerPriceGbp') : t(language, 'planCareerPrice')}</span>
+                      <span className="text-muted-foreground text-xs">{isMad ? (MAD_MONTHLY[language] || '/mois') : isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{t(language, 'planCareerDesc')}</p>
                     <div className="space-y-2 mb-6 flex-grow">
@@ -824,8 +885,8 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-foreground">{t(language, 'planEmployer')}</h3>
                     </div>
                     <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-3xl font-extrabold text-foreground">{isUsd ? t(language, 'pricingEmployerPriceUsd') : isGbp ? t(language, 'pricingEmployerPriceGbp') : t(language, 'planEmployerPrice')}</span>
-                      <span className="text-muted-foreground text-xs">{isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
+                      <span className="text-3xl font-extrabold text-foreground">{isMad ? MAD_PRICES.employer : isUsd ? t(language, 'pricingEmployerPriceUsd') : isGbp ? t(language, 'pricingEmployerPriceGbp') : t(language, 'planEmployerPrice')}</span>
+                      <span className="text-muted-foreground text-xs">{isMad ? (MAD_MONTHLY[language] || '/mois') : isUsd ? t(language, 'pricingMonthlyUsd') : isGbp ? t(language, 'pricingMonthlyGbp') : t(language, 'pricingMonthly')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{t(language, 'planEmployerDesc')}</p>
                     <div className="space-y-2 mb-6 flex-grow">

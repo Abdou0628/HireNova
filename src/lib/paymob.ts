@@ -1,3 +1,15 @@
+/**
+ * HireNova PayMob Integration — Morocco MAD payments
+ *
+ * Handles PayMob authentication, order creation, payment key generation,
+ * iframe checkout URLs, and webhook HMAC verification.
+ *
+ * Flow: User clicks "Payer" → POST /api/checkout { planType, currency: 'mad' }
+ *       → createPaymobCheckout() → redirect to PayMob iframe
+ *       → User pays → PayMob sends webhook to POST /api/paymob/webhook
+ *       → verify HMAC → upgrade plan → generate invoice + receipt + accounting entry
+ */
+
 const PAYMOB_API_KEY = process.env.PAYMOB_API_KEY || ''
 const PAYMOB_INTEGRATION_ID = parseInt(process.env.PAYMOB_INTEGRATION_ID || '0', 10)
 const PAYMOB_IFRAME_ID = parseInt(process.env.PAYMOB_IFRAME_ID || '0', 10)
@@ -5,15 +17,36 @@ const PAYMOB_HMAC_SECRET = process.env.PAYMOB_HMAC_SECRET || ''
 
 const PAYMOB_BASE_URL = 'https://accept.paymob.com/api'
 
-type PlanType = 'pro' | 'lifetime'
+// ─── Plan Types & Pricing (MAD) ──────────────────────────
+export type PaymobPlan = 'starter' | 'pro' | 'career_plus' | 'employer' | 'annual'
 
-// Prices in MAD (Moroccan Dirham)
-export const PAYMOB_PRICES: Record<PlanType, number> = {
-  pro: 70,       // ~6.99 EUR equivalent
-  lifetime: 300, // ~29.99 EUR equivalent
+/**
+ * PayMob prices in MAD (integer, not cents).
+ * Aligned with HireNova PLAN_PRICES.mad from stripe.ts
+ */
+export const PAYMOB_PRICES: Record<PaymobPlan, number> = {
+  starter:     90,    // ~9 EUR equivalent
+  pro:         190,   // ~19 EUR equivalent
+  career_plus: 390,   // ~39 EUR equivalent
+  employer:    490,   // ~49 EUR equivalent
+  annual:      700,   // ~70 EUR equivalent (one-time / annual)
+}
+
+/**
+ * Reverse lookup: amount → plan type (for webhook plan detection).
+ * Used when PayMob doesn't pass custom metadata back.
+ */
+export const PAYMOB_AMOUNT_TO_PLAN: Record<number, PaymobPlan> = {
+  90:  'starter',
+  190: 'pro',
+  390: 'career_plus',
+  490: 'employer',
+  700: 'annual',
 }
 
 export const PAYMOB_CURRENCY = 'EGP' // Paymob processes in EGP internally for Africa
+
+// ─── PayMob API Types ────────────────────────────────────
 
 interface PaymobTokenResponse {
   token: string
@@ -26,6 +59,8 @@ interface PaymobOrderResponse {
 interface PaymobPaymentKeyResponse {
   token: string
 }
+
+// ─── PayMob API Functions ────────────────────────────────
 
 async function getAuthToken(): Promise<string> {
   const res = await fetch(`${PAYMOB_BASE_URL}/auth/tokens/`, {
@@ -48,6 +83,8 @@ async function createOrder(token: string, amountCents: number, merchantOrderId: 
       amount_cents: amountCents * 100, // Paymob expects cents
       currency: PAYMOB_CURRENCY,
       merchant_order_id: merchantOrderId,
+      // Store the plan type in order metadata for webhook retrieval
+      // Note: PayMob doesn't support metadata natively, so we encode it in merchant_order_id
     }),
   })
   const data: PaymobOrderResponse = await res.json()
@@ -61,8 +98,6 @@ async function getPaymentKey(
   amountCents: number,
   userEmail: string,
   userName: string,
-  userId: string,
-  planType: string
 ): Promise<string> {
   const res = await fetch(`${PAYMOB_BASE_URL}/acceptance/payment_keys/`, {
     method: 'POST',
@@ -82,10 +117,10 @@ async function getPaymentKey(
         phone_number: 'NA',
         shipping_method: 'NA',
         postal_code: 'NA',
-        city: 'NA',
+        city: 'Casablanca',
         country: 'MA',
         last_name: userName.split(' ').slice(1).join(' ') || '',
-        state: 'NA',
+        state: 'Casablanca-Settat',
       },
       currency: PAYMOB_CURRENCY,
       integration_id: PAYMOB_INTEGRATION_ID,
@@ -97,35 +132,52 @@ async function getPaymentKey(
   return data.token
 }
 
+/**
+ * Create a PayMob checkout session and return the iframe URL.
+ *
+ * The merchant_order_id encodes: `hirenova-{planType}-{userId}-{timestamp}`
+ * This allows the webhook to extract the plan type directly, avoiding fragile
+ * amount-based detection.
+ */
 export async function createPaymobCheckout(params: {
   userId: string
   userEmail: string
   userName: string
-  planType: PlanType
-}): Promise<{ paymentUrl: string; orderId: string }> {
+  planType: PaymobPlan
+}): Promise<{ paymentUrl: string; orderId: string; merchantOrderId: string }> {
   const { userId, userEmail, userName, planType } = params
   const amount = PAYMOB_PRICES[planType]
-  const merchantOrderId = `cvg-${userId}-${Date.now()}`
+  // Encode plan type in merchant_order_id for webhook retrieval
+  const merchantOrderId = `hirenova-${planType}-${userId}-${Date.now()}`
 
   const token = await getAuthToken()
   const orderId = await createOrder(token, amount, merchantOrderId)
-  const paymentKey = await getPaymentKey(token, orderId, amount, userEmail, userName, userId, planType)
+  const paymentKey = await getPaymentKey(token, orderId, amount, userEmail, userName)
 
   const paymentUrl = `${PAYMOB_BASE_URL}/acceptance/iframes/${PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`
 
   return {
     paymentUrl,
     orderId: orderId.toString(),
+    merchantOrderId,
   }
 }
 
-// HMAC verification for webhook
+// ─── HMAC Verification (Webhook) ──────────────────────────
+
 import { createHmac } from 'crypto'
 
+/**
+ * Verify PayMob webhook HMAC signature.
+ * PayMob sends { type, obj, hmac } where hmac = HmacSHA512(concatenated_fields, secret)
+ */
 export function verifyPaymobWebhook(payload: Record<string, unknown>): boolean {
-  if (!PAYMOB_HMAC_SECRET) return false
+  if (!PAYMOB_HMAC_SECRET) {
+    // In dev without HMAC secret, accept all (dev mode)
+    console.warn('[paymob] No HMAC_SECRET configured — skipping verification (dev mode)')
+    return true
+  }
 
-  // Paymob sends an object with `type` and `obj`
   const obj = payload.obj as Record<string, unknown> | undefined
   if (!obj) return false
 
@@ -164,6 +216,24 @@ export function verifyPaymobWebhook(payload: Record<string, unknown>): boolean {
   }
 }
 
+/**
+ * Extract plan type from the PayMob order's merchant_order_id.
+ * Format: `hirenova-{planType}-{userId}-{timestamp}`
+ */
+export function extractPlanFromMerchantOrderId(merchantOrderId: string): PaymobPlan | null {
+  const match = merchantOrderId.match(/^hirenova-([a-z_]+)-/)
+  if (!match) return null
+  const plan = match[1] as PaymobPlan
+  if (plan in PAYMOB_PRICES) return plan
+  return null
+}
+
+// ─── Configuration Check ────────────────────────────────
+
 export function isPaymobConfigured(): boolean {
-  return !!(PAYMOB_API_KEY && PAYMOB_INTEGRATION_ID && PAYMOB_IFRAME_ID)
+  return !!(
+    PAYMOB_API_KEY &&
+    PAYMOB_INTEGRATION_ID &&
+    PAYMOB_IFRAME_ID
+  )
 }

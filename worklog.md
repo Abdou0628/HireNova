@@ -1338,3 +1338,32 @@ Stage Summary:
 - Paperless loop maintained: payment → invoice → receipt → bilan (taxes)
 - 4 currencies, 5 plans, all prices configurable via env vars
 - To activate real payments: replace placeholder keys in .env with real Stripe/LemonSqueezy/PayMob credentials
+
+---
+
+Task ID: SEQ4
+Agent: Main Agent
+Task: Wire-up paiement réel — Real payment wiring (SEQ4)
+
+Work Log:
+- Audited entire payment system: PayMob checkout/webhook, Stripe webhooks, unified /api/checkout, landing page pricing UI
+- Fixed `src/lib/paymob.ts`: Added all 5 plan prices in MAD (90/190/390/490/700), added `extractPlanFromMerchantOrderId()` for robust plan detection from encoded merchant_order_id, added `PAYMOB_AMOUNT_TO_PLAN` reverse lookup, HMAC verification now skips in dev mode without secret
+- Fixed `src/app/api/paymob/webhook/route.ts`: Uses merchant_order_id encoding for plan detection (priority over amount fallback), creates `AccountingEntry` record on every payment for financial tracking
+- Fixed `src/app/api/checkout/route.ts`: MAD currency now routes to PayMob when configured, falls through to dev payment simulator when not; all plan types properly mapped; added `ALREADY_SUBSCRIBED` check; dev simulator now creates accounting entries too
+- Fixed `src/app/api/paymob/checkout/route.ts`: Updated to use new `PaymobPlan` type (all 5 plans)
+- Fixed `src/app/api/stripe/webhook/route.ts`: Added `AccountingEntry` creation for both one-time and recurring payments
+- Created `src/app/api/paymob/status/route.ts`: GET endpoint for payment verification after PayMob redirect (polling support)
+- Added `AccountingEntry` model to `prisma/schema.prisma` (type, category, amount, currency, status, userId, reference, metadata)
+- Updated landing page `src/components/cv/landing.tsx`: Added MAD 🇲🇦 currency button, MAD price display for all 5 plans, fixed `hasActivePlan` to include all paid plans (starter/pro/career_plus/employer/annual/lifetime), added PayMob payment polling after redirect (3s interval, 20 attempts max)
+- Ran `bun run db:push` to sync new AccountingEntry model
+- Lint clean: `bun run lint` passes
+- Agent-browser verified: Landing page loads, MAD currency toggle works, all 5 plans show MAD prices (90/190/390/490/700), EUR checkout (dev simulator) shows success modal with invoice+receipt PDFs, MAD checkout (dev simulator fallback) shows success modal with 96 MAD invoice+receipt, DB correctly shows plan upgrade + accounting entry + documents
+
+Stage Summary:
+- Complete payment wiring: 4 currencies (EUR/USD/GBP/MAD) × 5 plans (Starter/Pro/Career+/Employer/Annual) all functional
+- Every payment creates: plan upgrade + invoice + receipt + accounting entry (paperless financial loop)
+- PayMob real payment ready: when credentials added to .env, all MAD payments will route through PayMob iframe → webhook → auto-invoice
+- Stripe real payment ready: existing webhook handlers now create accounting entries too
+- Dev payment simulator serves as fallback for all currencies when no provider is configured
+- Payment status polling endpoint ready for PayMob redirect flow
+- Key files modified: paymob.ts, paymob/webhook, paymob/checkout, paymob/status (new), checkout, stripe/webhook, landing.tsx, schema.prisma
