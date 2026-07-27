@@ -949,3 +949,75 @@ Stage Summary:
 - 4 langues supportées (FR/EN/AR/ES)
 - UX soignée : sections visuelles, dropdowns Radix, validation, états loading/success
 - Le bouton "Contacter les ventes" ouvre maintenant un vrai formulaire au lieu d'un simple mailto
+
+---
+Task ID: SEQ-1-DOCUMENT-ENGINE
+Agent: CTO (main)
+Task: SEQ-1 — Moteur d'auto-génération de documents PDF (paperless startup foundation)
+
+Work Log:
+- Vision utilisateur : "startup purement digital, pas de paperasse, tout est regénéré automatiquement sur simple demande"
+- Installé pdf-lib@1.17.1 + @pdf-lib/fontkit@1.1.1 pour génération PDF server-side
+- Ajouté model Document à prisma/schema.prisma :
+  * 30+ champs : type, number (unique), recipient/issuer info, items (JSON), currency, totals, status, dates, relations (userId, inquiryId), storage (pdfBase64)
+  * Types : invoice | quote | agreement | receipt | credit_note
+  * Status : draft | sent | paid | accepted | rejected | cancelled | expired
+  * Indexes sur type, status, number, createdAt
+- bun run db:push : schéma synchronisé
+- Créé src/lib/documents.ts (moteur principal, ~870 lignes) :
+  * 4 générateurs : generateInvoiceForPayment, generateQuoteForInquiry, generateReceiptForPayment, generateAgreementForInquiry
+  * Numérotation séquentielle auto : FAC-2026-0001, DEV-2026-0001, CTR-2026-0001, REC-2026-0001
+  * PDF A4 professionnel avec : header coloré par type, meta box (objet/dates/statut), table d'items avec totaux, bloc acceptation (devis), clauses contrat (agreement), footer légal, watermark "DEVIS"
+  * Formatage monétaire multi-devises (EUR/USD/GBP/MAD/AED/SAR)
+  * CALCUL auto : subtotal, taxAmount, total
+  * PERSISTANCE : chaque doc sauvé en DB avec pdfBase64
+  * CRITICAL FIX : override de page.drawText pour auto-sanitize Unicode → WinAnsi (em dash —, narrow no-break space U+202F, accented chars, curly quotes) — prévient l'erreur "WinAnsi cannot encode"
+- Créé 5 routes API :
+  * POST /api/documents/generate (admin) — génère devis/facture/reçu/contrat
+  * GET /api/documents/[id] — download PDF (admin ou owner)
+  * POST /api/documents/[id]/send — envoi email avec PDF en attachment
+  * GET /api/admin/documents — list + filter + stats
+  * PATCH /api/admin/documents — update status (mark as paid/accepted)
+  * GET /api/admin/enterprise-inquiries — list inquiries
+  * PATCH /api/admin/enterprise-inquiries — update status
+- Créé src/components/admin/documents-tab.tsx (~450 lignes) :
+  * 5 stats cards (Factures, Devis, Contrats, Reçus, Revenu total)
+  * Section Demandes Enterprise avec boutons "Devis" + "Contrat" par inquiry
+  * Table documents avec colonnes : N°, Type (badge coloré), Destinataire, Objet, Montant, Statut (badge), Date, Actions
+  * Filtres : recherche texte, type, statut
+  * Actions par doc : Download PDF, Send email, Mark as paid/accepted
+- Intégré dans admin-dashboard.tsx : nouvel onglet "Documents" (icône Receipt)
+- bun run lint : ✓ sans erreur
+- bun run build : ✓ succès, 5 nouvelles routes enregistrées
+- Copié assets + .env + db vers standalone
+- Redémarré serveur : PID stable, HTTP 200
+
+Vérifications Agent Browser :
+- ✅ Login admin réussi
+- ✅ Onglet "Documents" visible dans Admin Dashboard
+- ✅ 2 Demandes Enterprise affichées (Sophie Martin/TechCorp, Jean Dupont/Acme Corp)
+- ✅ Boutons "Devis" et "Contrat" par inquiry
+- ✅ Clic "Devis" → DEV-2026-0001 généré, apparaît dans la table
+- ✅ Clic "Contrat" → CTR-2026-0001 généré
+- ✅ Bouton "Télécharger PDF" fonctionne (téléchargement PDF)
+- ✅ Bouton "Envoyer par email" fonctionne (email avec attachment envoyé en dev mode)
+- ✅ Stats cards affichent : Factures 16 519€, Devis 16 500€, Revenu total 16 538€
+- ✅ Table affiche 5+ documents (FAC-2026-0001/0002, REC-2026-0001, DEV-2026-0001, CTR-2026-0001)
+- ✅ PDF valide : header %PDF-, ~2.6 KB par doc
+- ✅ Aucune erreur "WinAnji cannot encode" (fix sanitizeText)
+- ✅ Serveur stable
+
+Tests directs (script Bun) :
+- ✅ generateInvoiceForPayment : FAC-2026-0001, 19€, PDF 3 KB
+- ✅ generateReceiptForPayment : REC-2026-0001, PDF généré
+- ✅ generateInvoiceForPayment Enterprise : FAC-2026-0002, 16 500€, PDF valide
+- ✅ PDF header vérifié : %PDF- (format valide)
+
+Stage Summary:
+- Moteur d'auto-génération de documents PDF 100% opérationnel
+- 4 types de documents : factures, devis, contrats, reçus (+ avoirs)
+- Numérotation automatique séquentielle par année
+- Génération à la demande depuis le dashboard admin
+- Email automatique avec PDF en pièce jointe
+- Fix Unicode → WinAnsi pour compatibilité pdf-lib
+- Toute la foundation paperless est en place pour SEQ-2 (auto-facturation sur paiement)

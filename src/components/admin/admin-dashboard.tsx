@@ -22,6 +22,7 @@ import {
   MessageSquare,
   CheckCircle,
   Clock,
+  Receipt,
 } from 'lucide-react'
 import {
   Dialog,
@@ -45,6 +46,7 @@ import {
 } from '@/components/ui/table'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import DocumentsTab from '@/components/admin/documents-tab'
 
 interface AdminDashboardProps {
   isOpen: boolean
@@ -369,6 +371,10 @@ const [satData, setSatData] = useState<SatData | null>(null)
                 <TabsTrigger value="satisfaction" className="gap-1.5 text-xs sm:text-sm">
                   <Star className="w-3.5 h-3.5" />
                   Satisfaction
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="gap-1.5 text-xs sm:text-sm">
+                  <Receipt className="w-3.5 h-3.5" />
+                  Documents
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -1064,6 +1070,11 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-8">Aucun avis pour le moment</p>
                   )}
+                </TabsContent>
+
+                {/* Documents Tab */}
+                <TabsContent value="documents" className="mt-0">
+                  <DocumentsTab />
                 </TabsContent>
               </div>
             </ScrollArea>
