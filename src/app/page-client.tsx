@@ -61,6 +61,8 @@ const MobilityHome = dynamic(() => import('@/components/mobility/mobility-home')
 const MobilityUpload = dynamic(() => import('@/components/mobility/mobility-upload'), { ssr: false, loading: () => <Loading /> })
 const MobilityProfile = dynamic(() => import('@/components/mobility/mobility-profile'), { ssr: false, loading: () => <Loading /> })
 const MobilityResult = dynamic(() => import('@/components/mobility/mobility-result'), { ssr: false, loading: () => <Loading /> })
+// Simulateur Entretien IA
+const InterviewSimulator = dynamic(() => import('@/components/interview/interview-simulator'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -108,6 +110,8 @@ export default function Home() {
         {step === 'campus' && <CampusKit />}
         {/* User Dashboard — Mon Espace */}
         {step === 'dashboard' && <UserDashboard />}
+        {/* Simulateur Entretien IA */}
+        {step === 'interview' && <InterviewSimulator />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>

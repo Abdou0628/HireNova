@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
 import { authOptions } from '@/lib/auth'
+import { generateReferralAgreement } from '@/lib/documents'
 
+/**
+ * Generate referral code and auto-generate referral agreement (contrat de parrainage)
+ * with HireNova logo + electronic signature.
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -17,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { referralCode: true, id: true },
+      select: { referralCode: true, id: true, email: true, name: true },
     })
 
     if (!user) {
@@ -50,6 +55,36 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get('origin') || 'https://hirenova.app'
     const shareUrl = `${origin}/?ref=${code}`
 
+    // Auto-generate referral agreement (contrat de parrainage)
+    let agreement = null
+    try {
+      // Check if user already has a referral agreement
+      const existingAgreement = await db.document.findFirst({
+        where: {
+          userId,
+          type: 'referral_agreement',
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (!existingAgreement) {
+        agreement = await generateReferralAgreement({
+          userId,
+          userName: user.name || 'Utilisateur',
+          userEmail: user.email,
+          referralCode: code,
+          rewardType: 'FREE_MONTH',
+          rewardValue: '1',
+        })
+        console.log(`[referral/generate] Agreement ${agreement.number} generated for user ${userId}`)
+      } else {
+        agreement = { id: existingAgreement.id, number: existingAgreement.number }
+      }
+    } catch (agreementErr) {
+      console.error('[referral/generate] Agreement generation failed:', agreementErr instanceof Error ? agreementErr.message : agreementErr)
+      // Don't block — user can still get their code
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -61,6 +96,10 @@ export async function POST(req: NextRequest) {
           twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent("Découvrez @HireNova — CV IA professionnel en 60 secondes !")}&url=${encodeURIComponent(shareUrl)}`,
           email: `mailto:?subject=${encodeURIComponent('Invitation à rejoindre HireNova')}&body=${encodeURIComponent("Salut !\n\nDécouvre HireNova, la plateforme qui génère des CV professionnels avec l'IA.\n\nMon code de parrainage : " + code + "\n\n" + shareUrl)}`,
         },
+        agreement: agreement ? {
+          number: agreement.number,
+          downloadUrl: `/api/documents/${agreement.id}`,
+        } : null,
       },
     })
   } catch (error) {

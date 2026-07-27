@@ -1,0 +1,162 @@
+ sur un sujet de stratégie d'entreprise, pas seulement de tarification.
+Holding ET HireNova fait parties des plateformes qu'on encore creer 	, je ne vendrais pas HireNova Campus et j'ajoute HireNova Community comme des abonnements classiques.
+
+Je les vendrais comme des plateformes SaaS en marque institutionnelle, avec des contrats 100 % numériques (signature électronique, facturation électronique, onboarding à distance).
+
+1. HireNova Campus (B2B2C)
+
+Le client n'est pas l'étudiant.
+
+Le client est :
+
+Université
+École
+Centre de formation
+Bootcamp
+Institut privé
+
+Les étudiants reçoivent un accès via leur établissement.
+
+Formule Campus Start
+
+Jusqu'à 500 étudiants
+
+990 €/an
+
+Comprend :
+
+Tableau de bord établissement
+Comptes étudiants
+CV IA
+ATS
+Lettres de motivation
+Statistiques
+Formule Campus Pro
+
+Jusqu'à 2 000 étudiants
+
+3 900 €/an
+
+Ajoute :
+
+LinkedIn IA
+Interview IA
+Career IA
+Tableau de bord avancé
+API
+Campus Enterprise
+
+Plus de 2 000 étudiants
+
+Tarif sur devis.
+
+Peut inclure :
+
+SSO
+Intégration LMS
+Personnalisation
+Support prioritaire
+Formation des équipes
+2. HireNova Community
+
+Je ne vendrais pas l'accès de base à la communauté. HireNova Community
+
+Je vendrais des espaces officiels.
+
+Par exemple :
+
+Community Partner
+
+Pour :
+
+Entreprises
+Cabinets RH
+Organismes publics
+Associations professionnelles
+
+49 €/mois
+
+Ils peuvent :
+
+créer leur espace ;
+publier des événements ;
+diffuser des offres ;
+interagir avec les membres.
+Community Business
+
+149 €/mois
+
+Ajoute :
+
+webinaires ;
+analytics ;
+campagnes ciblées ;
+visibilité renforcée.
+Community Enterprise
+
+499 €/mois
+
+Pour les grandes organisations.
+
+3. Les étudiants
+
+Même si tu ne souhaites pas de gratuité, je créerais un tarif spécifique :
+
+Student Premium
+
+3,90 €/mois ou 39 €/an
+
+Pourquoi ?
+
+Parce qu'un étudiant dispose souvent d'un budget limité.
+
+L'objectif est qu'il reste ensuite client en devenant jeune professionnel.
+
+4. Les partenariats
+
+Tu as parlé de partenariats électroniques.
+
+Je développerais un portail dédié.
+
+Exemples de partenaires :
+
+Universités
+Écoles
+Chambres de commerce
+Ministères
+Agences de l'emploi
+Associations professionnelles
+Incubateurs
+Accélérateurs
+Espaces de coworking
+
+Chaque partenaire disposerait d'un tableau de bord pour gérer son contrat, ses licences et ses utilisateurs.
+
+5. Une fonctionnalité stratégique : White Label
+
+Je construirais HireNova Campus White Label.
+
+Exemple :
+
+L'Université X se connecte à :
+
+career.universitex.edu
+
+Le logo est celui de l'université.
+
+Mais la technologie est celle de HireNova.
+
+Les étudiants ne voient pas nécessairement HireNova au premier plan, mais l'établissement bénéficie d'une solution professionnelle.
+
+C'est un modèle très apprécié dans le SaaS B2B.
+
+6. Un modèle de revenus récurrents
+
+Je viserais la répartition suivante :
+
+40 % : particuliers (B2C)
+35 % : entreprises (B2B)
+15 % : Campus
+10 % : Community et Marketplace
+
+Cela diversifie les revenus et réduit la dépendance à un seul segment.

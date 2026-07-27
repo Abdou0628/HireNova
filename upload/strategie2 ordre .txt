@@ -1,0 +1,26 @@
+mettons un de l'ordre dans ce projets d'abord:   les foctionnalités ou les produits à valeurs ajoutés qui sont complementaires :
+
+
+1- Renommer les fontionalités de l'ecosysteme:  TOUT L'ecosysteme est generé par un IA principal qui gére tout et en dessous de lui hiérrchiquement des agents IA spécilisés qui va gérer une spécilité , un process, la coordination, l'assignation des ordre et l'achevement des taches et execution 
+
+HireNova IA CV
+HireNova IA ATS
+HireNova IA JOBS
+HireNova IA GLOBAL
+HireNova IA MOBILITY
+HireNova IA API
+HireNova IA INTELIGENCE
+HireNova IA INTERVIEW
+HireNova IA LINKEDIN
+HireNova IA RECUITER
+HireNova IA CAREER
+HireNova IA COACH
+HireNova IA FORMATION 
+HireNova IA FREELANCE
+HireNova IA IA CHAT BOT ADVANCED
+HireNova IA IA CAMPUS SaaS
+HireNova IA COMMUNITY ET MARKETPLACE
+HireNova IA WHITE LABEL
+HireNova IA LEGAL
+
+CHAQUE CLIQUE SUR un de ces fonctionnalités va se diriger vers la page de formulation et tarif de ce service et etblir une suite dans ce logique d'abord se connecter en creeant un compte vérifié par tu n'est pas un robot un ID doitetre attribué à chaque user suite son abonnement et le genre de son abonnement 

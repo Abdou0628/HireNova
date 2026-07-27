@@ -23,6 +23,8 @@ export type AppStep =
   | 'campus'
   // User Dashboard — Mon Espace personnel
   | 'dashboard'
+  // Simulateur Entretien IA
+  | 'interview'
   // Admin Dashboard — Supervision globale
   | 'admin'
 

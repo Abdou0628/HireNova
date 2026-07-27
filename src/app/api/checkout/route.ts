@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
     const amount = currency === 'usd' ? Math.round(basePrice * 1.1) : currency === 'gbp' ? Math.round(basePrice * 0.85) : currency === 'mad' ? Math.round(basePrice * 10.7) : basePrice
     const currencyLabel = currency.toUpperCase()
 
-    const { generateInvoiceForPayment, generateReceiptForPayment } = await import('@/lib/documents')
+    const { generateInvoiceForPayment, generateReceiptForPayment, generateServiceAgreement } = await import('@/lib/documents')
 
     // Upgrade plan
     await db.user.update({
@@ -241,6 +241,21 @@ export async function POST(request: NextRequest) {
       userId,
       paidAt: new Date(),
     })
+
+    // Auto-generate service agreement (contrat de service)
+    try {
+      await generateServiceAgreement({
+        userId,
+        userName: user.name || 'Client',
+        userEmail: user.email,
+        plan: planType,
+        amount,
+        currency: currencyLabel,
+        paymentProvider: 'dev_simulation',
+      })
+    } catch (contractErr) {
+      console.error('[checkout] Service agreement generation failed:', contractErr instanceof Error ? contractErr.message : contractErr)
+    }
 
     // Create accounting entry
     try {

@@ -1,0 +1,53 @@
+Oui. Ce problème est très fréquent et il peut avoir plusieurs causes. Ce n'est généralement **pas le code** qui est en cause, mais le système de prévisualisation (Preview Panel), le cache ou le serveur de développement. ([WordPress.org][1])
+
+Voici les causes les plus probables :
+
+1. **Le Preview Panel est bloqué sur une ancienne version (cache).**
+
+   * Faites un **Hard Refresh** :
+
+     * **Ctrl + Shift + R**
+     * ou **Ctrl + F5**
+       Cela force le navigateur à recharger tous les fichiers. ([tilda.cc][2])
+
+2. **Le serveur de développement (dev server) ne recharge plus automatiquement.**
+
+   * Arrêtez le serveur (`Ctrl + C` dans le terminal).
+   * Relancez-le avec la commande habituelle (par exemple `npm run dev` ou `pnpm dev` selon votre projet).
+
+3. **Le projet n'a pas été recompilé.**
+
+   * Vérifiez le terminal.
+   * S'il y a une erreur de compilation, le Preview continue souvent d'afficher la dernière version valide.
+
+4. **Vous modifiez le mauvais fichier.**
+
+   * Par exemple :
+
+     * vous modifiez `LandingPage.tsx`
+     * alors que le projet affiche `Home.tsx`.
+       C'est plus courant qu'on ne le pense.
+
+5. **Le Preview Panel lui-même est figé.**
+
+   * Fermez le panneau Preview.
+   * Ouvrez-en un nouveau.
+   * Ou rechargez complètement l'éditeur.
+
+### J'ai besoin de savoir quel environnement vous utilisez.
+
+Quand vous dites **Preview Panel**, est-ce que vous travaillez avec :
+
+* **Bolt.new** ?
+* **Lovable** ?
+* **Cursor AI** ?
+* **VS Code** ?
+* **GitHub Codespaces** ?
+* Un autre outil ?
+
+Dites-moi également :
+
+* **Quel framework utilisez-vous ?** (React, Next.js, Vite, etc.)
+* **Les modifications sont-elles bien enregistrées dans les fichiers, mais seule la prévisualisation ne change pas ?**
+* **Ou même les fichiers ne sont-ils pas modifiés ?**
+

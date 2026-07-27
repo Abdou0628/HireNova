@@ -50,6 +50,7 @@ model User {
   globalJobListings   GlobalJobListing[]  @relation("GlobalEmployer")
   globalApplications  GlobalApplication[]
   mobilityProfiles    MobilityProfile[]
+  interviewSessions   InterviewSession[]
 }
 
 model SatisfactionRating {
@@ -434,4 +435,43 @@ model AccountingEntry {
   @@index([status])
   @@index([createdAt])
   @@index([userId])
+}
+
+// ===== HireNova Interview Simulator — AI Interview Practice =====
+
+model InterviewSession {
+  id            String   @id @default(cuid())
+  userId        String?
+  jobTitle      String
+  industry      String
+  language      String   @default("fr")
+  difficulty    String   @default("intermediate") // beginner | intermediate | advanced
+  interviewType String   @default("behavioral") // behavioral | technical | mixed
+  status        String   @default("in_progress") // in_progress | completed
+  totalScore    Float?
+  report        String?  // JSON: overall evaluation
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  messages      InterviewMessage[]
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model InterviewMessage {
+  id            String   @id @default(cuid())
+  sessionId     String
+  questionIndex Int
+  question      String
+  userAnswer    String?
+  aiScore       Float?
+  aiFeedback    String?
+  aiTips        String?
+  followUp      String?
+  createdAt     DateTime @default(now())
+
+  session       InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
 }

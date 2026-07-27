@@ -33,7 +33,7 @@ import {
 
 // ============= Types =============
 
-export type DocumentType = 'invoice' | 'quote' | 'agreement' | 'receipt' | 'credit_note' | 'accounting_statement'
+export type DocumentType = 'invoice' | 'quote' | 'agreement' | 'receipt' | 'credit_note' | 'accounting_statement' | 'referral_agreement' | 'partnership_agreement' | 'service_agreement'
 
 export interface DocumentItem {
   description: string
@@ -110,6 +110,9 @@ const TYPE_PREFIXES: Record<DocumentType, string> = {
   receipt: 'REC',
   credit_note: 'AVO',
   accounting_statement: 'BIL',
+  referral_agreement: 'PAR',
+  partnership_agreement: 'PAR',
+  service_agreement: 'SER',
 }
 
 /**
@@ -528,12 +531,15 @@ function drawFooter(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont, data
 // ============= Main PDF generator =============
 
 const TYPE_META: Record<DocumentType, { label: string; color: ReturnType<typeof rgb>; title: string }> = {
-  invoice:              { label: 'Facture',          color: COLORS.primary,  title: 'FACTURE' },
-  quote:                { label: 'Devis',            color: COLORS.sky,      title: 'DEVIS' },
-  agreement:            { label: 'Contrat',          color: COLORS.purple,   title: 'CONTRAT' },
-  receipt:              { label: 'Reçu',             color: COLORS.amber,    title: 'REÇU' },
-  credit_note:          { label: 'Avoir',            color: COLORS.rose,     title: 'AVOIR' },
-  accounting_statement: { label: 'Bilan Comptable',  color: COLORS.dark,     title: 'BILAN COMPTABLE' },
+  invoice:                { label: 'Facture',             color: COLORS.primary,  title: 'FACTURE' },
+  quote:                  { label: 'Devis',               color: COLORS.sky,      title: 'DEVIS' },
+  agreement:              { label: 'Contrat',             color: COLORS.purple,   title: 'CONTRAT' },
+  receipt:                { label: 'Reçu',                color: COLORS.amber,    title: 'REÇU' },
+  credit_note:            { label: 'Avoir',               color: COLORS.rose,     title: 'AVOIR' },
+  accounting_statement:   { label: 'Bilan Comptable',     color: COLORS.dark,     title: 'BILAN COMPTABLE' },
+  referral_agreement:     { label: 'Contrat Parrainage',  color: COLORS.primary,  title: 'CONTRAT DE PARRAINAGE' },
+  partnership_agreement:  { label: 'Contrat Partenariat', color: COLORS.purple,   title: 'CONTRAT DE PARTENARIAT' },
+  service_agreement:      { label: 'Contrat Service',     color: COLORS.sky,      title: 'CONTRAT DE SERVICE' },
 }
 
 async function buildPdf(rawData: DocumentData): Promise<Uint8Array> {
@@ -600,8 +606,8 @@ async function buildPdf(rawData: DocumentData): Promise<Uint8Array> {
   if (data.type === 'accounting_statement') {
     // Bilan: custom layout (summary + invoice table + tax section)
     yPos = drawBilanContent(page, fontBold, fontRegular, fontItalic, data, yPos)
-  } else if (data.type === 'agreement' && data.agreementTerms) {
-    // Agreement: contract clauses instead of items table
+  } else if ((data.type === 'agreement' || data.type === 'referral_agreement' || data.type === 'partnership_agreement' || data.type === 'service_agreement') && data.agreementTerms) {
+    // All agreement-like types: contract clauses instead of items table
     yPos = drawAgreementClauses(page, fontBold, fontRegular, fontItalic, data, yPos)
   } else {
     // Standard: items table
@@ -998,6 +1004,219 @@ Le présent contrat est soumis au droit marocain. Tout litige sera porté devant
     inquiryId: params.inquiryId,
     agreementTerms: params.terms || defaultTerms,
     notes: 'Contrat généré automatiquement après acceptation du devis. À signer et retourner à hello@hirenova.com',
+  })
+}
+
+// ============= Referral Agreement (Contrat de Parrainage) =============
+
+/**
+ * Generate a referral program agreement for a user joining the parrainage program.
+ * Auto-generated with logo + electronic signature.
+ */
+export async function generateReferralAgreement(params: {
+  userId: string
+  userName: string
+  userEmail: string
+  referralCode: string
+  rewardType?: string // FREE_MONTH | DISCOUNT
+  rewardValue?: string
+}): Promise<GeneratedDocument> {
+  const number = await nextDocumentNumber('referral_agreement')
+
+  const rewardLabel = (params.rewardType || 'FREE_MONTH') === 'DISCOUNT'
+    ? `une remise de ${params.rewardValue || '10'}%`
+    : `${params.rewardValue || '1'} mois gratuit`
+
+  const terms = `OBJET DU CONTRAT
+Le présent contrat a pour objet la participation de ${params.userName} au Programme de Parrainage HireNova. En contrepartie de la recommandation de la plateforme HireNova à de nouveaux utilisateurs, le parrain bénéficie de ${rewardLabel} sur l'abonnement de son choix pour chaque parrainage réussi.
+
+CONDITIONS DE PARRAINAGE
+Un parrainage est considéré comme réussi lorsque le filleul s'inscrit sur la plateforme HireNova via le lien de parrainage personnalisé (code : ${params.referralCode}), crée un compte vérifié, et souscrit à un abonnement payant (Starter, Pro, Career+, Employer ou Annuel).
+
+CODE DE PARRAINAGE
+Le code de parrainage personnel attribué au parrain est : ${params.referralCode}. Ce code est unique, personnel et incessible. Le parrain s'engage à ne pas utiliser de méthodes de spam, d'achat de leads ou de toute pratique trompeuse pour recruter des filleuls.
+
+RÉCOMPENSE
+Pour chaque parrainage réussi et validé, le parrain reçoit ${rewardLabel}. Les récompenses sont cumulables sans plafond. La récompense est appliquée automatiquement sur le prochain renouvellement d'abonnement.
+
+ENGAGEMENTS DU PARRAIN
+Le parrain s'engage à : représenter fidèlement les services de HireNova, ne pas faire de fausses déclarations concernant les fonctionnalités de la plateforme, respecter les CGU de HireNova, et informer ses filleuls des conditions d'utilisation.
+
+ENGAGEMENTS DE HIRENOVA
+HireNova s'engage à : créditer la récompense dans un délai de 48 heures après validation du parrainage, fournir un tableau de bord de suivi des parrainages, et assurer le support technique du programme.
+
+DURÉE ET RÉSILIATION
+Le présent contrat entre en vigueur dès son acceptation et court pour une durée indéterminée. Chaque partie peut y mettre fin à tout moment par simple notification. Les récompenses déjà créditées restent acquises.
+
+CONFIDENTIALITÉ
+Les données collectées dans le cadre de ce programme sont traitées conformément au RGPD et à la politique de confidentialité de HireNova.
+
+LITIGES
+Le présent contrat est soumis au droit marocain. Tout litige sera soumis à une médiation amiable avant tout recours judiciaire.`
+
+  return generateDocument({
+    type: 'referral_agreement',
+    number,
+    recipientName: params.userName,
+    recipientEmail: params.userEmail,
+    subject: `Contrat de Parrainage HireNova — ${params.referralCode}`,
+    items: [{
+      description: `Programme de Parrainage — code ${params.referralCode}`,
+      quantity: 1,
+      unitPrice: 0,
+      total: 0,
+    }],
+    currency: 'EUR',
+    taxRate: 0,
+    userId: params.userId,
+    agreementTerms: terms,
+    notes: `Contrat de parrainage généré automatiquement. Code : ${params.referralCode}. Récompense : ${rewardLabel}.`,
+  })
+}
+
+// ============= Partnership Agreement (Contrat de Partenariat) =============
+
+/**
+ * Generate a partnership agreement for enterprise/API/campus partners.
+ * Auto-generated with logo + electronic signature.
+ */
+export async function generatePartnershipAgreement(params: {
+  contactName: string
+  workEmail: string
+  companyName: string
+  country?: string
+  partnershipType: 'enterprise' | 'api' | 'campus' | 'agency'
+  terms?: string
+  usersCount?: string
+}): Promise<GeneratedDocument> {
+  const number = await nextDocumentNumber('partnership_agreement')
+
+  const typeLabels: Record<string, string> = {
+    enterprise: 'Partenariat Enterprise',
+    api: 'Partenariat API / Intégration',
+    campus: 'Partenariat Campus / Universitaire',
+    agency: 'Partenariat Agence de Recrutement',
+  }
+  const typeLabel = typeLabels[params.partnershipType] || 'Partenariat'
+  const usersStr = params.usersCount ? ` pour ${params.usersCount} utilisateurs` : ''
+
+  const defaultTerms = `OBJET DU CONTRAT
+Le présent contrat a pour objet l'établissement d'un partenariat entre HireNova (E-Society 2050) et ${params.companyName} pour ${typeLabel}${usersStr}. Les deux parties conviennent de collaborer afin de proposer les services de génération de CV IA, d'analyse ATS et de recrutement à leurs clients ou membres respectifs.
+
+RESPONSABILITÉS DE HIRENOVA
+HireNova fournira un accès prioritaire à la plateforme avec des tarifs préférentiels, un support technique dédié, une intégration API ou white-label si applicable, des rapports d'utilisation mensuels, et une formation initiale pour les équipes de ${params.companyName}.
+
+RESPONSABILITÉS DE ${params.companyName?.toUpperCase() || 'LA PARTIE PARTENAIRE'}
+${params.companyName} s'engage à promouvoir les services HireNova auprès de son réseau, à fournir les informations nécessaires à l'intégration technique, à désigner un interlocuteur principal, et à respecter les conditions d'utilisation de la plateforme.
+
+CONDITIONS COMMERCIALES
+Les conditions tarifaires applicables sont définies dans le devis associé (référence à déterminer). Les tarifs sont garantis pour une durée de 12 mois à compter de la signature du présent contrat. Toute modification tarifaire fera l'objet d'un préavis de 90 jours.
+
+PROPRIÉTÉ INTELLECTUELLE
+Chaque partie conserve la propriété de ses marques, logos et contenus. L'utilisation croisée des marques nécessite l'accord préalable écrit de l'autre partie.
+
+CONFIDENTIALITÉ
+Les informations commerciales, techniques et financières échangées dans le cadre de ce partenariat sont strictement confidentielles. La durée de confidentialité est de 3 ans après la fin du contrat.
+
+DURÉE
+Le contrat est conclu pour une durée de 12 mois renouvelable par tacite reconduction. Résiliation possible avec un préavis de 60 jours.
+
+LITIGES
+Le présent contrat est soumis au droit marocain. Tout litige fera l'objet d'une médiation amiable avant recours aux tribunaux de Casablanca.`
+
+  return generateDocument({
+    type: 'partnership_agreement',
+    number,
+    recipientName: params.contactName,
+    recipientEmail: params.workEmail,
+    recipientCompany: params.companyName,
+    recipientCountry: params.country,
+    subject: `Contrat de Partenariat ${typeLabel} — ${params.companyName}`,
+    items: [{
+      description: `Partenariat ${typeLabel} — ${params.companyName}`,
+      quantity: 1,
+      unitPrice: 0,
+      total: 0,
+    }],
+    currency: 'EUR',
+    taxRate: 0,
+    agreementTerms: params.terms || defaultTerms,
+    notes: `Contrat de partenariat ${typeLabel}. Généré automatiquement par HireNova.`,
+  })
+}
+
+// ============= Service Agreement (Contrat de Service) =============
+
+/**
+ * Generate a service agreement auto-generated when a user purchases a paid plan.
+ * Acts as the Terms of Service / Conditions Générales contract for each subscription.
+ */
+export async function generateServiceAgreement(params: {
+  userId: string
+  userName: string
+  userEmail: string
+  plan: string
+  amount: number
+  currency: string
+  paymentProvider?: string
+}): Promise<GeneratedDocument> {
+  const number = await nextDocumentNumber('service_agreement')
+
+  const planLabels: Record<string, string> = {
+    starter: 'Starter',
+    pro: 'Pro',
+    career_plus: 'Career+',
+    employer: 'Employeur',
+    annual: 'Annuel',
+    enterprise: 'Enterprise',
+  }
+  const planLabel = planLabels[params.plan] || params.plan
+  const provider = params.paymentProvider || 'plateforme'
+
+  const terms = `OBJET DU CONTRAT
+Le présent contrat de service a pour objet la souscription par ${params.userName} à l'abonnement HireNova ${planLabel}. En contrepartie du paiement de ${params.amount} ${params.currency}, HireNova (E-Society 2050) accorde à l'utilisateur l'accès aux fonctionnalités correspondant au plan ${planLabel}.
+
+SERVICES INCLUS (PLAN ${planLabel.toUpperCase()})
+L'utilisateur bénéficie de l'accès complet à la plateforme HireNova selon les modalités du plan ${planLabel}, incluant la génération de CV IA, l'analyse de score ATS, les lettres de motivation, les templates professionnels, le support prioritaire, et toutes les fonctionnalités associées au plan choisi.
+
+DURÉE ET RENOUVELLEMENT
+L'abonnement est mensuel et se renouvelle automatiquement à l'échéance. L'utilisateur peut résilier à tout moment depuis son espace personnel. La résiliation prend effet à la fin de la période en cours. Les services restent accessibles jusqu'à l'expiration de la période payée.
+
+MODALITÉS DE PAIEMENT
+Le paiement est effectué via ${provider}. Le montant de ${params.amount} ${params.currency} est prélevé automatiquement à chaque renouvellement. En cas d'échec de paiement, l'accès est suspendu après 7 jours et résilié après 30 jours.
+
+CONDITIONS GÉNÉRALES D'UTILISATION
+L'utilisateur s'engage à utiliser la plateforme conformément aux CGU de HireNova, à ne pas partager ses identifiants, à ne pas utiliser les services à des fins illégales, et à respecter les droits de propriété intellectuelle.
+
+PROPRIÉTÉ INTELLECTUELLE
+Les contenus générés par la plateforme (CV, lettres de motivation) restent la propriété de l'utilisateur. HireNova conserve la propriété de l'algorithme, de l'interface et des marques.
+
+PROTECTION DES DONNÉES
+Les données personnelles sont traitées conformément au RGPD et à la loi 09-08 relative à la protection des personnes physiques à l'égard du traitement des données à caractère personnel au Maroc.
+
+LIMITATION DE RESPONSABILITÉ
+HireNova s'engage à fournir un service disponible. En aucun cas, HireNova ne saurait être tenue responsable des dommages indirects résultant de l'utilisation de la plateforme.
+
+LITIGES
+Le présent contrat est soumis au droit marocain. Tout litige fera l'objet d'une médiation amiable. À défaut, les tribunaux de Casablanca seront seuls compétents.`
+
+  return generateDocument({
+    type: 'service_agreement',
+    number,
+    recipientName: params.userName,
+    recipientEmail: params.userEmail,
+    subject: `Contrat de Service — Abonnement ${planLabel}`,
+    items: [{
+      description: `Abonnement ${planLabel} — 1 mois via ${provider}`,
+      quantity: 1,
+      unitPrice: params.amount,
+      total: params.amount,
+    }],
+    currency: params.currency,
+    taxRate: 0,
+    userId: params.userId,
+    agreementTerms: terms,
+    notes: `Contrat de service auto-généré lors de la souscription au plan ${planLabel}. Paiement : ${params.amount} ${params.currency} via ${provider}.`,
   })
 }
 

@@ -1,0 +1,71 @@
+Now I have a complete picture. Let me build the full anti-bot system with 2 layers + tracking ID. I'll work in parallel on multiple components.
+First, let me update the Prisma schema and push it to the database:
+Good, schema is pushed. Now let me build all the components in parallel:
+All 3 components created successfully. Now let me integrate everything — update the registration API and the auth modal UI:
+Now let me update the auth modal to integrate the CAPTCHA:
+Now update the `toggleMode` to go to captcha first when switching to register:
+Now let me check the compilation and build the admin tracking panel:
+Zero lint errors. Now let me build the admin tracking panel:
+Now let me integrate the tracking panel into the admin dashboard:
+Now add the tracking tab:
+Now let me run lint and verify everything compiles:
+Zero lint errors. Now let me verify everything works in the browser:
+Let me fix the TypeScript type issue in the register route:
+Now let me verify the page loads properly and check for any runtime errors:
+Zero lint errors. Let me verify the page actually renders by testing the HTML output:
+All files are properly created. Let me write the worklog:
+Voici le résumé complet de l'implémentation, CTO :
+
+---
+
+## 🔒 Système Anti-Bot à Deux Couches — Déployé
+
+### Couche 1 : Smart CAPTCHA Côté Client (`smart-captcha.tsx`)
+- **Défi mathématique dynamique** (addition, soustraction, multiplication) — régénéré toutes les 30 secondes
+- **Collecte de signaux comportementaux** : temps de remplissage, mouvements de souris, frappes au clavier
+- **Champ honeypot** invisible (piège CSS pour les bots)
+- **Empreinte navigateur** unique (userAgent + écran + langue + fuseau)
+- **Max 3 tentatives**, traduction FR/EN/AR/ES, animations Framer Motion
+
+### Couche 2 : Vérification Serveur Intense (`anti-bot.ts`)
+- **172 domaines d'email jetables** détectés (guerrillamail, mailinator, tempmail...)
+- **Score de réputation email** : Gmail/Outlook = 100, Corporate = 90, Jetable = 0
+- **Vélocité IP** : max 3 inscriptions/IP/24h, max 5 tentatives/IP/1h
+- **Traçabilité empreinte** : max 2 comptes/empreinte/24h
+- **Score comportemental** : <20 = bloqué, <40 = suspect, ≥40 = confiance
+- **Score pondéré global** : captcha 25% + email 15% + IP 20% + empreinte 15% + comportement 15% + honeypot 10%
+- **Score minimum de 40 requis** pour passer
+
+### 🆔 Tracking ID Unique
+Chaque compte validé reçoit un **ID de tracking unique** au format `HNV-XXXXXXX` :
+- Attribué automatiquement à la création du compte
+- Lié à l'empreinte navigateur et au score de vérification
+- Visible dans le dashboard admin
+
+### 📊 Suivi du Comportement (15 types d'événements)
+- `page_view`, `click`, `form_submit`, `pricing_view`, `plan_change`, `subscription`, `feature_use`, `ecosystem_click`, `chatbot_open`, `language_change`, `template_select`, `download_cv`, `download_cl`, `ats_check`, `support_ticket`
+- API `/api/track` avec authentification et rate limiting (100/min)
+- Utilise `navigator.sendBeacon` pour une livraison fiable
+
+### 👁️ Dashboard Admin — Onglet "Tracking"
+- **4 cartes résumé** : événements tracés, empreintes uniques, tentatives bloquées, score moyen
+- **Graphique de répartition** par type d'événement
+- **Table des événements récents** : utilisateur, tracking ID, type, détails, IP, chemin
+- **Table des tentatives bloquées** : email, IP, raison, score comportemental
+- **Recherche par tracking ID ou email**
+
+### 📁 Fichiers Créés/Modifiés
+| Fichier | Rôle |
+|---------|------|
+| `prisma/schema.prisma` | Nouveaux champs + modèles RegistrationAttempt, UserTrackingEvent |
+| `src/components/auth/smart-captcha.tsx` | Couche 1 CAPTCHA client |
+| `src/lib/anti-bot.ts` | Couche 2 vérification serveur |
+| `src/lib/tracking.ts` | Utilitaire tracking client |
+| `src/app/api/track/route.ts` | API de tracking |
+| `src/app/api/auth/register/route.ts` | Intégration anti-bot complète |
+| `src/components/auth/auth-modal.tsx` | Flow inscription avec CAPTCHA |
+| `src/components/admin/tracking-panel.tsx` | Panel tracking admin |
+| `src/app/api/admin/tracking/route.ts` | API admin tracking |
+| `src/components/admin/admin-dashboard.tsx` | Nouvel onglet Tracking |
+
+**0 erreurs de lint** — Page rend correctement (200 OK) ✅ ET ajouter mot de pass oublié  demander l'email de l'utilisateur lui envoyer un code que lui va le retourner une fois est exact lui permettre la rinitilisation de mot de pass

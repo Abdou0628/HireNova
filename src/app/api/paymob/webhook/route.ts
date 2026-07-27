@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyPaymobWebhook, extractPlanFromMerchantOrderId, PAYMOB_AMOUNT_TO_PLAN, type PaymobPlan } from '@/lib/paymob'
-import { generateInvoiceForPayment, generateReceiptForPayment } from '@/lib/documents'
+import { generateInvoiceForPayment, generateReceiptForPayment, generateServiceAgreement } from '@/lib/documents'
 
 /**
  * PayMob Webhook Handler — Real Payment Confirmation
@@ -132,6 +132,22 @@ export async function POST(request: NextRequest) {
     } catch (docErr) {
       console.error('[paymob-webhook] Auto-invoicing failed:', docErr instanceof Error ? docErr.message : docErr)
       // Don't throw — webhook should still return 200
+    }
+
+    // Step 6b: Auto-generate service agreement (contrat de service)
+    try {
+      await generateServiceAgreement({
+        userId: user.id,
+        userName: user.name || 'Client',
+        userEmail: user.email,
+        plan,
+        amount: amountCents,
+        currency: 'MAD',
+        paymentProvider: 'paymob',
+      })
+      console.log(`[paymob-webhook] Service agreement generated for user ${user.id}`)
+    } catch (contractErr) {
+      console.error('[paymob-webhook] Service agreement generation failed:', contractErr instanceof Error ? contractErr.message : contractErr)
     }
 
     // Step 7: Create accounting entry for financial tracking

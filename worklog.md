@@ -1367,3 +1367,55 @@ Stage Summary:
 - Dev payment simulator serves as fallback for all currencies when no provider is configured
 - Payment status polling endpoint ready for PayMob redirect flow
 - Key files modified: paymob.ts, paymob/webhook, paymob/checkout, paymob/status (new), checkout, stripe/webhook, landing.tsx, schema.prisma
+
+---
+
+Task ID: SEQ4-Z
+Agent: Main Agent
+Task: Auto-generate contrats de partenariat et parrainage with logo + e-signature
+
+Work Log:
+- Added 3 new document types to documents.ts: referral_agreement (PAR), partnership_agreement (PAR), service_agreement (SER)
+- Created generateReferralAgreement() — auto-generates referral program contract with 8 articles (object, conditions, code, recompense, engagements, durée, confidentialité, litiges)
+- Created generatePartnershipAgreement() — auto-generates partnership contract for enterprise/api/campus/agency with 7 articles
+- Created generateServiceAgreement() — auto-generates service contract when user purchases paid plan, with 8 articles (CGU included)
+- All contracts use existing buildPdf pipeline: HireNova logo + drawAgreementClauses + electronic signature (SHA-256)
+- Wired service agreement into: checkout dev simulator, PayMob webhook, Stripe webhook
+- Wired referral agreement into: /api/referral/generate (auto-generates when user first gets referral code)
+- Added type handling in buildPdf for all new contract types
+
+Stage Summary:
+- Every payment now auto-generates 3 documents: invoice + receipt + service agreement (with logo + e-signature)
+- Referral program now auto-generates a parrainage contract when user joins
+- Partnership contracts ready for enterprise/API/campus partners
+- All contracts stored in Document table, downloadable via /api/documents/[id]
+- Key files: documents.ts (3 new factory functions + type updates), checkout route, paymob/webhook, stripe/webhook, referral/generate
+
+---
+
+Task ID: SEQ5
+Agent: Main Agent
+Task: Simulateur Entretien IA — AI Interview Simulator
+
+Work Log:
+- Created src/lib/llm.ts — Unified LLM helper using z-ai-web-dev-sdk (chatCompletion + chatCompletionJSON)
+- Created 4 interview API routes:
+  - /api/interview/start — POST: generates 6 questions via LLM based on job/industry/difficulty/type
+  - /api/interview/answer — POST: evaluates user answer via LLM (score 0-100, feedback, tips, followUp)
+  - /api/interview/complete — POST: generates final report (averageScore, strengths, weaknesses, improvementPlan)
+  - /api/interview/sessions — GET: lists all interview sessions for user
+- InterviewSession + InterviewMessage models already existed in Prisma schema
+- Created interview-simulator.tsx — full interactive UI with 5 screens (setup, loading, question, evaluating, feedback, report)
+- Added 'interview' to AppStep in cv-store.ts
+- Added dynamic import + step render in page-client.tsx
+- Added "Simulateur Entretien IA" entry in profile dropdown menu
+- Lint clean, dev server verified
+
+Stage Summary:
+- Complete AI Interview Simulator: setup → question → AI evaluation → final report
+- LLM-powered via z-ai-web-dev-sdk (deepseek-chat model)
+- Beautiful emerald-themed UI with Framer Motion animations
+- Score color coding: green >= 75, amber >= 50, red < 50
+- Final report with strengths, weaknesses, improvement plan, recommendation
+- Requires active plan (starter/pro/etc.) to use
+- Key files: llm.ts (new), interview/start (new), interview/answer (new), interview/complete (new), interview/sessions (new), interview-simulator.tsx (new), cv-store.ts, page-client.tsx, profile-button.tsx

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap, Loader2, LayoutDashboard } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap, Loader2, LayoutDashboard, Brain } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -254,6 +254,13 @@ export default function ProfileButton() {
           >
             <Gift className="w-4 h-4 mr-2 text-emerald-600" />
             Programme Parrainage
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('interview') }}
+          >
+            <Brain className="w-4 h-4 mr-2 text-purple-600" />
+            Simulateur Entretien IA
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
