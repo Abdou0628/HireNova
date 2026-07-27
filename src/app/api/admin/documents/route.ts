@@ -61,6 +61,19 @@ export async function GET(request: NextRequest) {
           paidAt: true,
           createdAt: true,
           inquiryId: true,
+          // Signature fields
+          signatureHash: true,
+          signatureSerial: true,
+          signatureDate: true,
+          signedBy: true,
+          // Bilan fields
+          periodStart: true,
+          periodEnd: true,
+          invoiceCount: true,
+          netProfit: true,
+          totalCollected: true,
+          platformFees: true,
+          royaltyFees: true,
         },
       }),
       db.document.count({ where }),
@@ -111,7 +124,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'id et status requis' }, { status: 400 })
     }
 
-    const validStatuses = ['draft', 'sent', 'paid', 'accepted', 'rejected', 'cancelled', 'expired']
+    const validStatuses = ['draft', 'sent', 'paid', 'accepted', 'rejected', 'cancelled', 'expired', 'finalized']
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: 'Statut invalide' }, { status: 400 })
     }

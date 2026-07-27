@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyPaymobWebhook } from '@/lib/paymob'
+import { generateInvoiceForPayment, generateReceiptForPayment } from '@/lib/documents'
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +57,35 @@ export async function POST(request: NextRequest) {
     })
 
     console.log(`User ${user.id} upgraded to ${plan} via Paymob (order: ${orderId}, tx: ${transactionId})`)
+
+    // ===== Auto-generate invoice + receipt (paperless loop) =====
+    // PayMob processes in MAD (Moroccan Dirham)
+    try {
+      const invoice = await generateInvoiceForPayment({
+        userEmail: user.email,
+        userName: user.name || 'Client',
+        plan,
+        amount: amountCents,
+        currency: 'MAD',
+        userId: user.id,
+        paidAt: new Date(),
+      })
+      console.log(`[paymob-webhook] Invoice ${invoice.number} generated for user ${user.id} (${amountCents} MAD)`)
+
+      const receipt = await generateReceiptForPayment({
+        userEmail: user.email,
+        userName: user.name || 'Client',
+        amount: amountCents,
+        currency: 'MAD',
+        description: `Abonnement ${plan} — HireNova (PayMob)`,
+        userId: user.id,
+        paidAt: new Date(),
+      })
+      console.log(`[paymob-webhook] Receipt ${receipt.number} generated for user ${user.id}`)
+    } catch (docErr) {
+      console.error('[paymob-webhook] Auto-invoicing failed:', docErr instanceof Error ? docErr.message : docErr)
+      // Don't throw — webhook should still return 200
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

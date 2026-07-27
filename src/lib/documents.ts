@@ -14,6 +14,7 @@
 
 import {
   PDFDocument,
+  PDFImage,
   StandardFonts,
   rgb,
   degrees,
@@ -22,10 +23,17 @@ import {
   TextAlignment,
 } from 'pdf-lib'
 import { db } from '@/lib/db'
+import { embedHireNovaLogo } from '@/lib/document-logo'
+import {
+  applySignature,
+  drawSignatureBlock,
+  type AppliedSignature,
+  type SignatureFingerprint,
+} from '@/lib/document-signature'
 
 // ============= Types =============
 
-export type DocumentType = 'invoice' | 'quote' | 'agreement' | 'receipt' | 'credit_note'
+export type DocumentType = 'invoice' | 'quote' | 'agreement' | 'receipt' | 'credit_note' | 'accounting_statement'
 
 export interface DocumentItem {
   description: string
@@ -64,6 +72,25 @@ export interface DocumentData {
   agreementTerms?: string
   inquiryId?: string
   userId?: string
+  // ===== Electronic signature (applied during generation) =====
+  signature?: AppliedSignature
+  // ===== Accounting statement (bilan) specific =====
+  periodStart?: Date
+  periodEnd?: Date
+  linkedInvoices?: Array<{
+    number: string
+    date: Date
+    client: string
+    subtotal: number
+    taxAmount: number
+    total: number
+    status: string
+  }>
+  platformFees?: number
+  royaltyFees?: number
+  netProfit?: number
+  totalCollected?: number
+  invoiceCount?: number
 }
 
 export interface GeneratedDocument {
@@ -82,6 +109,7 @@ const TYPE_PREFIXES: Record<DocumentType, string> = {
   agreement: 'CTR',
   receipt: 'REC',
   credit_note: 'AVO',
+  accounting_statement: 'BIL',
 }
 
 /**
@@ -209,7 +237,7 @@ const COLORS = {
 
 // ============= PDF helpers =============
 
-function drawHeader(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont, data: DocumentData, typeLabel: string, typeColor: ReturnType<typeof rgb>) {
+function drawHeader(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont, data: DocumentData, typeLabel: string, typeColor: ReturnType<typeof rgb>, logo?: PDFImage) {
   const { width } = page.getSize()
 
   // Top color band
@@ -221,18 +249,31 @@ function drawHeader(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont, data
     color: typeColor,
   })
 
-  // Logo brand name
+  // Logo image (white variant — visible on colored band)
+  const logoSize = 38
+  const logoY = page.getHeight() - 110 + (110 - logoSize) / 2 // vertically centered in band
+  if (logo) {
+    page.drawImage(logo, {
+      x: 50,
+      y: logoY,
+      width: logoSize,
+      height: logoSize,
+    })
+  }
+
+  // Logo brand name (shifted right to sit beside the logo image)
+  const brandX = logo ? 100 : 50
   page.drawText('HireNova', {
-    x: 50,
-    y: page.getHeight() - 50,
-    size: 26,
+    x: brandX,
+    y: page.getHeight() - 48,
+    size: 24,
     font: fontBold,
     color: COLORS.white,
   })
 
   page.drawText('by E-Society 2050', {
-    x: 50,
-    y: page.getHeight() - 70,
+    x: brandX,
+    y: page.getHeight() - 66,
     size: 10,
     font: fontRegular,
     color: COLORS.white,
@@ -487,11 +528,12 @@ function drawFooter(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont, data
 // ============= Main PDF generator =============
 
 const TYPE_META: Record<DocumentType, { label: string; color: ReturnType<typeof rgb>; title: string }> = {
-  invoice:     { label: 'Facture',       color: COLORS.primary,  title: 'FACTURE' },
-  quote:       { label: 'Devis',         color: COLORS.sky,      title: 'DEVIS' },
-  agreement:   { label: 'Contrat',       color: COLORS.purple,   title: 'CONTRAT' },
-  receipt:     { label: 'Reçu',          color: COLORS.amber,    title: 'REÇU' },
-  credit_note: { label: 'Avoir',         color: COLORS.rose,     title: 'AVOIR' },
+  invoice:              { label: 'Facture',          color: COLORS.primary,  title: 'FACTURE' },
+  quote:                { label: 'Devis',            color: COLORS.sky,      title: 'DEVIS' },
+  agreement:            { label: 'Contrat',          color: COLORS.purple,   title: 'CONTRAT' },
+  receipt:              { label: 'Reçu',             color: COLORS.amber,    title: 'REÇU' },
+  credit_note:          { label: 'Avoir',            color: COLORS.rose,     title: 'AVOIR' },
+  accounting_statement: { label: 'Bilan Comptable',  color: COLORS.dark,     title: 'BILAN COMPTABLE' },
 }
 
 async function buildPdf(rawData: DocumentData): Promise<Uint8Array> {
@@ -516,6 +558,15 @@ async function buildPdf(rawData: DocumentData): Promise<Uint8Array> {
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique)
+
+  // Embed HireNova logo (white variant — visible on colored header bands)
+  let logo: PDFImage | undefined
+  try {
+    logo = await embedHireNovaLogo(pdfDoc, 'white')
+  } catch (err) {
+    // Logo is optional — document can still be generated without it
+    console.warn('[documents] Logo not embedded:', err instanceof Error ? err.message : err)
+  }
 
   pdfDoc.setTitle(sanitizeText(`${TYPE_META[data.type].label} ${data.number} - HireNova`))
   pdfDoc.setAuthor(sanitizeText('HireNova - E-Society 2050'))
@@ -542,21 +593,33 @@ async function buildPdf(rawData: DocumentData): Promise<Uint8Array> {
   }
 
   const meta = TYPE_META[data.type]
-  let yPos = drawHeader(page, fontBold, fontRegular, data, meta.label, meta.color)
+  let yPos = drawHeader(page, fontBold, fontRegular, data, meta.label, meta.color, logo)
   yPos = drawMetaBox(page, fontBold, fontRegular, data, yPos)
 
-  // For agreement type, draw contract clauses instead of items table
-  if (data.type === 'agreement' && data.agreementTerms) {
+  // Content depends on document type
+  if (data.type === 'accounting_statement') {
+    // Bilan: custom layout (summary + invoice table + tax section)
+    yPos = drawBilanContent(page, fontBold, fontRegular, fontItalic, data, yPos)
+  } else if (data.type === 'agreement' && data.agreementTerms) {
+    // Agreement: contract clauses instead of items table
     yPos = drawAgreementClauses(page, fontBold, fontRegular, fontItalic, data, yPos)
   } else {
+    // Standard: items table
     yPos = drawItemsTable(page, fontBold, fontRegular, data, yPos)
   }
 
-  // Payment terms / acceptance block
+  // Payment terms / acceptance block (not for bilan/receipt/credit_note)
   if (data.type === 'quote') {
     yPos = drawAcceptanceBlock(page, fontBold, fontRegular, yPos)
   } else if (data.type === 'invoice') {
     yPos = drawPaymentTerms(page, fontBold, fontRegular, data, yPos)
+  }
+
+  // ===== Electronic signature block (ALL document types) =====
+  // Placed before the footer, takes ~92pt at the bottom of the page.
+  if (data.signature) {
+    yPos = Math.min(yPos, 130) // ensure room for footer below signature
+    drawSignatureBlock(page, fontBold, fontRegular, fontItalic, data.signature, yPos)
   }
 
   drawFooter(page, fontBold, fontRegular, data)
@@ -681,16 +744,36 @@ function drawPaymentTerms(page: PDFPage, fontBold: PDFFont, fontRegular: PDFFont
  * Returns the generated document with PDF base64.
  */
 export async function generateDocument(data: DocumentData): Promise<GeneratedDocument> {
-  const pdfBytes = await buildPdf(data)
-  const pdfBase64 = Buffer.from(pdfBytes).toString('base64')
-
   // Calculate totals
   const subtotal = data.items.reduce((sum, item) => sum + item.total, 0)
   const taxRate = data.taxRate || 0
   const taxAmount = subtotal * (taxRate / 100)
   const total = subtotal + taxAmount
 
-  // Persist to DB
+  // ===== Apply electronic signature (if not already provided) =====
+  // The signature hash is computed from the document fingerprint (number + parties + total + items).
+  // This makes every document tamper-evident: any change to the data invalidates the hash.
+  if (!data.signature) {
+    const fingerprint: SignatureFingerprint = {
+      number: data.number,
+      type: data.type,
+      issuer: data.issuerLegal || 'E-Society 2050',
+      recipient: data.recipientName,
+      recipientEmail: data.recipientEmail,
+      subject: data.subject,
+      items: JSON.stringify(data.items),
+      total,
+      currency: data.currency,
+      issueDate: (data.issueDate || new Date()).toISOString(),
+    }
+    data.signature = await applySignature(fingerprint)
+  }
+
+  // Build the PDF (now includes logo + signature block)
+  const pdfBytes = await buildPdf(data)
+  const pdfBase64 = Buffer.from(pdfBytes).toString('base64')
+
+  // Persist to DB (includes signature + bilan fields)
   const doc = await db.document.create({
     data: {
       type: data.type,
@@ -712,12 +795,26 @@ export async function generateDocument(data: DocumentData): Promise<GeneratedDoc
       taxRate,
       taxAmount,
       total,
-      status: 'draft',
+      status: data.type === 'accounting_statement' ? 'finalized' : (data.paidAt ? 'paid' : 'draft'),
       issueDate: data.issueDate || new Date(),
       dueDate: data.dueDate || null,
       paidAt: data.paidAt || null,
       userId: data.userId || null,
       inquiryId: data.inquiryId || null,
+      // Signature fields
+      signatureHash: data.signature.hash,
+      signatureDate: data.signature.signedAt,
+      signedBy: data.signature.signedBy,
+      signatureSerial: data.signature.serial,
+      // Bilan-specific fields (only populated for accounting_statement type)
+      periodStart: data.periodStart || null,
+      periodEnd: data.periodEnd || null,
+      linkedDocIds: data.linkedInvoices ? JSON.stringify(data.linkedInvoices.map((inv) => inv.number)) : null,
+      invoiceCount: data.invoiceCount || 0,
+      platformFees: data.platformFees || 0,
+      royaltyFees: data.royaltyFees || 0,
+      netProfit: data.netProfit || 0,
+      totalCollected: data.totalCollected || total,
       pdfBase64,
       notes: data.notes || null,
     },
@@ -902,4 +999,304 @@ Le présent contrat est soumis au droit marocain. Tout litige sera porté devant
     agreementTerms: params.terms || defaultTerms,
     notes: 'Contrat généré automatiquement après acceptation du devis. À signer et retourner à hello@hirenova.com',
   })
+}
+
+// ============= Accounting Statement (Bilan Comptable) =============
+
+/**
+ * Draw the bilan content: period title, summary box, invoice table, tax section.
+ * Called by buildPdf when data.type === 'accounting_statement'.
+ */
+function drawBilanContent(
+  page: PDFPage,
+  fontBold: PDFFont,
+  fontRegular: PDFFont,
+  fontItalic: PDFFont,
+  data: DocumentData,
+  startY: number
+): number {
+  const { width } = page.getSize()
+  let yPos = startY
+
+  // Aggregate values from linked invoices (authoritative source for the bilan)
+  const linkedInvoices = data.linkedInvoices || []
+  const aggSubtotal = linkedInvoices.reduce((sum, inv) => sum + inv.subtotal, 0)
+  const aggTax = linkedInvoices.reduce((sum, inv) => sum + inv.taxAmount, 0)
+  const aggTotal = data.totalCollected || linkedInvoices.reduce((sum, inv) => sum + inv.total, 0)
+
+  // ===== Period banner =====
+  const periodStr = data.periodStart && data.periodEnd
+    ? `Période du ${formatDate(data.periodStart)} au ${formatDate(data.periodEnd)}`
+    : 'Période courante'
+
+  page.drawRectangle({
+    x: 50,
+    y: yPos - 24,
+    width: width - 100,
+    height: 24,
+    color: COLORS.primaryLight,
+  })
+  page.drawText(periodStr, { x: 64, y: yPos - 17, size: 10, font: fontBold, color: COLORS.primaryDark })
+  yPos -= 34
+
+  // ===== Summary box (3 columns: Encaissements | Charges | Résultat) =====
+  const boxHeight = 96
+  const colWidth = (width - 100) / 3
+
+  page.drawRectangle({
+    x: 50,
+    y: yPos - boxHeight,
+    width: width - 100,
+    height: boxHeight,
+    color: COLORS.veryLight,
+    borderColor: COLORS.border,
+    borderWidth: 1,
+  })
+
+  // Column dividers
+  page.drawLine({ start: { x: 50 + colWidth, y: yPos - boxHeight }, end: { x: 50 + colWidth, y: yPos }, thickness: 1, color: COLORS.border })
+  page.drawLine({ start: { x: 50 + colWidth * 2, y: yPos - boxHeight }, end: { x: 50 + colWidth * 2, y: yPos }, thickness: 1, color: COLORS.border })
+
+  // Column 1: ENCAISSEMENTS
+  let colY = yPos - 16
+  page.drawText('ENCAISSEMENTS', { x: 62, y: colY, size: 8, font: fontBold, color: COLORS.gray })
+  colY -= 18
+  page.drawText('Total HT', { x: 62, y: colY, size: 9, font: fontRegular, color: COLORS.gray })
+  page.drawText(formatMoney(aggSubtotal, data.currency), { x: 62 + colWidth - 24, y: colY, size: 9, font: fontBold, color: COLORS.dark, align: TextAlignment.Right })
+  colY -= 14
+  page.drawText('Total TVA', { x: 62, y: colY, size: 9, font: fontRegular, color: COLORS.gray })
+  page.drawText(formatMoney(aggTax, data.currency), { x: 62 + colWidth - 24, y: colY, size: 9, font: fontBold, color: COLORS.dark, align: TextAlignment.Right })
+  colY -= 14
+  page.drawText('Total TTC', { x: 62, y: colY, size: 9, font: fontBold, color: COLORS.dark })
+  page.drawText(formatMoney(aggTotal, data.currency), { x: 62 + colWidth - 24, y: colY, size: 9, font: fontBold, color: COLORS.primaryDark, align: TextAlignment.Right })
+  colY -= 14
+  page.drawText(`${data.invoiceCount || 0} facture(s)`, { x: 62, y: colY, size: 8, font: fontItalic, color: COLORS.lightGray })
+
+  // Column 2: CHARGES
+  colY = yPos - 16
+  page.drawText('CHARGES', { x: 62 + colWidth, y: colY, size: 8, font: fontBold, color: COLORS.gray })
+  colY -= 18
+  page.drawText('Frais plateforme', { x: 62 + colWidth, y: colY, size: 9, font: fontRegular, color: COLORS.gray })
+  page.drawText(formatMoney(data.platformFees || 0, data.currency), { x: 62 + colWidth * 2 - 24, y: colY, size: 9, font: fontBold, color: COLORS.rose, align: TextAlignment.Right })
+  colY -= 14
+  page.drawText('Redevances', { x: 62 + colWidth, y: colY, size: 9, font: fontRegular, color: COLORS.gray })
+  page.drawText(formatMoney(data.royaltyFees || 0, data.currency), { x: 62 + colWidth * 2 - 24, y: colY, size: 9, font: fontBold, color: COLORS.rose, align: TextAlignment.Right })
+  colY -= 18
+  page.drawText('Traitement paiements,', { x: 62 + colWidth, y: colY, size: 7, font: fontItalic, color: COLORS.lightGray })
+  colY -= 10
+  page.drawText('infra & IA.', { x: 62 + colWidth, y: colY, size: 7, font: fontItalic, color: COLORS.lightGray })
+
+  // Column 3: RÉSULTAT (highlighted)
+  page.drawRectangle({
+    x: 50 + colWidth * 2,
+    y: yPos - boxHeight,
+    width: colWidth,
+    height: boxHeight,
+    color: COLORS.primary,
+  })
+  colY = yPos - 16
+  page.drawText('RÉSULTAT NET', { x: 62 + colWidth * 2, y: colY, size: 8, font: fontBold, color: COLORS.white })
+  colY -= 30
+  page.drawText('Bénéfice net', { x: 62 + colWidth * 2, y: colY, size: 9, font: fontRegular, color: COLORS.white })
+  colY -= 16
+  const profitStr = formatMoney(data.netProfit || 0, data.currency)
+  const profitWidth = fontBold.widthOfTextAtSize(profitStr, 14)
+  page.drawText(profitStr, { x: 50 + colWidth * 2 + (colWidth - profitWidth) / 2, y: colY, size: 14, font: fontBold, color: COLORS.white })
+  colY -= 12
+  page.drawText('après charges', { x: 62 + colWidth * 2, y: colY, size: 7, font: fontItalic, color: COLORS.white })
+
+  yPos -= boxHeight + 20
+
+  // ===== Invoice detail table =====
+  page.drawText('DÉTAIL DES FACTURES', { x: 50, y: yPos, size: 10, font: fontBold, color: COLORS.dark })
+  yPos -= 16
+
+  const tableX = 50
+  const tableWidth = width - 100
+  // Columns: N° (90) | Date (70) | Client (170) | HT (90) | TVA (80) | TTC (90) | rest
+  const colNum = 90
+  const colDate = 70
+  const colClient = tableWidth - colNum - colDate - 90 - 80 - 95
+  const colHT = 90
+  const colTVA = 80
+  const colTTC = 95
+
+  // Table header
+  page.drawRectangle({ x: tableX, y: yPos - 20, width: tableWidth, height: 20, color: COLORS.dark })
+  page.drawText('N° Facture', { x: tableX + 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white })
+  page.drawText('Date', { x: tableX + colNum + 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white })
+  page.drawText('Client', { x: tableX + colNum + colDate + 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white })
+  page.drawText('HT', { x: tableX + colNum + colDate + colClient + colHT - 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white, align: TextAlignment.Right })
+  page.drawText('TVA', { x: tableX + colNum + colDate + colClient + colHT + colTVA - 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white, align: TextAlignment.Right })
+  page.drawText('TTC', { x: tableX + tableWidth - 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.white, align: TextAlignment.Right })
+  yPos -= 20
+
+  // Invoice rows (cap at 10 to fit on one page)
+  const maxRows = Math.min(linkedInvoices.length, 10)
+  for (let i = 0; i < maxRows; i++) {
+    const inv = linkedInvoices[i]
+    const rowH = 20
+    if (i % 2 === 1) {
+      page.drawRectangle({ x: tableX, y: yPos - rowH, width: tableWidth, height: rowH, color: COLORS.veryLight })
+    }
+    page.drawText(inv.number, { x: tableX + 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.dark })
+    page.drawText(formatDate(inv.date), { x: tableX + colNum + 8, y: yPos - 14, size: 8, font: fontRegular, color: COLORS.gray })
+    const client = (inv.client || '').slice(0, 28)
+    page.drawText(client, { x: tableX + colNum + colDate + 8, y: yPos - 14, size: 8, font: fontRegular, color: COLORS.dark })
+    page.drawText(formatMoney(inv.subtotal, data.currency), { x: tableX + colNum + colDate + colClient + colHT - 8, y: yPos - 14, size: 8, font: fontRegular, color: COLORS.dark, align: TextAlignment.Right })
+    page.drawText(formatMoney(inv.taxAmount, data.currency), { x: tableX + colNum + colDate + colClient + colHT + colTVA - 8, y: yPos - 14, size: 8, font: fontRegular, color: COLORS.dark, align: TextAlignment.Right })
+    page.drawText(formatMoney(inv.total, data.currency), { x: tableX + tableWidth - 8, y: yPos - 14, size: 8, font: fontBold, color: COLORS.primaryDark, align: TextAlignment.Right })
+    yPos -= rowH
+  }
+
+  // Table border
+  page.drawRectangle({ x: tableX, y: yPos, width: tableWidth, height: 20 + maxRows * 20, borderColor: COLORS.border, borderWidth: 1 })
+
+  // Overflow note
+  if (linkedInvoices.length > maxRows) {
+    yPos -= 14
+    page.drawText(`... et ${linkedInvoices.length - maxRows} autre(s) facture(s) non affichée(s) — voir le détail en base.`, {
+      x: 50, y: yPos, size: 8, font: fontItalic, color: COLORS.lightGray,
+    })
+  }
+
+  yPos -= 24
+
+  // ===== Tax declaration section =====
+  if (yPos > 200) {
+    page.drawText('SECTION FISCALE', { x: 50, y: yPos, size: 10, font: fontBold, color: COLORS.dark })
+    yPos -= 16
+
+    page.drawRectangle({
+      x: 50, y: yPos - 56, width: width - 100, height: 56,
+      color: COLORS.veryLight, borderColor: COLORS.border, borderWidth: 1,
+    })
+
+    page.drawText('Chiffre d\'affaires HT :', { x: 64, y: yPos - 16, size: 9, font: fontRegular, color: COLORS.gray })
+    page.drawText(formatMoney(aggSubtotal, data.currency), { x: width - 64, y: yPos - 16, size: 9, font: fontBold, color: COLORS.dark, align: TextAlignment.Right })
+
+    page.drawText('TVA collectée à déclarer :', { x: 64, y: yPos - 32, size: 9, font: fontRegular, color: COLORS.gray })
+    page.drawText(formatMoney(aggTax, data.currency), { x: width - 64, y: yPos - 32, size: 9, font: fontBold, color: COLORS.amber, align: TextAlignment.Right })
+
+    page.drawText('Bénéfice net imposable :', { x: 64, y: yPos - 48, size: 9, font: fontBold, color: COLORS.dark })
+    page.drawText(formatMoney(data.netProfit || 0, data.currency), { x: width - 64, y: yPos - 48, size: 9, font: fontBold, color: COLORS.primaryDark, align: TextAlignment.Right })
+
+    yPos -= 72
+  }
+
+  return yPos
+}
+
+/**
+ * Generate an accounting statement (bilan comptable) for a given period.
+ *
+ * Aggregates all paid invoices in the period, computes:
+ *   - Total HT (subtotal)
+ *   - Total TVA (tax)
+ *   - Total TTC encaissé (totalCollected)
+ *   - Frais de plateforme (payment processing + infra)
+ *   - Redevances (third-party royalties)
+ *   - Bénéfice net (totalCollected - platformFees - royaltyFees)
+ *
+ * The resulting bilan document is linked to all source invoices via linkedDocIds,
+ * making it fully auditable for tax declaration and profit tracking.
+ *
+ * @param params.periodStart  Period start date (inclusive)
+ * @param params.periodEnd    Period end date (inclusive)
+ * @param params.platformFeesRate  Platform fee rate as decimal (e.g. 0.03 = 3%). Default 0.03
+ * @param params.platformFeesFixed  Fixed platform fee per invoice (e.g. 0.30). Default 0.30
+ * @param params.royaltyFees  Total royalties for the period. Default 0
+ * @param params.currency     Currency code. Default EUR
+ */
+export async function generateAccountingStatement(params: {
+  periodStart: Date
+  periodEnd: Date
+  platformFeesRate?: number
+  platformFeesFixed?: number
+  royaltyFees?: number
+  currency?: string
+  notes?: string
+}): Promise<GeneratedDocument & { invoiceCount: number; netProfit: number; totalCollected: number }> {
+  const currency = params.currency || 'EUR'
+  const feesRate = params.platformFeesRate ?? 0.03   // 3% default (Stripe/LemonSqueezy-like)
+  const feesFixed = params.platformFeesFixed ?? 0.30 // 0.30 per invoice
+  const royaltyFees = params.royaltyFees ?? 0
+
+  // Query all paid invoices in the period
+  const invoices = await db.document.findMany({
+    where: {
+      type: 'invoice',
+      paidAt: {
+        gte: params.periodStart,
+        lte: params.periodEnd,
+      },
+    },
+    orderBy: { paidAt: 'asc' },
+  })
+
+  // Aggregate
+  let subtotal = 0
+  let taxAmount = 0
+  let totalCollected = 0
+  const linkedInvoices = invoices.map((inv) => {
+    const invSubtotal = inv.subtotal
+    const invTax = inv.taxAmount
+    const invTotal = inv.total
+    subtotal += invSubtotal
+    taxAmount += invTax
+    totalCollected += invTotal
+    return {
+      number: inv.number,
+      date: inv.paidAt || inv.issueDate,
+      client: inv.recipientCompany || inv.recipientName,
+      subtotal: invSubtotal,
+      taxAmount: invTax,
+      total: invTotal,
+      status: inv.status,
+    }
+  })
+
+  // Compute charges
+  const platformFees = invoices.length * feesFixed + totalCollected * feesRate
+  const netProfit = totalCollected - platformFees - royaltyFees
+
+  const number = await nextDocumentNumber('accounting_statement')
+  const periodLabel = `${formatDate(params.periodStart)} - ${formatDate(params.periodEnd)}`
+
+  // Items stored for audit (one item per invoice)
+  const items: DocumentItem[] = linkedInvoices.map((inv) => ({
+    description: `${inv.number} - ${inv.client}`,
+    quantity: 1,
+    unitPrice: inv.total,
+    total: inv.total,
+  }))
+
+  const result = await generateDocument({
+    type: 'accounting_statement',
+    number,
+    recipientName: 'HireNova — Direction Financière',
+    recipientEmail: 'finance@hirenova.com',
+    recipientCompany: 'E-Society 2050',
+    recipientAddress: 'Casablanca, Maroc',
+    subject: `Bilan comptable — ${periodLabel} — ${invoices.length} facture(s)`,
+    items: items.length > 0 ? items : [{ description: 'Aucune facture sur la période', quantity: 0, unitPrice: 0, total: 0 }],
+    currency,
+    taxRate: taxAmount > 0 && subtotal > 0 ? (taxAmount / subtotal) * 100 : 0,
+    periodStart: params.periodStart,
+    periodEnd: params.periodEnd,
+    linkedInvoices,
+    invoiceCount: invoices.length,
+    platformFees,
+    royaltyFees,
+    netProfit,
+    totalCollected,
+    notes: params.notes || `Bilan généré automatiquement. ${invoices.length} facture(s) payée(s) sur la période. Frais plateforme: ${(feesRate * 100).toFixed(1)}% + ${feesFixed.toFixed(2)} ${currency}/facture. Ce document lie toutes les factures payées pour le suivi fiscal (TVA, CA, bénéfice).`,
+  })
+
+  return {
+    ...result,
+    invoiceCount: invoices.length,
+    netProfit,
+    totalCollected,
+  }
 }

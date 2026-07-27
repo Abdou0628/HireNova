@@ -334,8 +334,8 @@ model EnterpriseInquiry {
 
 model Document {
   id            String   @id @default(cuid())
-  type          String   // invoice | quote | agreement | receipt | credit_note
-  number        String   @unique // human-readable: FAC-2026-001, DEV-2026-001, etc.
+  type          String   // invoice | quote | agreement | receipt | credit_note | accounting_statement
+  number        String   @unique // human-readable: FAC-2026-001, DEV-2026-001, BIL-2026-001, etc.
   // Parties
   recipientName String
   recipientEmail String
@@ -364,6 +364,20 @@ model Document {
   // Relations
   userId        String?
   inquiryId     String?  // links to EnterpriseInquiry
+  // ===== Electronic signature (all documents) =====
+  signatureHash   String?  // SHA-256 hash of document fingerprint
+  signatureDate   DateTime? // when the signature was applied
+  signedBy        String?  @default("HireNova — E-Society 2050")
+  signatureSerial String?  // unique signature serial: SIG-YYYY-NNNNNN
+  // ===== Accounting statement (bilan) specific =====
+  periodStart   DateTime? // period covered start
+  periodEnd     DateTime? // period covered end
+  linkedDocIds  String?  // JSON array of source invoice IDs aggregated in this bilan
+  invoiceCount  Int      @default(0) // number of invoices aggregated
+  platformFees  Float    @default(0) // payment processing + infra fees
+  royaltyFees   Float    @default(0) // third-party royalties/redevances
+  netProfit     Float    @default(0) // total - platformFees - royaltyFees
+  totalCollected Float   @default(0) // total TTC encaissé
   // Storage
   pdfPath       String?  // stored on disk or in DB
   pdfBase64     String?  // base64-encoded PDF (for small docs)
@@ -375,6 +389,7 @@ model Document {
   @@index([status])
   @@index([number])
   @@index([createdAt])
+  @@index([paidAt])
 }
 
 // ===== Email Onboarding — Suivi des emails envoyés =====

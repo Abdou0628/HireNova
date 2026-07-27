@@ -137,6 +137,13 @@ export default function Landing() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [enterpriseFormOpen, setEnterpriseFormOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const [paymentSuccess, setPaymentSuccess] = useState<{
+    plan: string
+    amount: number
+    currency: string
+    invoice: { number: string; downloadUrl: string }
+    receipt: { number: string; downloadUrl: string }
+  } | null>(null)
   const [currency, setCurrency] = useState<'eur' | 'usd' | 'gbp'>('eur')
   const [pendingAction, setPendingAction] = useState<AppStep | null>(null)
   const [adminEmail, setAdminEmail] = useState('')
@@ -213,7 +220,7 @@ export default function Landing() {
     const amount = currency === 'usd' ? basePrice * 1.1 : currency === 'gbp' ? basePrice * 0.85 : basePrice
     events.checkoutStarted(planType, Math.round(amount), currency)
     try {
-      // LemonSqueezy for EUR/USD
+      // Try real LemonSqueezy checkout first
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,9 +228,23 @@ export default function Landing() {
       })
       const data = await res.json()
       if (data.url) {
+        // Real checkout — redirect to LemonSqueezy
         window.location.href = data.url
       } else if (data.code === 'PAYMENT_NOT_READY') {
-        toast.info(data.error, { duration: 5000 })
+        // LemonSqueezy not configured → fall back to dev payment simulator
+        // (auto-generates invoice + receipt with logo + electronic signature)
+        const devRes = await fetch('/api/dev-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planType, currency }),
+        })
+        const devData = await devRes.json()
+        if (devData.success) {
+          setPaymentSuccess(devData.data)
+          toast.success(`Paiement réussi — Plan ${planType} activé. Facture ${devData.data.invoice.number} générée.`)
+        } else {
+          toast.error(devData.error || 'Erreur lors du paiement')
+        }
       } else {
         toast.error(data.error || 'Erreur')
       }
@@ -231,6 +252,25 @@ export default function Landing() {
       toast.error('Erreur de connexion')
     } finally {
       setCheckoutLoading(null)
+    }
+  }
+
+  // Download a document PDF (invoice/receipt) from the payment success modal
+  async function downloadDocument(downloadUrl: string, filename: string) {
+    try {
+      const res = await fetch(downloadUrl)
+      if (!res.ok) throw new Error('Download failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error('Erreur lors du téléchargement')
     }
   }
 
@@ -1319,6 +1359,99 @@ export default function Landing() {
         isOpen={enterpriseFormOpen}
         onClose={() => setEnterpriseFormOpen(false)}
       />
+
+      {/* Payment Success Modal — shows auto-generated invoice + receipt */}
+      <AnimatePresence>
+        {paymentSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => setPaymentSuccess(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle2 className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Paiement réussi</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Plan {paymentSuccess.plan} activé — {paymentSuccess.amount.toFixed(2)} {paymentSuccess.currency}
+                </p>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Vos documents ont été générés automatiquement avec logo et signature électronique.
+                  </p>
+                </div>
+
+                {/* Invoice */}
+                <div className="flex items-center justify-between p-3 rounded-lg border bg-emerald-50/50">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-emerald-600" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Facture</p>
+                      <p className="text-sm font-semibold font-mono">{paymentSuccess.invoice.number}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={() => downloadDocument(paymentSuccess.invoice.downloadUrl, `facture-${paymentSuccess.invoice.number}.pdf`)}
+                  >
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    PDF
+                  </Button>
+                </div>
+
+                {/* Receipt */}
+                <div className="flex items-center justify-between p-3 rounded-lg border bg-amber-50/50">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-amber-600" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Reçu de paiement</p>
+                      <p className="text-sm font-semibold font-mono">{paymentSuccess.receipt.number}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={() => downloadDocument(paymentSuccess.receipt.downloadUrl, `recu-${paymentSuccess.receipt.number}.pdf`)}
+                  >
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    PDF
+                  </Button>
+                </div>
+
+                <div className="text-[10px] text-muted-foreground bg-slate-50 rounded-md p-2 border">
+                  Les documents portent le logo HireNova et une signature électronique SHA-256.
+                  Ils seront inclus dans votre prochain bilan comptable.
+                </div>
+
+                <Button
+                  className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700"
+                  onClick={() => setPaymentSuccess(null)}
+                >
+                  Continuer
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
 
