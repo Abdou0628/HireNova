@@ -30,6 +30,7 @@ model User {
   paymobOrderId    String?
   paymobPaymentId  String?
   paymobProvider   String?
+  stripeCustomerId String?
   resetCode        String?
   resetCodeExpires DateTime?
   createdAt        DateTime @default(now())

@@ -2,112 +2,245 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { getPlans, STORE_ID, type PlanType as LSPlanType } from '@/lib/lemonsqueezy'
+import { isStripeConfigured, type Currency, type HireNovaPlan, PLAN_PRICES } from '@/lib/stripe'
+import { isPaymobConfigured, PAYMOB_PRICES } from '@/lib/paymob'
+import { STORE_ID, VARIANTS, getPlans, type PlanType as LSPlanType } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
-
-type Currency = 'eur' | 'usd' | 'gbp'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { planType, currency: currencyParam } = body as { planType?: string; currency?: string }
+    const { planType: planTypeParam, currency: currencyParam, provider: providerParam } = body as {
+      planType?: string
+      currency?: string
+      provider?: string
+    }
 
-    const validPlans: LSPlanType[] = ['starter', 'pro', 'career_plus', 'employer', 'annual']
-    if (!planType || !validPlans.includes(planType as LSPlanType)) {
+    // Validate plan
+    const validPlans: HireNovaPlan[] = ['starter', 'pro', 'career_plus', 'employer', 'annual']
+    if (!planTypeParam || !validPlans.includes(planTypeParam as HireNovaPlan)) {
       return NextResponse.json(
-        { error: `Invalid planType. Must be one of: ${validPlans.join(', ')}` },
+        { error: `Plan invalide: ${validPlans.join(', ')}` },
         { status: 400 }
       )
     }
 
-    const currency: Currency = ['eur', 'usd', 'gbp'].includes(currencyParam) ? currencyParam : 'eur'
-    const plans = getPlans(currency)
-    const plan = plans[planType as LSPlanType]
+    const planType = planTypeParam as HireNovaPlan
+    const currency = (['eur', 'usd', 'gbp', 'mad'].includes(currencyParam) ? currencyParam : 'eur') as Currency
     const userId = session.user.id
 
-    // Check if LemonSqueezy is properly configured
-    if (!STORE_ID || STORE_ID === '' || plan.variantId.startsWith('variant_')) {
-      return NextResponse.json({
-        error: 'Les paiements seront bientôt disponibles. Nous préparons les abonnements pour votre région.',
-        code: 'PAYMENT_NOT_READY'
-      }, { status: 503 })
-    }
-
-    // Fetch user from DB
+    // Fetch user
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true, lsCustomerId: true },
+      select: { id: true, email: true, name: true, plan: true, stripeCustomerId: true, lsCustomerId: true },
     })
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
 
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
-    // Create LemonSqueezy checkout
-    const { data, error } = await createCheckout({
-      storeId: STORE_ID,
-      variantId: plan.variantId,
-      checkoutData: {
-        email: user.email,
-        name: user.name || undefined,
-        custom: {
-          userId,
-          planType,
-          currency,
-        },
-      },
-      checkoutOptions: {
-        redirectUrl: `${baseUrl}/?checkout=success`,
-        cancelUrl: `${baseUrl}/?checkout=canceled`,
-        embed: false,
-        media: false,
-        logo: true,
-        desc: true,
-        discount: true,
-        dark: false,
-        subscriptionPreview: true,
-      },
-      productOptions: {
-        enabledVariants: [plan.variantId],
-        isSubscription: plan.type === 'recurring',
-      },
-    })
+    // ─── MAD → PayMob ────────────────────────────────────
+    if (currency === 'mad') {
+      if (!isPaymobConfigured()) {
+        return NextResponse.json({
+          error: 'PayMob n\'est pas configuré pour les paiements MAD.',
+          code: 'PAYMOB_NOT_CONFIGURED'
+        }, { status: 503 })
+      }
 
-    if (error) {
-      console.error('LemonSqueezy checkout error:', error)
-      return NextResponse.json({ error: error.message || 'Failed to create checkout' }, { status: 500 })
-    }
+      const { createPaymobCheckout } = await import('@/lib/paymob')
+      // Map HireNova plans to PayMob plans
+      const pmPlan = planType === 'annual' ? 'lifetime' : 'pro'
+      const result = await createPaymobCheckout({
+        userId,
+        userEmail: user.email,
+        userName: user.name || 'User',
+        planType: pmPlan,
+      })
 
-    const checkoutUrl = data?.data?.attributes?.url
-
-    if (!checkoutUrl) {
-      return NextResponse.json({ error: 'No checkout URL returned' }, { status: 500 })
-    }
-
-    // Update user with LemonSqueezy customer ID if available
-    const customerId = data?.data?.attributes?.customer_id?.toString()
-    if (customerId) {
       await db.user.update({
         where: { id: userId },
-        data: { lsCustomerId: customerId },
+        data: { paymobOrderId: result.orderId },
+      })
+
+      return NextResponse.json({
+        url: result.paymentUrl,
+        orderId: result.orderId,
+        provider: 'paymob',
+        amount: PAYMOB_PRICES[pmPlan],
+        currency: 'MAD',
       })
     }
 
+    // ─── EUR/USD/GBP → Stripe or LemonSqueezy ───────────
+    // Priority: explicit provider > Stripe > LemonSqueezy > dev-payment
+    const providers: { name: string; available: boolean }[] = []
+
+    if (providerParam === 'stripe' || (!providerParam && isStripeConfigured())) {
+      providers.push({ name: 'stripe', available: isStripeConfigured() })
+    }
+    if (providerParam === 'lemonsqueezy' || (!providerParam && STORE_ID && !STORE_ID.startsWith('variant_'))) {
+      providers.push({ name: 'lemonsqueezy', available: !!(STORE_ID && !STORE_ID.startsWith('variant_')) })
+    }
+
+    // Try each available provider
+    for (const p of providers) {
+      if (!p.available) continue
+
+      if (p.name === 'stripe') {
+        try {
+          const { stripe, STRIPE_PRICE_IDS } = await import('@/lib/stripe')
+
+          let customerId = user.stripeCustomerId
+          if (!customerId) {
+            const customer = await stripe.customers.create({
+              email: user.email,
+              name: user.name || undefined,
+              metadata: { userId },
+            })
+            customerId = customer.id
+            await db.user.update({
+              where: { id: userId },
+              data: { stripeCustomerId: customerId },
+            })
+          }
+
+          const priceId = STRIPE_PRICE_IDS[currency]?.[planType]
+          if (!priceId || !priceId.startsWith('price_')) continue // skip if not configured
+
+          const isAnnual = planType === 'annual'
+          const checkoutSession = await stripe.checkout.sessions.create({
+            customer: customerId,
+            mode: isAnnual ? 'payment' : 'subscription',
+            line_items: [{ price: priceId, quantity: 1 }],
+            success_url: `${baseUrl}/?checkout=success&plan=${planType}&provider=stripe`,
+            cancel_url: `${baseUrl}/?checkout=canceled`,
+            metadata: { userId, planType, currency },
+            allow_promotion_codes: true,
+            subscription_data: isAnnual ? undefined : {
+              metadata: { userId, planType, currency },
+            },
+          })
+
+          return NextResponse.json({
+            url: checkoutSession.url,
+            sessionId: checkoutSession.id,
+            provider: 'stripe',
+          })
+        } catch (stripeErr) {
+          console.error('[checkout] Stripe error:', stripeErr)
+          continue // Try next provider
+        }
+      }
+
+      if (p.name === 'lemonsqueezy') {
+        try {
+          const plans = getPlans(currency as 'eur' | 'usd' | 'gbp')
+          const plan = plans[planType as LSPlanType]
+          if (!plan || plan.variantId.startsWith('variant_')) continue
+
+          const { data, error } = await createCheckout({
+            storeId: STORE_ID,
+            variantId: plan.variantId,
+            checkoutData: {
+              email: user.email,
+              name: user.name || undefined,
+              custom: { userId, planType, currency },
+            },
+            checkoutOptions: {
+              redirectUrl: `${baseUrl}/?checkout=success&plan=${planType}&provider=lemonsqueezy`,
+              cancelUrl: `${baseUrl}/?checkout=canceled`,
+              embed: false,
+            },
+            productOptions: {
+              enabledVariants: [plan.variantId],
+              isSubscription: planType !== 'annual',
+            },
+          })
+
+          if (error || !data?.data?.attributes?.url) continue
+
+          const customerId = data.data.attributes.customer_id?.toString()
+          if (customerId) {
+            await db.user.update({
+              where: { id: userId },
+              data: { lsCustomerId: customerId },
+            })
+          }
+
+          return NextResponse.json({
+            url: data.data.attributes.url,
+            provider: 'lemonsqueezy',
+          })
+        } catch (lsErr) {
+          console.error('[checkout] LemonSqueezy error:', lsErr)
+          continue
+        }
+      }
+    }
+
+    // ─── No real provider available → Dev payment simulator ──
+    const prices: Record<string, number> = { starter: 9, pro: 19, career_plus: 39, employer: 49, annual: 179 }
+    const basePrice = prices[planType] ?? 19
+    const amount = currency === 'usd' ? basePrice * 1.1 : currency === 'gbp' ? basePrice * 0.85 : basePrice
+
+    const { generateInvoiceForPayment, generateReceiptForPayment } = await import('@/lib/documents')
+
+    // Upgrade plan
+    await db.user.update({
+      where: { id: userId },
+      data: { plan: planType },
+    })
+
+    // Generate invoice
+    const invoice = await generateInvoiceForPayment({
+      userEmail: user.email,
+      userName: user.name || 'Client',
+      plan: planType,
+      amount,
+      currency: currency.toUpperCase(),
+      userId,
+      paidAt: new Date(),
+    })
+
+    // Generate receipt
+    const receipt = await generateReceiptForPayment({
+      userEmail: user.email,
+      userName: user.name || 'Client',
+      amount,
+      currency: currency.toUpperCase(),
+      description: `Abonnement ${planType} — HireNova (Simulation)`,
+      userId,
+      paidAt: new Date(),
+    })
+
     return NextResponse.json({
-      checkoutId: data?.data?.id,
-      url: checkoutUrl,
+      code: 'DEV_PAYMENT',
+      success: true,
+      data: {
+        plan: planType,
+        amount,
+        currency: currency.toUpperCase(),
+        invoice: {
+          number: invoice.number,
+          downloadUrl: `/api/documents/${invoice.id}`,
+        },
+        receipt: {
+          number: receipt.number,
+          downloadUrl: `/api/documents/${receipt.id}`,
+        },
+      },
     })
   } catch (error) {
-    console.error('Checkout error:', error)
-    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    console.error('[checkout] Error:', error)
+    const message = error instanceof Error ? error.message : 'Erreur interne du serveur'
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

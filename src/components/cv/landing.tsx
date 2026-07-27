@@ -208,6 +208,22 @@ export default function Landing() {
 
   const isAdmin = !!adminEmail && session?.user?.email === adminEmail
 
+  // Handle checkout success/cancel redirect from Stripe/LemonSqueezy
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const checkoutStatus = params.get('checkout')
+    if (checkoutStatus === 'success') {
+      const plan = params.get('plan') || 'pro'
+      toast.success(`🎉 Paiement réussi ! Plan ${plan} activé. Bienvenue !`, { duration: 5000 })
+      // Clean URL params
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (checkoutStatus === 'canceled') {
+      toast.info('Paiement annulé. Vous pouvez réessayer à tout moment.', { duration: 4000 })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
   async function handleCheckout(planType: 'starter' | 'pro' | 'career_plus' | 'employer' | 'annual') {
     if (!session?.user) {
       setAuthMode('register')
@@ -215,41 +231,27 @@ export default function Landing() {
       return
     }
     setCheckoutLoading(planType)
-    const prices: Record<string, number> = { starter: 9, pro: 19, career_plus: 39, employer: 49, annual: 179 }
-    const basePrice = prices[planType] ?? 19
-    const amount = currency === 'usd' ? basePrice * 1.1 : currency === 'gbp' ? basePrice * 0.85 : basePrice
-    events.checkoutStarted(planType, Math.round(amount), currency)
+    events.checkoutStarted(planType, 0, currency)
     try {
-      // Try real LemonSqueezy checkout first
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planType, currency }),
       })
       const data = await res.json()
+
       if (data.url) {
-        // Real checkout — redirect to LemonSqueezy
+        // Real payment provider (Stripe, LemonSqueezy, PayMob) → redirect
         window.location.href = data.url
-      } else if (data.code === 'PAYMENT_NOT_READY') {
-        // LemonSqueezy not configured → fall back to dev payment simulator
-        // (auto-generates invoice + receipt with logo + electronic signature)
-        const devRes = await fetch('/api/dev-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planType, currency }),
-        })
-        const devData = await devRes.json()
-        if (devData.success) {
-          setPaymentSuccess(devData.data)
-          toast.success(`Paiement réussi — Plan ${planType} activé. Facture ${devData.data.invoice.number} générée.`)
-        } else {
-          toast.error(devData.error || 'Erreur lors du paiement')
-        }
+      } else if (data.code === 'DEV_PAYMENT' && data.success) {
+        // Dev payment simulator — show success modal with invoice + receipt
+        setPaymentSuccess(data.data)
+        toast.success(`Paiement réussi — Plan ${planType} activé. Facture ${data.data.invoice.number} générée.`)
       } else {
-        toast.error(data.error || 'Erreur')
+        toast.error(data.error || 'Erreur lors du paiement')
       }
     } catch {
-      toast.error('Erreur de connexion')
+      toast.error('Erreur de connexion au serveur de paiement')
     } finally {
       setCheckoutLoading(null)
     }
