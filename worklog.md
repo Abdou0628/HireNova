@@ -1189,3 +1189,67 @@ Stage Summary:
 - All auto-generated documents carry HireNova logo + electronic signature (SHA-256)
 - Documents are automatically included in future bilans (bilans query paid invoices by paidAt)
 - In production: just configure LemonSqueezy variant IDs + webhook secret → full automation
+
+---
+Task ID: SEQ-3-USER-DASHBOARD
+Agent: CTO (main)
+Task: SEQ-3 — User Profile Dashboard ("Mon Espace") — Personal portal for candidates/employers
+
+Work Log:
+- Vision: Create a centralized personal dashboard where users manage their entire HireNova experience (CVs, CLs, applications, documents, profile)
+- Added 'dashboard' to AppStep type in src/store/cv-store.ts
+- Created 2 API routes:
+  * GET /api/user/dashboard — Aggregates all user data in parallel (11 DB queries via Promise.all):
+    - User profile info
+    - Resumes, Cover Letters, Local + Global Applications
+    - Local + Global Jobs posted (employers)
+    - Documents (invoices, receipts, quotes, agreements)
+    - Referral stats, Mobility profiles, Satisfaction ratings, Email logs
+    - Summary stats: totalResumes, totalCoverLetters, totalApplications, pendingApplications, averageMatch, totalJobsPosted, totalApplicationsReceived, totalDocuments, totalSpent, completedReferrals, joinDays
+  * PATCH /api/user/profile — Update user name, company, industry, website, image
+- Created src/components/dashboard/user-dashboard.tsx (~650 lines):
+  * Profile card with emerald gradient header, avatar, plan badge, employer badge
+  * Profile edit form (name, company, industry, website) with AnimatePresence animation
+  * 7 tabs: Vue d'ensemble, CV, Lettres, Candidatures, Docs, Mobilité, Parrainage
+  * Overview tab: 5 stat cards (clickable → navigate to relevant tab), 4 quick action buttons, recent activity feed
+  * CV tab: List of generated CVs with language flag, template style, industry, date
+  * Cover Letters tab: List with company, job title, language, tone badge
+  * Applications tab: Local + Global applications with match score, status badge, job details
+  * Documents tab: Type icon/badge, number, status, amount, PDF download button
+  * Mobility tab: Origin → target country, role, score, status
+  * Referrals tab: Email, status, reward type, referral code display
+  * Quick actions navigate to existing features (form, clForm, jobMarket, globalMarket)
+  * Loading state with spinner, error state with retry button
+  * Sticky header with back button + refresh button
+  * Sticky footer with "HireNova — Mon Espace personnel"
+- Wired into page-client.tsx as dynamic import
+- Added "Mon Espace" (LayoutDashboard icon) to profile-button.tsx dropdown menu (first item, emerald color)
+- Added i18n key 'mySpace' in 4 languages: FR (Mon Espace), EN (My Space), AR (مساحتي), ES (Mi Espacio)
+- Fixed .env missing vars (NEXTAUTH_SECRET, NEXTAUTH_URL, SECURE_COOKIES=false, ADMIN_EMAIL)
+- Lint: clean (0 errors)
+- Dev server hot-reload picked up all changes
+
+Vérifications Agent Browser:
+- ✅ Registered testdash@hirenova.com (TestPass123!)
+- ✅ Login successful, "Menu du profil" visible
+- ✅ Dropdown menu shows "Mon Espace" as first item
+- ✅ Click "Mon Espace" → dashboard loaded (GET /api/user/dashboard 200 in 29ms)
+- ✅ Profile card: "Test Dashboard", Gratuit badge, "Modifier" button
+- ✅ 7 tabs: Vue d'ensemble, CV, Lettres, Candidatures, Docs, Mobilité, Parrainage
+- ✅ 5 stat cards: CV générés, Lettres de motivation, Candidatures, Documents, Parrainages
+- ✅ 4 quick actions: Créer un CV, Lettre de motivation, Trouver un emploi, International
+- ✅ Profile edit form: "Votre nom" input with pre-filled value, Enregistrer/Annuler buttons
+- ✅ "Accueil" back button returns to landing page
+- ✅ No console errors
+- ✅ Server log: 11 parallel DB queries, 0 errors
+
+Stage Summary:
+- SEQ3 User Dashboard ("Mon Espace") fully operational
+- Centralized personal portal for all HireNova features
+- 7 tabs covering CVs, CLs, applications, documents, mobility, referrals
+- Profile editing with live save to DB
+- Quick action buttons linking to existing features
+- PDF download for invoices/receipts/quotes/agreements
+- 4-language support (FR/EN/AR/ES)
+- Accessible via profile dropdown menu (LayoutDashboard icon)
+- API returns aggregated data in 29ms (11 parallel queries)

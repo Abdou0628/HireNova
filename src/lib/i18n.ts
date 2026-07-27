@@ -303,6 +303,7 @@ export type TranslationKey =
   | 'registerError'
   | 'profileMenu'
   | 'myAccount'
+  | 'mySpace'
   | 'logout'
   | 'remainingCvs'
   | 'remainingCls'
@@ -777,6 +778,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     registerError: 'Cet email est déjà utilisé',
     profileMenu: 'Mon compte',
     myAccount: 'Mon compte',
+    mySpace: 'Mon Espace',
     logout: 'Se déconnecter',
     remainingCvs: 'CVs restants ce mois',
     remainingCls: 'Lettres restantes ce mois',
@@ -1265,6 +1267,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     registerError: 'This email is already in use',
     profileMenu: 'My account',
     myAccount: 'My account',
+    mySpace: 'My Space',
     logout: 'Sign out',
     remainingCvs: 'Resumes remaining this month',
     remainingCls: 'Letters remaining this month',
@@ -1752,6 +1755,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     registerError: 'هذا البريد الإلكتروني مستخدم بالفعل',
     profileMenu: 'حسابي',
     myAccount: 'حسابي',
+    mySpace: 'مساحتي',
     logout: 'تسجيل الخروج',
     remainingCvs: 'السير الذاتية المتبقية هذا الشهر',
     remainingCls: 'الرسائل المتبقية هذا الشهر',
@@ -2240,6 +2244,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     registerError: 'Este correo ya está en uso',
     profileMenu: 'Mi cuenta',
     myAccount: 'Mi cuenta',
+    mySpace: 'Mi Espacio',
     logout: 'Cerrar sesión',
     remainingCvs: 'Currículums restantes este mes',
     remainingCls: 'Cartas restantes este mes',

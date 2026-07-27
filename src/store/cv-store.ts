@@ -21,6 +21,8 @@ export type AppStep =
   | 'referral'
   // HireNova Campus — Universités Partenaires
   | 'campus'
+  // User Dashboard — Mon Espace personnel
+  | 'dashboard'
   // Admin Dashboard — Supervision globale
   | 'admin'
 

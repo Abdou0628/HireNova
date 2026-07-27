@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap, Loader2 } from 'lucide-react'
+import { LogOut, User, ChevronDown, Crown, Shield, Code2, Briefcase, FileText, Gift, GraduationCap, Loader2, LayoutDashboard } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -187,6 +187,14 @@ export default function ProfileButton() {
           </DropdownMenuLabel>
 
           <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            className="px-3 py-2.5 text-sm font-semibold text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+            onSelect={(e) => { e.preventDefault(); setStep('dashboard') }}
+          >
+            <LayoutDashboard className="w-4 h-4 mr-2" />
+            {t(lang, 'mySpace')}
+          </DropdownMenuItem>
 
           <DropdownMenuItem className="px-3 py-2 text-sm text-muted-foreground">
             <span>{t(lang, 'remainingCvs')}</span>
