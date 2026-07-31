@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, MessageSquare, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale, Network } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -1052,6 +1052,7 @@ export default function Landing() {
                 { icon: Store, name: 'HireNova IA COMMUNITY ET MARKETPLACE', desc: t(language, 'ecosystemMarketplace'), active: true, accent: 'emerald', step: 'marketplaceHome' as AppStep | null },
                 { icon: Building2, name: 'HireNova IA WHITE LABEL', desc: t(language, 'ecosystemWhiteLabel'), active: true, accent: 'slate', step: 'whiteLabelHome' as AppStep | null },
                 { icon: Scale, name: 'HireNova IA LEGAL', desc: t(language, 'ecosystemLegal'), active: true, accent: 'red', step: 'legalHome' as AppStep | null },
+                { icon: Network, name: 'HireNova IA COMMAND CENTER', desc: t(language, 'orchSubtitle'), active: true, accent: 'emerald', step: 'orchestrationHub' as AppStep | null },
               ].map((product, index) => {
                 const isClickable = Boolean(product.active)
                 const handleNav = () => {

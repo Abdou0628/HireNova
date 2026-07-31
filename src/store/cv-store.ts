@@ -47,6 +47,8 @@ export type AppStep =
   | 'whiteLabelHome' | 'whiteLabelSetup' | 'whiteLabelDashboard' | 'whiteLabelPricing'
   // HireNova IA LEGAL
   | 'legalHome' | 'legalContracts' | 'legalCompliance' | 'legalTemplates'
+  // HireNova IA COMMAND CENTER — Orchestration
+  | 'orchestrationHub' | 'orchestrationDispatch' | 'orchestrationCollab'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

@@ -112,6 +112,8 @@ const LegalHome = dynamic(() => import('@/components/legal/legal-home'), { ssr: 
 const LegalContracts = dynamic(() => import('@/components/legal/legal-contracts'), { ssr: false, loading: () => <Loading /> })
 const LegalCompliance = dynamic(() => import('@/components/legal/legal-compliance'), { ssr: false, loading: () => <Loading /> })
 const LegalTemplates = dynamic(() => import('@/components/legal/legal-templates'), { ssr: false, loading: () => <Loading /> })
+// HireNova IA Command Center — Orchestration
+const OrchestrationHub = dynamic(() => import('@/components/orchestration/orchestration-hub'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -210,6 +212,10 @@ export default function Home() {
         {step === 'legalContracts' && <LegalContracts />}
         {step === 'legalCompliance' && <LegalCompliance />}
         {step === 'legalTemplates' && <LegalTemplates />}
+        {/* HireNova IA Command Center — Orchestration */}
+        {step === 'orchestrationHub' && <OrchestrationHub />}
+        {step === 'orchestrationDispatch' && <OrchestrationHub />}
+        {step === 'orchestrationCollab' && <OrchestrationHub />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>
