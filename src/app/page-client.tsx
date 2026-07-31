@@ -92,11 +92,26 @@ const FreelanceHome = dynamic(() => import('@/components/freelance/freelance-hom
 const FreelanceBrowse = dynamic(() => import('@/components/freelance/freelance-browse'), { ssr: false, loading: () => <Loading /> })
 const FreelanceMission = dynamic(() => import('@/components/freelance/freelance-mission'), { ssr: false, loading: () => <Loading /> })
 const FreelanceDashboard = dynamic(() => import('@/components/freelance/freelance-dashboard'), { ssr: false, loading: () => <Loading /> })
-// HireNova AI Marketplace & Community
+// HireNova IA Marketplace & Community
 const MarketplaceHome = dynamic(() => import('@/components/marketplace/marketplace-home'), { ssr: false, loading: () => <Loading /> })
 const MarketplaceCommunity = dynamic(() => import('@/components/marketplace/marketplace-community'), { ssr: false, loading: () => <Loading /> })
 const MarketplaceEvents = dynamic(() => import('@/components/marketplace/marketplace-events'), { ssr: false, loading: () => <Loading /> })
 const MarketplaceProfile = dynamic(() => import('@/components/marketplace/marketplace-profile'), { ssr: false, loading: () => <Loading /> })
+// HireNova IA INTELLIGENCE
+const IntelligenceHome = dynamic(() => import('@/components/intelligence/intelligence-home'), { ssr: false, loading: () => <Loading /> })
+const IntelligenceTrends = dynamic(() => import('@/components/intelligence/intelligence-trends'), { ssr: false, loading: () => <Loading /> })
+const IntelligenceSalary = dynamic(() => import('@/components/intelligence/intelligence-salary'), { ssr: false, loading: () => <Loading /> })
+const IntelligenceForecast = dynamic(() => import('@/components/intelligence/intelligence-forecast'), { ssr: false, loading: () => <Loading /> })
+// HireNova IA WHITE LABEL
+const WhiteLabelHome = dynamic(() => import('@/components/white-label/white-label-home'), { ssr: false, loading: () => <Loading /> })
+const WhiteLabelSetup = dynamic(() => import('@/components/white-label/white-label-setup'), { ssr: false, loading: () => <Loading /> })
+const WhiteLabelDashboard = dynamic(() => import('@/components/white-label/white-label-dashboard'), { ssr: false, loading: () => <Loading /> })
+const WhiteLabelPricing = dynamic(() => import('@/components/white-label/white-label-pricing'), { ssr: false, loading: () => <Loading /> })
+// HireNova IA LEGAL
+const LegalHome = dynamic(() => import('@/components/legal/legal-home'), { ssr: false, loading: () => <Loading /> })
+const LegalContracts = dynamic(() => import('@/components/legal/legal-contracts'), { ssr: false, loading: () => <Loading /> })
+const LegalCompliance = dynamic(() => import('@/components/legal/legal-compliance'), { ssr: false, loading: () => <Loading /> })
+const LegalTemplates = dynamic(() => import('@/components/legal/legal-templates'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -175,11 +190,26 @@ export default function Home() {
         {step === 'freelanceBrowse' && <FreelanceBrowse />}
         {step === 'freelanceMission' && <FreelanceMission />}
         {step === 'freelanceDashboard' && <FreelanceDashboard />}
-        {/* HireNova AI Marketplace & Community */}
+        {/* HireNova IA Marketplace & Community */}
         {step === 'marketplaceHome' && <MarketplaceHome />}
         {step === 'marketplaceCommunity' && <MarketplaceCommunity />}
         {step === 'marketplaceEvents' && <MarketplaceEvents />}
         {step === 'marketplaceProfile' && <MarketplaceProfile />}
+        {/* HireNova IA INTELLIGENCE */}
+        {step === 'intelligenceHome' && <IntelligenceHome />}
+        {step === 'intelligenceTrends' && <IntelligenceTrends />}
+        {step === 'intelligenceSalary' && <IntelligenceSalary />}
+        {step === 'intelligenceForecast' && <IntelligenceForecast />}
+        {/* HireNova IA WHITE LABEL */}
+        {step === 'whiteLabelHome' && <WhiteLabelHome />}
+        {step === 'whiteLabelSetup' && <WhiteLabelSetup />}
+        {step === 'whiteLabelDashboard' && <WhiteLabelDashboard />}
+        {step === 'whiteLabelPricing' && <WhiteLabelPricing />}
+        {/* HireNova IA LEGAL */}
+        {step === 'legalHome' && <LegalHome />}
+        {step === 'legalContracts' && <LegalContracts />}
+        {step === 'legalCompliance' && <LegalCompliance />}
+        {step === 'legalTemplates' && <LegalTemplates />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>

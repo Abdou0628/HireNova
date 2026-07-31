@@ -63,7 +63,7 @@ export default function GlobalMarketView() {
           <div className="flex items-center gap-2">
             <Globe className="text-teal-600 w-7 h-7" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">HireNova AI Global</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">HireNova IA Global</h1>
               <p className="text-muted-foreground text-sm">Recrutement international sans frontières</p>
             </div>
           </div>

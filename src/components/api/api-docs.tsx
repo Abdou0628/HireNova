@@ -74,7 +74,7 @@ export default function ApiDocsView() {
           </Button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-              <Code2 className="text-emerald-600" /> HireNova AI API
+              <Code2 className="text-emerald-600" /> HireNova IA API
             </h1>
             <p className="text-sm text-muted-foreground mt-1">Documentation complète de l'API</p>
           </div>

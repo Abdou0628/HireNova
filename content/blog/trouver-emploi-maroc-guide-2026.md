@@ -582,9 +582,9 @@ Les 3 piliers de la réussite :
 - ✅ **Générateur de CV IA** multilingue (FR/EN/AR/ES)
 - ✅ **Score ATS gratuit** sur 100
 - ✅ **Lettre de motivation IA** personnalisée
-- ✅ **HireNova AI Jobs** : marketplace d'offres marocaines et internationales
-- ✅ **HireNova AI Global** : 40+ pays pour la mobilité internationale
-- ✅ **HireNova AI Mobilité** : adaptation CV par pays (12 destinations)
+- ✅ **HireNova IA Jobs** : marketplace d'offres marocaines et internationales
+- ✅ **HireNova IA Global** : 40+ pays pour la mobilité internationale
+- ✅ **HireNova IA MOBILITY** : adaptation CV par pays (12 destinations)
 
 👉 **Commencez gratuitement** sur [HireNova](/). Plan Free sans carte bancaire, plans payants dès **9€/mois**.
 

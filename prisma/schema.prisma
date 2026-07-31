@@ -64,6 +64,9 @@ model User {
   communityPosts      CommunityPost[]
   communityReplies    CommunityReply[]
   communityProfile    CommunityProfile?
+  whiteLabelTenants   WhiteLabelTenant[]
+  legalDocuments      LegalDocument[]
+  complianceChecks    ComplianceCheck[]
 }
 
 // ===== HireNova Formation — Training & Certification =====
@@ -798,4 +801,83 @@ model CommunityProfile {
   badges          String   @default("")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ===== HireNova IA INTELLIGENCE — Market Intelligence =====
+
+model MarketTrend {
+  id          String   @id @default(cuid())
+  skill       String
+  industry    String   @default("")
+  growthRate  Float    @default(0)
+  demand      String   @default("high") // high, medium, low
+  region      String   @default("")
+  updatedAt   DateTime @updatedAt
+}
+
+model SalaryBenchmark {
+  id          String   @id @default(cuid())
+  jobTitle    String
+  industry    String   @default("")
+  location    String   @default("")
+  salaryMin   Int      @default(0)
+  salaryAvg   Int      @default(0)
+  salaryMax   Int      @default(0)
+  currency    String   @default("EUR")
+  source      String   @default("")
+  updatedAt   DateTime @updatedAt
+}
+
+// ===== HireNova IA WHITE LABEL — White-Label SaaS =====
+
+model WhiteLabelTenant {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName     String
+  domain          String   @default("")
+  primaryColor    String   @default("#059669")
+  logoUrl         String   @default("")
+  enabledModules  String   @default("") // JSON array
+  plan            String   @default("starter") // starter, business, enterprise
+  apiCalls        Int      @default(0)
+  usersCount      Int      @default(0)
+  status          String   @default("active") // active, paused, suspended
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ===== HireNova IA LEGAL — Legal Compliance Module =====
+
+model LegalDocument {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title     String
+  type      String   @default("employment") // employment, nda, service, non-compete, ip, privacy
+  content   String
+  language  String   @default("fr")
+  status    String   @default("draft") // draft, finalized, signed
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+model ComplianceCheck {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  jurisdiction   String   @default("ma") // ma, fr, eu, sa, ae
+  score          Int      @default(0) // 0-100
+  checklist      String   // JSON array of {item, checked, required}
+  recommendations String  // JSON array
+  language       String   @default("fr")
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([jurisdiction])
 }

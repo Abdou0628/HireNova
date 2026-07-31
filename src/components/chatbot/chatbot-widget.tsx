@@ -129,7 +129,7 @@ export default function ChatbotWidget() {
               size="lg"
               className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 hover:shadow-xl cursor-pointer"
               onClick={() => setIsOpen(true)}
-              aria-label="Open HireNova AI chatbot"
+              aria-label="Open HireNova IA CHAT BOT ADVANCED"
             >
               <MessageCircle className="w-6 h-6 text-white" />
             </Button>

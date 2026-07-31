@@ -155,7 +155,7 @@ Comparez **3-5 offres similaires** dans le même secteur. Les mots-clés qui rev
 
 ### Méthode 3 : outils automatiques (2 min)
 
-Utilisez un outil comme **HireNova AI ATS Score** qui :
+Utilisez un outil comme **HireNova IA ATS Score** qui :
 - Analyse automatiquement l'offre
 - Compare avec votre CV
 - Identifie les mots-clés manquants
@@ -403,7 +403,7 @@ COMPÉTENCES DIGITALES
 
 ## Outils pour optimiser ses mots-clés <a name="outils-optimisation"></a>
 
-### HireNova AI ATS Score (gratuit)
+### HireNova IA ATS Score (gratuit)
 
 Le plan Free de HireNova inclut :
 - Analyse automatique des mots-clés de l'offre
@@ -498,7 +498,7 @@ Visez **30-50 mots-clés pertinents** pour un poste, dont 10-15 mots-clés oblig
 
 ### Comment savoir si mon CV est bien optimisé ?
 
-Utilisez un outil comme **HireNova AI ATS Score** qui vous donne une note sur 100 et la liste précise des mots-clés manquants.
+Utilisez un outil comme **HireNova IA ATS Score** qui vous donne une note sur 100 et la liste précise des mots-clés manquants.
 
 ### Les mots-clés en anglais fonctionnent-ils dans un CV français ?
 

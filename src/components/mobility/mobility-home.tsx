@@ -104,7 +104,7 @@ export default function MobilityHome() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
               <Plane className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-emerald-900">HireNova AI Mobilité</h1>
+            <h1 className="text-xl font-bold text-emerald-900">HireNova IA MOBILITY</h1>
           </div>
           <Badge variant="secondary" className="ml-auto bg-emerald-100 text-emerald-700">
             <Globe className="mr-1 h-3 w-3" />

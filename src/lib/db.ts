@@ -5,7 +5,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // Force fresh client to pick up schema changes
-if (globalForPrisma.prisma && !(globalForPrisma.prisma as any).campusUniversity) {
+if (globalForPrisma.prisma && !(globalForPrisma.prisma as any).marketTrend) {
   globalForPrisma.prisma = undefined
 }
 

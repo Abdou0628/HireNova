@@ -232,7 +232,7 @@ Utilisez :
 
 ### Étape 6 : testez votre score
 
-Utilisez un outil comme **HireNova AI ATS Score** pour obtenir une note sur 100 et la liste précise des axes d'amélioration. C'est gratuit sur le plan Free.
+Utilisez un outil comme **HireNova IA ATS Score** pour obtenir une note sur 100 et la liste précise des axes d'amélioration. C'est gratuit sur le plan Free.
 
 ### Étape 7 : itérez
 
@@ -242,7 +242,7 @@ Si votre score est inférieur à 70, corrigez les problèmes signalés, puis ret
 
 ## Les outils pour tester votre score ATS <a name="outils-test"></a>
 
-### HireNova AI ATS Score (gratuit)
+### HireNova IA ATS Score (gratuit)
 
 Le plan Free de HireNova inclut une analyse ATS sur 100 avec :
 - Score global

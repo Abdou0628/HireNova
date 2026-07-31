@@ -581,7 +581,7 @@ Les recruteurs apprécient de plus en plus les profils atypiques : ils apportent
 - ✅ **Détection automatique** des compétences valorisables dans le nouveau métier
 - ✅ **Optimisation ATS** pour le nouveau secteur
 - ✅ **Lettre de motivation IA** spécifique reconversion
-- ✅ **HireNova AI Mobilité** pour les reconversions à l'international
+- ✅ **HireNova IA MOBILITY** pour les reconversions à l'international
 - ✅ **Score ATS gratuit** pour évaluer votre CV
 
 👉 **Commencez gratuitement** sur [HireNova](/). Plan Free sans carte bancaire, plans payants dès **9€/mois**.

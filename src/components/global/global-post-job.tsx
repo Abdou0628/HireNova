@@ -59,7 +59,7 @@ export default function GlobalPostJobView() {
           <Globe className="text-teal-600" />
           <div>
             <h1 className="text-xl font-bold">Publier une offre internationale</h1>
-            <p className="text-sm text-muted-foreground">HireNova AI Global — Recrutement sans frontières</p>
+            <p className="text-sm text-muted-foreground">HireNova IA Global — Recrutement sans frontières</p>
           </div>
         </div>
 

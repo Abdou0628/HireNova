@@ -39,8 +39,14 @@ export type AppStep =
   | 'formationHome' | 'formationCatalog' | 'formationCourse' | 'formationCert'
   // HireNova Freelance — Freelance Marketplace
   | 'freelanceHome' | 'freelanceBrowse' | 'freelanceMission' | 'freelanceDashboard'
-  // HireNova AI Marketplace & Community
+  // HireNova IA COMMUNITY ET MARKETPLACE
   | 'marketplaceHome' | 'marketplaceCommunity' | 'marketplaceEvents' | 'marketplaceProfile'
+  // HireNova IA INTELLIGENCE
+  | 'intelligenceHome' | 'intelligenceTrends' | 'intelligenceSalary' | 'intelligenceForecast'
+  // HireNova IA WHITE LABEL
+  | 'whiteLabelHome' | 'whiteLabelSetup' | 'whiteLabelDashboard' | 'whiteLabelPricing'
+  // HireNova IA LEGAL
+  | 'legalHome' | 'legalContracts' | 'legalCompliance' | 'legalTemplates'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

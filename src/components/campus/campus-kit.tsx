@@ -29,7 +29,7 @@ export default function CampusKit() {
 
   function downloadBrochure() {
     events.track('campus_brochure_downloaded')
-    const brochure = `HireNova AI Campus — ${t(language, 'campusSubtitle')}\n\nE-Society 2050 — HireNova\n© 2026\n`
+    const brochure = `HireNova IA CAMPUS SaaS — ${t(language, 'campusSubtitle')}\n\nE-Society 2050 — HireNova\n© 2026\n`
     const blob = new Blob([brochure], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -68,7 +68,7 @@ export default function CampusKit() {
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-base leading-tight truncate">HireNova AI Campus</h1>
+              <h1 className="font-bold text-base leading-tight truncate">HireNova IA CAMPUS SaaS</h1>
               <p className="text-[10px] text-muted-foreground leading-tight">{t(language, 'campusSubtitle')}</p>
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function CampusKit() {
               <Globe className="w-3.5 h-3.5 text-emerald-600" />hirenova.com
             </span>
           </div>
-          <p className="text-[10px] text-muted-foreground">© 2026 E-Society 2050 — HireNova AI Campus</p>
+          <p className="text-[10px] text-muted-foreground">© 2026 E-Society 2050 — HireNova IA CAMPUS SaaS</p>
         </div>
       </footer>
     </div>

@@ -102,7 +102,7 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
 
   function downloadBrochure() {
     events.track('campus_brochure_downloaded')
-    const brochure = `HireNova AI Campus — ${t(language, 'campusSubtitle')}\n\nE-Society 2050 — HireNova\n© 2026\n`
+    const brochure = `HireNova IA CAMPUS SaaS — ${t(language, 'campusSubtitle')}\n\nE-Society 2050 — HireNova\n© 2026\n`
     const blob = new Blob([brochure], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -133,7 +133,7 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 mb-4 gap-1">
           <Sparkles className="w-3 h-3" />
-          HireNova AI Campus
+          HireNova IA CAMPUS SaaS
         </Badge>
         <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 leading-tight">
           {t(language, 'campusHeroTitle')}

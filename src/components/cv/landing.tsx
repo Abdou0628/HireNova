@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -1033,20 +1033,25 @@ export default function Landing() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {[
-                { icon: FileText, name: 'HireNova AI CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
-                { icon: Search, name: 'HireNova AI ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
-                { icon: Briefcase, name: 'HireNova AI Jobs', desc: 'Marketplace d\'emplois — publiez et postulez à des offres locales', active: true, accent: 'emerald', step: 'jobMarket' as AppStep | null },
-                { icon: Globe, name: 'HireNova AI Global', desc: 'Recrutement international — 40+ pays, visa & relocation', active: true, accent: 'teal', step: 'globalMarket' as AppStep | null },
-                { icon: Plane, name: 'HireNova AI Mobilité', desc: 'OCR + IA — adaptez votre CV aux standards de chaque pays', active: true, accent: 'purple', step: 'mobilityHome' as AppStep | null },
-                { icon: Code2, name: 'HireNova AI API', desc: 'API REST — intégrez CV, lettre & ATS dans vos apps', active: true, accent: 'sky', step: 'apiDocs' as AppStep | null },
-                { icon: MessageCircle, name: 'HireNova AI Interview', desc: t(language, 'ecosystemInterview'), active: true, accent: 'violet', step: 'interview' as AppStep | null },
-                { icon: Linkedin, name: 'HireNova AI LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: true, accent: 'sky', step: 'linkedinHome' as AppStep | null },
-                { icon: UserCheck, name: 'HireNova AI Recruiter', desc: t(language, 'ecosystemRecruiter'), active: true, accent: 'amber', step: 'recruiterHome' as AppStep | null },
-                { icon: Compass, name: 'HireNova AI Career', desc: t(language, 'ecosystemCareer'), active: true, accent: 'rose', step: 'careerHome' as AppStep | null },
-                { icon: Bot, name: 'HireNova AI Coach', desc: t(language, 'ecosystemCoach'), active: true, accent: 'emerald', step: 'coachHome' as AppStep | null },
-                { icon: BookOpen, name: 'HireNova AI Formation', desc: t(language, 'ecosystemFormation'), active: true, accent: 'teal', step: 'formationHome' as AppStep | null },
-                { icon: Laptop, name: 'HireNova AI Freelance', desc: t(language, 'ecosystemFreelance'), active: true, accent: 'orange', step: 'freelanceHome' as AppStep | null },
-                { icon: Store, name: 'HireNova AI Marketplace & Community', desc: t(language, 'ecosystemMarketplace'), active: true, accent: 'emerald', step: 'marketplaceHome' as AppStep | null },
+                { icon: FileText, name: 'HireNova IA CV', desc: t(language, 'ecosystemCv'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
+                { icon: Search, name: 'HireNova IA ATS', desc: t(language, 'ecosystemAts'), active: true, accent: 'emerald', step: 'form' as AppStep | null },
+                { icon: Briefcase, name: 'HireNova IA JOBS', desc: t(language, 'ecosystemJobs'), active: true, accent: 'emerald', step: 'jobMarket' as AppStep | null },
+                { icon: Globe, name: 'HireNova IA GLOBAL', desc: t(language, 'ecosystemGlobal'), active: true, accent: 'teal', step: 'globalMarket' as AppStep | null },
+                { icon: Plane, name: 'HireNova IA MOBILITY', desc: t(language, 'ecosystemMobility'), active: true, accent: 'purple', step: 'mobilityHome' as AppStep | null },
+                { icon: Code2, name: 'HireNova IA API', desc: t(language, 'ecosystemApi'), active: true, accent: 'sky', step: 'apiDocs' as AppStep | null },
+                { icon: Brain, name: 'HireNova IA INTELLIGENCE', desc: t(language, 'ecosystemIntelligence'), active: true, accent: 'violet', step: 'intelligenceHome' as AppStep | null },
+                { icon: MessageCircle, name: 'HireNova IA INTERVIEW', desc: t(language, 'ecosystemInterview'), active: true, accent: 'violet', step: 'interview' as AppStep | null },
+                { icon: Linkedin, name: 'HireNova IA LINKEDIN', desc: t(language, 'ecosystemLinkedin'), active: true, accent: 'sky', step: 'linkedinHome' as AppStep | null },
+                { icon: UserCheck, name: 'HireNova IA RECRUITER', desc: t(language, 'ecosystemRecruiter'), active: true, accent: 'amber', step: 'recruiterHome' as AppStep | null },
+                { icon: Compass, name: 'HireNova IA CAREER', desc: t(language, 'ecosystemCareer'), active: true, accent: 'rose', step: 'careerHome' as AppStep | null },
+                { icon: Bot, name: 'HireNova IA COACH', desc: t(language, 'ecosystemCoach'), active: true, accent: 'emerald', step: 'coachHome' as AppStep | null },
+                { icon: BookOpen, name: 'HireNova IA FORMATION', desc: t(language, 'ecosystemFormation'), active: true, accent: 'teal', step: 'formationHome' as AppStep | null },
+                { icon: Laptop, name: 'HireNova IA FREELANCE', desc: t(language, 'ecosystemFreelance'), active: true, accent: 'orange', step: 'freelanceHome' as AppStep | null },
+                { icon: MessageSquare, name: 'HireNova IA CHAT BOT ADVANCED', desc: t(language, 'ecosystemChatbot'), active: true, accent: 'violet', step: null },
+                { icon: GraduationCap, name: 'HireNova IA CAMPUS SaaS', desc: t(language, 'ecosystemCampus'), active: true, accent: 'teal', step: 'campus' as AppStep | null },
+                { icon: Store, name: 'HireNova IA COMMUNITY ET MARKETPLACE', desc: t(language, 'ecosystemMarketplace'), active: true, accent: 'emerald', step: 'marketplaceHome' as AppStep | null },
+                { icon: Building2, name: 'HireNova IA WHITE LABEL', desc: t(language, 'ecosystemWhiteLabel'), active: true, accent: 'slate', step: 'whiteLabelHome' as AppStep | null },
+                { icon: Scale, name: 'HireNova IA LEGAL', desc: t(language, 'ecosystemLegal'), active: true, accent: 'red', step: 'legalHome' as AppStep | null },
               ].map((product, index) => {
                 const isClickable = Boolean(product.active)
                 const handleNav = () => {
@@ -1081,7 +1086,11 @@ export default function Landing() {
                             ? 'border-purple-500 shadow-md bg-gradient-to-br from-purple-50/50 to-white'
                             : product.accent === 'sky'
                               ? 'border-sky-500 shadow-md bg-gradient-to-br from-sky-50/50 to-white'
-                              : 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white'
+                              : product.accent === 'violet'
+                                ? 'border-violet-500 shadow-md bg-gradient-to-br from-violet-50/50 to-white'
+                                : product.accent === 'red'
+                                  ? 'border-red-500 shadow-md bg-gradient-to-br from-red-50/50 to-white'
+                                  : 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white'
                         : 'border-muted/50 bg-white'
                     }`}
                   >
@@ -1091,6 +1100,8 @@ export default function Landing() {
                           product.accent === 'teal' ? 'bg-teal-600'
                             : product.accent === 'purple' ? 'bg-purple-600'
                             : product.accent === 'sky' ? 'bg-sky-600'
+                            : product.accent === 'violet' ? 'bg-violet-600'
+                            : product.accent === 'red' ? 'bg-red-600'
                             : 'bg-emerald-600'
                         }`}>ACTIF</Badge>
                       </div>
@@ -1106,6 +1117,8 @@ export default function Landing() {
                           ? product.accent === 'teal' ? 'bg-teal-100'
                             : product.accent === 'purple' ? 'bg-purple-100'
                             : product.accent === 'sky' ? 'bg-sky-100'
+                            : product.accent === 'violet' ? 'bg-violet-100'
+                            : product.accent === 'red' ? 'bg-red-100'
                             : 'bg-emerald-100'
                           : 'bg-muted'
                       }`}>
@@ -1114,6 +1127,8 @@ export default function Landing() {
                             ? product.accent === 'teal' ? 'text-teal-600'
                               : product.accent === 'purple' ? 'text-purple-600'
                               : product.accent === 'sky' ? 'text-sky-600'
+                              : product.accent === 'violet' ? 'text-violet-600'
+                              : product.accent === 'red' ? 'text-red-600'
                               : 'text-emerald-600'
                             : 'text-muted-foreground'
                         }`} />
@@ -1225,7 +1240,7 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
               <Badge className="mb-3 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Briefcase className="w-3 h-3 mr-1" /> Marketplace</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova AI Jobs</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA Jobs</h2>
               <p className="text-muted-foreground max-w-xl mx-auto">Connectez vos talents avec les meilleures opportunités</p>
             </motion.div>
             <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
@@ -1250,7 +1265,7 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
               <Badge className="mb-3 bg-amber-100 text-amber-700 hover:bg-amber-100"><Code2 className="w-3 h-3 mr-1" /> API B2B</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova AI API</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA API</h2>
               <p className="text-muted-foreground max-w-xl mx-auto">Intégrez la génération de CV, lettres et analyse ATS dans votre plateforme</p>
             </motion.div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
@@ -1293,7 +1308,7 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
               <Badge className="mb-3 bg-teal-100 text-teal-700 hover:bg-teal-100"><Globe className="w-3 h-3 mr-1" /> International</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova AI Global</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA Global</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl">Recrutement international pour les entreprises qui recrutent à travers le monde. Visa sponsorship, relocation, multi-régions.</p>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -1325,7 +1340,7 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
               <Badge className="mb-3 bg-purple-100 text-purple-700 hover:bg-purple-100"><Plane className="w-3 h-3 mr-1" /> Mobilité</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova AI Mobilité</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA MOBILITY</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl">OCR + IA : extrayez votre CV, analysez vos compétences, et reformatez vos documents selon les standards de chaque pays cible.</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -1368,7 +1383,7 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
               <Badge className="mb-3 bg-sky-100 text-sky-700 hover:bg-sky-100"><Linkedin className="w-3 h-3 mr-1" /> LinkedIn</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova AI LinkedIn</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA LinkedIn</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'landingLinkedinDesc')}</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1583,7 +1598,7 @@ export default function Landing() {
             <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
             <button onClick={() => setStep('campus')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
               <GraduationCap className="w-3 h-3" />
-              HireNova AI Campus
+              HireNova IA CAMPUS SaaS
             </button>
             <button onClick={() => setStep('referral')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
               <Gift className="w-3 h-3" />

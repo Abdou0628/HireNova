@@ -79,7 +79,7 @@ export default function MarketplaceHome() {
               <Store className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">HireNova AI Marketplace & Community</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">HireNova IA COMMUNITY ET MARKETPLACE</h1>
               <p className="text-sm text-muted-foreground">{t(language, 'marketplaceSubtitle')}</p>
             </div>
           </div>

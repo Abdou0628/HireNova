@@ -1924,3 +1924,155 @@ Le module HireNova AI Campus existait déjà en tant que structure marketing-onl
 - `bun run db:push` : ✅ Schema sync + Prisma Client generated
 - `bun run lint` : ✅ 0 erreurs, 0 warnings
 - Écosystème : 14 cartes actives (13 existantes + 1 Marketplace)
+---
+
+## [2026-01-XX] Rename AI → IA dans tout le codebase (display text)
+
+### Objectif
+Remplacer **HireNova AI** par **HireNova IA** dans tout le texte affiché à l'utilisateur (i18n, composants, emails, chatbot, blog), avec des renommages spécifiques pour 4 modules.
+
+### Changements effectués
+
+#### 1. Remplacement global `HireNova AI` → `HireNova IA` (266 occurrences → 265 remplacées)
+- **30 fichiers** modifiés via sed bulk replace
+- 1 occurrence conservée : commentaire code dans `src/store/cv-store.ts:42`
+- Fichiers touchés : 23 fichiers src/ + 7 fichiers content/blog/
+
+#### 2. Renommages spécifiques
+| Ancien | Nouveau | Fichiers |
+|--------|---------|----------|
+| `HireNova IA Marketplace & Community` | `HireNova IA COMMUNITY ET MARKETPLACE` | landing.tsx, marketplace-home.tsx (2 occurrences display text) |
+| `HireNova IA chatbot` | `HireNova IA CHAT BOT ADVANCED` | chatbot-widget.tsx aria-label (1 occurrence) |
+| `HireNova IA Campus` | `HireNova IA CAMPUS SaaS` | 7 fichiers, 14 occurrences |
+| `HireNova IA Mobilité` / `HireNova IA Mobility` | `HireNova IA MOBILITY` | 11 fichiers, 39 occurrences |
+
+#### 3. Éléments NON modifiés (conformes aux règles)
+- ✅ `HireNova by E-Society 2050` — nom de marque inchangé
+- ✅ Plans : `HireNova Pro`, `HireNova Starter`, `HireNova Enterprise` — inchangés
+- ✅ Commentaires code : `cv-store.ts:42` et `page-client.tsx:95,178` — inchangés
+- ✅ Pas de modification de variables, chemins, URLs, classes CSS
+
+### Vérification
+- `rg 'HireNova AI' src/ content/` → 1 seul résultat (commentaire code, OK)
+- `bun run lint` → ✅ 0 erreurs, 0 warnings
+
+---
+
+## Phase N : HireNova IA INTELLIGENCE — Market Intelligence Module
+
+### Nouvelles fonctionnalités ajoutées
+
+#### HireNova IA INTELLIGENCE — Intelligence de Marché IA
+- **4 composants frontend** : intelligence-home, intelligence-trends, intelligence-salary, intelligence-forecast
+- **3 routes API** : GET/POST /api/intelligence/trends, GET /api/intelligence/salary, POST /api/intelligence/forecast
+- **Features** :
+  - **Dashboard** : 4 métriques clés (indice salarial, croissance marché, top skills, santé marché), insights mis en avant, navigation rapide.
+  - **Tendances** : 14 tendances seedées, filtres par industrie/région, barres de progression, badges demande, analyse IA via POST.
+  - **Benchmarks salariaux** : 16 benchmarks seedés (EUR/MAD/AED/SAR), recherche par titre/industrie/localisation, barres de comparaison visuelles, carte avantages.
+  - **Prévisions IA** : génération de prévision par LLM (z-ai-web-dev-sdk), score d'opportunité, insights clés, rôles émergents, recommandation personnalisée.
+- **DB** : 2 modèles Prisma (MarketTrend, SalaryBenchmark)
+- **i18n** : 73 clés de traduction en 4 langues (FR/EN/AR/ES)
+- **RTL** : Support complet arabe
+- **Ecosystem card** : Ajoutée après API et avant Interview, accent violet
+
+### Fichiers créés/modifiés (cette session)
+
+**Nouveaux (7 fichiers)** :
+1. `src/components/intelligence/intelligence-home.tsx` — Dashboard intelligence de marché
+2. `src/components/intelligence/intelligence-trends.tsx` — Tendances du marché avec filtres
+3. `src/components/intelligence/intelligence-salary.tsx` — Benchmarks salariaux
+4. `src/components/intelligence/intelligence-forecast.tsx` — Prévisions IA via LLM
+5. `src/app/api/intelligence/trends/route.ts` — GET tendances + POST analyse IA
+6. `src/app/api/intelligence/salary/route.ts` — GET benchmarks salariaux
+7. `src/app/api/intelligence/forecast/route.ts` — POST prévision via LLM
+
+**Modifiés (4 fichiers)** :
+1. `prisma/schema.prisma` — +2 modèles (MarketTrend, SalaryBenchmark)
+2. `src/lib/i18n.ts` — +73 clés de traduction FR/EN/AR/ES (ecosystemIntelligence, intelligence*)
+3. `src/components/cv/landing.tsx` — +import Brain, +card ecosystem Intelligence (violet), +gestion accent violet
+4. `src/app/page-client.tsx` — +4 imports dynamiques +4 step mappings (intelligenceHome/Trends/Salary/Forecast)
+5. `src/lib/db.ts` — Mise à jour check fraîcheur Prisma (marketTrend)
+
+### Seed Data
+- **MarketTrend** : 14 tendances (IA, ML, Cybersécurité, Cloud, Data Science, DevOps, UX/UI, Green Tech, ESG, Blockchain, Marketing Digital, E-commerce, Télémedicine, Robotique)
+- **SalaryBenchmark** : 16 benchmarks (Full-Stack, Data Scientist, Ingénieur IA, Designer UX/UI, Chef de Projet, DevOps, Cybersécurité, Marketing Manager, Consultant ESG, Green Tech, Product Owner, Mobile, Télémedicine, E-commerce, Data Engineer, Scrum Master)
+
+### Vérification
+- Lint : ✓ (0 erreurs)
+- Dev server : ✓ Compiled successfully
+
+---
+
+## Phase 12 : HireNova IA WHITE LABEL — White-Label SaaS
+
+### Nouvelles fonctionnalités ajoutées
+
+#### HireNova IA WHITE LABEL — White-Label SaaS
+- **4 composants frontend** : white-label-home, white-label-setup, white-label-dashboard, white-label-pricing
+- **2 routes API** : GET/POST /api/white-label/tenants, GET/PUT /api/white-label/config
+- **Features** :
+  - **whiteLabelHome** : Page d'accueil avec hero, grille de 6 fonctionnalités (Branding, Domaine, API, Admin, Analytics, Multi-Tenant), 4 étapes cliquables, section bénéfices, CTA
+  - **whiteLabelSetup** : Wizard 4 étapes avec progress bar animée — Infos Société (nom, logo, couleur), Domaine (SSL auto), Sélection Modules (6 checkboxes), Résumé & Lancement
+  - **whiteLabelDashboard** : Tableau de bord avec 4 KPIs (API calls, users, active tenants, revenue share), liste des tenants avec domaine, plan, status, appels API
+  - **whiteLabelPricing** : 3 plans (Starter 99€, Business 299€, Enterprise sur devis) avec feature comparison table, CTA par plan
+- **i18n** : 80+ clés traduites en 4 langues (FR/EN/AR/ES)
+- **Carte écosystème** : Ajout de "HireNova IA WHITE LABEL" dans la landing page (accent: slate)
+- **DB** : Modèle WhiteLabelTenant (companyName, domain, primaryColor, logoUrl, enabledModules, plan, apiCalls, usersCount, status)
+- **Seed** : 3 tenants démo (TechRecruit Pro/Business, RH Solutions SARL/Starter, GlobalHR Enterprise/Enterprise)
+- **RTL** : Support complet pour l'arabe
+
+### Fichiers créés/modifiés
+- `src/components/white-label/white-label-home.tsx` — Page d'accueil white-label
+- `src/components/white-label/white-label-setup.tsx` — Wizard de configuration 4 étapes
+- `src/components/white-label/white-label-dashboard.tsx` — Dashboard tenant management
+- `src/components/white-label/white-label-pricing.tsx` — Tarification 3 plans + comparatif
+- `src/app/api/white-label/tenants/route.ts` — API GET/POST tenants avec seed
+- `src/app/api/white-label/config/route.ts` — API GET/PUT config tenant
+- `prisma/schema.prisma` — Modèle WhiteLabelTenant + relation User
+- `src/lib/i18n.ts` — 80+ clés i18n (FR/EN/AR/ES)
+- `src/app/page-client.tsx` — Imports + routes white-label
+- `src/components/cv/landing.tsx` — Carte écosystème WHITE LABEL
+
+### Vérification
+- Lint : ✓ (0 erreurs)
+- Dev server : ✓ Compiled successfully
+
+---
+
+## Phase N : HireNova IA LEGAL — Legal Compliance Module
+
+### Nouvelles fonctionnalités ajoutées
+
+#### HireNova IA LEGAL — Contrats IA, Conformité RGPD
+- **4 composants frontend** : legal-home, legal-contracts, legal-compliance, legal-templates
+- **3 routes API** : POST /api/legal/generate, POST /api/legal/compliance, GET /api/legal/templates
+- **Features** :
+  - **Dashboard** : Stats (contrats générés, modèles utilisés, score de conformité), quick actions (générer contrat, vérifier conformité, parcourir modèles), liste documents récents
+  - **Générateur de contrats** : Formulaire (parties, type CDI/CDT/freelance/stage, date, salaire, responsabilités, clauses), génération via LLM (z-ai-web-dev-sdk), aperçu et téléchargement .txt
+  - **Vérification de conformité** : Sélection juridiction (Maroc, France, UE, Arabie Saoudite, EAU), analyse IA via LLM, score 0-100 avec anneau visuel, checklist (12+ items), recommandations
+  - **Bibliothèque de modèles** : 8 templates (NDA FR/EN, contrat de prestation, contrat de travail, clause de non-concurrence, cession PI, politique RGPD, service EN), filtres par catégorie (emploi, protection, business, données), recherche, aperçu modal, téléchargement .txt
+- **DB** : 2 modèles Prisma (LegalDocument, ComplianceCheck) + relations User
+- **i18n** : 52 clés de traduction en 4 langues (FR/EN/AR/ES)
+- **RTL** : Support complet arabe
+- **Ecosystem card** : Ajoutée à la fin du grid landing, accent rouge, icône Scale
+
+### Fichiers créés (7)
+1. `src/components/legal/legal-home.tsx` — Dashboard juridique avec stats et quick actions
+2. `src/components/legal/legal-contracts.tsx` — Générateur de contrats via LLM
+3. `src/components/legal/legal-compliance.tsx` — Vérification conformité RGPD via LLM
+4. `src/components/legal/legal-templates.tsx` — Bibliothèque de 8 modèles juridiques
+5. `src/app/api/legal/generate/route.ts` — POST génération contrat via z-ai-web-dev-sdk
+6. `src/app/api/legal/compliance/route.ts` — POST analyse conformité via z-ai-web-dev-sdk
+7. `src/app/api/legal/templates/route.ts` — GET 8 templates juridiques (FR/EN)
+
+### Fichiers modifiés (4)
+1. `prisma/schema.prisma` — +2 modèles (LegalDocument, ComplianceCheck) + 2 relations User
+2. `src/lib/i18n.ts` — +52 clés de traduction FR/EN/AR/ES (ecosystemLegal, legal*)
+3. `src/app/page-client.tsx` — +4 imports dynamiques + 4 cases rendering (legalHome/Contracts/Compliance/Templates)
+4. `src/components/cv/landing.tsx` — +import Scale, +card écosystème LEGAL (accent rouge), +gestion accent rouge (border/badge/icon)
+
+### Vérification
+- `bun run db:push` : ✓ Schema sync + Prisma Client generated
+- `bun run lint` : ✓ 0 erreurs, 0 warnings
+- Dev server : ✓ Compiled successfully
+- Écosystème : 16 cartes actives (15 existantes + 1 LEGAL)
