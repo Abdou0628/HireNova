@@ -320,7 +320,7 @@ Si vous voulez gagner du temps et maximiser vos chances, **HireNova** met à vot
 - Un **générateur de CV IA** en 4 langues avec 3 templates professionnels
 - Un **score ATS sur 100** qui vous dit exactement quoi améliorer
 - Une **lettre de motivation IA** personnalisée pour chaque offre
-- **HireNova Mobilité** pour adapter votre CV si vous visez la France, le Canada ou le Golfe
+- **HireNova AI Mobilité** pour adapter votre CV si vous visez la France, le Canada ou le Golfe
 
 👉 **Commencez gratuitement** sur [HireNova](/) — sans carte bancaire, sans engagement. Le plan gratuit inclut 1 CV et l'analyse ATS de base. Pour aller plus loin, le plan Starter à **9€/mois** vous donne accès aux 4 langues et aux 3 templates.
 

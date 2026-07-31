@@ -60,6 +60,10 @@ model User {
   certifications      Certification[]
   freelanceMissions  FreelanceMission[] @relation("FreelanceClient")
   freelanceProposals FreelanceProposal[]
+  campusStudents      CampusStudent[]
+  communityPosts      CommunityPost[]
+  communityReplies    CommunityReply[]
+  communityProfile    CommunityProfile?
 }
 
 // ===== HireNova Formation — Training & Certification =====
@@ -680,4 +684,118 @@ model FreelanceProposal {
   @@index([missionId])
   @@index([userId])
   @@index([status])
+}
+
+// ===== HireNova Campus — University Partnership Platform =====
+
+model CampusUniversity {
+  id               String    @id @default(cuid())
+  name             String
+  country          String    @default("")
+  programs         String    @default("") // JSON array of program names
+  studentCount     Int       @default(0)
+  status           String    @default("active") // active, pending, inactive
+  contactEmail     String    @default("")
+  partnershipDate  DateTime? @default(now())
+  createdAt        DateTime  @default(now())
+
+  students         CampusStudent[]
+}
+
+model CampusWorkshop {
+  id              String    @id @default(cuid())
+  title           String
+  description     String
+  speaker         String    @default("")
+  date            DateTime
+  duration        Int       @default(60) // minutes
+  capacity        Int       @default(100)
+  registeredCount Int       @default(0)
+  type            String    @default("workshop") // workshop, webinar, bootcamp
+  language        String    @default("")
+  status          String    @default("upcoming") // upcoming, ongoing, completed, cancelled
+  createdAt       DateTime  @default(now())
+}
+
+model CampusStudent {
+  id                    String   @id @default(cuid())
+  userId                String?
+  user                  User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  universityId          String?
+  university            CampusUniversity? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  program               String   @default("")
+  cvsCreated            Int      @default(0)
+  atsAvgScore           Float    @default(0)
+  interviewsCompleted   Int      @default(0)
+  certificationsEarned  Int      @default(0)
+  enrolledAt            DateTime @default(now())
+
+  @@index([userId])
+  @@index([universityId])
+}
+
+// ===== HireNova AI Marketplace & Community =====
+
+model CommunityPost {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title       String
+  body        String
+  category    String   @default("career-advice")
+  upvotes     Int      @default(0)
+  replyCount  Int      @default(0)
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+
+  replies     CommunityReply[]
+
+  @@index([category])
+  @@index([language])
+}
+
+model CommunityReply {
+  id          String   @id @default(cuid())
+  postId      String
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  body        String
+  upvotes     Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([postId])
+}
+
+model CommunityEvent {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  type          String   @default("webinar")
+  date          DateTime
+  duration      Int      @default(60)
+  location      String   @default("")
+  attendeeCount Int      @default(0)
+  capacity      Int      @default(500)
+  language      String   @default("fr")
+  status        String   @default("upcoming")
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([status])
+}
+
+model CommunityProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String   @default("")
+  skills          String   @default("")
+  reputation      Int      @default(0)
+  postsCount      Int      @default(0)
+  repliesCount    Int      @default(0)
+  eventsAttended  Int      @default(0)
+  badges          String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

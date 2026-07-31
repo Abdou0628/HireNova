@@ -232,7 +232,7 @@ export default function ProfileButton() {
             onSelect={(e) => { e.preventDefault(); setStep('apiDocs') }}
           >
             <Code2 className="w-4 h-4 mr-2 text-emerald-600" />
-            HireNova API
+            HireNova AI API
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
@@ -267,7 +267,7 @@ export default function ProfileButton() {
             onSelect={(e) => { e.preventDefault(); setStep('campus') }}
           >
             <GraduationCap className="w-4 h-4 mr-2 text-emerald-600" />
-            HireNova Campus
+            HireNova AI Campus
           </DropdownMenuItem>
 
           {isAdmin && (

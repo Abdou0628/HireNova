@@ -1739,3 +1739,188 @@ Stage Summary:
 - `src/components/freelance/freelance-dashboard.tsx` — Tableau de bord avec tabs
 - `src/app/page-client.tsx` — Enregistrement 4 routes freelance
 - `src/components/cv/landing.tsx` — Activation carte ecosystem freelance
+
+---
+
+## Rename Task : Module Names → "HireNova AI X"
+
+### Date : 2025-07-25
+### Objectif : Renommer tous les noms de modules de "HireNova X" à "HireNova AI X" dans le texte affiché (display text uniquement)
+
+### Règles appliquées
+- ✅ Seul le texte affiché (display text) a été modifié
+- ❌ Les noms de marque ("HireNova by E-Society 2050", "HireNova Assistant", "HireNova Pricing") n'ont PAS été modifiés
+- ❌ Les noms de plans ("HireNova Pro", "HireNova Starter", "HireNova Career+") n'ont PAS été modifiés
+- ❌ Les commentaires de code, noms de variables, chemins de fichiers, URLs n'ont PAS été modifiés
+- ❌ Le package.json n'a PAS été modifié
+
+### Modules renommés (16)
+1. HireNova CV → HireNova AI CV
+2. HireNova ATS → HireNova AI ATS
+3. HireNova Jobs → HireNova AI Jobs
+4. HireNova Global → HireNova AI Global
+5. HireNova Mobilité → HireNova AI Mobilité
+6. HireNova API → HireNova AI API
+7. HireNova Interview → HireNova AI Interview
+8. HireNova LinkedIn → HireNova AI LinkedIn
+9. HireNova Recruiter → HireNova AI Recruiter
+10. HireNova Career → HireNova AI Career
+11. HireNova Coach → HireNova AI Coach
+12. HireNova Formation → HireNova AI Formation (FR/EN/ES)
+13. HireNova Freelance → HireNova AI Freelance
+14. HireNova Campus → HireNova AI Campus
+15. HireNova Chatbot → HireNova AI Chatbot
+16. HireNova Marketplace & Community (nouveau module — pas encore dans le code)
+
+### Fichiers modifiés dans src/ (19 fichiers, ~234 remplacements)
+| Fichier | Remplacements | Détails |
+|---|---|---|
+| src/app/api/chatbot/route.ts | 160 | Knowledge base FR/EN/AR/ES + module descriptions + welcome messages |
+| src/components/cv/landing.tsx | 19 | 13 ecosystem cards + 5 section headings + campus footer |
+| src/lib/i18n.ts | 22 | pricingMobility, pricingGlobalJobs, careerHomeTitle, formationHomeWelcome, freelanceHomeWelcome, atsPoweredBy (×4 langues) |
+| src/lib/email.ts | 10 | Module names in onboarding & welcome email HTML |
+| src/components/campus/campus-kit.tsx | 7 | Brochure text, heading, counters |
+| src/components/auth/profile-button.tsx | 2 | Sidebar links (API, Campus) |
+| src/app/api/campus/contact/route.ts | 2 | Email subject + sign-off |
+| src/components/mobility/mobility-home.tsx | 1 | Page heading |
+| src/components/jobs/job-market.tsx | 1 | Page heading |
+| src/components/global/global-market.tsx | 1 | Page heading |
+| src/components/global/global-post-job.tsx | 1 | Subtitle |
+| src/components/global/global-apply.tsx | 1 | Page heading |
+| src/components/freelance/freelance-home.tsx | 1 | Page heading |
+| src/components/formation/formation-home.tsx | 1 | Page heading |
+| src/components/coach/coach-home.tsx | 1 | Badge text |
+| src/components/api/api-docs.tsx | 1 | Page heading |
+| src/components/admin/admin-dashboard-full.tsx | 1 | Campus reference |
+| src/components/chatbot/chatbot-widget.tsx | 1 | aria-label |
+| src/app/api/coach/session/route.ts | 1 | System prompt |
+
+### Fichiers modifiés dans content/blog/ (8 fichiers, ~19 remplacements)
+| Fichier | Remplacements |
+|---|---|
+| content/blog/score-ats-comment-passer-filtres.md | 3 |
+| content/blog/cv-canadien-vs-francais-differences.md | 3 |
+| content/blog/trouver-emploi-maroc-guide-2026.md | 3 |
+| content/blog/mots-cles-cv-optimisation-ats.md | 3 |
+| content/blog/reconversion-professionnelle-cv.md | 1 |
+| content/blog/mobilite-internationale-cv-france.md | 3 |
+| content/blog/adaptation-cv-international-guide-pays.md | 4 |
+| content/blog/comment-faire-cv-etudiant-maroc.md | 1 |
+
+### Fichiers volontairement NON modifiés
+- src/lib/documents.ts — Plan names (HireNova Career+, HireNova API), legal contract text, brand references
+- src/store/cv-store.ts — Code comments only
+- src/app/page-client.tsx — Code comments only
+- prisma/schema.prisma — Code comments only
+- ARCHITECTURE.md — Documentation
+- package.json — Package name
+
+### Vérification
+- Aucune fausse positive (pas de "HireNova AI Pro", "HireNova AI Enterprise", etc.)
+- La marque "HireNova by E-Society 2050" est intacte
+- "HireNova Assistant" (nom du chatbot) est intact
+- Tous les commentaires de code sont intacts
+
+---
+
+## Phase 9 : HireNova AI Campus — Module fonctionnel complet
+
+### Travail effectué
+
+#### Module Campus — Transformation marketing → fonctionnel
+Le module HireNova AI Campus existait déjà en tant que structure marketing-only (campus-kit.tsx). Il a été transformé en module fonctionnel complet avec données persistantes.
+
+- **Prisma models** (déjà présents, vérifiés) :
+  - `CampusUniversity` : name, country, programs, studentCount, status, contactEmail, partnershipDate
+  - `CampusWorkshop` : title, description, speaker, date, duration, capacity, registeredCount, type, language, status
+  - `CampusStudent` : userId, universityId, program, cvsCreated, atsAvgScore, interviewsCompleted, certificationsEarned
+- **`bun run db:push`** : Tables synchronisées avec succès
+
+#### Seeding de données démo
+- **5 universités** (auto-seeded au 1er GET) :
+  1. Université Mohammed VI Polytechnique (Morocco, 8 500 students, active)
+  2. Sorbonne Université (France, 55 000 students, active)
+  3. University of Barcelona (Spain, 63 000 students, active)
+  4. University of Toronto (Canada, 95 000 students, active)
+  5. University of London (UK, 120 000 students, pending)
+- **4 ateliers** (auto-seeded au 1er GET) :
+  1. AI-Powered Resume Building Masterclass (EN, workshop, upcoming, 87/150)
+  2. Construire un CV parfait avec l'IA (FR, workshop, upcoming, 134/200)
+  3. بناء السيرة الذاتية باستخدام الذكاء الاصطناعي (AR, webinar, upcoming, 65/120)
+  4. Carrera Profesional en la Era de la IA (ES, bootcamp, completed, 180/180)
+
+#### Fichiers modifiés
+| Fichier | Changement |
+|---|---|
+| src/app/api/campus/universities/route.ts | Ajout seedIfEmpty() avec 5 universités démo |
+| src/app/api/campus/workshops/route.ts | Ajout seedIfEmpty() avec 4 ateliers démo |
+
+#### Fichiers vérifiés (déjà complets)
+| Fichier | Rôle |
+|---|---|
+| src/components/campus/campus-kit.tsx | Tabs : Overview, Universities, Workshops, Students |
+| src/components/campus/campus-overview.tsx | Marketing + stats live + CTAs |
+| src/components/campus/campus-universities.tsx | Directory CRUD + search/filter |
+| src/components/campus/campus-workshops.tsx | Workshop CRUD + registration |
+| src/components/campus/campus-students.tsx | Student cards + ATS progress |
+| src/lib/i18n.ts | 68+ clés campus en FR/EN/AR/ES |
+| prisma/schema.prisma | 3 modèles Campus (University, Workshop, Student) |
+
+#### i18n — 4 langues (FR/EN/AR/ES)
+- 68+ clés vérifiées présentes dans les 4 blocs linguistiques
+- Inclut : labels, boutons, statuts, filtres, messages vides, types d'ateliers
+- Support RTL pour l'arabe
+
+#### API Routes
+| Route | Methodes |
+|---|---|
+| /api/campus/universities | GET (list+seed), POST (create), PUT (update), DELETE |
+| /api/campus/workshops | GET (list+seed), POST (create), PUT (update), PATCH (register), DELETE |
+| /api/campus/students | GET (list with JOIN) |
+| /api/campus/stats | GET (platform stats) |
+| /api/campus/contact | POST |
+
+### Vérification
+- `bun run lint` : ✅ 0 erreurs
+- Compilation : ✅ Compiled in 31ms
+- Seeding : ✅ Auto au 1er appel GET
+
+---
+
+## Phase N : HireNova AI Marketplace & Community
+> Date : 2025-07-25
+
+### Nouvelles fonctionnalités ajoutées
+
+#### HireNova AI Marketplace & Community — Forum, Événements & Profil
+- **4 composants frontend** : marketplace-home, marketplace-community, marketplace-events, marketplace-profile
+- **3 routes API** : GET/POST/PUT /api/marketplace/posts, GET/POST /api/marketplace/events, GET/PUT /api/marketplace/profile
+- **Features** :
+  - **Home** : Dashboard avec stats communauté (membres, discussions, événements, ressources), discussions récentes, sujets tendance, quick actions
+  - **Community** : Forum avec 6 catégories (Conseils Carrière, Recherche d'Emploi, Prépa Entretien, Avis CV, Actualités, Divers), upvote/downvote, réponses inline, création de discussion via Dialog, recherche, tri nouveau/populaire
+  - **Events** : Calendrier événements (webinaires, meetups, ateliers, salons emploi), filtres par type et statut, RSVP, barre de progression capacité, toggle upcoming/past
+  - **Profile** : Profil communautaire avec bio, compétences, réputation (barre de progression), stats (posts, réponses, événements), badges (6 types), édition inline
+- **i18n** : 77 clés ajoutées en 4 langues (FR/EN/AR/ES)
+- **DB** : 4 modèles Prisma (CommunityPost, CommunityReply, CommunityEvent, CommunityProfile) + relations User
+- **Seed** : 8 posts démo + 4 événements démo (webinaire, meetup Paris, atelier CV, salon emploi Lyon)
+- **Écosystème** : Carte "HireNova AI Marketplace & Community" ajoutée en position 14 dans le grid landing
+
+### Fichiers créés (10)
+1. `src/components/marketplace/marketplace-home.tsx` — Dashboard communauté
+2. `src/components/marketplace/marketplace-community.tsx` — Forum de discussion
+3. `src/components/marketplace/marketplace-events.tsx` — Calendrier événements
+4. `src/components/marketplace/marketplace-profile.tsx` — Profil communautaire
+5. `src/app/api/marketplace/posts/route.ts` — GET/POST/PUT/PATCH posts
+6. `src/app/api/marketplace/events/route.ts` — GET/POST événements
+7. `src/app/api/marketplace/profile/route.ts` — GET/PUT profil
+
+### Fichiers modifiés (4)
+1. `prisma/schema.prisma` — +4 modèles Community + 3 relations User
+2. `src/lib/i18n.ts` — +77 clés de traduction × 4 langues (308 entrées)
+3. `src/app/page-client.tsx` — +4 imports dynamiques + 4 cases rendering
+4. `src/components/cv/landing.tsx` — Import Store + carte écosystème #14
+
+### Vérification
+- `bun run db:push` : ✅ Schema sync + Prisma Client generated
+- `bun run lint` : ✅ 0 erreurs, 0 warnings
+- Écosystème : 14 cartes actives (13 existantes + 1 Marketplace)

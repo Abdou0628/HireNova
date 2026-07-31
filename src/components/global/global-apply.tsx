@@ -49,7 +49,7 @@ export default function GlobalApplyView() {
           </Button>
           <Globe className="text-teal-600" />
           <div>
-            <h1 className="text-xl font-bold">Postuler — HireNova Global</h1>
+            <h1 className="text-xl font-bold">Postuler — HireNova AI Global</h1>
             <p className="text-sm text-muted-foreground">Candidature internationale</p>
           </div>
         </div>

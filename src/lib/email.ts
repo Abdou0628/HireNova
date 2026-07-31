@@ -154,7 +154,7 @@ export const emailTemplates = {
         <li>📄 <strong>Créer votre CV professionnel</strong> en 60 secondes avec l'IA</li>
         <li>🎯 <strong>Analyser votre score ATS</strong> pour passer les filtres de recrutement</li>
         <li>💼 <strong>Explorer les offres d'emploi</strong> locales et internationales</li>
-        <li>🌍 <strong>Découvrir HireNova Global</strong> — 40+ pays avec visa & relocation</li>
+        <li>🌍 <strong>Découvrir HireNova AI Global</strong> — 40+ pays avec visa & relocation</li>
       </ul>
       ${ctaButton('Créer mon CV maintenant', `${APP_URL}`)}
       <p style="font-size:13px;color:#94a3b8;margin:16px 0 0 0;">
@@ -210,7 +210,7 @@ export const emailTemplates = {
         <li><strong>Acronymes dévelopés</strong> — "CRM (Customer Relationship Management)"</li>
       </ol>
       <p style="font-size:15px;line-height:1.7;color:#475569;margin:0 0 16px 0;">
-        Avec HireNova ATS, obtenez un <strong>score sur 100</strong> et des suggestions personnalisées
+        Avec HireNova AI ATS, obtenez un <strong>score sur 100</strong> et des suggestions personnalisées
         pour améliorer votre CV.
       </p>
       ${ctaButton('Analyser mon score ATS', `${APP_URL}`)}
@@ -233,13 +233,13 @@ export const emailTemplates = {
         <tr>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;">
-              <strong style="color:#15803d;font-size:14px;">📄 HireNova CV</strong>
+              <strong style="color:#15803d;font-size:14px;">📄 HireNova AI CV</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">CV IA en 60 secondes, 4 langues</p>
             </div>
           </td>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;">
-              <strong style="color:#15803d;font-size:14px;">🎯 HireNova ATS</strong>
+              <strong style="color:#15803d;font-size:14px;">🎯 HireNova AI ATS</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">Score ATS sur 100 + conseils</p>
             </div>
           </td>
@@ -247,13 +247,13 @@ export const emailTemplates = {
         <tr>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:16px;">
-              <strong style="color:#0e7490;font-size:14px;">💼 HireNova Jobs</strong>
+              <strong style="color:#0e7490;font-size:14px;">💼 HireNova AI Jobs</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">Marketplace d'emplois</p>
             </div>
           </td>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:16px;">
-              <strong style="color:#0e7490;font-size:14px;">🌍 HireNova Global</strong>
+              <strong style="color:#0e7490;font-size:14px;">🌍 HireNova AI Global</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">40+ pays, visa & relocation</p>
             </div>
           </td>
@@ -261,13 +261,13 @@ export const emailTemplates = {
         <tr>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:16px;">
-              <strong style="color:#7e22ce;font-size:14px;">✈️ HireNova Mobilité</strong>
+              <strong style="color:#7e22ce;font-size:14px;">✈️ HireNova AI Mobilité</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">OCR + adaptation CV par pays</p>
             </div>
           </td>
           <td width="50%" style="padding:8px;vertical-align:top;">
             <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:8px;padding:16px;">
-              <strong style="color:#7e22ce;font-size:14px;">🔌 HireNova API</strong>
+              <strong style="color:#7e22ce;font-size:14px;">🔌 HireNova AI API</strong>
               <p style="font-size:12px;color:#475569;margin:4px 0 0 0;">Intégration développeur REST</p>
             </div>
           </td>
@@ -275,7 +275,7 @@ export const emailTemplates = {
       </table>
       ${ctaButton('Explorer l\'écosystème', `${APP_URL}`)}
       <p style="font-size:13px;color:#94a3b8;margin:12px 0 0 0;">
-        💡 Astuce : pour la mobilité internationale, HireNova Mobilité adapte votre CV aux standards de 12 pays.
+        💡 Astuce : pour la mobilité internationale, HireNova AI Mobilité adapte votre CV aux standards de 12 pays.
       </p>
     `, 'Découvrez les 6 modules de l\'écosystème HireNova'),
   }),
@@ -304,7 +304,7 @@ export const emailTemplates = {
         <li>✅ 4 langues : FR, EN, AR, ES</li>
         <li>✅ 3 templates premium</li>
         <li>✅ Analyses ATS illimitées</li>
-        <li>✅ HireNova Global complet (40+ pays)</li>
+        <li>✅ HireNova AI Global complet (40+ pays)</li>
         <li>✅ Lettre de motivation IA illimitée</li>
         <li>✅ Export PDF + Word</li>
       </ul>

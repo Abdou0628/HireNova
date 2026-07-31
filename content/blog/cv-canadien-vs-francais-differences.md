@@ -337,7 +337,7 @@ Pas légalement, mais **très fortement recommandé**. Un CV sans bénévolat pe
 
 ### HireNova peut-il adapter mon CV français au format canadien ?
 
-**Oui.** HireNova Mobilité adapte automatiquement votre CV aux normes canadiennes :
+**Oui.** HireNova AI Mobilité adapte automatiquement votre CV aux normes canadiennes :
 - Suppression de la photo
 - Suppression des informations personnelles
 - Restructuration selon les normes canadiennes
@@ -355,7 +355,7 @@ Le Canada est l'une des destinations préférées des francophones pour la mobil
 
 Les 7 différences présentées dans ce guide ne sont pas des détails : ce sont des **éléments déterminants** pour votre réussite. Une photo sur un CV canadien vous élimine immédiatement. Un CV d'une page pour un senior vous fait passer pour un junior. L'absence de bénévolat vous fait passer pour quelqu'un de peu engagé.
 
-**HireNova Mobilité** vous accompagne :
+**HireNova AI Mobilité** vous accompagne :
 
 - ✅ **Adaptation automatique** de votre CV aux normes canadiennes
 - ✅ **Suppression** des photos et infos personnelles
@@ -365,7 +365,7 @@ Les 7 différences présentées dans ce guide ne sont pas des détails : ce sont
 - ✅ **Score de compatibilité** Canada
 - ✅ **Équivalences WES** suggérées
 
-👉 **Essayez HireNova Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour une adaptation illimitée par pays.
+👉 **Essayez HireNova AI Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour une adaptation illimitée par pays.
 
 Le Canada est à portée de CV. À vous de jouer.
 

@@ -57,7 +57,7 @@ export default function JobMarketView() {
           </Button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-              <Briefcase className="text-emerald-600" /> HireNova Jobs
+              <Briefcase className="text-emerald-600" /> HireNova AI Jobs
             </h1>
             <p className="text-muted-foreground text-sm mt-1">Trouvez votre prochaine opportunité professionnelle</p>
           </div>

@@ -344,7 +344,7 @@ export default function FormationHome() {
             <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             {t(language, 'previous')}
           </button>
-          <h1 className="text-lg font-semibold text-teal-700">HireNova Formation</h1>
+          <h1 className="text-lg font-semibold text-teal-700">HireNova AI Formation</h1>
           <div className="w-20" />
         </div>
       </div>

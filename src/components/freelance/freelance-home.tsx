@@ -70,7 +70,7 @@ export default function FreelanceHome() {
               <Laptop className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">HireNova Freelance</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">HireNova AI Freelance</h1>
               <p className="text-sm text-muted-foreground">{t(language, 'freelanceSubtitle')}</p>
             </div>
           </div>

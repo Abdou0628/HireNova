@@ -39,6 +39,8 @@ export type AppStep =
   | 'formationHome' | 'formationCatalog' | 'formationCourse' | 'formationCert'
   // HireNova Freelance — Freelance Marketplace
   | 'freelanceHome' | 'freelanceBrowse' | 'freelanceMission' | 'freelanceDashboard'
+  // HireNova AI Marketplace & Community
+  | 'marketplaceHome' | 'marketplaceCommunity' | 'marketplaceEvents' | 'marketplaceProfile'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

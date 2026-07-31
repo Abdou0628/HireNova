@@ -92,6 +92,11 @@ const FreelanceHome = dynamic(() => import('@/components/freelance/freelance-hom
 const FreelanceBrowse = dynamic(() => import('@/components/freelance/freelance-browse'), { ssr: false, loading: () => <Loading /> })
 const FreelanceMission = dynamic(() => import('@/components/freelance/freelance-mission'), { ssr: false, loading: () => <Loading /> })
 const FreelanceDashboard = dynamic(() => import('@/components/freelance/freelance-dashboard'), { ssr: false, loading: () => <Loading /> })
+// HireNova AI Marketplace & Community
+const MarketplaceHome = dynamic(() => import('@/components/marketplace/marketplace-home'), { ssr: false, loading: () => <Loading /> })
+const MarketplaceCommunity = dynamic(() => import('@/components/marketplace/marketplace-community'), { ssr: false, loading: () => <Loading /> })
+const MarketplaceEvents = dynamic(() => import('@/components/marketplace/marketplace-events'), { ssr: false, loading: () => <Loading /> })
+const MarketplaceProfile = dynamic(() => import('@/components/marketplace/marketplace-profile'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -170,6 +175,11 @@ export default function Home() {
         {step === 'freelanceBrowse' && <FreelanceBrowse />}
         {step === 'freelanceMission' && <FreelanceMission />}
         {step === 'freelanceDashboard' && <FreelanceDashboard />}
+        {/* HireNova AI Marketplace & Community */}
+        {step === 'marketplaceHome' && <MarketplaceHome />}
+        {step === 'marketplaceCommunity' && <MarketplaceCommunity />}
+        {step === 'marketplaceEvents' && <MarketplaceEvents />}
+        {step === 'marketplaceProfile' && <MarketplaceProfile />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>

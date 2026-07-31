@@ -1188,7 +1188,7 @@ function CampusTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-emerald-600" />
-            HireNova Campus
+            HireNova AI Campus
           </CardTitle>
           <CardDescription>
             Partenariats universitaires et demandes d'accès campus

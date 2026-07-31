@@ -440,7 +440,7 @@ Non. Le coût de la vie est différent, et les salaires aussi. Renseignez-vous s
 
 ### Comment HireNova peut-il m'aider ?
 
-HireNova Mobilité adapte automatiquement votre CV marocain ou étranger aux normes françaises : traduction des diplômes, suppression des infos personnelles, optimisation ATS, génération de lettre de motivation française. Le tout en **5 minutes**.
+HireNova AI Mobilité adapte automatiquement votre CV marocain ou étranger aux normes françaises : traduction des diplômes, suppression des infos personnelles, optimisation ATS, génération de lettre de motivation française. Le tout en **5 minutes**.
 
 ---
 
@@ -454,7 +454,7 @@ Les recruteurs français sont ouverts aux profils internationaux, mais ils atten
 - Des compétences clairement démontrées
 - Une compréhension des codes professionnels français
 
-**HireNova Mobilité** vous accompagne à chaque étape :
+**HireNova AI Mobilité** vous accompagne à chaque étape :
 
 - ✅ **Adaptation automatique** de votre CV aux normes françaises
 - ✅ **Traduction des diplômes** avec équivalences officielles
@@ -464,7 +464,7 @@ Les recruteurs français sont ouverts aux profils internationaux, mais ils atten
 - ✅ **Score de compatibilité** France
 - ✅ **Multilingue** (FR, EN, AR, ES)
 
-👉 **Essayez HireNova Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour une adaptation illimitée par pays.
+👉 **Essayez HireNova AI Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour une adaptation illimitée par pays.
 
 Votre carrière en France commence par un CV bien adapté. À vous de jouer.
 

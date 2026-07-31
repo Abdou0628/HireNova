@@ -386,9 +386,9 @@ Pour comparer en détail, voir : [CV canadien vs CV français : 7 différences e
 
 ## Outils pour adapter son CV <a name="outils-adaptation"></a>
 
-### HireNova Mobilité
+### HireNova AI Mobilité
 
-HireNova Mobilité est **le seul outil** qui combine OCR (reconnaissance optique de caractères) et IA NLP pour adapter automatiquement votre CV selon le pays cible.
+HireNova AI Mobilité est **le seul outil** qui combine OCR (reconnaissance optique de caractères) et IA NLP pour adapter automatiquement votre CV selon le pays cible.
 
 **Comment ça marche** :
 
@@ -398,7 +398,7 @@ HireNova Mobilité est **le seul outil** qui combine OCR (reconnaissance optique
 4. L'IA reformule votre CV selon les normes locales
 5. Vous obtenez : CV adapté, lettre de motivation adaptée, score de compatibilité, et identification des compétences manquantes
 
-### Pays supportés par HireNova Mobilité
+### Pays supportés par HireNova AI Mobilité
 
 🇫🇷 France, 🇬🇧 UK, 🇺🇸 USA, 🇨🇦 Canada, 🇩🇪 Allemagne, 🇦🇪 Émirats, 🇨🇭 Suisse, 🇧🇪 Belgique, 🇪🇸 Espagne, 🇮🇹 Italie, 🇯🇵 Japon, 🇦🇺 Australie
 
@@ -445,12 +445,12 @@ La bonne nouvelle ? Avec les bons outils, cette adaptation devient **rapide et s
 **HireNova** vous accompagne à chaque étape :
 
 - ✅ **Générateur de CV IA** multilingue (FR/EN/AR/ES)
-- ✅ **HireNova Mobilité** : OCR + IA pour adapter votre CV à 12 pays
+- ✅ **HireNova AI Mobilité** : OCR + IA pour adapter votre CV à 12 pays
 - ✅ **Score de compatibilité** par pays
 - ✅ **Lettre de motivation adaptée** automatiquement
 - ✅ **Détection des skill gaps** par marché cible
 
-👉 **Essayez HireNova Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour l'adaptation illimitée par pays.
+👉 **Essayez HireNova AI Mobilité gratuitement** sur [/]. Plans payants dès **9€/mois** pour l'adaptation illimitée par pays.
 
 Le monde est à portée de CV. À vous de jouer.
 
