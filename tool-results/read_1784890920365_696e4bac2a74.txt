@@ -1,0 +1,649 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { motion } from 'framer-motion'
+     5→import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, Wallet, CreditCard, Smartphone, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award } from 'lucide-react'
+     6→import Image from 'next/image'
+     7→import { toast } from 'sonner'
+     8→import { Button } from '@/components/ui/button'
+     9→import { Card, CardContent } from '@/components/ui/card'
+    10→import { Badge } from '@/components/ui/badge'
+    11→import { useCVStore, type PersonaType } from '@/store/cv-store'
+    12→import { t } from '@/lib/i18n'
+    13→import type { CVLanguage, TranslationKey } from '@/lib/i18n'
+    14→import ProfileButton from '@/components/auth/profile-button'
+    15→import AuthModal from '@/components/auth/auth-modal'
+    16→import { useSession } from 'next-auth/react'
+    17→
+    18→const flagEmoji: Record<CVLanguage, string> = {
+    19→  fr: '🇫🇷',
+    20→  en: '🇬🇧',
+    21→  ar: '🇸🇦',
+    22→  es: '🇪🇸',
+    23→}
+    24→
+    25→const features = [
+    26→  { icon: Sparkles, titleKey: 'feature1Title' as const, descKey: 'feature1Desc' as const },
+    27→  { icon: Globe, titleKey: 'feature2Title' as const, descKey: 'feature2Desc' as const },
+    28→  { icon: Shield, titleKey: 'feature3Title' as const, descKey: 'feature3Desc' as const },
+    29→  { icon: PenLine, titleKey: 'clFeatureTitle' as const, descKey: 'clFeatureDesc' as const },
+    30→]
+    31→
+    32→function StatCounter() {
+    33→  const [count, setCount] = useState(0)
+    34→
+    35→  useEffect(() => {
+    36→    fetch('/api/stats')
+    37→      .then((r) => r.json())
+    38→      .then((data) => setCount(data.total || 0))
+    39→      .catch(() => {})
+    40→  }, [])
+    41→
+    42→  return (
+    43→    <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
+    44→      {count}
+    45→    </div>
+    46→  )
+    47→}
+    48→
+    49→const staticStats = [
+    50→  { value: '4', icon: Languages, label: { fr: 'Langues', en: 'Languages', ar: 'لغات', es: 'Idiomas' } },
+    51→  { value: '3', icon: LayoutTemplate, label: { fr: 'Templates', en: 'Templates', ar: 'قوالب', es: 'Plantillas' } },
+    52→  { value: '2', icon: Download, label: { fr: 'Formats (PDF, Word)', en: 'Formats (PDF, Word)', ar: 'صيغ (PDF, Word)', es: 'Formatos (PDF, Word)' } },
+    53→]
+    54→
+    55→interface PricingFeature {
+    56→  key: TranslationKey
+    57→  pro: boolean | string
+    58→  lifetime: boolean | string
+    59→}
+    60→
+    61→const pricingFeatures: PricingFeature[] = [
+    62→  { key: 'pricingCv', pro: '∞', lifetime: '∞' },
+    63→  { key: 'pricingTemplates', pro: '3', lifetime: '3' },
+    64→  { key: 'pricingPdf', pro: true, lifetime: true },
+    65→  { key: 'pricingWord', pro: true, lifetime: true },
+    66→  { key: 'pricingCoverLetter', pro: true, lifetime: true },
+    67→  { key: 'pricingNoWatermark', pro: true, lifetime: true },
+    68→  { key: 'pricingAtsScore', pro: false, lifetime: true },
+    69→  { key: 'pricingPriority', pro: false, lifetime: true },
+    70→]
+    71→
+    72→export default function Landing() {
+    73→  const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+    74→  const personasRef = useRef<HTMLDivElement>(null)
+    75→
+    76→  function scrollToPersonas() {
+    77→    personasRef.current?.scrollIntoView({ behavior: 'smooth' })
+    78→  }
+    79→  const { data: session } = useSession()
+    80→  const [authModalOpen, setAuthModalOpen] = useState(false)
+    81→  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+    82→  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+    83→  const [currency, setCurrency] = useState<'eur' | 'usd' | 'mad'>('eur')
+    84→
+    85→  const isUsd = currency === 'usd'
+    86→  const isMad = currency === 'mad'
+    87→
+    88→  async function handleCheckout(planType: 'pro' | 'lifetime') {
+    89→    if (!session?.user) {
+    90→      setAuthMode('register')
+    91→      setAuthModalOpen(true)
+    92→      return
+    93→    }
+    94→    setCheckoutLoading(planType)
+    95→    try {
+    96→      if (isMad) {
+    97→        // Paymob/Floos for Africa
+    98→        const res = await fetch('/api/paymob/checkout', {
+    99→          method: 'POST',
+   100→          headers: { 'Content-Type': 'application/json' },
+   101→          body: JSON.stringify({ planType }),
+   102→        })
+   103→        const data = await res.json()
+   104→        if (data.url) {
+   105→          window.location.href = data.url
+   106→        } else {
+   107→          toast.error(data.error || 'Erreur')
+   108→        }
+   109→      } else {
+   110→        // LemonSqueezy for EUR/USD
+   111→        const res = await fetch('/api/checkout', {
+   112→          method: 'POST',
+   113→          headers: { 'Content-Type': 'application/json' },
+   114→          body: JSON.stringify({ planType, currency }),
+   115→        })
+   116→        const data = await res.json()
+   117→        if (data.url) {
+   118→          window.location.href = data.url
+   119→        } else {
+   120→          toast.error(data.error || 'Erreur')
+   121→        }
+   122→      }
+   123→    } catch {
+   124→      toast.error('Erreur de connexion')
+   125→    } finally {
+   126→      setCheckoutLoading(null)
+   127→    }
+   128→  }
+   129→
+   130→  return (
+   131→    <div className="min-h-screen flex flex-col">
+   132→      {/* Header */}
+   133→      <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
+   134→        <div className="max-w-6xl mx-auto flex items-center justify-between">
+   135→          <div className="flex items-center gap-2">
+   136→            <Image src="/hirenova-logo.png" alt="HireNova" width={36} height={36} className="rounded-lg" />
+   137→            <span className="text-lg font-bold text-foreground">{t(language, 'siteTitle')}</span>
+   138→          </div>
+   139→          <div className="flex items-center gap-3">
+   140→            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+   141→              {(Object.keys(flagEmoji) as CVLanguage[]).map((lang) => (
+   142→                <button
+   143→                  key={lang}
+   144→                  onClick={() => setLanguage(lang)}
+   145→                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+   146→                    language === lang
+   147→                      ? 'bg-white shadow-sm text-foreground'
+   148→                      : 'text-muted-foreground hover:text-foreground'
+   149→                  }`}
+   150→                >
+   151→                  <span className="mr-1">{flagEmoji[lang]}</span>
+   152→                  <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+   153→                </button>
+   154→              ))}
+   155→            </div>
+   156→            <ProfileButton />
+   157→          </div>
+   158→        </div>
+   159→      </header>
+   160→
+   161→      {/* Hero Section */}
+   162→      <main className="flex-1">
+   163→        <section className="relative overflow-hidden">
+   164→          {/* Background decoration */}
+   165→          <div className="absolute inset-0 -z-10">
+   166→            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-emerald-100/60 via-teal-50/40 to-transparent rounded-full blur-3xl" />
+   167→            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gradient-to-tl from-amber-100/30 to-transparent rounded-full blur-3xl" />
+   168→          </div>
+   169→
+   170→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16">
+   171→            <div className="text-center max-w-3xl mx-auto">
+   172→              <motion.div
+   173→                initial={{ opacity: 0, y: 20 }}
+   174→                animate={{ opacity: 1, y: 0 }}
+   175→                transition={{ duration: 0.6 }}
+   176→              >
+   177→                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+   178→                  <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+   179→                  <span>{t(language, 'freeNoSignup')}</span>
+   180→                </div>
+   181→              </motion.div>
+   182→
+   183→              <motion.div
+   184→                initial={{ opacity: 0, y: 20 }}
+   185→                animate={{ opacity: 1, y: 0 }}
+   186→                transition={{ duration: 0.6, delay: 0.05 }}
+   187→                className="mb-6"
+   188→              >
+   189→                <div className="inline-flex items-center gap-2 bg-white text-muted-foreground px-4 py-1.5 rounded-full text-xs font-medium border border-emerald-200 shadow-sm">
+   190→                  <Languages className="w-3.5 h-3.5 text-emerald-600" />
+   191→                  <span>🇫🇷 🇬🇧 🇪🇸 🇸🇦</span>
+   192→                  <span className="text-emerald-700">{t(language, 'availableLangs')}</span>
+   193→                </div>
+   194→              </motion.div>
+   195→
+   196→              <motion.div
+   197→                initial={{ opacity: 0, scale: 0.8 }}
+   198→                animate={{ opacity: 1, scale: 1 }}
+   199→                transition={{ duration: 0.5, delay: 0.05 }}
+   200→                className="mb-6"
+   201→              >
+   202→                <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
+   203→              </motion.div>
+   204→
+   205→              <motion.h1
+   206→                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6"
+   207→                initial={{ opacity: 0, y: 20 }}
+   208→                animate={{ opacity: 1, y: 0 }}
+   209→                transition={{ duration: 0.6, delay: 0.1 }}
+   210→              >
+   211→                {t(language, 'siteTitle')}
+   212→                <span className="block text-emerald-600 mt-2">{t(language, 'siteSubtitle')}</span>
+   213→              </motion.h1>
+   214→
+   215→              <motion.p
+   216→                className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+   217→                initial={{ opacity: 0, y: 20 }}
+   218→                animate={{ opacity: 1, y: 0 }}
+   219→                transition={{ duration: 0.6, delay: 0.2 }}
+   220→              >
+   221→                {t(language, 'siteDescription')}
+   222→              </motion.p>
+   223→
+   224→              <motion.div
+   225→                initial={{ opacity: 0, y: 20 }}
+   226→                animate={{ opacity: 1, y: 0 }}
+   227→                transition={{ duration: 0.6, delay: 0.3 }}
+   228→                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+   229→              >
+   230→                <Button
+   231→                  size="lg"
+   232→                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
+   233→                  onClick={scrollToPersonas}
+   234→                >
+   235→                  <FileText className="mr-2 w-5 h-5" />
+   236→                  {t(language, 'ctaChooseProfile')}
+   237→                  <ArrowRight className="ml-2 w-5 h-5" />
+   238→                </Button>
+   239→                <Button
+   240→                  size="lg"
+   241→                  variant="outline"
+   242→                  className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
+   243→                  onClick={() => setStep('clForm')}
+   244→                >
+   245→                  <PenLine className="mr-2 w-5 h-5" />
+   246→                  {t(language, 'clCta')}
+   247→                  <ArrowRight className="ml-2 w-5 h-5" />
+   248→                </Button>
+   249→              </motion.div>
+   250→            </div>
+   251→
+   252→            {/* Stats */}
+   253→            <motion.div
+   254→              className="mt-16 grid grid-cols-4 gap-4 max-w-2xl mx-auto"
+   255→              initial={{ opacity: 0, y: 30 }}
+   256→              animate={{ opacity: 1, y: 0 }}
+   257→              transition={{ duration: 0.6, delay: 0.4 }}
+   258→            >
+   259→              <div className="text-center">
+   260→                <StatCounter />
+   261→                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
+   262→              </div>
+   263→              {staticStats.map((stat) => (
+   264→                <div key={stat.value} className="text-center">
+   265→                  <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{stat.value}</div>
+   266→                  <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label[language]}</div>
+   267→                </div>
+   268→              ))}
+   269→            </motion.div>
+   270→          </div>
+   271→        </section>
+   272→
+   273→        {/* Persona Selection Section */}
+   274→        <section ref={personasRef} className="py-16 sm:py-20 bg-white">
+   275→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   276→            <motion.div
+   277→              className="text-center mb-10"
+   278→              initial={{ opacity: 0, y: 30 }}
+   279→              whileInView={{ opacity: 1, y: 0 }}
+   280→              viewport={{ once: true, margin: '-100px' }}
+   281→              transition={{ duration: 0.5 }}
+   282→            >
+   283→              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Qui êtes-vous ?</h2>
+   284→              <p className="text-muted-foreground max-w-xl mx-auto">Sélectionnez votre profil pour un CV personnalisé</p>
+   285→            </motion.div>
+   286→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   287→              {([{
+   288→                type: 'student' as PersonaType,
+   289→                emoji: '\uD83C\uDF93',
+   290→                icon: GraduationCap,
+   291→                nameKey: 'personaStudent' as TranslationKey,
+   292→                descKey: 'personaStudentDesc' as TranslationKey,
+   293→                color: 'emerald',
+   294→              }, {
+   295→                type: 'graduate' as PersonaType,
+   296→                emoji: '\uD83C\uDF1F',
+   297→                icon: Award,
+   298→                nameKey: 'personaGraduate' as TranslationKey,
+   299→                descKey: 'personaGraduateDesc' as TranslationKey,
+   300→                color: 'blue',
+   301→              }, {
+   302→                type: 'professional' as PersonaType,
+   303→                emoji: '\uD83D\uDCBC',
+   304→                icon: Briefcase,
+   305→                nameKey: 'personaProfessional' as TranslationKey,
+   306→                descKey: 'personaProfessionalDesc' as TranslationKey,
+   307→                color: 'violet',
+   308→              }, {
+   309→                type: 'executive' as PersonaType,
+   310→                emoji: '\uD83D\uDC54',
+   311→                icon: UserCheck,
+   312→                nameKey: 'personaExecutive' as TranslationKey,
+   313→                descKey: 'personaExecutiveDesc' as TranslationKey,
+   314→                color: 'amber',
+   315→              }, {
+   316→                type: 'freelance' as PersonaType,
+   317→                emoji: '\uD83D\uDE80',
+   318→                icon: Rocket,
+   319→                nameKey: 'personaFreelance' as TranslationKey,
+   320→                descKey: 'personaFreelanceDesc' as TranslationKey,
+   321→                color: 'rose',
+   322→              }, {
+   323→                type: 'expat' as PersonaType,
+   324→                emoji: '\u2708\uFE0F',
+   325→                icon: Plane,
+   326→                nameKey: 'personaExpat' as TranslationKey,
+   327→                descKey: 'personaExpatDesc' as TranslationKey,
+   328→                color: 'sky',
+   329→              }]).map((persona, index) => (
+   330→                <motion.div
+   331→                  key={persona.type}
+   332→                  initial={{ opacity: 0, y: 30 }}
+   333→                  whileInView={{ opacity: 1, y: 0 }}
+   334→                  viewport={{ once: true, margin: '-50px' }}
+   335→                  transition={{ duration: 0.4, delay: index * 0.08 }}
+   336→                >
+   337→                  <Card
+   338→                    className="h-full cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-400 group min-w-0 overflow-hidden"
+   339→                    onClick={() => {
+   340→                      setSelectedPersona(persona.type)
+   341→                      setStep('form')
+   342→                    }}
+   343→                  >
+   344→                    <CardContent className="p-4 sm:p-5">
+   345→                      <div className="flex items-start gap-3">
+   346→                        <div className={`w-10 h-10 rounded-xl bg-${persona.color}-100 flex items-center justify-center shrink-0`}
+   347→                        >
+   348→                          <span className="text-xl">{persona.emoji}</span>
+   349→                        </div>
+   350→                        <div className="min-w-0">
+   351→                          <h3 className="font-semibold text-foreground text-sm">{t(language, persona.nameKey)}</h3>
+   352→                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2"><span className="truncate block max-w-full">{t(language, persona.descKey)}</span></p>
+   353→                        </div>
+   354→                      </div>
+   355→                      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-emerald-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+   356→                        <span>{t(language, 'personaChoose')}</span>
+   357→                        <ArrowRight className="w-3 h-3" />
+   358→                      </div>
+   359→                    </CardContent>
+   360→                  </Card>
+   361→                </motion.div>
+   362→              ))}
+   363→            </div>
+   364→          </div>
+   365→        </section>
+   366→
+   367→        {/* Features Section */}
+   368→        <section className="py-16 sm:py-24 bg-muted/30">
+   369→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   370→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+   371→              {features.map((feature, index) => (
+   372→                <motion.div
+   373→                  key={feature.titleKey}
+   374→                  initial={{ opacity: 0, y: 30 }}
+   375→                  animate={{ opacity: 1, y: 0 }}
+   376→                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+   377→                >
+   378→                  <Card className="h-full border-0 shadow-sm hover:shadow-md transition-shadow bg-white">
+   379→                    <CardContent className="p-6">
+   380→                      <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+   381→                        <feature.icon className="w-6 h-6 text-emerald-600" />
+   382→                      </div>
+   383→                      <h3 className="font-semibold text-foreground mb-2">
+   384→                        {t(language, feature.titleKey)}
+   385→                      </h3>
+   386→                      <p className="text-sm text-muted-foreground leading-relaxed">
+   387→                        {t(language, feature.descKey)}
+   388→                      </p>
+   389→                    </CardContent>
+   390→                  </Card>
+   391→                </motion.div>
+   392→              ))}
+   393→            </div>
+   394→          </div>
+   395→        </section>
+   396→
+   397→        {/* Pricing Section */}
+   398→        <section className="py-16 sm:py-24">
+   399→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   400→            <motion.div
+   401→              className="text-center mb-12"
+   402→              initial={{ opacity: 0, y: 30 }}
+   403→              whileInView={{ opacity: 1, y: 0 }}
+   404→              viewport={{ once: true, margin: '-100px' }}
+   405→              transition={{ duration: 0.5 }}
+   406→            >
+   407→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+   408→                {t(language, 'pricingTitle')}
+   409→              </h2>
+   410→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+   411→                {t(language, 'pricingSubtitle')}
+   412→              </p>
+   413→              {/* Currency Toggle */}
+   414→              <div className="flex items-center justify-center gap-2">
+   415→                <button
+   416→                  onClick={() => setCurrency('eur')}
+   417→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", !isUsd && !isMad ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   418→                >
+   419→                  EUR
+   420→                </button>
+   421→                <button
+   422→                  onClick={() => setCurrency('usd')}
+   423→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isUsd ? "bg-emerald-600 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   424→                >
+   425→                  USD
+   426→                </button>
+   427→                <button
+   428→                  onClick={() => setCurrency('mad')}
+   429→                  className={["px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer", isMad ? "bg-amber-500 text-white shadow-sm" : "bg-muted text-muted-foreground hover:text-foreground"].join(" ")}
+   430→                >
+   431→                  🌍 MAD
+   432→                </button>
+   433→              </div>
+   434→            </motion.div>
+   435→
+   436→            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start max-w-4xl mx-auto">
+   437→              {/* Pro Plan */}
+   438→              <motion.div
+   439→                initial={{ opacity: 0, y: 40 }}
+   440→                whileInView={{ opacity: 1, y: 0 }}
+   441→                viewport={{ once: true, margin: '-50px' }}
+   442→                transition={{ duration: 0.5, delay: 0.1 }}
+   443→              >
+   444→                <Card className="relative border-2 border-emerald-600 bg-white shadow-lg shadow-emerald-600/10">
+   445→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   446→                    <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   447→                      <Sparkles className="w-3 h-3 mr-1" />
+   448→                      {t(language, 'planProPopular')}
+   449→                    </Badge>
+   450→                  </div>
+   451→                  <CardContent className="p-6 sm:p-8 pt-8">
+   452→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   453→                      <Crown className="w-5 h-5 text-emerald-600" />
+   454→                      {t(language, 'planPro')}
+   455→                    </h3>
+   456→                    <div className="flex items-baseline gap-1 mb-2">
+   457→                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobProPrice') : isUsd ? t(language, 'pricingProPriceUsd') : t(language, 'planProPrice')}</span>
+   458→                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobMonthly') : isUsd ? t(language, 'pricingMonthlyUsd') : t(language, 'pricingMonthly')}</span>
+   459→                    </div>
+   460→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planProDesc')}</p>
+   461→
+   462→                    <div className="space-y-3 mb-8">
+   463→                      {pricingFeatures.map((feature) => (
+   464→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   465→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   466→                          <span className={`font-medium ${feature.pro === false ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+   467→                            {feature.pro === false ? (
+   468→                              <X className="w-4 h-4 text-stone-300" />
+   469→                            ) : typeof feature.pro === 'string' ? (
+   470→                              feature.pro
+   471→                            ) : (
+   472→                              <Check className="w-4 h-4 text-emerald-600" />
+   473→                            )}
+   474→                          </span>
+   475→                        </div>
+   476→                      ))}
+   477→                    </div>
+   478→
+   479→                    <Button
+   480→                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 font-semibold cursor-pointer transition-all shadow-md shadow-emerald-600/20"
+   481→                      onClick={() => handleCheckout('pro')}
+   482→                      disabled={checkoutLoading === 'pro'}
+   483→                    >
+   484→                      {checkoutLoading === 'pro' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Crown className="mr-2 w-4 h-4" />}
+   485→                      {checkoutLoading === 'pro' ? 'Chargement...' : t(language, 'planPro')}
+   486→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   487→                    </Button>
+   488→                  </CardContent>
+   489→                </Card>
+   490→              </motion.div>
+   491→
+   492→              {/* Lifetime Plan */}
+   493→              <motion.div
+   494→                initial={{ opacity: 0, y: 40 }}
+   495→                whileInView={{ opacity: 1, y: 0 }}
+   496→                viewport={{ once: true, margin: '-50px' }}
+   497→                transition={{ duration: 0.5, delay: 0.2 }}
+   498→              >
+   499→                <Card className="relative border bg-white shadow-sm hover:shadow-md transition-shadow">
+   500→                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+   501→                    <Badge className="bg-amber-500 text-white px-3 py-1 text-xs font-semibold rounded-full shadow-sm">
+   502→                      <Zap className="w-3 h-3 mr-1" />
+   503→                      {t(language, 'planLifetimeBest')}
+   504→                    </Badge>
+   505→                  </div>
+   506→                  <CardContent className="p-6 sm:p-8 pt-8">
+   507→                    <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+   508→                      <Zap className="w-5 h-5 text-amber-500" />
+   509→                      {t(language, 'planLifetime')}
+   510→                    </h3>
+   511→                    <div className="flex items-baseline gap-1 mb-2">
+   512→                      <span className="text-4xl font-extrabold text-foreground">{isMad ? t(language, 'paymobLifetimePrice') : isUsd ? t(language, 'pricingLifetimePriceUsd') : t(language, 'planLifetimePrice')}</span>
+   513→                      <span className="text-muted-foreground text-sm">{isMad ? t(language, 'paymobOneTime') : isUsd ? t(language, 'pricingOneTimeUsd') : t(language, 'pricingOneTime')}</span>
+   514→                    </div>
+   515→                    <p className="text-sm text-muted-foreground mb-6">{t(language, 'planLifetimeDesc')}</p>
+   516→
+   517→                    <div className="space-y-3 mb-8">
+   518→                      {pricingFeatures.map((feature) => (
+   519→                        <div key={feature.key} className="flex items-center justify-between text-sm">
+   520→                          <span className="text-muted-foreground">{t(language, feature.key)}</span>
+   521→                          <span className="font-medium text-foreground">
+   522→                            {typeof feature.lifetime === 'string' ? (
+   523→                              feature.lifetime
+   524→                            ) : (
+   525→                              <Check className="w-4 h-4 text-emerald-600" />
+   526→                            )}
+   527→                          </span>
+   528→                        </div>
+   529→                      ))}
+   530→                    </div>
+   531→
+   532→                    <Button
+   533→                      className="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 rounded-xl py-5 font-semibold cursor-pointer transition-all"
+   534→                      onClick={() => handleCheckout('lifetime')}
+   535→                      disabled={checkoutLoading === 'lifetime'}
+   536→                    >
+   537→                      {checkoutLoading === 'lifetime' ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Zap className="mr-2 w-4 h-4" />}
+   538→                      {checkoutLoading === 'lifetime' ? 'Chargement...' : t(language, 'planLifetime')}
+   539→                      {!checkoutLoading && <ArrowRight className="ml-2 w-4 h-4" />}
+   540→                    </Button>
+   541→                  </CardContent>
+   542→                </Card>
+   543→              </motion.div>
+   544→            </div>
+   545→
+   546→            {/* Paymob / Africa Payment Info */}
+   547→            {isMad && (
+   548→              <motion.div
+   549→                className="mt-8 max-w-4xl mx-auto"
+   550→                initial={{ opacity: 0, y: 20 }}
+   551→                animate={{ opacity: 1, y: 0 }}
+   552→                transition={{ duration: 0.4 }}
+   553→              >
+   554→                <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+   555→                  <CardContent className="p-6">
+   556→                    <div className="flex items-center gap-3 mb-4">
+   557→                      <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
+   558→                        <Wallet className="w-5 h-5 text-white" />
+   559→                      </div>
+   560→                      <div>
+   561→                        <h3 className="font-semibold text-foreground">{t(language, 'paymobAfrica')}</h3>
+   562→                        <p className="text-sm text-muted-foreground">{t(language, 'paymobLabel')}</p>
+   563→                      </div>
+   564→                    </div>
+   565→                    <p className="text-sm text-muted-foreground mb-4">{t(language, 'paymobDesc')}</p>
+   566→                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   567→                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
+   568→                        <CreditCard className="w-5 h-5 text-amber-600 shrink-0" />
+   569→                        <span className="text-sm font-medium">{t(language, 'paymobCard')}</span>
+   570→                      </div>
+   571→                      <div className="flex items-center gap-3 bg-white rounded-lg p-3 border">
+   572→                        <Smartphone className="w-5 h-5 text-amber-600 shrink-0" />
+   573→                        <span className="text-sm font-medium">{t(language, 'paymobWallet')}</span>
+   574→                      </div>
+   575→                    </div>
+   576→                  </CardContent>
+   577→                </Card>
+   578→              </motion.div>
+   579→            )}
+   580→          </div>
+   581→        </section>
+   582→
+   583→        {/* CTA Section */}
+   584→        <section className="py-16 sm:py-20">
+   585→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+   586→            <motion.div
+   587→              className="text-center bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-12 lg:p-16"
+   588→              initial={{ opacity: 0, scale: 0.95 }}
+   589→              whileInView={{ opacity: 1, scale: 1 }}
+   590→              viewport={{ once: true, margin: '-100px' }}
+   591→              transition={{ duration: 0.6 }}
+   592→            >
+   593→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+   594→                {t(language, 'ctaReadyTitle')}
+   595→              </h2>
+   596→              <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
+   597→                {t(language, 'ctaReadyDesc')}
+   598→              </p>
+   599→              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+   600→                <Button
+   601→                  size="lg"
+   602→                  className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
+   603→                  onClick={scrollToPersonas}
+   604→                >
+   605→                  <FileText className="mr-2 w-5 h-5" />
+   606→                  {t(language, 'ctaChooseProfile')}
+   607→                  <ArrowRight className="ml-2 w-5 h-5" />
+   608→                </Button>
+   609→                <Button
+   610→                  size="lg"
+   611→                  variant="outline"
+   612→                  className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
+   613→                  onClick={() => setStep('clForm')}
+   614→                >
+   615→                  <PenLine className="mr-2 w-5 h-5" />
+   616→                  {t(language, 'clCta')}
+   617→                  <ArrowRight className="ml-2 w-5 h-5" />
+   618→                </Button>
+   619→              </div>
+   620→            </motion.div>
+   621→          </div>
+   622→        </section>
+   623→      </main>
+   624→
+   625→      {/* Auth Modal */}
+   626→      <AuthModal
+   627→        isOpen={authModalOpen}
+   628→        onClose={() => setAuthModalOpen(false)}
+   629→        initialMode={authMode}
+   630→      />
+   631→
+   632→      {/* Footer */}
+   633→      <footer className="border-t py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+   634→        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
+   635→          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+   636→          <div className="flex items-center gap-4">
+   637→            <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+   638→            <span className="text-xs">·</span>
+   639→            <p className="flex items-center gap-1">
+   640→              {t(language, 'footerMadeWith')}{' '}
+   641→              <span className="text-emerald-600 font-semibold">Z.ai</span>
+   642→            </p>
+   643→          </div>
+   644→        </div>
+   645→      </footer>
+   646→    </div>
+   647→  )
+   648→}
+   649→
