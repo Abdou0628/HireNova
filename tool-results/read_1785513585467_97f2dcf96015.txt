@@ -1,0 +1,687 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useCallback } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  Mic, Target, TrendingUp, FileText, CheckCircle2, AlertTriangle,
+     7→  ChevronRight, ChevronLeft, Clock, Star, Loader2, Award,
+     8→  RotateCcw, BarChart3, Sparkles, Brain, Briefcase, GraduationCap,
+     9→} from 'lucide-react'
+    10→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+    11→import { Button } from '@/components/ui/button'
+    12→import { Badge } from '@/components/ui/badge'
+    13→import { Progress } from '@/components/ui/progress'
+    14→import { Textarea } from '@/components/ui/textarea'
+    15→import { toast } from 'sonner'
+    16→import { useCVStore } from '@/store/cv-store'
+    17→import { useSession } from 'next-auth/react'
+    18→
+    19→// ─── Types ────────────────────────────────────────────────
+    20→
+    21→interface InterviewQuestion {
+    22→  index: number
+    23→  question: string
+    24→}
+    25→
+    26→interface InterviewSetup {
+    27→  jobTitle: string
+    28→  industry: string
+    29→  difficulty: 'beginner' | 'intermediate' | 'advanced'
+    30→  interviewType: 'behavioral' | 'technical' | 'mixed'
+    31→}
+    32→
+    33→interface AnswerResult {
+    34→  score: number
+    35→  feedback: string
+    36→  tips: string[]
+    37→  followUp: string
+    38→  isLast: boolean
+    39→}
+    40→
+    41→interface FinalReport {
+    42→  averageScore: number
+    43→  strengths: string[]
+    44→  weaknesses: string[]
+    45→  improvementPlan: string[]
+    46→  recommendation: string
+    47→  totalQuestions: number
+    48→  jobTitle: string
+    49→  industry: string
+    50→  difficulty: string
+    51→}
+    52→
+    53→type Screen = 'setup' | 'loading' | 'question' | 'evaluating' | 'feedback' | 'report'
+    54→
+    55→const INDUSTRIES = [
+    56→  'Technologie / IT',
+    57→  'Finance / Banque',
+    58→  'Marketing / Communication',
+    59→  'Ressources Humaines',
+    60→  'Santé / Médical',
+    61→  'Éducation / Formation',
+    62→  'Ingénierie',
+    63→  'Commerce / Vente',
+    64→  'Juridique / Droit',
+    65→  'Design / Créatif',
+    66→  'Logistique / Supply Chain',
+    67→  'Administration / Gestion',
+    68→  'Autre',
+    69→]
+    70→
+    71→const DIFFICULTIES = [
+    72→  { value: 'beginner', label: 'Débutant', desc: 'Premier entretien, questions simples', icon: GraduationCap },
+    73→  { value: 'intermediate', label: 'Intermédiaire', desc: 'Expérience professionnelle confirmée', icon: Briefcase },
+    74→  { value: 'advanced', label: 'Avancé', desc: 'Poste senior / management', icon: Award },
+    75→]
+    76→
+    77→const INTERVIEW_TYPES = [
+    78→  { value: 'behavioral', label: 'Comportemental', desc: 'Situations, comportements, soft skills' },
+    79→  { value: 'technical', label: 'Technique', desc: 'Compétences techniques du métier' },
+    80→  { value: 'mixed', label: 'Mixte', desc: 'Combinaison comportemental + technique' },
+    81→]
+    82→
+    83→// ─── Component ────────────────────────────────────────────
+    84→
+    85→export default function InterviewSimulator() {
+    86→  const { language } = useCVStore()
+    87→  const { data: session } = useSession()
+    88→
+    89→  const [screen, setScreen] = useState<Screen>('setup')
+    90→  const [setup, setSetup] = useState<InterviewSetup>({
+    91→    jobTitle: '',
+    92→    industry: '',
+    93→    difficulty: 'intermediate',
+    94→    interviewType: 'behavioral',
+    95→  })
+    96→  const [sessionId, setSessionId] = useState<string>('')
+    97→  const [questions, setQuestions] = useState<InterviewQuestion[]>([])
+    98→  const [currentIndex, setCurrentIndex] = useState(0)
+    99→  const [answer, setAnswer] = useState('')
+   100→  const [result, setResult] = useState<AnswerResult | null>(null)
+   101→  const [report, setReport] = useState<FinalReport | null>(null)
+   102→  const [isSubmitting, setIsSubmitting] = useState(false)
+   103→
+   104→  // Check if user has active plan
+   105→  const userPlan = (session?.user as { plan?: string } | undefined)?.plan ?? 'free'
+   106→  const paidPlans = ['starter', 'pro', 'career_plus', 'employer', 'annual', 'lifetime']
+   107→  const hasPlan = paidPlans.includes(userPlan)
+   108→
+   109→  const startInterview = useCallback(async () => {
+   110→    if (!setup.jobTitle.trim() || !setup.industry) {
+   111→      toast.error('Veuillez remplir le titre du poste et le secteur')
+   112→      return
+   113→    }
+   114→    if (!hasPlan) {
+   115→      toast.warning('Abonnement requis pour le simulateur entretien IA', { duration: 4000 })
+   116→      return
+   117→    }
+   118→
+   119→    setScreen('loading')
+   120→    try {
+   121→      const res = await fetch('/api/interview/start', {
+   122→        method: 'POST',
+   123→        headers: { 'Content-Type': 'application/json' },
+   124→        body: JSON.stringify(setup),
+   125→      })
+   126→      const data = await res.json()
+   127→
+   128→      if (!res.ok) {
+   129→        throw new Error(data.error || 'Erreur')
+   130→      }
+   131→
+   132→      setSessionId(data.sessionId)
+   133→      setQuestions(data.questions)
+   134→      setCurrentIndex(0)
+   135→      setAnswer('')
+   136→      setScreen('question')
+   137→    } catch (err) {
+   138→      toast.error(err instanceof Error ? err.message : 'Erreur de connexion')
+   139→      setScreen('setup')
+   140→    }
+   141→  }, [setup, hasPlan])
+   142→
+   143→  const submitAnswer = useCallback(async () => {
+   144→    if (!answer.trim()) {
+   145→      toast.error('Veuillez rédiger votre réponse')
+   146→      return
+   147→    }
+   148→
+   149→    setIsSubmitting(true)
+   150→    setScreen('evaluating')
+   151→    try {
+   152→      const res = await fetch('/api/interview/answer', {
+   153→        method: 'POST',
+   154→        headers: { 'Content-Type': 'application/json' },
+   155→        body: JSON.stringify({
+   156→          sessionId,
+   157→          questionIndex: questions[currentIndex].index,
+   158→          answer,
+   159→        }),
+   160→      })
+   161→      const data = await res.json()
+   162→
+   163→      if (!res.ok) throw new Error(data.error || 'Erreur')
+   164→
+   165→      setResult(data)
+   166→      setScreen('feedback')
+   167→    } catch (err) {
+   168→      toast.error(err instanceof Error ? err.message : 'Erreur')
+   169→      setScreen('question')
+   170→    } finally {
+   171→      setIsSubmitting(false)
+   172→    }
+   173→  }, [answer, sessionId, questions, currentIndex])
+   174→
+   175→  const nextQuestion = useCallback(() => {
+   176→    if (result?.isLast) {
+   177→      completeInterview()
+   178→    } else {
+   179→      setCurrentIndex((prev) => prev + 1)
+   180→      setAnswer('')
+   181→      setResult(null)
+   182→      setScreen('question')
+   183→    }
+   184→  }, [result])
+   185→
+   186→  const completeInterview = useCallback(async () => {
+   187→    setScreen('loading')
+   188→    try {
+   189→      const res = await fetch('/api/interview/complete', {
+   190→        method: 'POST',
+   191→        headers: { 'Content-Type': 'application/json' },
+   192→        body: JSON.stringify({ sessionId }),
+   193→      })
+   194→      const data = await res.json()
+   195→
+   196→      if (!res.ok) throw new Error(data.error || 'Erreur')
+   197→
+   198→      setReport(data.report)
+   199→      setScreen('report')
+   200→    } catch (err) {
+   201→      toast.error(err instanceof Error ? err.message : 'Erreur')
+   202→      setScreen('feedback')
+   203→    }
+   204→  }, [sessionId])
+   205→
+   206→  const restart = () => {
+   207→    setScreen('setup')
+   208→    setQuestions([])
+   209→    setCurrentIndex(0)
+   210→    setAnswer('')
+   211→    setResult(null)
+   212→    setReport(null)
+   213→    setSessionId('')
+   214→  }
+   215→
+   216→  const getScoreColor = (score: number) => {
+   217→    if (score >= 75) return 'text-emerald-600'
+   218→    if (score >= 50) return 'text-amber-600'
+   219→    return 'text-red-500'
+   220→  }
+   221→
+   222→  const getScoreBg = (score: number) => {
+   223→    if (score >= 75) return 'bg-emerald-500'
+   224→    if (score >= 50) return 'bg-amber-500'
+   225→    return 'bg-red-500'
+   226→  }
+   227→
+   228→  return (
+   229→    <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/20 to-white">
+   230→      <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+   231→        {/* Header */}
+   232→        <div className="text-center mb-8">
+   233→          <motion.div
+   234→            initial={{ opacity: 0, y: -20 }}
+   235→            animate={{ opacity: 1, y: 0 }}
+   236→            className="inline-flex items-center gap-2 mb-3"
+   237→          >
+   238→            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center">
+   239→              <Brain className="w-5 h-5 text-white" />
+   240→            </div>
+   241→            <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-semibold">
+   242→              <Sparkles className="w-3 h-3 mr-1" />
+   243→              IA
+   244→            </Badge>
+   245→          </motion.div>
+   246→          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+   247→            Simulateur d&apos;Entretien IA
+   248→          </h1>
+   249→          <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+   250→            Pratiquez vos entretiens avec une IA experte. Recevez un feedback instantané
+   251→            et un plan d&apos;amélioration personnalisé.
+   252→          </p>
+   253→        </div>
+   254→
+   255→        {/* Progress bar during interview */}
+   256→        {['question', 'evaluating', 'feedback'].includes(screen) && questions.length > 0 && (
+   257→          <div className="mb-6">
+   258→            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+   259→              <span>Question {currentIndex + 1} sur {questions.length}</span>
+   260→              <span>{Math.round(((currentIndex + (screen === 'feedback' ? 1 : 0)) / questions.length) * 100)}%</span>
+   261→            </div>
+   262→            <Progress
+   263→              value={((currentIndex + (screen === 'feedback' ? 1 : 0)) / questions.length) * 100}
+   264→              className="h-2"
+   265→            />
+   266→          </div>
+   267→        )}
+   268→
+   269→        <AnimatePresence mode="wait">
+   270→          {/* ===== SETUP SCREEN ===== */}
+   271→          {screen === 'setup' && (
+   272→            <motion.div
+   273→              key="setup"
+   274→              initial={{ opacity: 0, x: -20 }}
+   275→              animate={{ opacity: 1, x: 0 }}
+   276→              exit={{ opacity: 0, x: 20 }}
+   277→            >
+   278→              <Card className="border-2 border-emerald-200 shadow-lg shadow-emerald-100/50">
+   279→                <CardHeader>
+   280→                  <CardTitle className="text-lg flex items-center gap-2">
+   281→                    <Target className="w-5 h-5 text-emerald-600" />
+   282→                    Configurer votre entretien
+   283→                  </CardTitle>
+   284→                </CardHeader>
+   285→                <CardContent className="space-y-5">
+   286→                  {/* Job Title */}
+   287→                  <div>
+   288→                    <label className="text-sm font-medium text-foreground mb-1.5 block">
+   289→                      Titre du poste *
+   290→                    </label>
+   291→                    <input
+   292→                      type="text"
+   293→                      value={setup.jobTitle}
+   294→                      onChange={(e) => setSetup({ ...setup, jobTitle: e.target.value })}
+   295→                      placeholder="ex: Développeur Frontend, Chef de projet, Analyste marketing..."
+   296→                      className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+   297→                    />
+   298→                  </div>
+   299→
+   300→                  {/* Industry */}
+   301→                  <div>
+   302→                    <label className="text-sm font-medium text-foreground mb-1.5 block">
+   303→                      Secteur d&apos;activité *
+   304→                    </label>
+   305→                    <select
+   306→                      value={setup.industry}
+   307→                      onChange={(e) => setSetup({ ...setup, industry: e.target.value })}
+   308→                      className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+   309→                    >
+   310→                      <option value="">Sélectionner un secteur...</option>
+   311→                      {INDUSTRIES.map((ind) => (
+   312→                        <option key={ind} value={ind}>{ind}</option>
+   313→                      ))}
+   314→                    </select>
+   315→                  </div>
+   316→
+   317→                  {/* Difficulty */}
+   318→                  <div>
+   319→                    <label className="text-sm font-medium text-foreground mb-2 block">
+   320→                      Niveau de difficulté
+   321→                    </label>
+   322→                    <div className="grid grid-cols-3 gap-2">
+   323→                      {DIFFICULTIES.map((d) => (
+   324→                        <button
+   325→                          key={d.value}
+   326→                          onClick={() => setSetup({ ...setup, difficulty: d.value as InterviewSetup['difficulty'] })}
+   327→                          className={`p-3 rounded-lg border-2 text-center transition-all cursor-pointer ${
+   328→                            setup.difficulty === d.value
+   329→                              ? 'border-emerald-600 bg-emerald-50 shadow-sm'
+   330→                              : 'border-muted hover:border-emerald-300'
+   331→                          }`}
+   332→                        >
+   333→                          <d.icon className={`w-5 h-5 mx-auto mb-1 ${setup.difficulty === d.value ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+   334→                          <p className="text-xs font-semibold">{d.label}</p>
+   335→                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{d.desc}</p>
+   336→                        </button>
+   337→                      ))}
+   338→                    </div>
+   339→                  </div>
+   340→
+   341→                  {/* Interview Type */}
+   342→                  <div>
+   343→                    <label className="text-sm font-medium text-foreground mb-2 block">
+   344→                      Type d&apos;entretien
+   345→                    </label>
+   346→                    <div className="grid grid-cols-3 gap-2">
+   347→                      {INTERVIEW_TYPES.map((t) => (
+   348→                        <button
+   349→                          key={t.value}
+   350→                          onClick={() => setSetup({ ...setup, interviewType: t.value as InterviewSetup['interviewType'] })}
+   351→                          className={`p-3 rounded-lg border-2 text-center transition-all cursor-pointer ${
+   352→                            setup.interviewType === t.value
+   353→                              ? 'border-emerald-600 bg-emerald-50 shadow-sm'
+   354→                              : 'border-muted hover:border-emerald-300'
+   355→                          }`}
+   356→                        >
+   357→                          <p className="text-xs font-semibold">{t.label}</p>
+   358→                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{t.desc}</p>
+   359→                        </button>
+   360→                      ))}
+   361→                    </div>
+   362→                  </div>
+   363→
+   364→                  {!hasPlan && (
+   365→                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+   366→                      <AlertTriangle className="w-4 h-4 shrink-0" />
+   367→                      <span>Abonnement requis pour le simulateur entretien IA. <button onClick={() => {}} className="underline font-semibold cursor-pointer">Voir les tarifs</button></span>
+   368→                    </div>
+   369→                  )}
+   370→
+   371→                  <Button
+   372→                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-sm font-semibold cursor-pointer shadow-md shadow-emerald-600/30"
+   373→                    onClick={startInterview}
+   374→                    disabled={!setup.jobTitle.trim() || !setup.industry || !hasPlan}
+   375→                  >
+   376→                    <Mic className="mr-2 w-4 h-4" />
+   377→                    Commencer l&apos;entretien
+   378→                    <ChevronRight className="ml-2 w-4 h-4" />
+   379→                  </Button>
+   380→                </CardContent>
+   381→              </Card>
+   382→            </motion.div>
+   383→          )}
+   384→
+   385→          {/* ===== LOADING SCREEN ===== */}
+   386→          {screen === 'loading' && (
+   387→            <motion.div
+   388→              key="loading"
+   389→              initial={{ opacity: 0 }}
+   390→              animate={{ opacity: 1 }}
+   391→              exit={{ opacity: 0 }}
+   392→              className="flex flex-col items-center justify-center py-20"
+   393→            >
+   394→              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4 animate-pulse">
+   395→                <Brain className="w-8 h-8 text-emerald-600" />
+   396→              </div>
+   397→              <p className="text-sm text-muted-foreground font-medium">
+   398→                {report ? 'Génération du rapport final...' : "L'IA prépare vos questions..."}
+   399→              </p>
+   400→              <p className="text-xs text-muted-foreground mt-1">Cela peut prendre quelques secondes</p>
+   401→            </motion.div>
+   402→          )}
+   403→
+   404→          {/* ===== QUESTION SCREEN ===== */}
+   405→          {screen === 'question' && questions[currentIndex] && (
+   406→            <motion.div
+   407→              key={`question-${currentIndex}`}
+   408→              initial={{ opacity: 0, x: 20 }}
+   409→              animate={{ opacity: 1, x: 0 }}
+   410→              exit={{ opacity: 0, x: -20 }}
+   411→            >
+   412→              <Card className="border-2 border-emerald-200 shadow-lg">
+   413→                <CardContent className="p-6">
+   414→                  {/* Question number badge */}
+   415→                  <div className="flex items-center gap-2 mb-4">
+   416→                    <Badge className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1">
+   417→                      Question {currentIndex + 1}
+   418→                    </Badge>
+   419→                    <Badge variant="outline" className="text-xs">
+   420→                      {setup.difficulty === 'beginner' ? 'Débutant' : setup.difficulty === 'advanced' ? 'Avancé' : 'Intermédiaire'}
+   421→                    </Badge>
+   422→                  </div>
+   423→
+   424→                  {/* Question */}
+   425→                  <h2 className="text-lg font-semibold text-foreground mb-1 leading-relaxed">
+   426→                    {questions[currentIndex].question}
+   427→                  </h2>
+   428→                  <p className="text-xs text-muted-foreground mb-6">
+   429→                    Poste : {setup.jobTitle} • {setup.industry}
+   430→                  </p>
+   431→
+   432→                  {/* Answer textarea */}
+   433→                  <Textarea
+   434→                    value={answer}
+   435→                    onChange={(e) => setAnswer(e.target.value)}
+   436→                    placeholder="Rédigez votre réponse comme si vous étiez en entretien réel..."
+   437→                    className="min-h-[160px] text-sm resize-y rounded-lg border-input focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+   438→                  />
+   439→
+   440→                  <div className="flex items-center justify-between mt-4">
+   441→                    <p className="text-xs text-muted-foreground">
+   442→                      {answer.length} caractères
+   443→                    </p>
+   444→                    <Button
+   445→                      className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer shadow-md shadow-emerald-600/20"
+   446→                      onClick={submitAnswer}
+   447→                      disabled={!answer.trim() || isSubmitting}
+   448→                    >
+   449→                      {isSubmitting ? (
+   450→                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   451→                      ) : (
+   452→                        <CheckCircle2 className="w-4 h-4 mr-2" />
+   453→                      )}
+   454→                      Valider ma réponse
+   455→                    </Button>
+   456→                  </div>
+   457→                </CardContent>
+   458→              </Card>
+   459→            </motion.div>
+   460→          )}
+   461→
+   462→          {/* ===== EVALUATING SCREEN ===== */}
+   463→          {screen === 'evaluating' && (
+   464→            <motion.div
+   465→              key="evaluating"
+   466→              initial={{ opacity: 0 }}
+   467→              animate={{ opacity: 1 }}
+   468→              exit={{ opacity: 0 }}
+   469→              className="flex flex-col items-center justify-center py-20"
+   470→            >
+   471→              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4 animate-pulse">
+   472→                <TrendingUp className="w-8 h-8 text-emerald-600" />
+   473→              </div>
+   474→              <p className="text-sm text-muted-foreground font-medium">
+   475→                L&apos;IA évalue votre réponse...
+   476→              </p>
+   477→            </motion.div>
+   478→          )}
+   479→
+   480→          {/* ===== FEEDBACK SCREEN ===== */}
+   481→          {screen === 'feedback' && result && (
+   482→            <motion.div
+   483→              key="feedback"
+   484→              initial={{ opacity: 0, y: 20 }}
+   485→              animate={{ opacity: 1, y: 0 }}
+   486→              exit={{ opacity: 0, y: -20 }}
+   487→            >
+   488→              <Card className="border-2 shadow-lg overflow-hidden">
+   489→                {/* Score header */}
+   490→                <div className="p-6 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+   491→                  <div className="flex items-center justify-between">
+   492→                    <div>
+   493→                      <p className="text-sm text-emerald-100 mb-1">Score obtenu</p>
+   494→                      <div className="flex items-baseline gap-2">
+   495→                        <span className="text-4xl font-extrabold">{result.score}</span>
+   496→                        <span className="text-emerald-200">/100</span>
+   497→                      </div>
+   498→                    </div>
+   499→                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+   500→                      {result.score >= 75 ? (
+   501→                        <Star className="w-8 h-8 text-yellow-300" />
+   502→                      ) : result.score >= 50 ? (
+   503→                        <TrendingUp className="w-8 h-8 text-white" />
+   504→                      ) : (
+   505→                        <AlertTriangle className="w-8 h-8 text-red-300" />
+   506→                      )}
+   507→                    </div>
+   508→                  </div>
+   509→                </div>
+   510→
+   511→                <CardContent className="p-6 space-y-4">
+   512→                  {/* Feedback */}
+   513→                  <div>
+   514→                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+   515→                      <FileText className="w-4 h-4 text-emerald-600" />
+   516→                      Feedback
+   517→                    </h3>
+   518→                    <p className="text-sm text-muted-foreground leading-relaxed">{result.feedback}</p>
+   519→                  </div>
+   520→
+   521→                  {/* Tips */}
+   522→                  {result.tips && result.tips.length > 0 && (
+   523→                    <div>
+   524→                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+   525→                        <Sparkles className="w-4 h-4 text-amber-600" />
+   526→                        Conseils d&apos;amélioration
+   527→                      </h3>
+   528→                      <ul className="space-y-1.5">
+   529→                        {result.tips.map((tip, i) => (
+   530→                          <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+   531→                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+   532→                            {tip}
+   533→                          </li>
+   534→                        ))}
+   535→                      </ul>
+   536→                    </div>
+   537→                  )}
+   538→
+   539→                  {/* Follow-up */}
+   540→                  {result.followUp && (
+   541→                    <div className="p-3 rounded-lg bg-slate-50 border">
+   542→                      <p className="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+   543→                        <ChevronRight className="w-3 h-3" />
+   544→                        Pour aller plus loin
+   545→                      </p>
+   546→                      <p className="text-sm text-slate-600">{result.followUp}</p>
+   547→                    </div>
+   548→                  )}
+   549→
+   550→                  {/* Next button */}
+   551→                  <Button
+   552→                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-sm font-semibold cursor-pointer"
+   553→                    onClick={nextQuestion}
+   554→                  >
+   555→                    {result.isLast ? (
+   556→                      <>
+   557→                        <BarChart3 className="mr-2 w-4 h-4" />
+   558→                        Voir le rapport final
+   559→                      </>
+   560→                    ) : (
+   561→                      <>
+   562→                        Question suivante
+   563→                        <ChevronRight className="ml-2 w-4 h-4" />
+   564→                      </>
+   565→                    )}
+   566→                  </Button>
+   567→                </CardContent>
+   568→              </Card>
+   569→            </motion.div>
+   570→          )}
+   571→
+   572→          {/* ===== REPORT SCREEN ===== */}
+   573→          {screen === 'report' && report && (
+   574→            <motion.div
+   575→              key="report"
+   576→              initial={{ opacity: 0, scale: 0.95 }}
+   577→              animate={{ opacity: 1, scale: 1 }}
+   578→              exit={{ opacity: 0, scale: 0.95 }}
+   579→            >
+   580→              <Card className="border-2 border-emerald-300 shadow-xl overflow-hidden">
+   581→                {/* Report header */}
+   582→                <div className="p-6 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white text-center">
+   583→                  <Award className="w-10 h-10 mx-auto mb-2 text-yellow-300" />
+   584→                  <h2 className="text-xl font-bold">Rapport d&apos;Évaluation</h2>
+   585→                  <p className="text-emerald-100 text-sm mt-1">
+   586→                    {report.jobTitle} • {report.industry} • {report.totalQuestions} questions
+   587→                  </p>
+   588→                  <div className="mt-4 inline-flex items-center gap-3">
+   589→                    <div className="w-20 h-20 rounded-full border-4 border-white/30 flex items-center justify-center bg-white/10">
+   590→                      <span className="text-3xl font-extrabold">{report.averageScore}</span>
+   591→                    </div>
+   592→                    <div className="text-left">
+   593→                      <p className="text-2xl font-bold">{report.averageScore}/100</p>
+   594→                      <p className="text-emerald-100 text-xs">
+   595→                        {report.averageScore >= 75 ? 'Excellent !' : report.averageScore >= 50 ? 'Bon potentiel' : 'Besoin de travail'}
+   596→                      </p>
+   597→                    </div>
+   598→                  </div>
+   599→                </div>
+   600→
+   601→                <CardContent className="p-6 space-y-5">
+   602→                  {/* Recommendation */}
+   603→                  <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200">
+   604→                    <p className="text-sm font-semibold text-emerald-800 mb-1">Recommandation</p>
+   605→                    <p className="text-sm text-emerald-700">{report.recommendation}</p>
+   606→                  </div>
+   607→
+   608→                  {/* Strengths */}
+   609→                  <div>
+   610→                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+   611→                      <Star className="w-4 h-4 text-emerald-600" />
+   612→                      Points forts
+   613→                    </h3>
+   614→                    <div className="space-y-1.5">
+   615→                      {report.strengths.map((s, i) => (
+   616→                        <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   617→                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+   618→                          {s}
+   619→                        </div>
+   620→                      ))}
+   621→                    </div>
+   622→                  </div>
+   623→
+   624→                  {/* Weaknesses */}
+   625→                  <div>
+   626→                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+   627→                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+   628→                      Axes d&apos;amélioration
+   629→                    </h3>
+   630→                    <div className="space-y-1.5">
+   631→                      {report.weaknesses.map((w, i) => (
+   632→                        <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   633→                          <ChevronRight className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+   634→                          {w}
+   635→                        </div>
+   636→                      ))}
+   637→                    </div>
+   638→                  </div>
+   639→
+   640→                  {/* Improvement Plan */}
+   641→                  <div>
+   642→                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+   643→                      <Target className="w-4 h-4 text-teal-600" />
+   644→                      Plan d&apos;action
+   645→                    </h3>
+   646→                    <div className="space-y-1.5">
+   647→                      {report.improvementPlan.map((p, i) => (
+   648→                        <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+   649→                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-teal-100 text-teal-700 text-xs font-bold shrink-0">
+   650→                            {i + 1}
+   651→                          </span>
+   652→                          {p}
+   653→                        </div>
+   654→                      ))}
+   655→                    </div>
+   656→                  </div>
+   657→
+   658→                  {/* Actions */}
+   659→                  <div className="flex gap-3 pt-2">
+   660→                    <Button
+   661→                      variant="outline"
+   662→                      className="flex-1 rounded-xl py-2.5 text-sm font-semibold cursor-pointer"
+   663→                      onClick={restart}
+   664→                    >
+   665→                      <RotateCcw className="w-4 h-4 mr-2" />
+   666→                      Nouvel entretien
+   667→                    </Button>
+   668→                    <Button
+   669→                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 text-sm font-semibold cursor-pointer"
+   670→                      onClick={() => {
+   671→                        toast.success('Rapport sauvegardé !')
+   672→                      }}
+   673→                    >
+   674→                      <FileText className="w-4 h-4 mr-2" />
+   675→                      Télécharger PDF
+   676→                    </Button>
+   677→                  </div>
+   678→                </CardContent>
+   679→              </Card>
+   680→            </motion.div>
+   681→          )}
+   682→        </AnimatePresence>
+   683→      </div>
+   684→    </div>
+   685→  )
+   686→}
+   687→

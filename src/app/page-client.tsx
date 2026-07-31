@@ -63,6 +63,35 @@ const MobilityProfile = dynamic(() => import('@/components/mobility/mobility-pro
 const MobilityResult = dynamic(() => import('@/components/mobility/mobility-result'), { ssr: false, loading: () => <Loading /> })
 // Simulateur Entretien IA
 const InterviewSimulator = dynamic(() => import('@/components/interview/interview-simulator'), { ssr: false, loading: () => <Loading /> })
+// HireNova LinkedIn — Profile Optimizer
+const LinkedInHome = dynamic(() => import('@/components/linkedin/linkedin-home'), { ssr: false, loading: () => <Loading /> })
+const LinkedInAnalyzer = dynamic(() => import('@/components/linkedin/linkedin-analyzer'), { ssr: false, loading: () => <Loading /> })
+const LinkedInGenerator = dynamic(() => import('@/components/linkedin/linkedin-generator'), { ssr: false, loading: () => <Loading /> })
+// HireNova Recruiter — AI Recruitment Pipeline
+const RecruiterHome = dynamic(() => import('@/components/recruiter/recruiter-home'), { ssr: false, loading: () => <Loading /> })
+const RecruiterPipeline = dynamic(() => import('@/components/recruiter/recruiter-pipeline'), { ssr: false, loading: () => <Loading /> })
+const RecruiterCandidates = dynamic(() => import('@/components/recruiter/recruiter-candidates'), { ssr: false, loading: () => <Loading /> })
+const RecruiterMatch = dynamic(() => import('@/components/recruiter/recruiter-match'), { ssr: false, loading: () => <Loading /> })
+// HireNova Career — Career Roadmap & Assessment
+const CareerHome = dynamic(() => import('@/components/career/career-home'), { ssr: false, loading: () => <Loading /> })
+const CareerAssessment = dynamic(() => import('@/components/career/career-assessment'), { ssr: false, loading: () => <Loading /> })
+const CareerRoadmap = dynamic(() => import('@/components/career/career-roadmap'), { ssr: false, loading: () => <Loading /> })
+const CareerSkills = dynamic(() => import('@/components/career/career-skills'), { ssr: false, loading: () => <Loading /> })
+// HireNova Coach — AI Career Coach
+const CoachHome = dynamic(() => import('@/components/coach/coach-home'), { ssr: false, loading: () => <Loading /> })
+const CoachSession = dynamic(() => import('@/components/coach/coach-session'), { ssr: false, loading: () => <Loading /> })
+const CoachGoals = dynamic(() => import('@/components/coach/coach-goals'), { ssr: false, loading: () => <Loading /> })
+const CoachHistory = dynamic(() => import('@/components/coach/coach-history'), { ssr: false, loading: () => <Loading /> })
+// HireNova Formation — Training & Certification
+const FormationHome = dynamic(() => import('@/components/formation/formation-home'), { ssr: false, loading: () => <Loading /> })
+const FormationCatalog = dynamic(() => import('@/components/formation/formation-catalog'), { ssr: false, loading: () => <Loading /> })
+const FormationCourse = dynamic(() => import('@/components/formation/formation-course'), { ssr: false, loading: () => <Loading /> })
+const FormationCert = dynamic(() => import('@/components/formation/formation-cert'), { ssr: false, loading: () => <Loading /> })
+// HireNova Freelance — Freelance Marketplace
+const FreelanceHome = dynamic(() => import('@/components/freelance/freelance-home'), { ssr: false, loading: () => <Loading /> })
+const FreelanceBrowse = dynamic(() => import('@/components/freelance/freelance-browse'), { ssr: false, loading: () => <Loading /> })
+const FreelanceMission = dynamic(() => import('@/components/freelance/freelance-mission'), { ssr: false, loading: () => <Loading /> })
+const FreelanceDashboard = dynamic(() => import('@/components/freelance/freelance-dashboard'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -112,6 +141,35 @@ export default function Home() {
         {step === 'dashboard' && <UserDashboard />}
         {/* Simulateur Entretien IA */}
         {step === 'interview' && <InterviewSimulator />}
+        {/* HireNova LinkedIn */}
+        {step === 'linkedinHome' && <LinkedInHome />}
+        {step === 'linkedinAnalyzer' && <LinkedInAnalyzer />}
+        {step === 'linkedinGenerator' && <LinkedInGenerator />}
+        {/* HireNova Recruiter */}
+        {step === 'recruiterHome' && <RecruiterHome />}
+        {step === 'recruiterPipeline' && <RecruiterPipeline />}
+        {step === 'recruiterCandidates' && <RecruiterCandidates />}
+        {step === 'recruiterMatch' && <RecruiterMatch />}
+        {/* HireNova Career */}
+        {step === 'careerHome' && <CareerHome />}
+        {step === 'careerAssessment' && <CareerAssessment />}
+        {step === 'careerRoadmap' && <CareerRoadmap />}
+        {step === 'careerSkills' && <CareerSkills />}
+        {/* HireNova Coach */}
+        {step === 'coachHome' && <CoachHome />}
+        {step === 'coachSession' && <CoachSession />}
+        {step === 'coachGoals' && <CoachGoals />}
+        {step === 'coachHistory' && <CoachHistory />}
+        {/* HireNova Formation */}
+        {step === 'formationHome' && <FormationHome />}
+        {step === 'formationCatalog' && <FormationCatalog />}
+        {step === 'formationCourse' && <FormationCourse />}
+        {step === 'formationCert' && <FormationCert />}
+        {/* HireNova Freelance */}
+        {step === 'freelanceHome' && <FreelanceHome />}
+        {step === 'freelanceBrowse' && <FreelanceBrowse />}
+        {step === 'freelanceMission' && <FreelanceMission />}
+        {step === 'freelanceDashboard' && <FreelanceDashboard />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>

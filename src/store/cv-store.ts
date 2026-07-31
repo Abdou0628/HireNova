@@ -27,6 +27,18 @@ export type AppStep =
   | 'interview'
   // Admin Dashboard — Supervision globale
   | 'admin'
+  // HireNova LinkedIn — Profil Optimizer
+  | 'linkedinHome' | 'linkedinAnalyzer' | 'linkedinGenerator'
+  // HireNova Recruiter — AI Recruitment Pipeline
+  | 'recruiterHome' | 'recruiterPipeline' | 'recruiterCandidates' | 'recruiterMatch'
+  // HireNova Career — Career Roadmap & Assessment
+  | 'careerHome' | 'careerAssessment' | 'careerRoadmap' | 'careerSkills'
+  // HireNova Coach — AI Career Coach
+  | 'coachHome' | 'coachSession' | 'coachGoals' | 'coachHistory'
+  // HireNova Formation — Training & Certification
+  | 'formationHome' | 'formationCatalog' | 'formationCourse' | 'formationCert'
+  // HireNova Freelance — Freelance Marketplace
+  | 'freelanceHome' | 'freelanceBrowse' | 'freelanceMission' | 'freelanceDashboard'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -1039,13 +1039,13 @@ export default function Landing() {
                 { icon: Globe, name: 'HireNova Global', desc: 'Recrutement international — 40+ pays, visa & relocation', active: true, accent: 'teal', step: 'globalMarket' as AppStep | null },
                 { icon: Plane, name: 'HireNova Mobilité', desc: 'OCR + IA — adaptez votre CV aux standards de chaque pays', active: true, accent: 'purple', step: 'mobilityHome' as AppStep | null },
                 { icon: Code2, name: 'HireNova API', desc: 'API REST — intégrez CV, lettre & ATS dans vos apps', active: true, accent: 'sky', step: 'apiDocs' as AppStep | null },
-                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: false, accent: 'violet', step: null },
-                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky', step: null },
-                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber', step: null },
-                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose', step: null },
-                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo', step: null },
-                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal', step: null },
-                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange', step: null },
+                { icon: MessageCircle, name: 'HireNova Interview', desc: t(language, 'ecosystemInterview'), active: true, accent: 'violet', step: 'interview' as AppStep | null },
+                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: true, accent: 'sky', step: 'linkedinHome' as AppStep | null },
+                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: true, accent: 'amber', step: 'recruiterHome' as AppStep | null },
+                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: true, accent: 'rose', step: 'careerHome' as AppStep | null },
+                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: true, accent: 'emerald', step: 'coachHome' as AppStep | null },
+                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: true, accent: 'teal', step: 'formationHome' as AppStep | null },
+                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: true, accent: 'orange', step: 'freelanceHome' as AppStep | null },
               ].map((product, index) => {
                 const isClickable = Boolean(product.active)
                 const handleNav = () => {
@@ -1358,6 +1358,55 @@ export default function Landing() {
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button onClick={() => setStep('mobilityHome')} className="bg-purple-600 hover:bg-purple-700 cursor-pointer"><Plane className="w-4 h-4 mr-2" /> Adapter mon CV pour l&apos;international</Button>
+            </div>
+          </div>
+        </section>
+
+        {/* HireNova LinkedIn Section */}
+        <section className="py-16 sm:py-20 bg-gradient-to-b from-sky-50/30 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+              <Badge className="mb-3 bg-sky-100 text-sky-700 hover:bg-sky-100"><Linkedin className="w-3 h-3 mr-1" /> LinkedIn</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova LinkedIn</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'landingLinkedinDesc')}</p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <Card className="h-full border-sky-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><BarChart3 className="w-5 h-5 text-sky-600" /></div>
+                      <h3 className="font-semibold">{t(language, 'linkedinAnalyze')}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinStep2Desc')}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <Card className="h-full border-sky-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><Wand2 className="w-5 h-5 text-sky-600" /></div>
+                      <h3 className="font-semibold">{t(language, 'linkedinGenerate')}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinStep3Desc')}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <Card className="h-full border-sky-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><Sparkles className="w-5 h-5 text-sky-600" /></div>
+                      <h3 className="font-semibold">{t(language, 'linkedinProfileScore')}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinScoreExplanation')}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button onClick={() => setStep('linkedinHome')} className="bg-sky-600 hover:bg-sky-700 cursor-pointer"><Linkedin className="w-4 h-4 mr-2" /> Optimiser mon profil LinkedIn</Button>
             </div>
           </div>
         </section>

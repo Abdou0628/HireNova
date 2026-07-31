@@ -1,0 +1,2002 @@
+     1→export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
+     2→
+     3→export type TranslationKey =
+     4→  | 'siteTitle'
+     5→  | 'siteSubtitle'
+     6→  | 'siteDescription'
+     7→  | 'cta'
+     8→  | 'step1Title'
+     9→  | 'step2Title'
+    10→  | 'step3Title'
+    11→  | 'step4Title'
+    12→  | 'fullName'
+    13→  | 'email'
+    14→  | 'phone'
+    15→  | 'phoneCountry'
+    16→  | 'phoneCountryPlaceholder'
+    17→  | 'phoneNumber'
+    18→  | 'address'
+    19→  | 'location'
+    20→  | 'linkedin'
+    21→  | 'website'
+    22→  | 'photo'
+    23→  | 'photoPlaceholder'
+    24→  | 'photoRemove'
+    25→  | 'photoNote'
+    26→  | 'targetJob'
+    27→  | 'industry'
+    28→  | 'experience'
+    29→  | 'experiencePlaceholder'
+    30→  | 'education'
+    31→  | 'educationPlaceholder'
+    32→  | 'skills'
+    33→  | 'skillsPlaceholder'
+    34→  | 'languages'
+    35→  | 'languagesPlaceholder'
+    36→  | 'summary'
+    37→  | 'summaryPlaceholder'
+    38→  | 'next'
+    39→  | 'previous'
+    40→  | 'generate'
+    41→  | 'generating'
+    42→  | 'generatingSubtitle'
+    43→  | 'downloadPdf'
+    44→  | 'downloadWord'
+    45→  | 'downloadFormat'
+    46→  | 'startOver'
+    47→  | 'previewTitle'
+    48→  | 'feature1Title'
+    49→  | 'feature1Desc'
+    50→  | 'feature2Title'
+    51→  | 'feature2Desc'
+    52→  | 'feature3Title'
+    53→  | 'feature3Desc'
+    54→  | 'feature4Title'
+    55→  | 'feature4Desc'
+    56→  | 'templateModern'
+    57→  | 'templateClassic'
+    58→  | 'templateCreative'
+    59→  | 'templateLabel'
+    60→  | 'languageLabel'
+    61→  | 'required'
+    62→  | 'errorFillFields'
+    63→  | 'dateOfBirth'
+    64→  | 'birthPlace'
+    65→  | 'birthCountry'
+    66→  | 'birthCountryPlaceholder'
+    67→  | 'softSkills'
+    68→  | 'softSkillsPlaceholder'
+    69→  | 'personalInfo'
+    70→  | 'footerText'
+    71→  | 'footerMadeWith'
+    72→  | 'freeNoSignup'
+    73→  | 'ctaReadyTitle'
+    74→  | 'ctaReadyDesc'
+    75→  | 'photoPosition'
+    76→  | 'photoPositionLeft'
+    77→  | 'photoPositionCenter'
+    78→  | 'photoPositionRight'
+    79→  | 'availableLangs'
+    80→  | 'freeNoSignup'
+    81→  | 'ctaReadyTitle'
+    82→  | 'ctaReadyDesc'
+    83→  // Cover letter keys
+    84→  | 'clTitle'
+    85→  | 'clSubtitle'
+    86→  | 'clDescription'
+    87→  | 'clCta'
+    88→  | 'clBackToCv'
+    89→  | 'clCompanyName'
+    90→  | 'clCompanyNamePlaceholder'
+    91→  | 'clHiringManager'
+    92→  | 'clHiringManagerPlaceholder'
+    93→  | 'clJobTitle'
+    94→  | 'clJobTitlePlaceholder'
+    95→  | 'clJobReference'
+    96→  | 'clJobReferencePlaceholder'
+    97→  | 'clWhyCompany'
+    98→  | 'clWhyCompanyPlaceholder'
+    99→  | 'clKeyStrengths'
+   100→  | 'clKeyStrengthsPlaceholder'
+   101→  | 'clTone'
+   102→  | 'clToneFormal'
+   103→  | 'clToneSemiFormal'
+   104→  | 'clToneDynamic'
+   105→  | 'clAdditionalNotes'
+   106→  | 'clAdditionalNotesPlaceholder'
+   107→  | 'clGenerate'
+   108→  | 'clGenerating'
+   109→  | 'clGeneratingSubtitle'
+   110→  | 'clPreviewTitle'
+   111→  | 'clDownloadPdf'
+   112→  | 'clDownloadWord'
+   113→  | 'clStartOver'
+   114→  | 'clAlsoGenerate'
+   115→  | 'clStep1'
+   116→  | 'clStep2'
+   117→  | 'clFeatureTitle'
+   118→  | 'clFeatureDesc'
+   119→  | 'clReadyTitle'
+   120→  | 'clReadyDesc'
+   121→  | 'clAddress'
+   122→  | 'clCountry'
+   123→  | 'clCountryPlaceholder'
+   124→  | 'clLinkedToCv'
+   125→  | 'clLinkedToCvDesc'
+   126→  | 'clNoCvLinked'
+   127→  | 'clNoCvLinkedDesc'
+   128→  // Simultaneous generation
+   129→  | 'tabCv'
+   130→  | 'tabCoverLetter'
+   131→  | 'generatingBoth'
+   132→  | 'generatingBothSubtitle'
+   133→  | 'companyNameForCl'
+   134→  | 'companyNameForClPlaceholder'
+   135→  | 'hiringManagerForCl'
+   136→  | 'hiringManagerForClPlaceholder'
+   137→  | 'clToneForCl'
+   138→  | 'step2TitleNew'
+   139→  | 'generatingCv'
+   140→  | 'generatingCl'
+   141→  | 'generatingClDone'
+   142→  | 'generatingCvDone'
+   143→  | 'cvAndClReady'
+   144→  // Pricing & Auth
+   145→  | 'pricingTitle'
+   146→  | 'pricingSubtitle'
+   147→  | 'planFree'
+   148→  | 'planFreePrice'
+   149→  | 'planFreeDesc'
+   150→  | 'planPro'
+   151→  | 'planProPrice'
+   152→  | 'planProDesc'
+   153→  | 'planProPopular'
+   154→  | 'planAnnual'
+   155→  | 'planAnnualPrice'
+   156→  | 'planAnnualDesc'
+   157→  | 'planAnnualBest'
+   158→  | 'planStarter'
+   159→  | 'planStarterPrice'
+   160→  | 'planStarterDesc'
+   161→  | 'planStarterBadge'
+   162→  | 'planCareer'
+   163→  | 'planCareerPrice'
+   164→  | 'planCareerDesc'
+   165→  | 'planCareerBadge'
+   166→  | 'planEmployer'
+   167→  | 'planEmployerPrice'
+   168→  | 'planEmployerDesc'
+   169→  | 'planEmployerBadge'
+   170→  | 'planEnterprise'
+   171→  | 'planEnterpriseDesc'
+   172→  | 'planEnterpriseBadge'
+   173→  | 'planEnterpriseCta'
+   174→  | 'entFormTitle'
+   175→  | 'entFormSubtitle'
+   176→  | 'entFormContactName'
+   177→  | 'entFormContactNamePh'
+   178→  | 'entFormWorkEmail'
+   179→  | 'entFormWorkEmailPh'
+   180→  | 'entFormWorkEmailHint'
+   181→  | 'entFormPhone'
+   182→  | 'entFormPhonePh'
+   183→  | 'entFormCompanyName'
+   184→  | 'entFormCompanyNamePh'
+   185→  | 'entFormJobTitle'
+   186→  | 'entFormJobTitlePh'
+   187→  | 'entFormIndustry'
+   188→  | 'entFormIndustryPh'
+   189→  | 'entFormCompanySize'
+   190→  | 'entFormCompanySizeOpt1'
+   191→  | 'entFormCompanySizeOpt2'
+   192→  | 'entFormCompanySizeOpt3'
+   193→  | 'entFormCompanySizeOpt4'
+   194→  | 'entFormCompanySizeOpt5'
+   195→  | 'entFormCountry'
+   196→  | 'entFormCountryPh'
+   197→  | 'entFormWebsite'
+   198→  | 'entFormWebsitePh'
+   199→  | 'entFormUsersCount'
+   200→  | 'entFormUsersCountOpt1'
+   201→  | 'entFormUsersCountOpt2'
+   202→  | 'entFormUsersCountOpt3'
+   203→  | 'entFormUsersCountOpt4'
+   204→  | 'entFormUseCase'
+   205→  | 'entFormUseCaseOpt1'
+   206→  | 'entFormUseCaseOpt2'
+   207→  | 'entFormUseCaseOpt3'
+   208→  | 'entFormUseCaseOpt4'
+   209→  | 'entFormUseCaseOpt5'
+   210→  | 'entFormBudget'
+   211→  | 'entFormBudgetOpt1'
+   212→  | 'entFormBudgetOpt2'
+   213→  | 'entFormBudgetOpt3'
+   214→  | 'entFormBudgetOpt4'
+   215→  | 'entFormBudgetOpt5'
+   216→  | 'entFormMessage'
+   217→  | 'entFormMessagePh'
+   218→  | 'entFormMessageHint'
+   219→  | 'entFormSubmit'
+   220→  | 'entFormSubmitting'
+   221→  | 'entFormSuccess'
+   222→  | 'entFormSuccessDesc'
+   223→  | 'entFormSuccessCta'
+   224→  | 'entFormError'
+   225→  | 'entFormRequired'
+   226→  | 'planApi'
+   227→  | 'planApiDesc'
+   228→  | 'planApiBadge'
+   229→  | 'planApiCta'
+   230→  | 'pricingAnnual'
+   231→  | 'pricingAnnualUsd'
+   232→  | 'pricingAnnualPriceUsd'
+   233→  | 'pricingAnnualGbp'
+   234→  | 'pricingAnnualPriceGbp'
+   235→  | 'pricingProPriceGbp'
+   236→  | 'pricingMonthlyGbp'
+   237→  | 'pricingStarterPriceUsd'
+   238→  | 'pricingStarterPriceGbp'
+   239→  | 'pricingCareerPriceUsd'
+   240→  | 'pricingCareerPriceGbp'
+   241→  | 'pricingEmployerPriceUsd'
+   242→  | 'pricingEmployerPriceGbp'
+   243→  | 'pricingCv'
+   244→  | 'pricingTemplates'
+   245→  | 'pricingPdf'
+   246→  | 'pricingWord'
+   247→  | 'pricingCoverLetter'
+   248→  | 'pricingNoWatermark'
+   249→  | 'pricingAtsScore'
+   250→  | 'pricingPriority'
+   251→  | 'pricingMonthly'
+   252→  | 'pricingCurrency'
+   253→  | 'pricingProPriceUsd'
+   254→  | 'pricingMonthlyUsd'
+   255→  | 'pricingStartFree'
+   256→  | 'pricingCvLimit2'
+   257→  | 'pricingCvLimit10'
+   258→  | 'pricingCvUnlimited'
+   259→  | 'pricingClLimit1'
+   260→  | 'pricingClLimit5'
+   261→  | 'pricingClUnlimited'
+   262→  | 'pricingTemplate1'
+   263→  | 'pricingTemplate3'
+   264→  | 'pricingTemplate5'
+   265→  | 'pricingWatermark'
+   266→  | 'pricingAtsBasic'
+   267→  | 'pricingAtsDetailed'
+   268→  | 'pricingMobility'
+   269→  | 'pricingGlobalJobs'
+   270→  | 'pricingCoach'
+   271→  | 'pricingPrioritySupport'
+   272→  | 'pricingJobPostings'
+   273→  | 'pricingRecruiterDashboard'
+   274→  | 'pricingCandidateSearch'
+   275→  | 'pricingMultiSeats'
+   276→  | 'pricingCsvExport'
+   277→  | 'pricingApiAccess'
+   278→  | 'pricingSso'
+   279→  | 'pricingDedicatedSupport'
+   280→  | 'pricingSla'
+   281→  | 'pricingTeamTraining'
+   282→  | 'pricingCustomBilling'
+   283→  | 'pricingApiRest'
+   284→  | 'pricingApiEndpoints'
+   285→  | 'pricingApiUsage'
+   286→  | 'pricingApiDocs'
+   287→  | 'pricingApiSecure'
+   288→  | 'pricingEnterpriseTitle'
+   289→  | 'pricingApiTitle'
+   290→  | 'pricingCompareTitle'
+   291→  | 'loginTitle'
+   292→  | 'registerTitle'
+   293→  | 'loginEmail'
+   294→  | 'loginPassword'
+   295→  | 'loginButton'
+   296→  | 'registerButton'
+   297→  | 'loginNoAccount'
+   298→  | 'registerHasAccount'
+   299→  | 'loginName'
+   300→  | 'loginSuccess'
+   301→  | 'registerSuccess'
+   302→  | 'loginError'
+   303→  | 'registerError'
+   304→  | 'profileMenu'
+   305→  | 'myAccount'
+   306→  | 'mySpace'
+   307→  | 'logout'
+   308→  | 'remainingCvs'
+   309→  | 'remainingCls'
+   310→  | 'upgradeToPro'
+   311→  | 'pricingFeatureIncluded'
+   312→  | 'pricingFeatureExcluded'
+   313→  // Paymob / Africa
+   314→  | 'paymobLabel'
+   315→  | 'paymobDesc'
+   316→  | 'paymobProPrice'
+   317→  | 'paymobLifetimePrice'
+   318→  | 'paymobMonthly'
+   319→  | 'paymobOneTime'
+   320→  | 'paymobMethods'
+   321→  | 'paymobCard'
+   322→  | 'paymobWallet'
+   323→  | 'paymobAfrica'
+   324→  // Personas
+   325→  | 'personaStudent'
+   326→  | 'personaGraduate'
+   327→  | 'personaProfessional'
+   328→  | 'personaExecutive'
+   329→  | 'personaFreelance'
+   330→  | 'personaExpat'
+   331→  | 'personaStudentDesc'
+   332→  | 'personaGraduateDesc'
+   333→  | 'personaProfessionalDesc'
+   334→  | 'personaExecutiveDesc'
+   335→  | 'personaFreelanceDesc'
+   336→  | 'personaExpatDesc'
+   337→  | 'personaChoose'
+   338→  | 'ctaChooseProfile'
+   339→  | 'personaFieldsTitle'
+   340→  | 'internshipRequest'
+   341→  | 'internshipRequestDesc'
+   342→  | 'jobRequest'
+   343→  | 'jobRequestDesc'
+   344→  | 'applicationType'
+   345→  | 'importCvTitle'
+   346→  | 'importCvDesc'
+   347→  | 'importCvBtn'
+   348→  | 'importCvSuccess'
+   349→  | 'importCvParsing'
+   350→  | 'roadmapTitle'
+   351→  | 'ecosystemTitle'
+   352→  | 'ecosystemDesc'
+   353→  | 'ecosystemCv'
+   354→  | 'ecosystemAts'
+   355→  | 'ecosystemInterview'
+   356→  | 'ecosystemLinkedin'
+   357→  | 'ecosystemRecruiter'
+   358→  | 'ecosystemCareer'
+   359→  | 'ecosystemCoach'
+   360→  | 'ecosystemFormation'
+   361→  | 'ecosystemFreelance'
+   362→  | 'pfStudentField1' | 'pfStudentField1Ph'
+   363→  | 'pfStudentField2' | 'pfStudentField2Ph'
+   364→  | 'pfStudentField3' | 'pfStudentField3Ph'
+   365→  | 'pfGraduateField1' | 'pfGraduateField1Ph'
+   366→  | 'pfGraduateField2' | 'pfGraduateField2Ph'
+   367→  | 'pfGraduateField3' | 'pfGraduateField3Ph'
+   368→  | 'pfProField1' | 'pfProField1Ph'
+   369→  | 'pfProField2' | 'pfProField2Ph'
+   370→  | 'pfProField3' | 'pfProField3Ph'
+   371→  | 'pfExecField1' | 'pfExecField1Ph'
+   372→  | 'pfExecField2' | 'pfExecField2Ph'
+   373→  | 'pfExecField3' | 'pfExecField3Ph'
+   374→  | 'pfExecField4' | 'pfExecField4Ph'
+   375→  | 'pfFreeField1' | 'pfFreeField1Ph'
+   376→  | 'pfFreeField2' | 'pfFreeField2Ph'
+   377→  | 'pfFreeField3' | 'pfFreeField3Ph'
+   378→  | 'pfExpatField1' | 'pfExpatField1Ph'
+   379→  | 'pfExpatField2' | 'pfExpatField2Ph'
+   380→  | 'pfExpatField3' | 'pfExpatField3Ph'
+   381→  | 'pfExpatField4' | 'pfExpatField4Ph'
+   382→  // CV link in CL form
+   383→  | 'clNoCvCreateCta'
+   384→  // Auth & subscription gates
+   385→  | 'authRequiredTitle'
+   386→  | 'authRequiredDesc'
+   387→  | 'subscriptionRequiredTitle'
+   388→  | 'subscriptionRequiredDesc'
+   389→  // Forgot password
+   390→  | 'forgotPasswordTitle'
+   391→  | 'forgotPasswordDesc'
+   392→  | 'forgotPasswordButton'
+   393→  | 'forgotPasswordEmail'
+   394→  | 'forgotPasswordEmailPh'
+   395→  | 'forgotPasswordVerify'
+   396→  | 'forgotPasswordVerifyDesc'
+   397→  | 'forgotPasswordUserFound'
+   398→  | 'forgotPasswordNewPassword'
+   399→  | 'forgotPasswordNewPasswordPh'
+   400→  | 'forgotPasswordConfirm'
+   401→  | 'forgotPasswordSuccess'
+   402→  | 'forgotPasswordBackToLogin'
+   403→  | 'forgotPasswordNoAccount'
+   404→  | 'forgotPasswordNoPlan'
+   405→  | 'forgotPasswordError'
+   406→  // Reset code verification
+   407→  | 'codeSendBtn'
+   408→  | 'codeEnterTitle'
+   409→  | 'codeEnterDesc'
+   410→  | 'codeSentTo'
+   411→  | 'codeSentDevNote'
+   412→  | 'codeSubscriberOnly'
+   413→  | 'codeVerifying'
+   414→  | 'codeExpiresIn'
+   415→  | 'codeResend'
+   416→  | 'codeResent'
+   417→  | 'codeChangeEmail'
+   418→  | 'codeWrong'
+   419→  | 'codeExpired'
+   420→  | 'codeNoCode'
+   421→  | 'codePasswordMismatch'
+   422→  | 'codeSuccessDesc'
+   423→  // ATS Analysis
+   424→  | 'atsAnalyzeBtn'
+   425→  | 'atsAnalyzing'
+   426→  | 'atsAnalyzingSubtitle'
+   427→  | 'atsOverallScore'
+   428→  | 'atsScoreLabel'
+   429→  | 'atsCategoryKeywords'
+   430→  | 'atsCategoryKeywordsDesc'
+   431→  | 'atsCategoryStructure'
+   432→  | 'atsCategoryStructureDesc'
+   433→  | 'atsCategoryExperience'
+   434→  | 'atsCategoryExperienceDesc'
+   435→  | 'atsCategorySkills'
+   436→  | 'atsCategorySkillsDesc'
+   437→  | 'atsCategoryReadability'
+   438→  | 'atsCategoryReadabilityDesc'
+   439→  | 'atsSuggestions'
+   440→  | 'atsSuggestionGood'
+   441→  | 'atsReAnalyze'
+   442→  | 'atsClose'
+   443→  | 'atsPoweredBy'
+   444→  // SEO & FAQ
+   445→  | 'seoTitle'
+   446→  | 'faqTitle'
+   447→  | 'faqSubtitle'
+   448→  | 'faqQ1'
+   449→  | 'faqA1'
+   450→  | 'faqQ2'
+   451→  | 'faqA2'
+   452→  | 'faqQ3'
+   453→  | 'faqA3'
+   454→  | 'faqQ4'
+   455→  | 'faqA4'
+   456→  | 'faqQ5'
+   457→  | 'faqA5'
+   458→  | 'faqQ6'
+   459→  | 'faqA6'
+   460→  | 'faqQ7'
+   461→  | 'faqA7'
+   462→  | 'faqQ8'
+   463→  | 'faqA8'
+   464→  | 'trustTitle'
+   465→  | 'trustSubtitle'
+   466→  | 'trustStats'
+   467→  | 'trustGuarantee'
+   468→  // Ecosystem section (landing page)
+   469→  | 'ecosystemSectionTitle'
+   470→  | 'ecosystemSectionSubtitle'
+   471→  // LinkedIn module
+   472→  | 'linkedinTitle' | 'linkedinSubtitle'
+   473→  | 'linkedinStep1Title' | 'linkedinStep1Desc'
+   474→  | 'linkedinStep2Title' | 'linkedinStep2Desc'
+   475→  | 'linkedinStep3Title' | 'linkedinStep3Desc'
+   476→  | 'linkedinAnalyze' | 'linkedinOptimize' | 'linkedinGenerate'
+   477→  | 'linkedinProfileTextPlaceholder' | 'linkedinAnalyzing'
+   478→  | 'linkedinHeadlineAnalysis' | 'linkedinSummaryReview' | 'linkedinExperienceCritique'
+   479→  | 'linkedinSkillsGap' | 'linkedinOverallScore' | 'linkedinRecommendations'
+   480→  | 'linkedinBackToHome' | 'linkedinTryGenerator'
+   481→  | 'linkedinTargetJobTitle' | 'linkedinKeyAchievements'
+   482→  | 'linkedinCurrentHeadline' | 'linkedinCurrentSummary'
+   483→  | 'linkedinOptimizedHeadlines' | 'linkedinOptimizedSummaries'
+   484→  | 'linkedinExperienceBullets' | 'linkedinSuggestedSkills'
+   485→  | 'linkedinCopy' | 'linkedinCopied' | 'linkedinExport'
+   486→  | 'linkedinNoResults' | 'linkedinError' | 'linkedinRetry'
+   487→  | 'linkedinAnalyzerCta' | 'linkedinGeneratorCta' | 'linkedinScoreCta'
+   488→  | 'linkedinProfileScore' | 'linkedinScoreExplanation' | 'linkedinStrengths' | 'linkedinWeaknesses'
+   489→  | 'linkedinTips' | 'linkedinVisibility' | 'linkedinKeywordOptimization' | 'linkedinCompleteness'
+   490→  | 'linkedinProfileText' | 'linkedinPasteUrlOrText' | 'linkedinAnalyzeBtn' | 'linkedinGenerateBtn'
+   491→  | 'linkedinIndustry' | 'linkedinAchievementsPlaceholder' | 'linkedinHeadlinePlaceholder' | 'linkedinSummaryPlaceholder'
+   492→  | 'linkedinJobTitlePlaceholder'
+   493→  // Recruiter module
+   494→  | 'recruiterTitle' | 'recruiterSubtitle'
+   495→  | 'recruiterStep1Title' | 'recruiterStep1Desc'
+   496→  | 'recruiterStep2Title' | 'recruiterStep2Desc'
+   497→  | 'recruiterStep3Title' | 'recruiterStep3Desc'
+   498→  | 'recruiterMatching' | 'recruiterScoring' | 'recruiterPipeline'
+   499→  | 'recruiterHomeTitle' | 'recruiterHomeSubtitle'
+   500→  | 'recruiterOpenPositions' | 'recruiterTotalCandidates' | 'recruiterMatchRate' | 'recruiterAvgTimeHire'
+   501→  | 'recruiterQuickActions' | 'recruiterNewJob' | 'recruiterViewPipeline' | 'recruiterFindCandidates' | 'recruiterAIMatch'
+   502→  | 'recruiterRecentJobs' | 'recruiterNoJobs'
+   503→  | 'recruiterJobTitle' | 'recruiterJobDept' | 'recruiterJobLocation' | 'recruiterJobType' | 'recruiterJobStatus'
+   504→  | 'recruiterPipelineTitle' | 'recruiterPipelineSubtitle'
+   505→  | 'recruiterStageNew' | 'recruiterStageScreening' | 'recruiterStageInterview' | 'recruiterStageOffer' | 'recruiterStageHired' | 'recruiterStageRejected'
+   506→  | 'recruiterCandidatesTitle' | 'recruiterCandidatesSubtitle'
+   507→  | 'recruiterSearchCandidates' | 'recruiterFilterSkills' | 'recruiterFilterExperience' | 'recruiterFilterScore'
+   508→  | 'recruiterAll' | 'recruiterClearFilters'
+   509→  | 'recruiterMatchTitle' | 'recruiterMatchSubtitle'
+   510→  | 'recruiterPasteJobDesc' | 'recruiterPasteJobDescPlaceholder'
+   511→  | 'recruiterStartMatching' | 'recruiterMatchingProgress'
+   512→  | 'recruiterMatchResults' | 'recruiterNoResults'
+   513→  | 'recruiterScoreLabel' | 'recruiterCandidate' | 'recruiterBack'
+   514→  | 'recruiterDays' | 'recruiterFullTime' | 'recruiterPartTime' | 'recruiterContract' | 'recruiterInternship'
+   515→  | 'recruiterOpen' | 'recruiterPaused' | 'recruiterClosed' | 'recruiterFilled'
+   516→  // Career module
+   517→  | 'careerTitle' | 'careerSubtitle'
+   518→  | 'careerStep1Title' | 'careerStep1Desc'
+   519→  | 'careerStep2Title' | 'careerStep2Desc'
+   520→  | 'careerStep3Title' | 'careerStep3Desc'
+   521→  | 'careerAssessment' | 'careerGaps' | 'careerRoadmap'
+   522→  | 'careerHomeTitle' | 'careerHomeSubtitle'
+   523→  | 'careerPaths' | 'careerTech' | 'careerMarketing' | 'careerFinance' | 'careerDesign' | 'careerData'
+   524→  | 'careerStartAssessment' | 'careerRecentAssessments' | 'careerNoAssessments' | 'careerViewRoadmap' | 'careerViewSkills'
+   525→  | 'careerAssessTitle' | 'careerAssessSubtitle'
+   526→  | 'careerQ1' | 'careerQ2' | 'careerQ3' | 'careerQ4' | 'careerQ5'
+   527→  | 'careerQ6' | 'careerQ7' | 'careerQ8' | 'careerQ9' | 'careerQ10' | 'careerQ11' | 'careerQ12'
+   528→  | 'careerQ1O1' | 'careerQ1O2' | 'careerQ1O3' | 'careerQ1O4'
+   529→  | 'careerQ2O1' | 'careerQ2O2' | 'careerQ2O3' | 'careerQ2O4'
+   530→  | 'careerQ3O1' | 'careerQ3O2' | 'careerQ3O3' | 'careerQ3O4'
+   531→  | 'careerQ4O1' | 'careerQ4O2' | 'careerQ4O3' | 'careerQ4O4'
+   532→  | 'careerQ5O1' | 'careerQ5O2' | 'careerQ5O3' | 'careerQ5O4'
+   533→  | 'careerQ6O1' | 'careerQ6O2' | 'careerQ6O3' | 'careerQ6O4'
+   534→  | 'careerQ7O1' | 'careerQ7O2' | 'careerQ7O3' | 'careerQ7O4'
+   535→  | 'careerQ8O1' | 'careerQ8O2' | 'careerQ8O3' | 'careerQ8O4'
+   536→  | 'careerQ9O1' | 'careerQ9O2' | 'careerQ9O3' | 'careerQ9O4'
+   537→  | 'careerQ10O1' | 'careerQ10O2' | 'careerQ10O3' | 'careerQ10O4'
+   538→  | 'careerQ11O1' | 'careerQ11O2' | 'careerQ11O3' | 'careerQ11O4'
+   539→  | 'careerQ12O1' | 'careerQ12O2' | 'careerQ12O3' | 'careerQ12O4'
+   540→  | 'careerProgress' | 'careerQuestion' | 'careerOf'
+   541→  | 'careerSubmit' | 'careerSubmitting'
+   542→  | 'careerRoadmapTitle' | 'careerRoadmapSubtitle'
+   543→  | 'careerShortTerm' | 'careerMediumTerm' | 'careerLongTerm'
+   544→  | 'careerSkillsToAcquire' | 'careerCertifications' | 'careerMilestones'
+   545→  | 'careerGenerateRoadmap' | 'careerGeneratingRoadmap'
+   546→  | 'careerBackToHome' | 'careerBackToRoadmap'
+   547→  | 'careerSkillsTitle' | 'careerSkillsSubtitle'
+   548→  | 'careerCurrentSkills' | 'careerTargetSkills' | 'careerGapSkills'
+   549→  | 'careerRecommendedCourses' | 'careerSkillLevel' | 'careerOverallScore'
+   550→  | 'careerReadinessScore' | 'careerNoData' | 'careerStartNewAssessment'
+   551→  // Coach module
+   552→  | 'coachTitle' | 'coachSubtitle'
+   553→  | 'coachStep1Title' | 'coachStep1Desc'
+   554→  | 'coachStep2Title' | 'coachStep2Desc'
+   555→  | 'coachStep3Title' | 'coachStep3Desc'
+   556→  | 'coachGoals' | 'coachSession' | 'coachTracking'
+   557→  // Coach module — pages
+   558→  | 'coachHomeTitle' | 'coachHomeSubtitle'
+   559→  | 'coachSessionsCompleted' | 'coachCurrentGoals' | 'coachStreak'
+   560→  | 'coachStartNewSession' | 'coachViewGoals' | 'coachViewHistory'
+   561→  | 'coachQuickStart' | 'coachCareerTransition' | 'coachSalaryNegotiation'
+   562→  | 'coachLeadership' | 'coachWorkLifeBalance'
+   563→  | 'coachMotivationalQuote'
+   564→  | 'coachSessionTitle' | 'coachSessionSubtitle'
+   565→  | 'coachTypeMessage' | 'coachSending' | 'coachThinking'
+   566→  | 'coachSuggestedTopics' | 'coachTopicCareerChange' | 'coachTopicSalary'
+   567→  | 'coachTopicLeadership' | 'coachTopicWorkLife' | 'coachTopicNetworking'
+   568→  | 'coachEndSession' | 'coachEndSessionConfirm' | 'coachSessionEnded'
+   569→  | 'coachNewChat' | 'coachBackToCoachHome'
+   570→  | 'coachGoalsTitle' | 'coachGoalsSubtitle'
+   571→  | 'coachAddGoal' | 'coachGoalTitle' | 'coachGoalDescription'
+   572→  | 'coachGoalCategory' | 'coachGoalPriority' | 'coachGoalDeadline'
+   573→  | 'coachGoalProgress' | 'coachGoalActions' | 'coachGoalCompleted'
+   574→  | 'coachCategoryGeneral' | 'coachCategoryCareerTransition' | 'coachCategorySalary'
+   575→  | 'coachCategoryLeadership' | 'coachCategorySkills' | 'coachCategoryWorkLife'
+   576→  | 'coachPriorityLow' | 'coachPriorityMedium' | 'coachPriorityHigh'
+   577→  | 'coachSaveGoal' | 'coachSaving' | 'coachDeleteGoal' | 'coachConfirmDelete'
+   578→  | 'coachNoGoals' | 'coachSuggestedActions'
+   579→  | 'coachHistoryTitle' | 'coachHistorySubtitle'
+   580→  | 'coachSessionSummary' | 'coachKeyTakeaways' | 'coachActionItems'
+   581→  | 'coachViewTranscript' | 'coachNoHistory' | 'coachCloseTranscript'
+   582→  | 'coachBack' | 'coachMarkComplete' | 'coachEditGoal'
+   583→  // Formation module
+   584→  | 'formationTitle' | 'formationSubtitle'
+   585→  | 'formationStep1Title' | 'formationStep1Desc'
+   586→  | 'formationStep2Title' | 'formationStep2Desc'
+   587→  | 'formationStep3Title' | 'formationStep3Desc'
+   588→  | 'formationCatalog' | 'formationEnroll' | 'formationCertify'
+   589→  // Freelance module
+   590→  | 'freelanceTitle' | 'freelanceSubtitle'
+   591→  | 'freelanceStep1Title' | 'freelanceStep1Desc'
+   592→  | 'freelanceStep2Title' | 'freelanceStep2Desc'
+   593→  | 'freelanceStep3Title' | 'freelanceStep3Desc'
+   594→  | 'freelanceBrowse' | 'freelanceApply' | 'freelanceDeliver'
+   595→  // Landing page sections for new modules
+   596→  | 'landingLinkedinTitle' | 'landingLinkedinDesc'
+   597→  | 'landingRecruiterTitle' | 'landingRecruiterDesc'
+   598→  | 'landingCareerTitle' | 'landingCareerDesc'
+   599→  | 'landingCoachTitle' | 'landingCoachDesc'
+   600→  | 'landingFormationTitle' | 'landingFormationDesc'
+   601→  | 'landingFreelanceTitle' | 'landingFreelanceDesc'
+   602→  // Chatbot modes
+   603→  | 'chatbotModeAdvisor' | 'chatbotModeSupport' | 'chatbotModeProducts'
+   604→  | 'chatbotAdvisorTitle' | 'chatbotSupportTitle' | 'chatbotProductsTitle'
+   605→
+   606→const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
+   607→  fr: {
+   608→    siteTitle: 'HireNova',
+   609→    siteSubtitle: 'Générez un CV professionnel en 60 secondes',
+   610→    siteDescription:
+   611→      'Notre IA rédige un CV optimisé pour les ATS, parfaitement adapté à votre métier cible.',
+   612→    cta: 'Créer mon CV maintenant',
+   613→    step1Title: 'Informations personnelles',
+   614→    step2Title: 'Projet professionnel',
+   615→    step3Title: 'Expérience & Formation',
+   616→    step4Title: 'Compétences & Résumé',
+   617→    fullName: 'Nom complet',
+   618→    email: 'Adresse e-mail',
+   619→    phone: 'Téléphone',
+   620→    phoneCountry: 'Pays',
+   621→    phoneCountryPlaceholder: 'Choisir le pays...',
+   622→    phoneNumber: 'Numéro de téléphone',
+   623→    address: 'Adresse complète',
+   624→    location: 'Ville / Pays',
+   625→    linkedin: 'LinkedIn (optionnel)',
+   626→    website: 'Site web (optionnel)',
+   627→    photo: 'Photo de profil',
+   628→    photoPlaceholder: 'Cliquez ou glissez une photo ici',
+   629→    photoRemove: 'Supprimer',
+   630→    photoNote: 'Recommandé pour les CV en français et arabe. Non recommandé pour les CV en anglais (pratique anti-discrimination).',
+   631→    targetJob: 'Poste visé',
+   632→    industry: 'Secteur d\'activité',
+   633→    experience: 'Expérience professionnelle',
+   634→    experiencePlaceholder:
+   635→      'Décrivez vos postes précédents (ex: Développeur Web chez ABC Corp de 2020 à 2023 - responsabilités, projets, résultats...)',
+   636→    education: 'Formation',
+   637→    educationPlaceholder:
+   638→      'Décrivez vos diplômes (ex: Master en Informatique à l\'Université X de 2016 à 2020...)',
+   639→    skills: 'Compétences',
+   640→    skillsPlaceholder:
+   641→      'Listez vos compétences techniques et humaines séparées par des virgules (ex: JavaScript, React, gestion de projet, travail d\'équipe...)',
+   642→    languages: 'Langues parlées',
+   643→    languagesPlaceholder:
+   644→      'Listez vos langues avec niveau (ex: Français - natif, Anglais - courant, Arabe - intermédiaire...)',
+   645→    summary: 'Résumé professionnel (optionnel)',
+   646→    summaryPlaceholder:
+   647→      'Un court paragraphe décrivant votre profil, vos forces et vos ambitions...',
+   648→    next: 'Suivant',
+   649→    previous: 'Précédent',
+   650→    generate: 'Générer mon CV avec l\'IA',
+   651→    generating: 'L\'IA rédige votre CV...',
+   652→    generatingSubtitle:
+   653→      'Analyse de vos informations et création du contenu optimisé',
+   654→    downloadPdf: 'Télécharger en PDF',
+   655→    downloadWord: 'Télécharger en Word',
+   656→    downloadFormat: 'Format de téléchargement',
+   657→    startOver: 'Créer un autre CV',
+   658→    previewTitle: 'Votre CV est prêt !',
+   659→    feature1Title: 'IA Avancée',
+   660→    feature1Desc:
+   661→      'Notre IA analyse vos informations et génère un contenu professionnel optimisé pour chaque section de votre CV.',
+   662→    feature2Title: 'Multilingue',
+   663→    feature2Desc:
+   664→      'Créez votre CV en français, anglais, espagnol ou arabe. L\'IA adapte le vocabulaire et le style à chaque langue.',
+   665→    feature3Title: 'Optimisé ATS',
+   666→    feature3Desc:
+   667→      'Vos CV sont structurés pour passer les filtres automatiques des logiciels de recrutement.',
+   668→    feature4Title: '3 Templates',
+   669→    feature4Desc:
+   670→      'Choisissez parmi 3 designs professionnels : Moderne, Classique ou Créatif.',
+   671→    templateModern: 'Moderne',
+   672→    templateClassic: 'Classique',
+   673→    templateCreative: 'Créatif',
+   674→    templateLabel: 'Modèle',
+   675→    languageLabel: 'Langue du CV',
+   676→    dateOfBirth: 'Date de naissance',
+   677→    birthPlace: 'Lieu de naissance',
+   678→    birthCountry: 'Pays de naissance',
+   679→    birthCountryPlaceholder: 'Maroc, France, Algérie...',
+   680→    softSkills: 'Soft Skills / Savoir-être (optionnel)',
+   681→    softSkillsPlaceholder: 'Listez vos soft skills séparés par des virgules (ex: leadership, communication, résolution de problèmes, adaptabilité...)',
+   682→    personalInfo: 'Informations de naissance',
+   683→    required: 'Ce champ est requis',
+   684→    errorFillFields: 'Veuillez remplir tous les champs obligatoires',
+   685→    footerText: 'Tous droits réservés',
+   686→    footerMadeWith: 'Propulsé par',
+   687→    freeNoSignup: 'Générez un CV pro en 60 secondes',
+   688→    ctaReadyTitle: 'Prêt à créer votre CV ?',
+   689→    ctaReadyDesc: 'En moins de 2 minutes, vous aurez un CV professionnel prêt à être envoyé.',
+   690→    photoPosition: 'Position de la photo',
+   691→    photoPositionLeft: 'Gauche',
+   692→    photoPositionCenter: 'Centre',
+   693→    photoPositionRight: 'Droite',
+   694→    availableLangs: 'Disponible en français, anglais, espagnol et arabe',
+   695→    // Cover letter
+   696→    clTitle: 'Lettre de Motivation',
+   697→    clSubtitle: 'Générez une lettre de motivation persuasive en 30 secondes',
+   698→    clDescription: 'Notre IA rédige une lettre de motivation personnalisée, parfaitement adaptée à l\'offre d\'emploi visée. Disponible en français, anglais, arabe et espagnol.',
+   699→    clCta: 'Créer ma lettre de motivation',
+   700→    clBackToCv: 'Retour au CV',
+   701→    clCompanyName: 'Nom de l\'entreprise',
+   702→    clCompanyNamePlaceholder: 'Ex: Google, Renault, Société Générale...',
+   703→    clHiringManager: 'Nom du recruteur (optionnel)',
+   704→    clHiringManagerPlaceholder: 'Ex: M. Dupont, Mme Martin...',
+   705→    clJobTitle: 'Intitulé du poste',
+   706→    clJobTitlePlaceholder: 'Ex: Développeur Full-Stack, Chef de projet...',
+   707→    clJobReference: 'Référence de l\'offre (optionnel)',
+   708→    clJobReferencePlaceholder: 'Ex: REF-2024-123...',
+   709→    clWhyCompany: 'Pourquoi cette entreprise ? (optionnel)',
+   710→    clWhyCompanyPlaceholder: 'Ex: J\'apprécie votre engagement en matière d\'innovation et de développement durable...',
+   711→    clKeyStrengths: 'Points forts à mettre en avant (optionnel)',
+   712→    clKeyStrengthsPlaceholder: 'Ex: 5 ans d\'expérience en gestion de projet, certification PMP...',
+   713→    clTone: 'Ton de la lettre',
+   714→    clToneFormal: 'Formel',
+   715→    clToneSemiFormal: 'Semi-formel',
+   716→    clToneDynamic: 'Dynamique',
+   717→    clAdditionalNotes: 'Notes supplémentaires (optionnel)',
+   718→    clAdditionalNotesPlaceholder: 'Toute information supplémentaire que vous souhaitez inclure...',
+   719→    clGenerate: 'Générer ma lettre de motivation avec l\'IA',
+   720→    clGenerating: "L'IA rédige votre lettre de motivation...",
+   721→    clGeneratingSubtitle: 'Analyse du poste et création du contenu personnalisé',
+   722→    clPreviewTitle: 'Votre lettre de motivation est prête !',
+   723→    clDownloadPdf: 'Télécharger en PDF',
+   724→    clDownloadWord: 'Télécharger en Word',
+   725→    clStartOver: 'Créer une autre lettre',
+   726→    clAlsoGenerate: 'Générer aussi une lettre de motivation',
+   727→    clStep1: 'Vos informations',
+   728→    clStep2: 'Le poste visé',
+   729→    clFeatureTitle: 'Lettre de Motivation IA',
+   730→    clFeatureDesc: 'Générez une lettre de motivation personnalisée et persuasive, adaptée à chaque offre d\'emploi.',
+   731→    clReadyTitle: 'Prêt à créer votre lettre ?',
+   732→    clReadyDesc: 'En moins d\'une minute, vous aurez une lettre de motivation professionnelle prête à envoyer.',
+   733→    clAddress: 'Adresse physique (optionnel)',
+   734→    clCountry: 'Pays',
+   735→    clCountryPlaceholder: 'Choisir le pays...',
+   736→    clLinkedToCv: 'CV lié détecté',
+   737→    clLinkedToCvDesc: 'Votre CV généré sera utilisé automatiquement pour personnaliser cette lettre de motivation.',
+   738→    clNoCvLinked: 'Aucun CV lié',
+   739→    clNoCvLinkedDesc: 'Créez d\'abord un CV pour que la lettre de motivation soit automatiquement enrichie avec vos expériences et compétences.',
+   740→    // Simultaneous generation
+   741→    tabCv: 'CV',
+   742→    tabCoverLetter: 'Lettre de motivation',
+   743→    generatingBoth: 'L\'IA rédige votre CV et votre lettre de motivation...',
+   744→    generatingBothSubtitle: 'Analyse de vos informations et création simultanée des deux documents',
+   745→    companyNameForCl: 'Entreprise cible (pour la lettre de motivation)',
+   746→    companyNameForClPlaceholder: 'Ex: Google, Renault, Société Générale...',
+   747→    hiringManagerForCl: 'Recruteur (optionnel)',
+   748→    hiringManagerForClPlaceholder: 'Ex: M. Dupont, Mme Martin...',
+   749→    clToneForCl: 'Ton de la lettre de motivation',
+   750→    step2TitleNew: 'Projet professionnel & Lettre',
+   751→    generatingCv: 'Rédaction du CV...',
+   752→    generatingCl: 'Rédaction de la lettre de motivation...',
+   753→    generatingClDone: 'Lettre de motivation générée !',
+   754→    generatingCvDone: 'CV généré !',
+   755→    cvAndClReady: 'Votre CV et lettre de motivation sont prêts !',
+   756→    // Pricing & Auth
+   757→    pricingTitle: 'Tarifs simples et transparents',
+   758→    pricingSubtitle: 'Choisissez le plan qui vous convient',
+   759→    planFree: 'Gratuit',
+   760→    planFreePrice: '0€',
+   761→    planFreeDesc: 'Pour découvrir notre outil',
+   762→    planPro: 'Pro',
+   763→    planProPrice: '19€',
+   764→    planProDesc: "Pour les chercheurs d'emploi actifs",
+   765→    planProPopular: 'Le plus populaire',
+   766→    planAnnual: 'Annuel',
+   767→    planAnnualPrice: '70€',
+   768→    planAnnualDesc: "Idéal pour une année complète de recherche d'emploi",
+   769→    planAnnualBest: 'Meilleur rapport qualité-prix',
+   770→    planStarter: 'Starter',
+   771→    planStarterPrice: '9€',
+   772→    planStarterDesc: 'Étudiants & jeunes diplômés',
+   773→    planStarterBadge: 'Nouveau',
+   774→    planCareer: 'Career+',
+   775→    planCareerPrice: '39€',
+   776→    planCareerDesc: 'Cadres & carrière avancée',
+   777→    planCareerBadge: 'Premium',
+   778→    planEmployer: 'Employeur',
+   779→    planEmployerPrice: '49€',
+   780→    planEmployerDesc: 'Recruteurs & entreprises',
+   781→    planEmployerBadge: 'Business',
+   782→    planEnterprise: 'Enterprise',
+   783→    planEnterpriseDesc: 'Grandes entreprises',
+   784→    planEnterpriseBadge: 'Sur mesure',
+   785→    planEnterpriseCta: 'Contacter les ventes',
+   786→    entFormTitle: 'Demander un devis Enterprise',
+   787→    entFormSubtitle: 'Parlons de votre projet. Notre équipe vous recontacte sous 24-48h avec une proposition sur mesure.',
+   788→    entFormContactName: 'Nom complet',
+   789→    entFormContactNamePh: 'Jean Dupont',
+   790→    entFormWorkEmail: 'Email professionnel',
+   791→    entFormWorkEmailPh: 'jean.dupont@entreprise.com',
+   792→    entFormWorkEmailHint: 'Utilisez votre email professionnel (pas d\'email personnel)',
+   793→    entFormPhone: 'Téléphone',
+   794→    entFormPhonePh: '+33 6 12 34 56 78',
+   795→    entFormCompanyName: 'Nom de l\'entreprise',
+   796→    entFormCompanyNamePh: 'Acme Corp',
+   797→    entFormJobTitle: 'Votre fonction',
+   798→    entFormJobTitlePh: 'Directeur RH, CTO, CEO…',
+   799→    entFormIndustry: 'Secteur d\'activité',
+   800→    entFormIndustryPh: 'Banque, Tech, Santé, Retail…',
+   801→    entFormCompanySize: 'Taille de l\'entreprise',
+   802→    entFormCompanySizeOpt1: '1-10 employés',
+   803→    entFormCompanySizeOpt2: '11-50 employés',
+   804→    entFormCompanySizeOpt3: '51-200 employés',
+   805→    entFormCompanySizeOpt4: '201-1000 employés',
+   806→    entFormCompanySizeOpt5: '1000+ employés',
+   807→    entFormCountry: 'Pays',
+   808→    entFormCountryPh: 'France, Maroc, Espagne…',
+   809→    entFormWebsite: 'Site web',
+   810→    entFormWebsitePh: 'https://entreprise.com',
+   811→    entFormUsersCount: 'Utilisateurs attendus',
+   812→    entFormUsersCountOpt1: '1-50 utilisateurs',
+   813→    entFormUsersCountOpt2: '51-200 utilisateurs',
+   814→    entFormUsersCountOpt3: '201-1000 utilisateurs',
+   815→    entFormUsersCountOpt4: '1000+ utilisateurs',
+   816→    entFormUseCase: 'Cas d\'usage principal',
+   817→    entFormUseCaseOpt1: 'Génération de CV',
+   818→    entFormUseCaseOpt2: 'Analyse ATS',
+   819→    entFormUseCaseOpt3: 'Recrutement & offres d\'emploi',
+   820→    entFormUseCaseOpt4: 'Intégration API',
+   821→    entFormUseCaseOpt5: 'Tous / solution complète',
+   822→    entFormBudget: 'Budget annuel estimé',
+   823→    entFormBudgetOpt1: 'Moins de 5 000 €',
+   824→    entFormBudgetOpt2: '5 000 € - 20 000 €',
+   825→    entFormBudgetOpt3: '20 000 € - 50 000 €',
+   826→    entFormBudgetOpt4: 'Plus de 50 000 €',
+   827→    entFormBudgetOpt5: 'À définir ensemble',
+   828→    entFormMessage: 'Votre message',
+   829→    entFormMessagePh: 'Décrivez vos besoins : nombre d\'utilisateurs, intégrations attendues (SSO, API, ATS), contraintes spécifiques, délais…',
+   830→    entFormMessageHint: 'Minimum 20 caractères',
+   831→    entFormSubmit: 'Envoyer la demande',
+   832→    entFormSubmitting: 'Envoi en cours…',
+   833→    entFormSuccess: 'Demande envoyée !',
+   834→    entFormSuccessDesc: 'Merci ! Notre équipe Enterprise vous recontacte sous 24-48h ouvrées avec une proposition personnalisée. Une confirmation a été envoyée à votre email professionnel.',
+   835→    entFormSuccessCta: 'Fermer',
+   836→    entFormError: 'Erreur lors de l\'envoi. Réessayez ou écrivez à hello@hirenova.com',
+   837→    entFormRequired: 'Ce champ est requis',
+   838→    planApi: 'API',
+   839→    planApiDesc: 'Développeurs & intégrateurs',
+   840→    planApiBadge: 'Développeurs',
+   841→    planApiCta: 'Voir le portail API',
+   842→    pricingAnnual: '/an',
+   843→    pricingAnnualUsd: '/year',
+   844→    pricingAnnualPriceUsd: '$79',
+   845→    pricingAnnualGbp: '/an',
+   846→    pricingAnnualPriceGbp: '£59',
+   847→    pricingProPriceGbp: '£15.99',
+   848→    pricingMonthlyGbp: '/month',
+   849→    pricingStarterPriceUsd: '$9.99',
+   850→    pricingStarterPriceGbp: '£7.99',
+   851→    pricingCareerPriceUsd: '$39.99',
+   852→    pricingCareerPriceGbp: '£31.99',
+   853→    pricingEmployerPriceUsd: '$49.99',
+   854→    pricingEmployerPriceGbp: '£39.99',
+   855→    pricingCv: 'Générations de CV',
+   856→    pricingTemplates: 'Templates premium',
+   857→    pricingPdf: 'Téléchargement PDF',
+   858→    pricingWord: 'Téléchargement Word',
+   859→    pricingCoverLetter: 'Lettre de motivation IA',
+   860→    pricingNoWatermark: 'Sans watermark',
+   861→    pricingAtsScore: 'Score ATS détaillé',
+   862→    pricingPriority: 'Génération prioritaire',
+   863→    pricingMonthly: '/mois',
+   864→    pricingCurrency: 'Devise',
+   865→    pricingProPriceUsd: '$19.99',
+   866→    pricingMonthlyUsd: '/month',
+   867→    pricingStartFree: 'Commencer gratuitement',
+   868→    pricingCvLimit2: '2 CV / mois',
+   869→    pricingCvLimit10: '10 CV / mois',
+   870→    pricingCvUnlimited: 'CV illimités',
+   871→    pricingClLimit1: '1 lettre / mois',
+   872→    pricingClLimit5: '5 lettres / mois',
+   873→    pricingClUnlimited: 'Lettres illimitées',
+   874→    pricingTemplate1: '1 template de base',
+   875→    pricingTemplate3: '3 templates premium',
+   876→    pricingTemplate5: '5 templates premium',
+   877→    pricingWatermark: 'Avec watermark',
+   878→    pricingAtsBasic: 'Score ATS basique',
+   879→    pricingAtsDetailed: 'Score ATS détaillé',
+   880→    pricingMobility: 'HireNova Mobilité (OCR + IA)',
+   881→    pricingGlobalJobs: 'HireNova Global (40+ pays)',
+   882→    pricingCoach: 'Coach IA carrière',
+   883→    pricingPrioritySupport: 'Support prioritaire',
+   884→    pricingJobPostings: "Postage d'offres illimité",
+   885→    pricingRecruiterDashboard: 'Dashboard recruteur',
+   886→    pricingCandidateSearch: 'Recherche candidats',
+   887→    pricingMultiSeats: 'Multi-postes',
+   888→    pricingCsvExport: 'Export candidatures CSV',
+   889→    pricingApiAccess: 'API REST (quota élevé)',
+   890→    pricingSso: 'SSO (SAML/OAuth)',
+   891→    pricingDedicatedSupport: 'Support dédié 24/7',
+   892→    pricingSla: 'SLA 99.9%',
+   893→    pricingTeamTraining: 'Formation équipe',
+   894→    pricingCustomBilling: 'Facturation personnalisée',
+   895→    pricingApiRest: 'Accès API REST',
+   896→    pricingApiEndpoints: 'Endpoints: CV, Lettre, ATS',
+   897→    pricingApiUsage: "Facturation à l'usage",
+   898→    pricingApiDocs: 'Documentation complète',
+   899→    pricingApiSecure: 'Clé API sécurisée',
+   900→    pricingEnterpriseTitle: 'Enterprise',
+   901→    pricingApiTitle: 'API & Développeurs',
+   902→    pricingCompareTitle: 'Comparez les plans',
+   903→    loginTitle: 'Connexion',
+   904→    registerTitle: 'Créer un compte',
+   905→    loginEmail: 'Adresse e-mail',
+   906→    loginPassword: 'Mot de passe',
+   907→    loginButton: 'Se connecter',
+   908→    registerButton: "Créer mon compte",
+   909→    loginNoAccount: 'Pas encore de compte ?',
+   910→    registerHasAccount: 'Déjà un compte ?',
+   911→    loginName: 'Nom complet',
+   912→    loginSuccess: 'Connexion réussie !',
+   913→    registerSuccess: 'Compte créé avec succès !',
+   914→    loginError: 'Email ou mot de passe incorrect',
+   915→    registerError: 'Cet email est déjà utilisé',
+   916→    profileMenu: 'Mon compte',
+   917→    myAccount: 'Mon compte',
+   918→    mySpace: 'Mon Espace',
+   919→    logout: 'Se déconnecter',
+   920→    remainingCvs: 'CVs restants ce mois',
+   921→    remainingCls: 'Lettres restantes ce mois',
+   922→    upgradeToPro: 'Passer à Pro',
+   923→    pricingFeatureIncluded: '✓',
+   924→    pricingFeatureExcluded: '✕',
+   925→    paymobLabel: 'Payer avec Floos / Paymob',
+   926→    paymobDesc: 'Carte bancaire, portefeuille mobile, CashPlus, etc.',
+   927→    paymobProPrice: '70 MAD',
+   928→    paymobLifetimePrice: '300 MAD',
+   929→    paymobMonthly: '/mois',
+   930→    paymobOneTime: 'une seule fois',
+   931→    paymobMethods: 'Méthodes de paiement',
+   932→    paymobCard: 'Carte CMI, Visa, Mastercard',
+   933→    paymobWallet: 'Floos, CashPlus, MTN MoMo',
+   934→    paymobAfrica: '🌍 Paiement pour l\'Afrique',
+   935→    // Personas
+   936→    personaStudent: 'Étudiant',
+   937→    personaGraduate: 'Diplômé récent',
+   938→    personaProfessional: 'Professionnel',
+   939→    personaExecutive: 'Cadre dirigeant',
+   940→    personaFreelance: 'Freelance',
+   941→    personaExpat: 'Expatrié',
+   942→    personaStudentDesc: 'En recherche de stage ou premier emploi',
+   943→    personaGraduateDesc: 'Jeune diplômé en insertion professionnelle',
+   944→    personaProfessionalDesc: 'Professionnel en reconversion ou évolution',
+   945→    personaExecutiveDesc: 'Cadre avec expérience de direction',
+   946→    personaFreelanceDesc: 'Travailleur indépendant en recherche de missions',
+   947→    personaExpatDesc: 'Professionnel international en mobilité',
+   948→    personaChoose: 'Choisir ce profil',
+   949→    ctaChooseProfile: 'Créer mon CV',
+   950→    personaFieldsTitle: 'Informations spécifiques au profil',
+   951→    internshipRequest: 'Demande de stage',
+   952→    internshipRequestDesc: 'Adapter le CV et la lettre pour une recherche de stage.',
+   953→    jobRequest: "Demande d'emploi",
+   954→    jobRequestDesc: "Adapter le CV et la lettre pour une recherche d'emploi.",
+   955→    applicationType: "Type de candidature",
+   956→    importCvTitle: 'Importez votre CV existant',
+   957→    importCvDesc: 'Importez un CV existant (PDF, Word ou texte) et l\'IA le reformulera professionnellement avec le modèle choisi.',
+   958→    importCvBtn: 'Importer mon CV',
+   959→    importCvSuccess: 'CV importé avec succès ! Les champs ont été remplis automatiquement.',
+   960→    importCvParsing: 'Analyse de votre CV en cours...',
+   961→    roadmapTitle: 'Feuille de route',
+   962→    ecosystemTitle: 'L\'Écosystème HireNova',
+   963→    ecosystemDesc: 'Une suite complète d\'outils IA pour transformer votre parcours professionnel, de la candidature à l\'évolution de carrière.',
+   964→    ecosystemCv: 'Créez des CV professionnels optimisés ATS en 60 secondes avec l\'IA.',
+   965→    ecosystemAts: 'Analysez et optimisez le score ATS de votre CV pour passer les filtres automatiques.',
+   966→    ecosystemInterview: 'Préparez-vous aux entretiens avec des simulations IA et questions personnalisées.',
+   967→    ecosystemLinkedin: 'Optimisez votre profil LinkedIn pour attirer les recruteurs.',
+   968→    ecosystemRecruiter: 'Trouvez les meilleurs talents grâce à l\'IA et au matching intelligent.',
+   969→    ecosystemCareer: 'Orientez votre carrière avec des conseils personnalisés et des plans d\'évolution.',
+   970→    ecosystemCoach: 'Un coach IA personnel pour vous guider dans votre développement professionnel.',
+   971→    ecosystemFormation: 'Formations certifiantes en ligne adaptées à votre profil et vos objectifs.',
+   972→    ecosystemFreelance: 'Gérez vos missions freelance, clients et facturation en toute simplicité.',
+   973→    // Ecosystem section
+   974→    ecosystemSectionTitle: "L'écosystème HireNova",
+   975→    ecosystemSectionSubtitle: 'Découvrez tous les outils IA conçus pour accompagner chaque étape de votre vie professionnelle, de la candidature au développement de carrière.',
+   976→    // LinkedIn module
+   977→    linkedinTitle: "Optimiseur de profil LinkedIn",
+   978→    linkedinSubtitle: "Analysez et améliorez votre profil LinkedIn grâce à l'IA pour attirer les recruteurs et décrocher plus d'opportunités.",
+   979→    linkedinStep1Title: 'Collez votre URL LinkedIn',
+   980→    linkedinStep1Desc: "Entrez l'URL de votre profil LinkedIn ou collez directement le contenu pour lancer l'analyse.",
+   981→    linkedinStep2Title: 'Analyse IA complète',
+   982→    linkedinStep2Desc: "Notre IA analyse votre headline, résumé, expériences, compétences et évalue la visibilité globale de votre profil.",
+   983→    linkedinStep3Title: 'Génération de contenu optimisé',
+   984→    linkedinStep3Desc: "Recevez des suggestions optimisées pour chaque section : headline percutante, résumé engageant, bullets d'expérience à impact.",
+   985→    linkedinAnalyze: 'Analyser mon profil',
+   986→    linkedinOptimize: 'Optimiser mon profil',
+   987→    linkedinGenerate: 'Générer du contenu',
+   988→    linkedinProfileTextPlaceholder: 'Collez ici le contenu de votre profil LinkedIn (headline, résumé, expérience, compétences) ou votre URL LinkedIn...',
+   989→    linkedinAnalyzing: 'Analyse en cours...',
+   990→    linkedinHeadlineAnalysis: 'Analyse du headline',
+   991→    linkedinSummaryReview: 'Revue du résumé',
+   992→    linkedinExperienceCritique: 'Critique de l\'expérience',
+   993→    linkedinSkillsGap: 'Analyse des compétences',
+   994→    linkedinOverallScore: 'Score global',
+   995→    linkedinRecommendations: 'Recommandations',
+   996→    linkedinBackToHome: 'Retour à l\'accueil',
+   997→    linkedinTryGenerator: 'Essayer le générateur',
+   998→    linkedinTargetJobTitle: 'Poste cible',
+   999→    linkedinKeyAchievements: 'Réalisations clés',
+  1000→    linkedinCurrentHeadline: 'Headline actuel',
+  1001→    linkedinCurrentSummary: 'Résumé actuel',
+  1002→    linkedinOptimizedHeadlines: 'Headlines optimisés',
+  1003→    linkedinOptimizedSummaries: 'Résumés optimisés',
+  1004→    linkedinExperienceBullets: 'Points d\'expérience',
+  1005→    linkedinSuggestedSkills: 'Compétences suggérées',
+  1006→    linkedinCopy: 'Copier',
+  1007→    linkedinCopied: 'Copié !',
+  1008→    linkedinExport: 'Exporter',
+  1009→    linkedinNoResults: 'Aucun résultat pour l\'instant.',
+  1010→    linkedinError: 'Une erreur est survenue.',
+  1011→    linkedinRetry: 'Réessayer',
+  1012→    linkedinAnalyzerCta: 'Analyser mon profil LinkedIn',
+  1013→    linkedinGeneratorCta: 'Générer du contenu optimisé',
+  1014→    linkedinScoreCta: 'Obtenir mon score',
+  1015→    linkedinProfileScore: 'Score de profil',
+  1016→    linkedinScoreExplanation: 'Évaluation complète de votre visibilité et attractivité sur LinkedIn',
+  1017→    linkedinStrengths: 'Forces',
+  1018→    linkedinWeaknesses: 'Axes d\'amélioration',
+  1019→    linkedinTips: 'Conseils',
+  1020→    linkedinVisibility: 'Visibilité',
+  1021→    linkedinKeywordOptimization: 'Optimisation mots-clés',
+  1022→    linkedinCompleteness: 'Complétude',
+  1023→    linkedinProfileText: 'Contenu du profil',
+  1024→    linkedinPasteUrlOrText: 'Collez l\'URL de votre profil LinkedIn ou le texte directement',
+  1025→    linkedinAnalyzeBtn: 'Lancer l\'analyse',
+  1026→    linkedinGenerateBtn: 'Générer',
+  1027→    linkedinIndustry: 'Secteur d\'activité',
+  1028→    linkedinAchievementsPlaceholder: 'Ex: Augmentation des ventes de 30%, gestion d\'équipe de 10 personnes, lancement d\'un projet international...',
+  1029→    linkedinHeadlinePlaceholder: 'Ex: Développeur Full Stack | React & Node.js',
+  1030→    linkedinSummaryPlaceholder: 'Votre résumé LinkedIn actuel...',
+  1031→    linkedinJobTitlePlaceholder: 'Ex: Développeur Full Stack, Chef de Projet Marketing...',
+  1032→    // Recruiter module
+  1033→    recruiterTitle: 'Pipeline de recrutement IA',
+  1034→    recruiterSubtitle: 'Trouvez les meilleurs talents grâce au matching intelligent et à la notation automatique des candidats.',
+  1035→    recruiterStep1Title: 'Publiez une offre ou importez des candidats',
+  1036→    recruiterStep1Desc: 'Créez une offre d\'emploi détaillée ou importez une base de candidats existante pour démarrer le processus.',
+  1037→    recruiterStep2Title: 'Matching IA et notation',
+  1038→    recruiterStep2Desc: "L'IA analyse les compétences, l'expérience et l'adéquation culturelle pour noter et classer chaque candidat.",
+  1039→    recruiterStep3Title: 'Gestion du pipeline',
+  1040→    recruiterStep3Desc: 'Pilotez votre pipeline de recrutement : planifiez les entretiens, suivez les étapes et prenez des décisions éclairées.',
+  1041→    recruiterMatching: 'Matching intelligent',
+  1042→    recruiterScoring: 'Notation candidats',
+  1043→    recruiterPipeline: 'Tableau de bord',
+  1044→    recruiterHomeTitle: 'Tableau de bord recruteur',
+  1045→    recruiterHomeSubtitle: 'Gérez vos offres et suivez votre pipeline de recrutement.',
+  1046→    recruiterOpenPositions: 'Postes ouverts',
+  1047→    recruiterTotalCandidates: 'Candidats totaux',
+  1048→    recruiterMatchRate: 'Taux de matching',
+  1049→    recruiterAvgTimeHire: 'Temps moyen d\'embauche',
+  1050→    recruiterQuickActions: 'Actions rapides',
+  1051→    recruiterNewJob: 'Nouvelle offre',
+  1052→    recruiterViewPipeline: 'Voir le pipeline',
+  1053→    recruiterFindCandidates: 'Trouver des candidats',
+  1054→    recruiterAIMatch: 'Matching IA',
+  1055→    recruiterRecentJobs: 'Offres récentes',
+  1056→    recruiterNoJobs: 'Aucune offre publiée. Créez votre première offre pour commencer.',
+  1057→    recruiterJobTitle: 'Poste',
+  1058→    recruiterJobDept: 'Département',
+  1059→    recruiterJobLocation: 'Localisation',
+  1060→    recruiterJobType: 'Type',
+  1061→    recruiterJobStatus: 'Statut',
+  1062→    recruiterPipelineTitle: 'Pipeline de recrutement',
+  1063→    recruiterPipelineSubtitle: 'Faites glisser les candidats entre les étapes.',
+  1064→    recruiterStageNew: 'Nouveau',
+  1065→    recruiterStageScreening: 'Sélection',
+  1066→    recruiterStageInterview: 'Entretien',
+  1067→    recruiterStageOffer: 'Offre',
+  1068→    recruiterStageHired: 'Embauché',
+  1069→    recruiterStageRejected: 'Refusé',
+  1070→    recruiterCandidatesTitle: 'Candidats',
+  1071→    recruiterCandidatesSubtitle: 'Parcourez et filtrez les candidats par score de matching.',
+  1072→    recruiterSearchCandidates: 'Rechercher un candidat...',
+  1073→    recruiterFilterSkills: 'Compétences',
+  1074→    recruiterFilterExperience: 'Expérience',
+  1075→    recruiterFilterScore: 'Score minimum',
+  1076→    recruiterAll: 'Tous',
+  1077→    recruiterClearFilters: 'Effacer les filtres',
+  1078→    recruiterMatchTitle: 'Matching IA',
+  1079→    recruiterMatchSubtitle: 'Collez une description de poste et trouvez les meilleurs candidats.',
+  1080→    recruiterPasteJobDesc: 'Description du poste',
+  1081→    recruiterPasteJobDescPlaceholder: 'Collez ici la description complète du poste (missions, compétences requises, expérience...)',
+  1082→    recruiterStartMatching: 'Lancer le matching IA',
+  1083→    recruiterMatchingProgress: 'L\'IA analyse et évalue les candidats...',
+  1084→    recruiterMatchResults: 'Résultats du matching',
+  1085→    recruiterNoResults: 'Aucun résultat. Essayez avec une description plus détaillée.',
+  1086→    recruiterScoreLabel: 'Score',
+  1087→    recruiterCandidate: 'Candidat',
+  1088→    recruiterBack: 'Retour',
+  1089→    recruiterDays: 'jours',
+  1090→    recruiterFullTime: 'Temps plein',
+  1091→    recruiterPartTime: 'Temps partiel',
+  1092→    recruiterContract: 'Contrat',
+  1093→    recruiterInternship: 'Stage',
+  1094→    recruiterOpen: 'Ouvert',
+  1095→    recruiterPaused: 'En pause',
+  1096→    recruiterClosed: 'Fermé',
+  1097→    recruiterFilled: 'Pourvu',
+  1098→    // Career module
+  1099→    careerTitle: 'Feuille de route de carrière',
+  1100→    careerSubtitle: 'Évaluez vos compétences, identifiez vos lacunes et construisez un plan de développement personnalisé.',
+  1101→    careerStep1Title: 'Bilan de compétences',
+  1102→    careerStep1Desc: 'Répondez à un questionnaire interactif pour évaluer vos compétences techniques, comportementales et votre niveau d\'expertise.',
+  1103→    careerStep2Title: 'Analyse IA des écarts',
+  1104→    careerStep2Desc: "L'IA identifie vos forces, vos faiblesses et les compétences à acquérir pour atteindre votre objectif professionnel.",
+  1105→    careerStep3Title: 'Plan de carrière personnalisé',
+  1106→    careerStep3Desc: 'Recevez une feuille de route détaillée avec des étapes concrètes, des formations recommandées et des échéances.',
+  1107→    careerAssessment: 'Bilan de compétences',
+  1108→    careerGaps: 'Analyse des écarts',
+  1109→    careerRoadmap: 'Plan personnalisé',
+  1110→    careerHomeTitle: 'HireNova Career',
+  1111→    careerHomeSubtitle: 'Explorez les parcours professionnels, évaluez vos compétences et obtenez une feuille de route personnalisée pour votre évolution.',
+  1112→    careerPaths: 'Parcours professionnels',
+  1113→    careerTech: 'Technologie / IT',
+  1114→    careerMarketing: 'Marketing / Communication',
+  1115→    careerFinance: 'Finance / Banque',
+  1116→    careerDesign: 'Design / UX',
+  1117→    careerData: 'Data Science / IA',
+  1118→    careerStartAssessment: 'Commencer le bilan',
+  1119→    careerRecentAssessments: 'Bilans récents',
+  1120→    careerNoAssessments: 'Aucun bilan réalisé. Commencez votre première évaluation !',
+  1121→    careerViewRoadmap: 'Voir la feuille de route',
+  1122→    careerViewSkills: 'Analyse des compétences',
+  1123→    careerAssessTitle: 'Bilan de compétences',
+  1124→    careerAssessSubtitle: 'Répondez à 12 questions pour évaluer votre profil professionnel.',
+  1125→    careerQ1: 'Quel est votre domaine d\'expertise principal ?',
+  1126→    careerQ2: 'Quel est votre niveau d\'expérience ?',
+  1127→    careerQ3: 'Quelle est votre plus grande force professionnelle ?',
+  1128→    careerQ4: 'Quelle compétence technique possédez-vous le plus ?',
+  1129→    careerQ5: 'Quel est votre niveau en leadership ?',
+  1130→    careerQ6: 'Comment gérez-vous les projets complexes ?',
+  1131→    careerQ7: 'Quelle est votre expérience en travail d\'équipe ?',
+  1132→    careerQ8: 'Quel est votre objectif professionnel à court terme ?',
+  1133→    careerQ9: 'Où vous voyez-vous dans 3 ans ?',
+  1134→    careerQ10: 'Quelle méthode d\'apprentissage préférez-vous ?',
+  1135→    careerQ11: 'Quels sont vos principaux outils numériques ?',
+  1136→    careerQ12: 'Quel est votre budget de formation mensuel ?',
+  1137→    careerQ1O1: 'Développement logiciel', careerQ1O2: 'Marketing digital', careerQ1O3: 'Finance & comptabilité', careerQ1O4: 'Design & UX',
+  1138→    careerQ2O1: 'Junior (0-2 ans)', careerQ2O2: 'Intermédiaire (2-5 ans)', careerQ2O3: 'Senior (5-10 ans)', careerQ2O4: 'Expert (10+ ans)',
+  1139→    careerQ3O1: 'Résolution de problèmes', careerQ3O2: 'Communication', careerQ3O3: 'Créativité', careerQ3O4: 'Organisation',
+  1140→    careerQ4O1: 'Programmation', careerQ4O2: 'Analyse de données', careerQ4O3: 'Gestion de projet', careerQ4O4: 'Design graphique',
+  1141→    careerQ5O1: 'Débutant — j\'ai besoin de développer ce skill', careerQ5O2: 'Moyen — j\'ai encadré de petites équipes', careerQ5O3: 'Avancé — je manage des équipes', careerQ5O4: 'Expert — je dirige des départements',
+  1142→    careerQ6O1: 'Méthode Agile (Scrum/Kanban)', careerQ6O2: 'Gestion traditionnelle en cascade', careerQ6O3: 'Approche hybride', careerQ6O4: 'Je n\'ai pas d\'expérience en gestion de projet',
+  1143→    careerQ7O1: 'Très importante — je collabore quotidiennement', careerQ7O2: 'Importante — travail en équipe régulier', careerQ7O3: 'Modérée — occasionnellement en équipe', careerQ7O4: 'Faible — je préfère travailler seul',
+  1144→    careerQ8O1: 'Obtenir une promotion', careerQ8O2: 'Changer de domaine', careerQ8O3: 'Développer de nouvelles compétences', careerQ8O4: 'Lancer mon projet',
+  1145→    careerQ9O1: 'Manager une équipe', careerQ9O2: 'Expert technique reconnu', careerQ9O3: 'Entrepreneur / Freelance', careerQ9O4: 'Directeur / Cadre supérieur',
+  1146→    careerQ10O1: 'Formations en ligne (e-learning)', careerQ10O2: 'Mentorat / Coaching', careerQ10O3: 'Projets pratiques', careerQ10O4: 'Certifications officielles',
+  1147→    careerQ11O1: 'Suite Google (Docs, Sheets, Slides)', careerQ11O2: 'Suite Microsoft 365', careerQ11O3: 'Outils de développement (VS Code, Git)', careerQ11O4: 'Outils de design (Figma, Adobe)',
+  1148→    careerQ12O1: 'Gratuit — ressources gratuites uniquement', careerQ12O2: '0-500 MAD / mois', careerQ12O3: '500-2000 MAD / mois', careerQ12O4: '2000+ MAD / mois',
+  1149→    careerProgress: 'Progression',
+  1150→    careerQuestion: 'Question',
+  1151→    careerOf: 'sur',
+  1152→    careerSubmit: 'Soumettre le bilan',
+  1153→    careerSubmitting: 'Analyse en cours...',
+  1154→    careerRoadmapTitle: 'Votre feuille de route carrière',
+  1155→    careerRoadmapSubtitle: 'Plan personnalisé généré par l\'IA basé sur votre bilan.',
+  1156→    careerShortTerm: 'Court terme (0-6 mois)',
+  1157→    careerMediumTerm: 'Moyen terme (6-18 mois)',
+  1158→    careerLongTerm: 'Long terme (18-36 mois)',
+  1159→    careerSkillsToAcquire: 'Compétences à acquérir',
+  1160→    careerCertifications: 'Certifications recommandées',
+  1161→    careerMilestones: 'Objectifs clés',
+  1162→    careerGenerateRoadmap: 'Générer la feuille de route',
+  1163→    careerGeneratingRoadmap: 'Génération en cours...',
+  1164→    careerBackToHome: 'Retour à l\'accueil',
+  1165→    careerBackToRoadmap: 'Retour à la feuille de route',
+  1166→    careerSkillsTitle: 'Analyse des écarts de compétences',
+  1167→    careerSkillsSubtitle: 'Vos compétences actuelles vs les exigences du poste cible.',
+  1168→    careerCurrentSkills: 'Compétences actuelles',
+  1169→    careerTargetSkills: 'Compétences requises',
+  1170→    careerGapSkills: 'Écarts identifiés',
+  1171→    careerRecommendedCourses: 'Formations recommandées',
+  1172→    careerSkillLevel: 'Niveau',
+  1173→    careerOverallScore: 'Score global de préparation',
+  1174→    careerReadinessScore: 'Indice de préparation',
+  1175→    careerNoData: 'Aucune donnée disponible. Commencez par un bilan de compétences.',
+  1176→    careerStartNewAssessment: 'Nouveau bilan',
+  1177→    // Coach module
+  1178→    coachTitle: 'Coach de carrière IA',
+  1179→    coachSubtitle: 'Un accompagnement personnalisé pour définir vos objectifs professionnels et suivre vos progrès.',
+  1180→    coachStep1Title: 'Définissez vos objectifs',
+  1181→    coachStep1Desc: 'Précisez vos ambitions professionnelles : changement de poste, transition de carrière, augmentation de responsabilités.',
+  1182→    coachStep2Title: 'Séance de coaching IA',
+  1183→    coachStep2Desc: 'Échangez avec votre coach IA qui vous pose les bonnes questions et vous aide à prendre du recul sur votre situation.',
+  1184→    coachStep3Title: 'Plan d\'action et suivi',
+  1185→    coachStep3Desc: 'Obtenez un plan d\'action concret avec des étapes mesurables et un suivi régulier de vos progrès.',
+  1186→    coachGoals: 'Objectifs',
+  1187→    coachSession: 'Séance de coaching',
+  1188→    coachTracking: 'Suivi des progrès',
+  1189→    // Coach module — pages
+  1190→    coachHomeTitle: 'Votre Coach IA',
+  1191→    coachHomeSubtitle: 'Développez votre potentiel avec un accompagnement personnalisé.',
+  1192→    coachSessionsCompleted: 'Séances complétées',
+  1193→    coachCurrentGoals: 'Objectifs en cours',
+  1194→    coachStreak: 'Jours consécutifs',
+  1195→    coachStartNewSession: 'Nouvelle séance',
+  1196→    coachViewGoals: 'Mes objectifs',
+  1197→    coachViewHistory: 'Historique',
+  1198→    coachQuickStart: 'Démarrage rapide',
+  1199→    coachCareerTransition: 'Transition de carrière',
+  1200→    coachSalaryNegotiation: 'Négociation salariale',
+  1201→    coachLeadership: 'Leadership',
+  1202→    coachWorkLifeBalance: 'Équilibre vie pro/perso',
+  1203→    coachMotivationalQuote: '"Chaque experts a commencé par un premier pas. Votre parcours professionnel est une série de décisions audacieuses."',
+  1204→    coachSessionTitle: 'Séance de coaching',
+  1205→    coachSessionSubtitle: 'Discutez avec votre coach IA pour avancer dans votre carrière.',
+  1206→    coachTypeMessage: 'Écrivez votre message...',
+  1207→    coachSending: 'Envoi...',
+  1208→    coachThinking: 'Le coach réfléchit...',
+  1209→    coachSuggestedTopics: 'Sujets suggérés',
+  1210→    coachTopicCareerChange: 'Changer de métier',
+  1211→    coachTopicSalary: 'Négocier mon salaire',
+  1212→    coachTopicLeadership: 'Développer mon leadership',
+  1213→    coachTopicWorkLife: 'Meilleur équilibre',
+  1214→    coachTopicNetworking: 'Réseauter efficacement',
+  1215→    coachEndSession: 'Terminer la séance',
+  1216→    coachEndSessionConfirm: 'Voulez-vous vraiment terminer cette séance ? Un résumé sera généré.',
+  1217→    coachSessionEnded: 'Séance terminée',
+  1218→    coachNewChat: 'Nouvelle discussion',
+  1219→    coachBackToCoachHome: 'Retour au coach',
+  1220→    coachGoalsTitle: 'Objectifs de carrière',
+  1221→    coachGoalsSubtitle: 'Définissez, suivez et accomplissez vos objectifs professionnels.',
+  1222→    coachAddGoal: 'Ajouter un objectif',
+  1223→    coachGoalTitle: 'Titre de l\'objectif',
+  1224→    coachGoalDescription: 'Description',
+  1225→    coachGoalCategory: 'Catégorie',
+  1226→    coachGoalPriority: 'Priorité',
+  1227→    coachGoalDeadline: 'Date limite',
+  1228→    coachGoalProgress: 'Progression',
+  1229→    coachGoalActions: 'Étapes d\'action',
+  1230→    coachGoalCompleted: 'Terminé',
+  1231→    coachCategoryGeneral: 'Général',
+  1232→    coachCategoryCareerTransition: 'Transition de carrière',
+  1233→    coachCategorySalary: 'Salaire',
+  1234→    coachCategoryLeadership: 'Leadership',
+  1235→    coachCategorySkills: 'Compétences',
+  1236→    coachCategoryWorkLife: 'Équilibre vie pro/perso',
+  1237→    coachPriorityLow: 'Basse',
+  1238→    coachPriorityMedium: 'Moyenne',
+  1239→    coachPriorityHigh: 'Haute',
+  1240→    coachSaveGoal: 'Enregistrer',
+  1241→    coachSaving: 'Enregistrement...',
+  1242→    coachDeleteGoal: 'Supprimer',
+  1243→    coachConfirmDelete: 'Supprimer cet objectif ?',
+  1244→    coachNoGoals: 'Aucun objectif défini. Commencez par ajouter votre premier objectif de carrière.',
+  1245→    coachSuggestedActions: 'Étapes d\'action suggérées par l\'IA',
+  1246→    coachHistoryTitle: 'Historique des séances',
+  1247→    coachHistorySubtitle: 'Revivez vos séances passées et retenez les points clés.',
+  1248→    coachSessionSummary: 'Résumé de la séance',
+  1249→    coachKeyTakeaways: 'Points clés',
+  1250→    coachActionItems: 'Actions à entreprendre',
+  1251→    coachViewTranscript: 'Voir le transcript',
+  1252→    coachNoHistory: 'Aucune séance passée. Commencez votre première séance de coaching.',
+  1253→    coachCloseTranscript: 'Fermer',
+  1254→    coachBack: 'Retour',
+  1255→    coachMarkComplete: 'Marquer comme terminé',
+  1256→    coachEditGoal: 'Modifier',
+  1257→    // Formation module
+  1258→    formationTitle: 'Catalogue de formations',
+  1259→    formationSubtitle: 'Formations, ateliers et certifications en ligne adaptés à votre profil et vos objectifs.',
+  1260→    formationStep1Title: 'Parcourez le catalogue',
+  1261→    formationStep1Desc: 'Explorez un catalogue de cours et ateliers classés par domaine, niveau et durée pour trouver la formation idéale.',
+  1262→    formationStep2Title: 'Inscrivez-vous et apprenez',
+  1263→    formationStep2Desc: 'Accédez au contenu pédagogique, suivez les modules à votre rythme et pratiquez avec des exercices interactifs.',
+  1264→    formationStep3Title: 'Obtenez votre certification',
+  1265→    formationStep3Desc: 'Validez vos acquis avec un examen final et obtenez une certification reconnue à valoriser sur votre profil.',
+  1266→    formationCatalog: 'Catalogue',
+  1267→    formationEnroll: "S'inscrire",
+  1268→    formationCertify: 'Certification',
+  1269→    // Freelance module
+  1270→    freelanceTitle: 'Place de marché freelance',
+  1271→    freelanceSubtitle: 'Trouvez des missions, proposez vos services et gérez vos paiements en toute sécurité.',
+  1272→    freelanceStep1Title: 'Créez votre profil ou parcourez les missions',
+  1273→    freelanceStep1Desc: 'Mettez en valeur vos compétences et votre portfolio, ou découvrez des missions correspondant à votre expertise.',
+  1274→    freelanceStep2Title: 'Postulez et négociez',
+  1275→    freelanceStep2Desc: 'Soumettez vos propositions, échangez avec les clients et négociez les conditions avant de vous engager.',
+  1276→    freelanceStep3Title: 'Livrez et encaissez',
+  1277→    freelanceStep3Desc: 'Réalisez la mission, livrez le travail et recevez votre paiement de manière sécurisée via la plateforme.',
+  1278→    freelanceBrowse: 'Parcourir les missions',
+  1279→    freelanceApply: 'Postuler',
+  1280→    freelanceDeliver: 'Livrer et facturer',
+  1281→    // Landing page sections
+  1282→    landingLinkedinTitle: 'Optimiseur LinkedIn',
+  1283→    landingLinkedinDesc: "Boostez votre visibilité sur LinkedIn avec des suggestions IA pour votre profil, votre headline et votre résumé.",
+  1284→    landingRecruiterTitle: 'Recrutement IA',
+  1285→    landingRecruiterDesc: 'Automatisez votre processus de recrutement avec le matching intelligent et la notation par IA.',
+  1286→    landingCareerTitle: 'Orientation de carrière',
+  1287→    landingCareerDesc: 'Identifiez vos forces, comblez vos lacunes et planifiez votre évolution professionnelle.',
+  1288→    landingCoachTitle: 'Coach IA',
+  1289→    landingCoachDesc: 'Bénéficiez d\'un accompagnement personnalisé pour atteindre vos objectifs professionnels.',
+  1290→    landingFormationTitle: 'Formation certifiante',
+  1291→    landingFormationDesc: 'Suivez des formations en ligne, obtenez des certifications et développez vos compétences.',
+  1292→    landingFreelanceTitle: 'Freelance',
+  1293→    landingFreelanceDesc: 'Trouvez des missions, gérez vos clients et sécurisez vos paiements en toute simplicité.',
+  1294→    // Chatbot modes
+  1295→    chatbotModeAdvisor: 'Conseiller carrière',
+  1296→    chatbotModeSupport: 'Support technique',
+  1297→    chatbotModeProducts: 'Découvrir les produits',
+  1298→    chatbotAdvisorTitle: 'Votre conseiller IA',
+  1299→    chatbotSupportTitle: "Besoin d'aide ?",
+  1300→    chatbotProductsTitle: 'Nos solutions',
+  1301→    pfStudentField1: 'Établissement',
+  1302→    pfStudentField1Ph: 'Ex: Université Hassan II',
+  1303→    pfStudentField2: 'Filière / Spécialité',
+  1304→    pfStudentField2Ph: 'Ex: Informatique, Gestion...',
+  1305→    pfStudentField3: "Année d\'étude",
+  1306→    pfStudentField3Ph: 'Ex: 3ème année Licence',
+  1307→    pfGraduateField1: 'Diplôme obtenu',
+  1308→    pfGraduateField1Ph: 'Ex: Master en Informatique',
+  1309→    pfGraduateField2: 'École / Université',
+  1310→    pfGraduateField2Ph: 'Ex: ENSEM, EMI...',
+  1311→    pfGraduateField3: "Année d\'obtention",
+  1312→    pfGraduateField3Ph: 'Ex: 2025',
+  1313→    pfProField1: "Nombre d\'années d\'expérience",
+  1314→    pfProField1Ph: 'Ex: 5 ans',
+  1315→    pfProField2: 'Secteur actuel',
+  1316→    pfProField2Ph: 'Ex: Banque, IT, Santé...',
+  1317→    pfProField3: 'Niveau de responsabilité',
+  1318→    pfProField3Ph: 'Ex: Chef de projet, Manager...',
+  1319→    pfExecField1: 'Fonction actuelle',
+  1320→    pfExecField1Ph: 'Ex: Directeur Général, CEO...',
+  1321→    pfExecField2: 'Nombre de collaborateurs dirigés',
+  1322→    pfExecField2Ph: 'Ex: 50 personnes',
+  1323→    pfExecField3: 'Résultats clés',
+  1324→    pfExecField3Ph: 'Ex: +30% CA, transformation digitale...',
+  1325→    pfExecField4: 'Certifications',
+  1326→    pfExecField4Ph: 'Ex: PMP, MBA, Six Sigma...',
+  1327→    pfFreeField1: 'Types de missions',
+  1328→    pfFreeField1Ph: 'Ex: Développement web, Consulting...',
+  1329→    pfFreeField2: 'Plateformes utilisées',
+  1330→    pfFreeField2Ph: 'Ex: Upwork, Malt, Fiverr...',
+  1331→    pfFreeField3: 'Tarif journalier (optionnel)',
+  1332→    pfFreeField3Ph: 'Ex: 500-800 MAD / jour',
+  1333→    pfExpatField1: "Pays d\'origine",
+  1334→    pfExpatField1Ph: 'Ex: Maroc',
+  1335→    pfExpatField2: 'Pays de destination',
+  1336→    pfExpatField2Ph: 'Ex: Canada, France, USA...',
+  1337→    pfExpatField3: 'Statut visa / permis',
+  1338→    pfExpatField3Ph: 'Ex: PVT Canada, Visa H1B...',
+  1339→    pfExpatField4: 'Langues parlées',
+  1340→    pfExpatField4Ph: 'Ex: Français, Anglais, Arabe',
+  1341→    clNoCvCreateCta: "Créer mon CV d\'abord",
+  1342→    authRequiredTitle: 'Créer un compte pour continuer',
+  1343→    authRequiredDesc: 'Connectez-vous ou créez un compte pour accéder à nos services de génération.',
+  1344→    subscriptionRequiredTitle: 'Abonnement requis',
+  1345→    subscriptionRequiredDesc: 'Souscrivez à un abonnement pour générer des CV, lettres de motivation et demandes.',
+  1346→    forgotPasswordTitle: 'Mot de passe oublié ?',
+  1347→    forgotPasswordDesc: 'Entrez votre email pour vérifier votre compte abonné.',
+  1348→    forgotPasswordButton: 'Réinitialiser mon mot de passe',
+  1349→    forgotPasswordEmail: 'Adresse e-mail',
+  1350→    forgotPasswordEmailPh: 'votre@email.com',
+  1351→    forgotPasswordVerify: 'Vérifier mon compte',
+  1352→    forgotPasswordVerifyDesc: 'Nous avons trouvé votre compte abonné. Définissez votre nouveau mot de passe.',
+  1353→    forgotPasswordUserFound: 'Compte abonné trouvé',
+  1354→    forgotPasswordNewPassword: 'Nouveau mot de passe',
+  1355→    forgotPasswordNewPasswordPh: 'Minimum 6 caractères',
+  1356→    forgotPasswordConfirm: 'Confirmer le nouveau mot de passe',
+  1357→    forgotPasswordSuccess: 'Mot de passe mis à jour avec succès !',
+  1358→    forgotPasswordBackToLogin: 'Retour à la connexion',
+  1359→    forgotPasswordNoAccount: 'Aucun compte trouvé avec cet email.',
+  1360→    forgotPasswordNoPlan: 'Ce compte n\'a pas d\'abonnement actif. Veuillez d\'abord souscrire à un plan.',
+  1361→    forgotPasswordError: 'Erreur lors de la réinitialisation.',
+  1362→    codeSendBtn: 'Envoyer le code de vérification',
+  1363→    codeEnterTitle: 'Saisissez le code',
+  1364→    codeEnterDesc: 'Entrez le code à 6 chiffres envoyé à votre email.',
+  1365→    codeSentTo: 'Code envoyé à',
+  1366→    codeSentDevNote: 'Code (mode développement)',
+  1367→    codeSubscriberOnly: 'La réinitialisation du mot de passe est réservée aux abonnés avec un plan actif.',
+  1368→    codeVerifying: 'Vérification du code...',
+  1369→    codeExpiresIn: 'Expire dans',
+  1370→    codeResend: 'Renvoyer un nouveau code',
+  1371→    codeResent: 'Nouveau code envoyé !',
+  1372→    codeChangeEmail: 'Changer d\'email',
+  1373→    codeWrong: 'Code incorrect. Veuillez réessayer.',
+  1374→    codeExpired: 'Le code a expiré. Veuillez demander un nouveau code.',
+  1375→    codeNoCode: 'Aucun code en attente. Veuillez recommencer.',
+  1376→    codePasswordMismatch: 'Les mots de passe ne correspondent pas.',
+  1377→    codeSuccessDesc: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+  1378→    // ATS Analysis
+  1379→    atsAnalyzeBtn: 'Analyser mon score ATS',
+  1380→    atsAnalyzing: "L'IA analyse votre CV...",
+  1381→    atsAnalyzingSubtitle: 'Évaluation de la compatibilité ATS en cours',
+  1382→    atsOverallScore: 'Score ATS Global',
+  1383→    atsScoreLabel: 'Score ATS',
+  1384→    atsCategoryKeywords: 'Mots-clés & SEO',
+  1385→    atsCategoryKeywordsDesc: 'Pertinence des mots-clés pour le poste visé',
+  1386→    atsCategoryStructure: 'Structure & Format',
+  1387→    atsCategoryStructureDesc: 'Structure du CV et formatage compatible ATS',
+  1388→    atsCategoryExperience: 'Expérience & Impact',
+  1389→    atsCategoryExperienceDesc: 'Qualité et impact des descriptions d\'expérience',
+  1390→    atsCategorySkills: 'Adéquation Compétences',
+  1391→    atsCategorySkillsDesc: 'Alignement des compétences avec le poste visé',
+  1392→    atsCategoryReadability: 'Lisibilité',
+  1393→    atsCategoryReadabilityDesc: 'Clarté du texte et ton professionnel',
+  1394→    atsSuggestions: 'Suggestions d\'optimisation',
+  1395→    atsSuggestionGood: 'Votre CV est bien optimisé pour les systèmes ATS !',
+  1396→    atsReAnalyze: 'Ré-analyser',
+  1397→    atsClose: 'Fermer',
+  1398→    atsPoweredBy: 'Propulsé par HireNova ATS',
+  1399→    // SEO & FAQ
+  1400→    seoTitle: 'Questions fréquentes sur HireNova — CV, Lettre de Motivation & Score ATS',
+  1401→    faqTitle: 'Questions Fréquentes',
+  1402→    faqSubtitle: 'Tout ce que vous devez savoir sur HireNova et nos outils IA pour votre recherche d\'emploi.',
+  1403→    faqQ1: 'Comment fonctionne HireNova pour créer un CV ?',
+  1404→    faqA1: 'HireNova utilise une intelligence artificielle avancée pour analyser vos informations professionnelles et générer un CV sur mesure. Remplissez le formulaire en 4 étapes (informations personnelles, projet professionnel, expérience & formation, compétences), choisissez votre template (Moderne, Classique ou Créatif), et l\'IA rédige un CV professionnel optimisé pour les systèmes ATS en moins de 60 secondes.',
+  1405→    faqQ2: 'Qu\'est-ce que le score ATS et pourquoi est-il important ?',
+  1406→    faqA2: 'Le score ATS (Applicant Tracking System) mesure la compatibilité de votre CV avec les logiciels de recrutement automatiques utilisés par plus de 75% des entreprises. HireNova analyse votre CV sur 5 critères : mots-clés & SEO, structure & format, expérience & impact, adéquation des compétences, et lisibilité. Un score élevé augmente vos chances de passer les premiers filtres de recrutement.',
+  1407→    faqQ3: 'Puis-je créer un CV en plusieurs langues ?',
+  1408→    faqA3: 'Oui ! HireNova est disponible en 4 langues : français, anglais, arabe et espagnol. L\'IA adapte le vocabulaire, le style et la mise en forme à chaque langue. Vous pouvez créer votre CV dans la langue de votre choix et même générer des versions multilingues pour des candidatures internationales.',
+  1409→    faqQ4: 'Combien coûte HireNova ?',
+  1410→    faqA4: 'HireNova propose 5 plans payants : Starter à 9€/mois pour les étudiants, Pro à 19€/mois pour les chercheurs d’emploi actifs (le plus populaire), Career+ à 39€/mois pour les cadres (inclut Mobilité & Global), Employeur à 49€/mois pour les recruteurs, et Enterprise sur devis pour les grandes entreprises. Un plan Annuel à 70€/an est également disponible. Un plan Gratuit permet de découvrir l’outil avec 2 CV/mois. Une API REST est disponible pour les développeurs.',
+  1411→    faqQ5: 'Puis-je télécharger mon CV en PDF et Word ?',
+  1412→    faqA5: 'Absolument ! Avec les plans Pro et Annuel, vous pouvez télécharger votre CV en PDF (format standard A4) et en Word (.doc). Les deux formats sont parfaitement optimisés pour l\'impression et le partage par email. Le PDF préserve la mise en page, tandis que le Word permet des modifications ultérieures.',
+  1413→    faqQ6: 'Comment fonctionne la lettre de motivation IA ?',
+  1414→    faqA6: 'HireNova génère une lettre de motivation personnalisée à partir de vos informations et de l\'offre d\'emploi visée. Indiquez le nom de l\'entreprise, le poste, le recruteur, vos motivations et vos points forts. L\'IA rédige une lettre persuasive, adaptée au ton choisi (formel, semi-formel ou dynamique), en 30 secondes.',
+  1415→    faqQ7: 'Mes données personnelles sont-elles en sécurité ?',
+  1416→    faqA7: 'Oui, la sécurité de vos données est notre priorité. Vos informations sont chiffrées et ne sont jamais partagées avec des tiers. Nous utilisons des protocoles de sécurité standards (HTTPS, chiffrement des données au repos). Vous pouvez supprimer votre compte et toutes vos données à tout moment depuis votre espace personnel.',
+  1417→    faqQ8: 'HireNova fonctionne-t-il pour les candidats internationaux ?',
+  1418→    faqA8: 'Oui ! HireNova est conçu pour les candidats du monde entier. Nous supportons les paiements en euros (EUR), dollars américains (USD) et livres sterling (GBP). Notre service est accessible depuis 16 pays en Europe, Amériques, Océanie et Golfe. Les CV générés sont adaptés aux standards internationaux et optimisés pour les recruteurs francophones et anglophones.',
+  1419→    trustTitle: 'La confiance de Nos Candidats',
+  1420→    trustSubtitle: 'Rejoignez une communauté grandissante de professionnels qui réussissent leur recherche d\'emploi avec HireNova.',
+  1421→    trustStats: 'Utilisateurs satisfaits',
+  1422→    trustGuarantee: 'Notre seul objectif, c\'est votre satisfaction.',
+  1423→  },
+  1424→  en: {
+  1425→    siteTitle: 'HireNova',
+  1426→    siteSubtitle: 'Generate a professional resume in 60 seconds',
+  1427→    siteDescription:
+  1428→      'Our AI writes an ATS-optimized resume, perfectly tailored to your target role.',
+  1429→    cta: 'Create my resume now',
+  1430→    step1Title: 'Personal Information',
+  1431→    step2Title: 'Career Goals',
+  1432→    step3Title: 'Experience & Education',
+  1433→    step4Title: 'Skills & Summary',
+  1434→    fullName: 'Full Name',
+  1435→    email: 'Email Address',
+  1436→    phone: 'Phone',
+  1437→    phoneCountry: 'Country',
+  1438→    phoneCountryPlaceholder: 'Select country...',
+  1439→    phoneNumber: 'Phone number',
+  1440→    address: 'Full Address',
+  1441→    location: 'City / Country',
+  1442→    linkedin: 'LinkedIn (optional)',
+  1443→    website: 'Website (optional)',
+  1444→    photo: 'Profile Photo',
+  1445→    photoPlaceholder: 'Click or drag a photo here',
+  1446→    photoRemove: 'Remove',
+  1447→    photoNote: 'Not recommended for English resumes (anti-discrimination practice). Recommended for French and Arabic CVs.',
+  1448→    targetJob: 'Target Position',
+  1449→    industry: 'Industry',
+  1450→    experience: 'Work Experience',
+  1451→    experiencePlaceholder:
+  1452→      'Describe your previous roles (e.g. Web Developer at ABC Corp from 2020 to 2023 - responsibilities, projects, results...)',
+  1453→    education: 'Education',
+  1454→    educationPlaceholder:
+  1455→      'Describe your degrees (e.g. Master\'s in Computer Science at University X from 2016 to 2020...)',
+  1456→    skills: 'Skills',
+  1457→    skillsPlaceholder:
+  1458→      'List your technical and soft skills separated by commas (e.g. JavaScript, React, project management, teamwork...)',
+  1459→    languages: 'Spoken Languages',
+  1460→    languagesPlaceholder:
+  1461→      'List your languages with level (e.g. French - native, English - fluent, Arabic - intermediate...)',
+  1462→    summary: 'Professional Summary (optional)',
+  1463→    summaryPlaceholder:
+  1464→      'A short paragraph describing your profile, strengths, and career ambitions...',
+  1465→    next: 'Next',
+  1466→    previous: 'Previous',
+  1467→    generate: 'Generate my resume with AI',
+  1468→    generating: 'AI is writing your resume...',
+  1469→    generatingSubtitle:
+  1470→      'Analyzing your information and creating optimized content',
+  1471→    downloadPdf: 'Download PDF',
+  1472→    downloadWord: 'Download Word',
+  1473→    downloadFormat: 'Download format',
+  1474→    startOver: 'Create another resume',
+  1475→    previewTitle: 'Your resume is ready!',
+  1476→    feature1Title: 'Advanced AI',
+  1477→    feature1Desc:
+  1478→      'Our AI analyzes your information and generates professional, optimized content for each section of your resume.',
+  1479→    feature2Title: 'Multilingual',
+  1480→    feature2Desc:
+  1481→      'Create your resume in French, English, Spanish, or Arabic. The AI adapts vocabulary and style to each language.',
+  1482→    feature3Title: 'ATS Optimized',
+  1483→    feature3Desc:
+  1484→      'Your resumes are structured to pass automatic filters of recruitment software.',
+  1485→    feature4Title: '3 Templates',
+  1486→    feature4Desc:
+  1487→      'Choose from 3 professional designs: Modern, Classic, or Creative.',
+  1488→    templateModern: 'Modern',
+  1489→    templateClassic: 'Classic',
+  1490→    templateCreative: 'Creative',
+  1491→    templateLabel: 'Template',
+  1492→    languageLabel: 'Resume Language',
+  1493→    dateOfBirth: 'Date of Birth',
+  1494→    birthPlace: 'Place of Birth',
+  1495→    birthCountry: 'Country of Birth',
+  1496→    birthCountryPlaceholder: 'Morocco, France, Algeria...',
+  1497→    softSkills: 'Soft Skills (optional)',
+  1498→    softSkillsPlaceholder: 'List your soft skills separated by commas (e.g. leadership, communication, problem-solving, adaptability...)',
+  1499→    personalInfo: 'Birth Information',
+  1500→    required: 'This field is required',
+  1501→    errorFillFields: 'Please fill in all required fields',
+  1502→    footerText: 'All rights reserved',
+  1503→    footerMadeWith: 'Powered by',
+  1504→    freeNoSignup: 'Generate a pro resume in 60 seconds',
+  1505→    ctaReadyTitle: 'Ready to create your resume?',
+  1506→    ctaReadyDesc: 'In less than 2 minutes, you\'ll have a professional resume ready to send.',
+  1507→    photoPosition: 'Photo Position',
+  1508→    photoPositionLeft: 'Left',
+  1509→    photoPositionCenter: 'Center',
+  1510→    photoPositionRight: 'Right',
+  1511→    availableLangs: 'Available in French, English, Spanish, and Arabic',
+  1512→    // Cover letter
+  1513→    clTitle: 'Cover Letter',
+  1514→    clSubtitle: 'Generate a persuasive cover letter in 30 seconds',
+  1515→    clDescription: 'Our AI writes a personalized cover letter, perfectly tailored to the job posting. Available in French, English, Arabic, and Spanish.',
+  1516→    clCta: 'Create my cover letter',
+  1517→    clBackToCv: 'Back to CV',
+  1518→    clCompanyName: 'Company Name',
+  1519→    clCompanyNamePlaceholder: 'E.g. Google, Renault, Société Générale...',
+  1520→    clHiringManager: 'Hiring Manager (optional)',
+  1521→    clHiringManagerPlaceholder: 'E.g. Mr. Smith, Ms. Johnson...',
+  1522→    clJobTitle: 'Job Title',
+  1523→    clJobTitlePlaceholder: 'E.g. Full-Stack Developer, Project Manager...',
+  1524→    clJobReference: 'Job Reference (optional)',
+  1525→    clJobReferencePlaceholder: 'E.g. REF-2024-123...',
+  1526→    clWhyCompany: 'Why this company? (optional)',
+  1527→    clWhyCompanyPlaceholder: 'E.g. I appreciate your commitment to innovation and sustainability...',
+  1528→    clKeyStrengths: 'Key strengths to highlight (optional)',
+  1529→    clKeyStrengthsPlaceholder: 'E.g. 5 years of project management experience, PMP certification...',
+  1530→    clTone: 'Letter Tone',
+  1531→    clToneFormal: 'Formal',
+  1532→    clToneSemiFormal: 'Semi-formal',
+  1533→    clToneDynamic: 'Dynamic',
+  1534→    clAdditionalNotes: 'Additional notes (optional)',
+  1535→    clAdditionalNotesPlaceholder: 'Any additional information you want to include...',
+  1536→    clGenerate: 'Generate my cover letter with AI',
+  1537→    clGenerating: 'AI is writing your cover letter...',
+  1538→    clGeneratingSubtitle: 'Analyzing the position and creating personalized content',
+  1539→    clPreviewTitle: 'Your cover letter is ready!',
+  1540→    clDownloadPdf: 'Download PDF',
+  1541→    clDownloadWord: 'Download Word',
+  1542→    clStartOver: 'Create another letter',
+  1543→    clAlsoGenerate: 'Also generate a cover letter',
+  1544→    clStep1: 'Your Information',
+  1545→    clStep2: 'Target Position',
+  1546→    clFeatureTitle: 'AI Cover Letter',
+  1547→    clFeatureDesc: 'Generate a personalized and persuasive cover letter, tailored to each job posting.',
+  1548→    clReadyTitle: 'Ready to create your letter?',
+  1549→    clReadyDesc: 'In less than a minute, you\'ll have a professional cover letter ready to send.',
+  1550→    clAddress: 'Physical Address (optional)',
+  1551→    clCountry: 'Country',
+  1552→    clCountryPlaceholder: 'Select country...',
+  1553→    clLinkedToCv: 'Linked CV detected',
+  1554→    clLinkedToCvDesc: 'Your generated CV will automatically be used to personalize this cover letter.',
+  1555→    clNoCvLinked: 'No CV linked',
+  1556→    clNoCvLinkedDesc: 'Create a CV first so the cover letter is automatically enriched with your experience and skills.',
+  1557→    // Simultaneous generation
+  1558→    tabCv: 'Resume',
+  1559→    tabCoverLetter: 'Cover Letter',
+  1560→    generatingBoth: 'AI is writing your resume and cover letter...',
+  1561→    generatingBothSubtitle: 'Analyzing your information and creating both documents simultaneously',
+  1562→    companyNameForCl: 'Target company (for cover letter)',
+  1563→    companyNameForClPlaceholder: 'E.g. Google, Renault, Société Générale...',
+  1564→    hiringManagerForCl: 'Hiring manager (optional)',
+  1565→    hiringManagerForClPlaceholder: 'E.g. Mr. Smith, Ms. Johnson...',
+  1566→    clToneForCl: 'Cover letter tone',
+  1567→    step2TitleNew: 'Career Goals & Cover Letter',
+  1568→    generatingCv: 'Writing resume...',
+  1569→    generatingCl: 'Writing cover letter...',
+  1570→    generatingClDone: 'Cover letter generated!',
+  1571→    generatingCvDone: 'Resume generated!',
+  1572→    cvAndClReady: 'Your resume and cover letter are ready!',
+  1573→    // Pricing & Auth
+  1574→    pricingTitle: 'Simple & transparent pricing',
+  1575→    pricingSubtitle: 'Choose the plan that suits you',
+  1576→    planFree: 'Free',
+  1577→    planFreePrice: '$0',
+  1578→    planFreeDesc: 'To discover our tool',
+  1579→    planPro: 'Pro',
+  1580→    planProPrice: '$19.99',
+  1581→    planProDesc: 'For active job seekers',
+  1582→    planProPopular: 'Most popular',
+  1583→    planAnnual: 'Annual',
+  1584→    planAnnualPrice: '$70',
+  1585→    planAnnualDesc: 'Perfect for a full year of job hunting',
+  1586→    planAnnualBest: 'Best value',
+  1587→    planStarter: 'Starter',
+  1588→    planStarterPrice: '$9.99',
+  1589→    planStarterDesc: 'Students & recent graduates',
+  1590→    planStarterBadge: 'New',
+  1591→    planCareer: 'Career+',
+  1592→    planCareerPrice: '$39.99',
+  1593→    planCareerDesc: 'Executives & advanced career',
+  1594→    planCareerBadge: 'Premium',
+  1595→    planEmployer: 'Employer',
+  1596→    planEmployerPrice: '$49.99',
+  1597→    planEmployerDesc: 'Recruiters & companies',
+  1598→    planEmployerBadge: 'Business',
+  1599→    planEnterprise: 'Enterprise',
+  1600→    planEnterpriseDesc: 'Large enterprises',
+  1601→    planEnterpriseBadge: 'Custom',
+  1602→    planEnterpriseCta: 'Contact sales',
+  1603→    entFormTitle: 'Request an Enterprise quote',
+  1604→    entFormSubtitle: 'Let\'s talk about your project. Our team will get back to you within 24-48h with a tailored proposal.',
+  1605→    entFormContactName: 'Full name',
+  1606→    entFormContactNamePh: 'John Doe',
+  1607→    entFormWorkEmail: 'Work email',
+  1608→    entFormWorkEmailPh: 'john.doe@company.com',
+  1609→    entFormWorkEmailHint: 'Use your work email (no personal email)',
+  1610→    entFormPhone: 'Phone',
+  1611→    entFormPhonePh: '+1 555 123 4567',
+  1612→    entFormCompanyName: 'Company name',
+  1613→    entFormCompanyNamePh: 'Acme Corp',
+  1614→    entFormJobTitle: 'Your role',
+  1615→    entFormJobTitlePh: 'HR Director, CTO, CEO…',
+  1616→    entFormIndustry: 'Industry',
+  1617→    entFormIndustryPh: 'Banking, Tech, Healthcare, Retail…',
+  1618→    entFormCompanySize: 'Company size',
+  1619→    entFormCompanySizeOpt1: '1-10 employees',
+  1620→    entFormCompanySizeOpt2: '11-50 employees',
+  1621→    entFormCompanySizeOpt3: '51-200 employees',
+  1622→    entFormCompanySizeOpt4: '201-1000 employees',
+  1623→    entFormCompanySizeOpt5: '1000+ employees',
+  1624→    entFormCountry: 'Country',
+  1625→    entFormCountryPh: 'France, Morocco, Spain…',
+  1626→    entFormWebsite: 'Website',
+  1627→    entFormWebsitePh: 'https://company.com',
+  1628→    entFormUsersCount: 'Expected users',
+  1629→    entFormUsersCountOpt1: '1-50 users',
+  1630→    entFormUsersCountOpt2: '51-200 users',
+  1631→    entFormUsersCountOpt3: '201-1000 users',
+  1632→    entFormUsersCountOpt4: '1000+ users',
+  1633→    entFormUseCase: 'Main use case',
+  1634→    entFormUseCaseOpt1: 'Resume generation',
+  1635→    entFormUseCaseOpt2: 'ATS analysis',
+  1636→    entFormUseCaseOpt3: 'Recruiting & job postings',
+  1637→    entFormUseCaseOpt4: 'API integration',
+  1638→    entFormUseCaseOpt5: 'All / full solution',
+  1639→    entFormBudget: 'Estimated annual budget',
+  1640→    entFormBudgetOpt1: 'Less than $5,000',
+  1641→    entFormBudgetOpt2: '$5,000 - $20,000',
+  1642→    entFormBudgetOpt3: '$20,000 - $50,000',
+  1643→    entFormBudgetOpt4: 'More than $50,000',
+  1644→    entFormBudgetOpt5: 'To be discussed',
+  1645→    entFormMessage: 'Your message',
+  1646→    entFormMessagePh: 'Describe your needs: number of users, expected integrations (SSO, API, ATS), specific constraints, timelines…',
+  1647→    entFormMessageHint: 'Minimum 20 characters',
+  1648→    entFormSubmit: 'Send request',
+  1649→    entFormSubmitting: 'Sending…',
+  1650→    entFormSuccess: 'Request sent!',
+  1651→    entFormSuccessDesc: 'Thank you! Our Enterprise team will contact you within 24-48 business hours with a tailored proposal. A confirmation has been sent to your work email.',
+  1652→    entFormSuccessCta: 'Close',
+  1653→    entFormError: 'Error sending. Try again or write to hello@hirenova.com',
+  1654→    entFormRequired: 'This field is required',
+  1655→    planApi: 'API',
+  1656→    planApiDesc: 'Developers & integrators',
+  1657→    planApiBadge: 'Developers',
+  1658→    planApiCta: 'View API portal',
+  1659→    pricingAnnual: '/year',
+  1660→    pricingAnnualUsd: '/year',
+  1661→    pricingAnnualPriceUsd: '$79',
+  1662→    pricingAnnualGbp: '/year',
+  1663→    pricingAnnualPriceGbp: '£59',
+  1664→    pricingProPriceGbp: '£15.99',
+  1665→    pricingMonthlyGbp: '/month',
+  1666→    pricingStarterPriceUsd: '$9.99',
+  1667→    pricingStarterPriceGbp: '£7.99',
+  1668→    pricingCareerPriceUsd: '$39.99',
+  1669→    pricingCareerPriceGbp: '£31.99',
+  1670→    pricingEmployerPriceUsd: '$49.99',
+  1671→    pricingEmployerPriceGbp: '£39.99',
+  1672→    pricingCv: 'Resume generations',
+  1673→    pricingTemplates: 'Premium templates',
+  1674→    pricingPdf: 'PDF download',
+  1675→    pricingWord: 'Word download',
+  1676→    pricingCoverLetter: 'AI cover letter',
+  1677→    pricingNoWatermark: 'No watermark',
+  1678→    pricingAtsScore: 'Detailed ATS score',
+  1679→    pricingPriority: 'Priority generation',
+  1680→    pricingMonthly: '/month',
+  1681→    pricingCurrency: 'Currency',
+  1682→    pricingProPriceUsd: '$19.99',
+  1683→    pricingMonthlyUsd: '/month',
+  1684→    pricingStartFree: 'Start for free',
+  1685→    pricingCvLimit2: '2 resumes / month',
+  1686→    pricingCvLimit10: '10 resumes / month',
+  1687→    pricingCvUnlimited: 'Unlimited resumes',
+  1688→    pricingClLimit1: '1 letter / month',
+  1689→    pricingClLimit5: '5 letters / month',
+  1690→    pricingClUnlimited: 'Unlimited letters',
+  1691→    pricingTemplate1: '1 basic template',
+  1692→    pricingTemplate3: '3 premium templates',
+  1693→    pricingTemplate5: '5 premium templates',
+  1694→    pricingWatermark: 'With watermark',
+  1695→    pricingAtsBasic: 'Basic ATS score',
+  1696→    pricingAtsDetailed: 'Detailed ATS score',
+  1697→    pricingMobility: 'HireNova Mobility (OCR + AI)',
+  1698→    pricingGlobalJobs: 'HireNova Global (40+ countries)',
+  1699→    pricingCoach: 'AI career coach',
+  1700→    pricingPrioritySupport: 'Priority support',
+  1701→    pricingJobPostings: 'Unlimited job postings',
+  1702→    pricingRecruiterDashboard: 'Recruiter dashboard',
+  1703→    pricingCandidateSearch: 'Candidate search',
+  1704→    pricingMultiSeats: 'Multi-seats',
+  1705→    pricingCsvExport: 'Applications CSV export',
+  1706→    pricingApiAccess: 'REST API (high quota)',
+  1707→    pricingSso: 'SSO (SAML/OAuth)',
+  1708→    pricingDedicatedSupport: 'Dedicated 24/7 support',
+  1709→    pricingSla: 'SLA 99.9%',
+  1710→    pricingTeamTraining: 'Team training',
+  1711→    pricingCustomBilling: 'Custom billing',
+  1712→    pricingApiRest: 'REST API access',
+  1713→    pricingApiEndpoints: 'Endpoints: Resume, Letter, ATS',
+  1714→    pricingApiUsage: 'Usage-based billing',
+  1715→    pricingApiDocs: 'Full documentation',
+  1716→    pricingApiSecure: 'Secure API key',
+  1717→    pricingEnterpriseTitle: 'Enterprise',
+  1718→    pricingApiTitle: 'API & Developers',
+  1719→    pricingCompareTitle: 'Compare plans',
+  1720→    loginTitle: 'Sign In',
+  1721→    registerTitle: 'Create an account',
+  1722→    loginEmail: 'Email address',
+  1723→    loginPassword: 'Password',
+  1724→    loginButton: 'Sign in',
+  1725→    registerButton: 'Create my account',
+  1726→    loginNoAccount: "Don't have an account?",
+  1727→    registerHasAccount: 'Already have an account?',
+  1728→    loginName: 'Full name',
+  1729→    loginSuccess: 'Successfully signed in!',
+  1730→    registerSuccess: 'Account created successfully!',
+  1731→    loginError: 'Invalid email or password',
+  1732→    registerError: 'This email is already in use',
+  1733→    profileMenu: 'My account',
+  1734→    myAccount: 'My account',
+  1735→    mySpace: 'My Space',
+  1736→    logout: 'Sign out',
+  1737→    remainingCvs: 'Resumes remaining this month',
+  1738→    remainingCls: 'Letters remaining this month',
+  1739→    upgradeToPro: 'Upgrade to Pro',
+  1740→    pricingFeatureIncluded: '✓',
+  1741→    pricingFeatureExcluded: '✕',
+  1742→    paymobLabel: 'Pay with Floos / Paymob',
+  1743→    paymobDesc: 'Bank card, mobile wallet, CashPlus, etc.',
+  1744→    paymobProPrice: '70 MAD',
+  1745→    paymobLifetimePrice: '300 MAD',
+  1746→    paymobMonthly: '/month',
+  1747→    paymobOneTime: 'one time',
+  1748→    paymobMethods: 'Payment methods',
+  1749→    paymobCard: 'CMI Card, Visa, Mastercard',
+  1750→    paymobWallet: 'Floos, CashPlus, MTN MoMo',
+  1751→    paymobAfrica: '🌍 Payment for Africa',
+  1752→    // Personas
+  1753→    personaStudent: 'Student',
+  1754→    personaGraduate: 'Recent Graduate',
+  1755→    personaProfessional: 'Professional',
+  1756→    personaExecutive: 'Executive',
+  1757→    personaFreelance: 'Freelance',
+  1758→    personaExpat: 'Expat',
+  1759→    personaStudentDesc: 'Looking for an internship or first job',
+  1760→    personaGraduateDesc: 'Recent graduate entering the job market',
+  1761→    personaProfessionalDesc: 'Professional seeking career growth',
+  1762→    personaExecutiveDesc: 'Senior executive with leadership experience',
+  1763→    personaFreelanceDesc: 'Independent worker seeking projects',
+  1764→    personaExpatDesc: 'International professional on the move',
+  1765→    personaChoose: 'Choose this profile',
+  1766→    ctaChooseProfile: 'Create my resume',
+  1767→    personaFieldsTitle: 'Profile-specific information',
+  1768→    internshipRequest: 'Internship Request',
+  1769→    internshipRequestDesc: 'Tailor the CV and cover letter for an internship search.',
+  1770→    jobRequest: 'Job Application',
+  1771→    jobRequestDesc: "Tailor the CV and cover letter for a job search.",
+  1772→    applicationType: 'Application type',
+  1773→    importCvTitle: 'Import your existing CV',
+  1774→    importCvDesc: 'Import an existing CV (PDF, Word or text) and AI will professionally reformat it with your chosen template.',
+  1775→    importCvBtn: 'Import my CV',
+  1776→    importCvSuccess: 'CV imported successfully! Fields have been auto-filled.',
+  1777→    importCvParsing: 'Analyzing your CV...',
+  1778→    roadmapTitle: 'Roadmap',
+  1779→    ecosystemTitle: 'The HireNova Ecosystem',
+  1780→    ecosystemDesc: 'A complete suite of AI tools to transform your career journey, from applications to career growth.',
+  1781→    ecosystemCv: 'Create ATS-optimized professional resumes in 60 seconds with AI.',
+  1782→    ecosystemAts: 'Analyze and optimize your resume\'s ATS score to pass automated filters.',
+  1783→    ecosystemInterview: 'Prepare for interviews with AI simulations and personalized questions.',
+  1784→    ecosystemLinkedin: 'Optimize your LinkedIn profile to attract recruiters.',
+  1785→    ecosystemRecruiter: 'Find top talent with AI-powered intelligent matching.',
+  1786→    ecosystemCareer: 'Guide your career with personalized advice and growth plans.',
+  1787→    ecosystemCoach: 'A personal AI coach to guide your professional development.',
+  1788→    ecosystemFormation: 'Certified online training tailored to your profile and goals.',
+  1789→    ecosystemFreelance: 'Manage freelance missions, clients, and billing effortlessly.',
+  1790→    // Ecosystem section
+  1791→    ecosystemSectionTitle: 'The HireNova Ecosystem',
+  1792→    ecosystemSectionSubtitle: 'Discover all the AI tools designed to support every step of your professional life, from applications to career development.',
+  1793→    // LinkedIn module
+  1794→    linkedinTitle: 'LinkedIn Profile Optimizer',
+  1795→    linkedinSubtitle: 'Analyze and improve your LinkedIn profile with AI to attract recruiters and unlock more opportunities.',
+  1796→    linkedinStep1Title: 'Paste your LinkedIn URL',
+  1797→    linkedinStep1Desc: 'Enter your LinkedIn profile URL or paste the content directly to start the analysis.',
+  1798→    linkedinStep2Title: 'Comprehensive AI Analysis',
+  1799→    linkedinStep2Desc: 'Our AI analyzes your headline, summary, experience, skills, and evaluates your overall profile visibility.',
+  1800→    linkedinStep3Title: 'Optimized Content Generation',
+  1801→    linkedinStep3Desc: 'Receive optimized suggestions for each section: a compelling headline, an engaging summary, and high-impact experience bullets.',
+  1802→    linkedinAnalyze: 'Analyze my profile',
+  1803→    linkedinOptimize: 'Optimize my profile',
+  1804→    linkedinGenerate: 'Generate content',
+  1805→    linkedinProfileTextPlaceholder: 'Paste your LinkedIn profile content here (headline, summary, experience, skills) or your LinkedIn URL...',
+  1806→    linkedinAnalyzing: 'Analyzing...',
+  1807→    linkedinHeadlineAnalysis: 'Headline analysis',
+  1808→    linkedinSummaryReview: 'Summary review',
+  1809→    linkedinExperienceCritique: 'Experience critique',
+  1810→    linkedinSkillsGap: 'Skills gap analysis',
+  1811→    linkedinOverallScore: 'Overall score',
+  1812→    linkedinRecommendations: 'Recommendations',
+  1813→    linkedinBackToHome: 'Back to home',
+  1814→    linkedinTryGenerator: 'Try the generator',
+  1815→    linkedinTargetJobTitle: 'Target job title',
+  1816→    linkedinKeyAchievements: 'Key achievements',
+  1817→    linkedinCurrentHeadline: 'Current headline',
+  1818→    linkedinCurrentSummary: 'Current summary',
+  1819→    linkedinOptimizedHeadlines: 'Optimized headlines',
+  1820→    linkedinOptimizedSummaries: 'Optimized summaries',
+  1821→    linkedinExperienceBullets: 'Experience bullet points',
+  1822→    linkedinSuggestedSkills: 'Suggested skills',
+  1823→    linkedinCopy: 'Copy',
+  1824→    linkedinCopied: 'Copied!',
+  1825→    linkedinExport: 'Export',
+  1826→    linkedinNoResults: 'No results yet.',
+  1827→    linkedinError: 'An error occurred.',
+  1828→    linkedinRetry: 'Retry',
+  1829→    linkedinAnalyzerCta: 'Analyze my LinkedIn profile',
+  1830→    linkedinGeneratorCta: 'Generate optimized content',
+  1831→    linkedinScoreCta: 'Get my score',
+  1832→    linkedinProfileScore: 'Profile score',
+  1833→    linkedinScoreExplanation: 'Complete assessment of your LinkedIn visibility and attractiveness',
+  1834→    linkedinStrengths: 'Strengths',
+  1835→    linkedinWeaknesses: 'Areas for improvement',
+  1836→    linkedinTips: 'Tips',
+  1837→    linkedinVisibility: 'Visibility',
+  1838→    linkedinKeywordOptimization: 'Keyword optimization',
+  1839→    linkedinCompleteness: 'Completeness',
+  1840→    linkedinProfileText: 'Profile content',
+  1841→    linkedinPasteUrlOrText: 'Paste your LinkedIn profile URL or text directly',
+  1842→    linkedinAnalyzeBtn: 'Start analysis',
+  1843→    linkedinGenerateBtn: 'Generate',
+  1844→    linkedinIndustry: 'Industry',
+  1845→    linkedinAchievementsPlaceholder: 'E.g.: Increased sales by 30%, managed a team of 10, launched an international project...',
+  1846→    linkedinHeadlinePlaceholder: 'E.g.: Full Stack Developer | React & Node.js',
+  1847→    linkedinSummaryPlaceholder: 'Your current LinkedIn summary...',
+  1848→    linkedinJobTitlePlaceholder: 'E.g.: Full Stack Developer, Marketing Project Manager...',
+  1849→    // Recruiter module
+  1850→    recruiterTitle: 'AI Recruitment Pipeline',
+  1851→    recruiterSubtitle: 'Find the best talent with intelligent matching and automated candidate scoring.',
+  1852→    recruiterStep1Title: 'Post a job or import candidates',
+  1853→    recruiterStep1Desc: 'Create a detailed job posting or import an existing candidate database to kickstart the process.',
+  1854→    recruiterStep2Title: 'AI Matching & Scoring',
+  1855→    recruiterStep2Desc: 'The AI analyzes skills, experience, and culture fit to automatically score and rank each candidate.',
+  1856→    recruiterStep3Title: 'Pipeline Management',
+  1857→    recruiterStep3Desc: 'Manage your recruitment pipeline: schedule interviews, track stages, and make data-driven hiring decisions.',
+  1858→    recruiterMatching: 'Smart matching',
+  1859→    recruiterScoring: 'Candidate scoring',
+  1860→    recruiterPipeline: 'Dashboard',
+  1861→    recruiterHomeTitle: 'Recruiter Dashboard',
+  1862→    recruiterHomeSubtitle: 'Manage your job postings and track your recruitment pipeline.',
+  1863→    recruiterOpenPositions: 'Open positions',
+  1864→    recruiterTotalCandidates: 'Total candidates',
+  1865→    recruiterMatchRate: 'Match rate',
+  1866→    recruiterAvgTimeHire: 'Avg. time to hire',
+  1867→    recruiterQuickActions: 'Quick actions',
+  1868→    recruiterNewJob: 'New job',
+  1869→    recruiterViewPipeline: 'View pipeline',
+  1870→    recruiterFindCandidates: 'Find candidates',
+  1871→    recruiterAIMatch: 'AI matching',
+  1872→    recruiterRecentJobs: 'Recent jobs',
+  1873→    recruiterNoJobs: 'No job postings yet. Create your first job to get started.',
+  1874→    recruiterJobTitle: 'Position',
+  1875→    recruiterJobDept: 'Department',
+  1876→    recruiterJobLocation: 'Location',
+  1877→    recruiterJobType: 'Type',
+  1878→    recruiterJobStatus: 'Status',
+  1879→    recruiterPipelineTitle: 'Recruitment pipeline',
+  1880→    recruiterPipelineSubtitle: 'Drag candidates between stages.',
+  1881→    recruiterStageNew: 'New',
+  1882→    recruiterStageScreening: 'Screening',
+  1883→    recruiterStageInterview: 'Interview',
+  1884→    recruiterStageOffer: 'Offer',
+  1885→    recruiterStageHired: 'Hired',
+  1886→    recruiterStageRejected: 'Rejected',
+  1887→    recruiterCandidatesTitle: 'Candidates',
+  1888→    recruiterCandidatesSubtitle: 'Browse and filter candidates by match score.',
+  1889→    recruiterSearchCandidates: 'Search candidates...',
+  1890→    recruiterFilterSkills: 'Skills',
+  1891→    recruiterFilterExperience: 'Experience',
+  1892→    recruiterFilterScore: 'Min. score',
+  1893→    recruiterAll: 'All',
+  1894→    recruiterClearFilters: 'Clear filters',
+  1895→    recruiterMatchTitle: 'AI Matching',
+  1896→    recruiterMatchSubtitle: 'Paste a job description and find the best candidates.',
+  1897→    recruiterPasteJobDesc: 'Job description',
+  1898→    recruiterPasteJobDescPlaceholder: 'Paste the full job description here (responsibilities, required skills, experience...)',
+  1899→    recruiterStartMatching: 'Start AI matching',
+  1900→    recruiterMatchingProgress: 'AI is analyzing and scoring candidates...',
+  1901→    recruiterMatchResults: 'Matching results',
+  1902→    recruiterNoResults: 'No results. Try with a more detailed description.',
+  1903→    recruiterScoreLabel: 'Score',
+  1904→    recruiterCandidate: 'Candidate',
+  1905→    recruiterBack: 'Back',
+  1906→    recruiterDays: 'days',
+  1907→    recruiterFullTime: 'Full-time',
+  1908→    recruiterPartTime: 'Part-time',
+  1909→    recruiterContract: 'Contract',
+  1910→    recruiterInternship: 'Internship',
+  1911→    recruiterOpen: 'Open',
+  1912→    recruiterPaused: 'Paused',
+  1913→    recruiterClosed: 'Closed',
+  1914→    recruiterFilled: 'Filled',
+  1915→    // Career module
+  1916→    careerTitle: 'Career Roadmap',
+  1917→    careerSubtitle: 'Assess your skills, identify gaps, and build a personalized development plan.',
+  1918→    careerStep1Title: 'Skills Assessment',
+  1919→    careerStep1Desc: 'Complete an interactive quiz to evaluate your technical, soft skills, and expertise level.',
+  1920→    careerStep2Title: 'AI Gap Analysis',
+  1921→    careerStep2Desc: 'The AI identifies your strengths, weaknesses, and the skills you need to reach your career goal.',
+  1922→    careerStep3Title: 'Personalized Career Plan',
+  1923→    careerStep3Desc: 'Receive a detailed roadmap with concrete steps, recommended training, and timelines.',
+  1924→    careerAssessment: 'Skills assessment',
+  1925→    careerGaps: 'Gap analysis',
+  1926→    careerRoadmap: 'Personalized plan',
+  1927→    careerHomeTitle: 'HireNova Career',
+  1928→    careerHomeSubtitle: 'Explore career paths, assess your skills, and get a personalized roadmap for your professional growth.',
+  1929→    careerPaths: 'Career Paths',
+  1930→    careerTech: 'Technology / IT',
+  1931→    careerMarketing: 'Marketing / Communications',
+  1932→    careerFinance: 'Finance / Banking',
+  1933→    careerDesign: 'Design / UX',
+  1934→    careerData: 'Data Science / AI',
+  1935→    careerStartAssessment: 'Start Assessment',
+  1936→    careerRecentAssessments: 'Recent Assessments',
+  1937→    careerNoAssessments: 'No assessments yet. Start your first evaluation!',
+  1938→    careerViewRoadmap: 'View Roadmap',
+  1939→    careerViewSkills: 'Skills Analysis',
+  1940→    careerAssessTitle: 'Skills Assessment',
+  1941→    careerAssessSubtitle: 'Answer 12 questions to evaluate your professional profile.',
+  1942→    careerQ1: 'What is your primary area of expertise?',
+  1943→    careerQ2: 'What is your experience level?',
+  1944→    careerQ3: 'What is your greatest professional strength?',
+  1945→    careerQ4: 'Which technical skill do you have the most?',
+  1946→    careerQ5: 'What is your leadership level?',
+  1947→    careerQ6: 'How do you manage complex projects?',
+  1948→    careerQ7: 'What is your teamwork experience?',
+  1949→    careerQ8: 'What is your short-term professional goal?',
+  1950→    careerQ9: 'Where do you see yourself in 3 years?',
+  1951→    careerQ10: 'What learning method do you prefer?',
+  1952→    careerQ11: 'What are your main digital tools?',
+  1953→    careerQ12: 'What is your monthly training budget?',
+  1954→    careerQ1O1: 'Software Development', careerQ1O2: 'Digital Marketing', careerQ1O3: 'Finance & Accounting', careerQ1O4: 'Design & UX',
+  1955→    careerQ2O1: 'Junior (0-2 years)', careerQ2O2: 'Mid-level (2-5 years)', careerQ2O3: 'Senior (5-10 years)', careerQ2O4: 'Expert (10+ years)',
+  1956→    careerQ3O1: 'Problem Solving', careerQ3O2: 'Communication', careerQ3O3: 'Creativity', careerQ3O4: 'Organization',
+  1957→    careerQ4O1: 'Programming', careerQ4O2: 'Data Analysis', careerQ4O3: 'Project Management', careerQ4O4: 'Graphic Design',
+  1958→    careerQ5O1: 'Beginner — I need to develop this skill', careerQ5O2: 'Intermediate — I\'ve led small teams', careerQ5O3: 'Advanced — I manage teams', careerQ5O4: 'Expert — I lead departments',
+  1959→    careerQ6O1: 'Agile (Scrum/Kanban)', careerQ6O2: 'Traditional Waterfall', careerQ6O3: 'Hybrid Approach', careerQ6O4: 'No project management experience',
+  1960→    careerQ7O1: 'Very important — I collaborate daily', careerQ7O2: 'Important — regular teamwork', careerQ7O3: 'Moderate — occasional teamwork', careerQ7O4: 'Low — I prefer working alone',
+  1961→    careerQ8O1: 'Get a promotion', careerQ8O2: 'Change domains', careerQ8O3: 'Develop new skills', careerQ8O4: 'Launch my project',
+  1962→    careerQ9O1: 'Managing a team', careerQ9O2: 'Recognized technical expert', careerQ9O3: 'Entrepreneur / Freelancer', careerQ9O4: 'Director / Senior Executive',
+  1963→    careerQ10O1: 'Online courses (e-learning)', careerQ10O2: 'Mentorship / Coaching', careerQ10O3: 'Hands-on projects', careerQ10O4: 'Official certifications',
+  1964→    careerQ11O1: 'Google Suite (Docs, Sheets, Slides)', careerQ11O2: 'Microsoft 365', careerQ11O3: 'Dev tools (VS Code, Git)', careerQ11O4: 'Design tools (Figma, Adobe)',
+  1965→    careerQ12O1: 'Free — free resources only', careerQ12O2: '0-50 USD / month', careerQ12O3: '50-200 USD / month', careerQ12O4: '200+ USD / month',
+  1966→    careerProgress: 'Progress',
+  1967→    careerQuestion: 'Question',
+  1968→    careerOf: 'of',
+  1969→    careerSubmit: 'Submit Assessment',
+  1970→    careerSubmitting: 'Analyzing...',
+  1971→    careerRoadmapTitle: 'Your Career Roadmap',
+  1972→    careerRoadmapSubtitle: 'AI-generated personalized plan based on your assessment.',
+  1973→    careerShortTerm: 'Short-term (0-6 months)',
+  1974→    careerMediumTerm: 'Medium-term (6-18 months)',
+  1975→    careerLongTerm: 'Long-term (18-36 months)',
+  1976→    careerSkillsToAcquire: 'Skills to Acquire',
+  1977→    careerCertifications: 'Recommended Certifications',
+  1978→    careerMilestones: 'Key Milestones',
+  1979→    careerGenerateRoadmap: 'Generate Roadmap',
+  1980→    careerGeneratingRoadmap: 'Generating...',
+  1981→    careerBackToHome: 'Back to Home',
+  1982→    careerBackToRoadmap: 'Back to Roadmap',
+  1983→    careerSkillsTitle: 'Skills Gap Analysis',
+  1984→    careerSkillsSubtitle: 'Your current skills vs target role requirements.',
+  1985→    careerCurrentSkills: 'Current Skills',
+  1986→    careerTargetSkills: 'Required Skills',
+  1987→    careerGapSkills: 'Identified Gaps',
+  1988→    careerRecommendedCourses: 'Recommended Courses',
+  1989→    careerSkillLevel: 'Level',
+  1990→    careerOverallScore: 'Overall Readiness Score',
+  1991→    careerReadinessScore: 'Readiness Index',
+  1992→    careerNoData: 'No data available. Start with a skills assessment.',
+  1993→    careerStartNewAssessment: 'New Assessment',
+  1994→    // Coach module
+  1995→    coachTitle: 'AI Career Coach',
+  1996→    coachSubtitle: 'Get personalized guidance to define your professional goals and track your progress.',
+  1997→    coachStep1Title: 'Set your goals',
+  1998→    coachStep1Desc: 'Define your career ambitions: job change, career transition, or taking on more responsibilities.',
+  1999→    coachStep2Title: 'AI Coaching Session',
+  2000→    coachStep2Desc: 'Chat with your AI coach who asks the right questions and helps you gain perspective on your situation.',
+
+[showing lines 1-2000 of 3878; use offset=2001 with limit to continue reading]

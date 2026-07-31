@@ -51,6 +51,63 @@ model User {
   globalApplications  GlobalApplication[]
   mobilityProfiles    MobilityProfile[]
   interviewSessions   InterviewSession[]
+  linkedinAnalyses   LinkedInAnalysis[]
+  recruiterJobs      RecruiterJob[]
+  careerAssessments   CareerAssessment[]
+  coachSessions       CoachSession[]
+  coachGoals          CoachGoal[]
+  enrollments         Enrollment[]
+  certifications      Certification[]
+  freelanceMissions  FreelanceMission[] @relation("FreelanceClient")
+  freelanceProposals FreelanceProposal[]
+}
+
+// ===== HireNova Formation — Training & Certification =====
+
+model FormationCourse {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  category    String     @default("general") // tech, marketing, finance, design, soft-skills, languages
+  level       String     @default("beginner") // beginner, intermediate, advanced
+  duration    Int        @default(0) // hours
+  language    String     @default("fr")
+  modules     String     // JSON array of {title, type, content}
+  rating      Float      @default(0)
+  enrollCount Int        @default(0)
+  featured    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id          String          @id @default(cuid())
+  userId      String?
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courseId    String
+  course      FormationCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress    Int             @default(0) // 0-100
+  completed   Boolean         @default(false)
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Certification {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courseId    String
+  courseTitle String
+  score       Int      // exam score 0-100
+  certId      String   @unique // unique certificate number
+  issuedAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([certId])
 }
 
 model SatisfactionRating {
@@ -283,6 +340,19 @@ model MobilityProfile {
   user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
+// ===== HireNova LinkedIn — Profile Optimizer =====
+
+model LinkedInAnalysis {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  profileText String
+  analysis    String   // JSON string with analysis results
+  score       Int      // 0-100
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+}
+
 // ===== HireNova Referral — Programme Parrainage =====
 
 model Referral {
@@ -474,4 +544,140 @@ model InterviewMessage {
   session       InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
+}
+
+// ===== HireNova Recruiter — AI Recruitment Pipeline =====
+
+model RecruiterJob {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  department  String   @default("")
+  location    String   @default("")
+  type        String   @default("full-time") // full-time, part-time, contract, internship
+  salaryMin   Int?
+  salaryMax   Int?
+  status      String   @default("open") // open, paused, closed, filled
+  candidates  RecruiterCandidate[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model RecruiterCandidate {
+  id          String   @id @default(cuid())
+  jobId       String
+  job         RecruiterJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  score       Int      @default(0) // AI match score 0-100
+  stage       String   @default("new") // new, screening, interview, offer, hired, rejected
+  notes       String   @default("")
+  appliedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([jobId])
+  @@index([stage])
+  @@index([score])
+}
+
+// ===== HireNova Career — Career Roadmap & Skills Assessment =====
+
+model CareerAssessment {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  answers     String   // JSON string of quiz answers
+  targetRole  String   @default("")
+  currentLevel String  @default("")
+  roadmap     String?  // JSON string of generated roadmap
+  skillsGap   String?  // JSON string of skills analysis
+  score       Int?     // overall career readiness score 0-100
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ===== HireNova Coach — AI Career Coach =====
+
+model CoachSession {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  topic       String   @default("")
+  messages    String   // JSON array of {role, content, timestamp}
+  summary     String?  // AI-generated session summary
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model CoachGoal {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title       String
+  description String   @default("")
+  category    String   @default("general") // career-transition, salary, leadership, skills, work-life
+  priority    String   @default("medium") // low, medium, high
+  deadline    DateTime?
+  progress    Int      @default(0) // 0-100
+  actionSteps String?  // JSON array of action steps
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([completed])
+}
+
+// ===== HireNova Freelance — Freelance Marketplace =====
+
+model FreelanceMission {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("FreelanceClient", fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  category    String   @default("tech") // tech, design, marketing, writing, translation, consulting, video, data
+  budgetMin   Int
+  budgetMax   Int
+  currency    String   @default("EUR")
+  duration    String   @default("") // e.g. "2 weeks", "1 month"
+  skills      String   // JSON array of required skills
+  status      String   @default("open") // open, in-progress, completed, cancelled
+  proposals   FreelanceProposal[]
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model FreelanceProposal {
+  id          String   @id @default(cuid())
+  missionId   String
+  mission     FreelanceMission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coverLetter String
+  proposedRate Int
+  estimatedDelivery String
+  status      String   @default("pending") // pending, accepted, rejected, withdrawn
+  rating      Int?     // client rates freelancer after completion
+  review      String?
+  createdAt   DateTime @default(now())
+
+  @@index([missionId])
+  @@index([userId])
+  @@index([status])
 }

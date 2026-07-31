@@ -1,0 +1,561 @@
+  1043→                { icon: Linkedin, name: 'HireNova LinkedIn', desc: t(language, 'ecosystemLinkedin'), active: false, accent: 'sky', step: null },
+  1044→                { icon: UserCheck, name: 'HireNova Recruiter', desc: t(language, 'ecosystemRecruiter'), active: false, accent: 'amber', step: null },
+  1045→                { icon: Compass, name: 'HireNova Career', desc: t(language, 'ecosystemCareer'), active: false, accent: 'rose', step: null },
+  1046→                { icon: Bot, name: 'HireNova Coach', desc: t(language, 'ecosystemCoach'), active: false, accent: 'indigo', step: null },
+  1047→                { icon: BookOpen, name: 'HireNova Formation', desc: t(language, 'ecosystemFormation'), active: false, accent: 'teal', step: null },
+  1048→                { icon: Laptop, name: 'HireNova Freelance', desc: t(language, 'ecosystemFreelance'), active: false, accent: 'orange', step: null },
+  1049→              ].map((product, index) => {
+  1050→                const isClickable = Boolean(product.active)
+  1051→                const handleNav = () => {
+  1052→                  if (!product.step) return
+  1053→                  // Track ecosystem card click
+  1054→                  events.ecosystemCardClicked(product.name)
+  1055→                  // CV and ATS require auth + active plan (premium features)
+  1056→                  if (product.step === 'form') {
+  1057→                    requireAuthAndPlan('form')
+  1058→                  } else {
+  1059→                    setStep(product.step as AppStep)
+  1060→                  }
+  1061→                }
+  1062→                return (
+  1063→                <motion.div
+  1064→                  key={product.name}
+  1065→                  initial={{ opacity: 0, y: 30 }}
+  1066→                  whileInView={{ opacity: 1, y: 0 }}
+  1067→                  viewport={{ once: true, margin: '-50px' }}
+  1068→                  transition={{ duration: 0.4, delay: index * 0.06 }}
+  1069→                >
+  1070→                  <Card
+  1071→                    onClick={isClickable ? handleNav : undefined}
+  1072→                    onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNav() } } : undefined}
+  1073→                    role={isClickable ? 'button' : undefined}
+  1074→                    tabIndex={isClickable ? 0 : undefined}
+  1075→                    className={`h-full relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isClickable ? 'cursor-pointer' : ''} ${
+  1076→                      product.active
+  1077→                        ? product.accent === 'teal'
+  1078→                          ? 'border-teal-500 shadow-md bg-gradient-to-br from-teal-50/50 to-white'
+  1079→                          : product.accent === 'purple'
+  1080→                            ? 'border-purple-500 shadow-md bg-gradient-to-br from-purple-50/50 to-white'
+  1081→                            : product.accent === 'sky'
+  1082→                              ? 'border-sky-500 shadow-md bg-gradient-to-br from-sky-50/50 to-white'
+  1083→                              : 'border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50/50 to-white'
+  1084→                        : 'border-muted/50 bg-white'
+  1085→                    }`}
+  1086→                  >
+  1087→                    {product.active && (
+  1088→                      <div className="absolute top-3 right-3">
+  1089→                        <Badge className={`px-2 py-0.5 text-[10px] font-semibold rounded-full text-white ${
+  1090→                          product.accent === 'teal' ? 'bg-teal-600'
+  1091→                            : product.accent === 'purple' ? 'bg-purple-600'
+  1092→                            : product.accent === 'sky' ? 'bg-sky-600'
+  1093→                            : 'bg-emerald-600'
+  1094→                        }`}>ACTIF</Badge>
+  1095→                      </div>
+  1096→                    )}
+  1097→                    {!product.active && (
+  1098→                      <div className="absolute top-3 right-3">
+  1099→                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">BIENTÔT</Badge>
+  1100→                      </div>
+  1101→                    )}
+  1102→                    <CardContent className="p-5">
+  1103→                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${
+  1104→                        product.active
+  1105→                          ? product.accent === 'teal' ? 'bg-teal-100'
+  1106→                            : product.accent === 'purple' ? 'bg-purple-100'
+  1107→                            : product.accent === 'sky' ? 'bg-sky-100'
+  1108→                            : 'bg-emerald-100'
+  1109→                          : 'bg-muted'
+  1110→                      }`}>
+  1111→                        <product.icon className={`w-5 h-5 ${
+  1112→                          product.active
+  1113→                            ? product.accent === 'teal' ? 'text-teal-600'
+  1114→                              : product.accent === 'purple' ? 'text-purple-600'
+  1115→                              : product.accent === 'sky' ? 'text-sky-600'
+  1116→                              : 'text-emerald-600'
+  1117→                            : 'text-muted-foreground'
+  1118→                        }`} />
+  1119→                      </div>
+  1120→                      <h3 className={`font-semibold text-sm mb-1.5 ${product.active ? 'text-foreground' : 'text-foreground'}`}>{product.name}</h3>
+  1121→                      <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
+  1122→                      {isClickable && (
+  1123→                        <div className="mt-3 flex items-center gap-1 text-xs font-medium text-emerald-600">
+  1124→                          <span>{product.step ? 'Ouvrir' : 'Bientôt disponible'}</span>
+  1125→                          {product.step && <ArrowRight className="w-3 h-3" />}
+  1126→                        </div>
+  1127→                      )}
+  1128→                    </CardContent>
+  1129→                  </Card>
+  1130→                </motion.div>
+  1131→                )
+  1132→              })}
+  1133→            </div>
+  1134→          </div>
+  1135→        </section>
+  1136→
+  1137→        {/* FAQ Section — SEO Rich Content */}
+  1138→        <section className="relative py-16 sm:py-24 bg-white" id="faq">
+  1139→          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  1140→            <motion.div
+  1141→              className="text-center mb-12"
+  1142→              initial={{ opacity: 0, y: 30 }}
+  1143→              whileInView={{ opacity: 1, y: 0 }}
+  1144→              viewport={{ once: true, margin: '-100px' }}
+  1145→              transition={{ duration: 0.5 }}
+  1146→            >
+  1147→              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+  1148→                <HelpCircle className="w-4 h-4" />
+  1149→                <span>FAQ</span>
+  1150→              </div>
+  1151→              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t(language, 'faqTitle')}</h2>
+  1152→              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t(language, 'faqSubtitle')}</p>
+  1153→            </motion.div>
+  1154→
+  1155→            <div className="space-y-4">
+  1156→              {([
+  1157→                { q: 'faqQ1' as const, a: 'faqA1' as const },
+  1158→                { q: 'faqQ2' as const, a: 'faqA2' as const },
+  1159→                { q: 'faqQ3' as const, a: 'faqA3' as const },
+  1160→                { q: 'faqQ4' as const, a: 'faqA4' as const },
+  1161→                { q: 'faqQ5' as const, a: 'faqA5' as const },
+  1162→                { q: 'faqQ6' as const, a: 'faqA6' as const },
+  1163→                { q: 'faqQ7' as const, a: 'faqA7' as const },
+  1164→                { q: 'faqQ8' as const, a: 'faqA8' as const },
+  1165→              ]).map((item, index) => (
+  1166→                <FAQItem key={item.q} question={t(language, item.q)} answer={t(language, item.a)} index={index} />
+  1167→              ))}
+  1168→            </div>
+  1169→          </div>
+  1170→        </section>
+  1171→
+  1172→        {/* Trust / Social Proof Section — SEO */}
+  1173→        <section className="relative py-16 sm:py-20 bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/40">
+  1174→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1175→            <motion.div
+  1176→              className="text-center mb-12"
+  1177→              initial={{ opacity: 0, y: 30 }}
+  1178→              whileInView={{ opacity: 1, y: 0 }}
+  1179→              viewport={{ once: true, margin: '-100px' }}
+  1180→              transition={{ duration: 0.5 }}
+  1181→            >
+  1182→              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">{t(language, 'trustTitle')}</h2>
+  1183→              <p className="text-muted-foreground max-w-xl mx-auto">{t(language, 'trustSubtitle')}</p>
+  1184→            </motion.div>
+  1185→            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+  1186→              {([
+  1187→                { icon: Users, value: liveStats.satisfiedUsers > 0 ? String(liveStats.satisfiedUsers) : '—', label: t(language, 'trustStats'), color: 'emerald' },
+  1188→                { icon: ThumbsUp, value: liveStats.avgRating > 0 ? `${liveStats.avgRating}/5` : '—', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
+  1189→                { icon: Lock, value: '100%', label: { fr: 'Données sécurisées', en: 'Data secured', ar: 'بيانات آمنة', es: 'Datos seguros' }[language], color: 'teal' },
+  1190→              ]).map((item, index) => (
+  1191→                <motion.div
+  1192→                  key={item.label}
+  1193→                  initial={{ opacity: 0, y: 30 }}
+  1194→                  whileInView={{ opacity: 1, y: 0 }}
+  1195→                  viewport={{ once: true, margin: '-50px' }}
+  1196→                  transition={{ duration: 0.4, delay: index * 0.1 }}
+  1197→                >
+  1198→                  <Card className="border-0 shadow-sm bg-white text-center">
+  1199→                    <CardContent className="p-6">
+  1200→                      <div className={`w-12 h-12 rounded-xl bg-${item.color}-100 flex items-center justify-center mx-auto mb-3`}>
+  1201→                        <item.icon className={`w-6 h-6 text-${item.color}-600`} />
+  1202→                      </div>
+  1203→                      <div className="text-2xl font-extrabold text-foreground mb-1">{item.value}</div>
+  1204→                      <div className="text-sm text-muted-foreground">{item.label}</div>
+  1205→                    </CardContent>
+  1206→                  </Card>
+  1207→                </motion.div>
+  1208→              ))}
+  1209→            </div>
+  1210→            <motion.div
+  1211→              className="mt-8 text-center"
+  1212→              initial={{ opacity: 0 }}
+  1213→              whileInView={{ opacity: 1 }}
+  1214→              viewport={{ once: true }}
+  1215→              transition={{ delay: 0.3 }}
+  1216→            >
+  1217→              <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">{t(language, 'trustGuarantee')}</p>
+  1218→            </motion.div>
+  1219→          </div>
+  1220→        </section>
+  1221→
+  1222→        {/* HireNova Jobs Section */}
+  1223→        <section className="py-16 sm:py-20 bg-gradient-to-b from-emerald-50/50 to-white">
+  1224→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1225→            <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
+  1226→              <Badge className="mb-3 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Briefcase className="w-3 h-3 mr-1" /> Marketplace</Badge>
+  1227→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Jobs</h2>
+  1228→              <p className="text-muted-foreground max-w-xl mx-auto">Connectez vos talents avec les meilleures opportunités</p>
+  1229→            </motion.div>
+  1230→            <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
+  1231→              <div className="text-center"><p className="text-2xl font-bold text-emerald-600">0</p><p className="text-xs text-muted-foreground">Offres actives</p></div>
+  1232→              <div className="w-px h-8 bg-border" />
+  1233→              <div className="text-center"><p className="text-2xl font-bold text-teal-600">0</p><p className="text-xs text-muted-foreground">Entreprises</p></div>
+  1234→              <div className="w-px h-8 bg-border" />
+  1235→              <div className="text-center"><p className="text-2xl font-bold text-amber-600">0</p><p className="text-xs text-muted-foreground">Candidatures</p></div>
+  1236→            </div>
+  1237→            <div className="text-center">
+  1238→              <p className="text-sm text-muted-foreground mb-4">Bientôt des offres d&apos;emploi... Revenez vérifier !</p>
+  1239→              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+  1240→                <Button onClick={() => setStep('jobMarket')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Briefcase className="w-4 h-4 mr-2" /> Voir toutes les offres</Button>
+  1241→                <Button variant="outline" onClick={() => setStep('employerPostJob')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Publier une offre</Button>
+  1242→              </div>
+  1243→            </div>
+  1244→          </div>
+  1245→        </section>
+  1246→
+  1247→        {/* HireNova API Section */}
+  1248→        <section className="py-16 sm:py-20">
+  1249→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1250→            <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
+  1251→              <Badge className="mb-3 bg-amber-100 text-amber-700 hover:bg-amber-100"><Code2 className="w-3 h-3 mr-1" /> API B2B</Badge>
+  1252→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova API</h2>
+  1253→              <p className="text-muted-foreground max-w-xl mx-auto">Intégrez la génération de CV, lettres et analyse ATS dans votre plateforme</p>
+  1254→            </motion.div>
+  1255→            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+  1256→              {[
+  1257→                { icon: FileText, title: 'Génération CV', desc: 'CV professionnels' },
+  1258→                { icon: PenLine, title: 'Lettre', desc: 'Lettres personnalisées' },
+  1259→                { icon: Shield, title: 'Analyse ATS', desc: 'Score compatibilité' },
+  1260→                { icon: BarChart3, title: 'Suivi', desc: 'Dashboard temps réel' }
+  1261→              ].map((f, i) => (
+  1262→                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+  1263→                  <Card className="text-center p-4 hover:shadow-md transition-shadow"><f.icon className="w-8 h-8 mx-auto text-emerald-600 mb-2" /><h3 className="text-sm font-semibold">{f.title}</h3><p className="text-xs text-muted-foreground mt-1">{f.desc}</p></Card>
+  1264→                </motion.div>
+  1265→              ))}
+  1266→            </div>
+  1267→            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+  1268→              {[
+  1269→                { name: 'Starter', price: '49€', credits: '100' },
+  1270→                { name: 'Business', price: '149€', credits: '500' },
+  1271→                { name: 'Enterprise', price: '399€', credits: '∞' }
+  1272→              ].map((p, i) => (
+  1273→                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+  1274→                  <Card className={`text-center p-6 ${i === 1 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''}`}>
+  1275→                    <h3 className="font-bold text-lg">{p.name}</h3>
+  1276→                    <div className="text-3xl font-bold text-emerald-600 my-2">{p.price}<span className="text-sm font-normal text-muted-foreground">/mois</span></div>
+  1277→                    <p className="text-sm text-muted-foreground">{p.credits === '∞' ? 'Illimité' : `${p.credits} crédits`}/mois</p>
+  1278→                  </Card>
+  1279→                </motion.div>
+  1280→              ))}
+  1281→            </div>
+  1282→            <p className="text-center text-xs text-muted-foreground mb-6">🎓 Écoles &bull; 🏛️ Universités &bull; 📚 Formations &bull; 🏢 Entreprises &bull; 🏦 Banques &bull; 🌍 Organisations</p>
+  1283→            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+  1284→              <Button onClick={() => setStep('apiDocs')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Code2 className="w-4 h-4 mr-2" /> Documentation API</Button>
+  1285→              <Button variant="outline" onClick={() => setStep('apiRegister')} className="cursor-pointer"><Rocket className="w-4 h-4 mr-2" /> Obtenir une clé API</Button>
+  1286→            </div>
+  1287→          </div>
+  1288→        </section>
+  1289→
+  1290→        {/* HireNova Global Section */}
+  1291→        <section className="py-16 sm:py-20">
+  1292→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1293→            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+  1294→              <Badge className="mb-3 bg-teal-100 text-teal-700 hover:bg-teal-100"><Globe className="w-3 h-3 mr-1" /> International</Badge>
+  1295→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Global</h2>
+  1296→              <p className="text-muted-foreground mb-6 max-w-2xl">Recrutement international pour les entreprises qui recrutent à travers le monde. Visa sponsorship, relocation, multi-régions.</p>
+  1297→            </motion.div>
+  1298→            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  1299→              {[
+  1300→                { icon: Globe, title: '40+ Pays', desc: 'Offres dans le monde entier' },
+  1301→                { icon: Shield, title: 'Visa Sponsorship', desc: 'Accompagnement pour les candidats internationaux' },
+  1302→                { icon: Plane, title: 'Relocation', desc: 'Packages de relocation intégrés' },
+  1303→              ].map((f, i) => (
+  1304→                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+  1305→                  <Card className="border-teal-100 hover:border-teal-200 transition-colors">
+  1306→                    <CardContent className="p-5 text-center">
+  1307→                      <f.icon className="w-8 h-8 mx-auto text-teal-600 mb-3" />
+  1308→                      <h3 className="font-semibold">{f.title}</h3>
+  1309→                      <p className="text-xs text-muted-foreground mt-1">{f.desc}</p>
+  1310→                    </CardContent>
+  1311→                  </Card>
+  1312→                </motion.div>
+  1313→              ))}
+  1314→            </div>
+  1315→            <div className="flex flex-col sm:flex-row items-center gap-3">
+  1316→              <Button onClick={() => setStep('globalMarket')} className="bg-teal-600 hover:bg-teal-700 cursor-pointer"><Globe className="w-4 h-4 mr-2" /> Explorer les offres internationales</Button>
+  1317→              <Button variant="outline" onClick={() => setStep('globalEmployerDashboard')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Dashboard Employeur</Button>
+  1318→            </div>
+  1319→          </div>
+  1320→        </section>
+  1321→
+  1322→        {/* HireNova Mobilité Section */}
+  1323→        <section className="py-16 sm:py-20 bg-gradient-to-b from-teal-50/30 to-white">
+  1324→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1325→            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+  1326→              <Badge className="mb-3 bg-purple-100 text-purple-700 hover:bg-purple-100"><Plane className="w-3 h-3 mr-1" /> Mobilité</Badge>
+  1327→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova Mobilité</h2>
+  1328→              <p className="text-muted-foreground mb-6 max-w-2xl">OCR + IA : extrayez votre CV, analysez vos compétences, et reformatez vos documents selon les standards de chaque pays cible.</p>
+  1329→            </motion.div>
+  1330→            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  1331→              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+  1332→                <Card className="h-full border-purple-100">
+  1333→                  <CardContent className="p-6">
+  1334→                    <div className="flex items-center gap-3 mb-4">
+  1335→                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Search className="w-5 h-5 text-purple-600" /></div>
+  1336→                      <h3 className="font-semibold">Étape 1 — OCR & Extraction</h3>
+  1337→                    </div>
+  1338→                    <p className="text-sm text-muted-foreground">Upload votre CV (PDF ou image). Notre OCR extrait automatiquement le texte brut, les informations personnelles, et les données structurées.</p>
+  1339→                  </CardContent>
+  1340→                </Card>
+  1341→              </motion.div>
+  1342→              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+  1343→                <Card className="h-full border-purple-100">
+  1344→                  <CardContent className="p-6">
+  1345→                    <div className="flex items-center gap-3 mb-4">
+  1346→                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Bot className="w-5 h-5 text-purple-600" /></div>
+  1347→                      <h3 className="font-semibold">Étape 2 — IA & Reformulation</h3>
+  1348→                    </div>
+  1349→                    <p className="text-sm text-muted-foreground">Notre LLM analyse le contenu, normalise les compétences, détecte les lacunes, et reformate votre CV et lettre de motivation selon les standards du pays cible.</p>
+  1350→                  </CardContent>
+  1351→                </Card>
+  1352→              </motion.div>
+  1353→            </div>
+  1354→            <div className="flex flex-wrap justify-center gap-2 mb-6">
+  1355→              {['🇫🇷 France', '🇬🇧 UK', '🇺🇸 USA', '🇨🇦 Canada', '🇩🇪 Allemagne', '🇦🇪 UAE', '🇨🇭 Suisse', '🇧🇪 Belgique', '🇪🇸 Espagne', '🇮🇹 Italie', '🇯🇵 Japon', '🇦🇺 Australie'].map(c => (
+  1356→                <Badge key={c} variant="outline" className="text-xs px-3 py-1.5">{c}</Badge>
+  1357→              ))}
+  1358→            </div>
+  1359→            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+  1360→              <Button onClick={() => setStep('mobilityHome')} className="bg-purple-600 hover:bg-purple-700 cursor-pointer"><Plane className="w-4 h-4 mr-2" /> Adapter mon CV pour l&apos;international</Button>
+  1361→            </div>
+  1362→          </div>
+  1363→        </section>
+  1364→
+  1365→        {/* HireNova LinkedIn Section */}
+  1366→        <section className="py-16 sm:py-20 bg-gradient-to-b from-sky-50/30 to-white">
+  1367→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1368→            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
+  1369→              <Badge className="mb-3 bg-sky-100 text-sky-700 hover:bg-sky-100"><Linkedin className="w-3 h-3 mr-1" /> LinkedIn</Badge>
+  1370→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova LinkedIn</h2>
+  1371→              <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'landingLinkedinDesc')}</p>
+  1372→            </motion.div>
+  1373→            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  1374→              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+  1375→                <Card className="h-full border-sky-100">
+  1376→                  <CardContent className="p-6">
+  1377→                    <div className="flex items-center gap-3 mb-4">
+  1378→                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><BarChart3 className="w-5 h-5 text-sky-600" /></div>
+  1379→                      <h3 className="font-semibold">{t(language, 'linkedinAnalyze')}</h3>
+  1380→                    </div>
+  1381→                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinStep2Desc')}</p>
+  1382→                  </CardContent>
+  1383→                </Card>
+  1384→              </motion.div>
+  1385→              <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+  1386→                <Card className="h-full border-sky-100">
+  1387→                  <CardContent className="p-6">
+  1388→                    <div className="flex items-center gap-3 mb-4">
+  1389→                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><Wand2 className="w-5 h-5 text-sky-600" /></div>
+  1390→                      <h3 className="font-semibold">{t(language, 'linkedinGenerate')}</h3>
+  1391→                    </div>
+  1392→                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinStep3Desc')}</p>
+  1393→                  </CardContent>
+  1394→                </Card>
+  1395→              </motion.div>
+  1396→              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+  1397→                <Card className="h-full border-sky-100">
+  1398→                  <CardContent className="p-6">
+  1399→                    <div className="flex items-center gap-3 mb-4">
+  1400→                      <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"><Sparkles className="w-5 h-5 text-sky-600" /></div>
+  1401→                      <h3 className="font-semibold">{t(language, 'linkedinProfileScore')}</h3>
+  1402→                    </div>
+  1403→                    <p className="text-sm text-muted-foreground">{t(language, 'linkedinScoreExplanation')}</p>
+  1404→                  </CardContent>
+  1405→                </Card>
+  1406→              </motion.div>
+  1407→            </div>
+  1408→            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+  1409→              <Button onClick={() => setStep('linkedinHome')} className="bg-sky-600 hover:bg-sky-700 cursor-pointer"><Linkedin className="w-4 h-4 mr-2" /> Optimiser mon profil LinkedIn</Button>
+  1410→            </div>
+  1411→          </div>
+  1412→        </section>
+  1413→
+  1414→        {/* CTA Section */}
+  1415→        <section className="relative py-16 sm:py-20">
+  1416→          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  1417→            <motion.div
+  1418→              className="relative text-center bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden"
+  1419→              initial={{ opacity: 0, scale: 0.95 }}
+  1420→              whileInView={{ opacity: 1, scale: 1 }}
+  1421→              viewport={{ once: true, margin: '-100px' }}
+  1422→              transition={{ duration: 0.6 }}
+  1423→            >
+  1424→              <div className="absolute inset-0">
+  1425→                <Image src="/images/gradient-emerald.jpg" alt="" fill className="object-cover opacity-20" />
+  1426→              </div>
+  1427→              <div className="relative z-10">
+  1428→              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+  1429→                {t(language, 'ctaReadyTitle')}
+  1430→              </h2>
+  1431→              <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
+  1432→                {t(language, 'ctaReadyDesc')}
+  1433→              </p>
+  1434→              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+  1435→                <Button
+  1436→                  size="lg"
+  1437→                  className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
+  1438→                  onClick={() => requireAuthAndPlan('form')}
+  1439→                >
+  1440→                  <FileText className="mr-2 w-5 h-5" />
+  1441→                  {t(language, 'ctaChooseProfile')}
+  1442→                  <ArrowRight className="ml-2 w-5 h-5" />
+  1443→                </Button>
+  1444→                <Button
+  1445→                  size="lg"
+  1446→                  variant="outline"
+  1447→                  className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
+  1448→                  onClick={() => requireAuthAndPlan('clForm')}
+  1449→                >
+  1450→                  <PenLine className="mr-2 w-5 h-5" />
+  1451→                  {t(language, 'clCta')}
+  1452→                  <ArrowRight className="ml-2 w-5 h-5" />
+  1453→                </Button>
+  1454→              </div>
+  1455→              </div>
+  1456→            </motion.div>
+  1457→          </div>
+  1458→        </section>
+  1459→      </main>
+  1460→
+  1461→      {/* Auth Modal */}
+  1462→      <AuthModal
+  1463→        isOpen={authModalOpen}
+  1464→        onClose={() => setAuthModalOpen(false)}
+  1465→        initialMode={authMode}
+  1466→        onAuthSuccess={handleAuthSuccess}
+  1467→      />
+  1468→
+  1469→      {/* Enterprise Contact Form Modal */}
+  1470→      <EnterpriseContactForm
+  1471→        isOpen={enterpriseFormOpen}
+  1472→        onClose={() => setEnterpriseFormOpen(false)}
+  1473→      />
+  1474→
+  1475→      {/* Payment Success Modal — shows auto-generated invoice + receipt */}
+  1476→      <AnimatePresence>
+  1477→        {paymentSuccess && (
+  1478→          <motion.div
+  1479→            initial={{ opacity: 0 }}
+  1480→            animate={{ opacity: 1 }}
+  1481→            exit={{ opacity: 0 }}
+  1482→            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+  1483→            onClick={() => setPaymentSuccess(null)}
+  1484→          >
+  1485→            <motion.div
+  1486→              initial={{ scale: 0.9, y: 20 }}
+  1487→              animate={{ scale: 1, y: 0 }}
+  1488→              exit={{ scale: 0.9, y: 20 }}
+  1489→              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+  1490→              onClick={(e) => e.stopPropagation()}
+  1491→            >
+  1492→              {/* Header */}
+  1493→              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-center">
+  1494→                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
+  1495→                  <CheckCircle2 className="w-10 h-10 text-white" />
+  1496→                </div>
+  1497→                <h3 className="text-xl font-bold text-white">Paiement réussi</h3>
+  1498→                <p className="text-emerald-100 text-sm mt-1">
+  1499→                  Plan {paymentSuccess.plan} activé — {paymentSuccess.amount.toFixed(2)} {paymentSuccess.currency}
+  1500→                </p>
+  1501→              </div>
+  1502→
+  1503→              {/* Body */}
+  1504→              <div className="p-6 space-y-4">
+  1505→                <div className="text-center">
+  1506→                  <p className="text-sm text-muted-foreground">
+  1507→                    Vos documents ont été générés automatiquement avec logo et signature électronique.
+  1508→                  </p>
+  1509→                </div>
+  1510→
+  1511→                {/* Invoice */}
+  1512→                <div className="flex items-center justify-between p-3 rounded-lg border bg-emerald-50/50">
+  1513→                  <div className="flex items-center gap-2">
+  1514→                    <FileText className="w-5 h-5 text-emerald-600" />
+  1515→                    <div>
+  1516→                      <p className="text-xs text-muted-foreground">Facture</p>
+  1517→                      <p className="text-sm font-semibold font-mono">{paymentSuccess.invoice.number}</p>
+  1518→                    </div>
+  1519→                  </div>
+  1520→                  <Button
+  1521→                    size="sm"
+  1522→                    variant="outline"
+  1523→                    className="cursor-pointer"
+  1524→                    onClick={() => downloadDocument(paymentSuccess.invoice.downloadUrl, `facture-${paymentSuccess.invoice.number}.pdf`)}
+  1525→                  >
+  1526→                    <Download className="w-3.5 h-3.5 mr-1" />
+  1527→                    PDF
+  1528→                  </Button>
+  1529→                </div>
+  1530→
+  1531→                {/* Receipt */}
+  1532→                <div className="flex items-center justify-between p-3 rounded-lg border bg-amber-50/50">
+  1533→                  <div className="flex items-center gap-2">
+  1534→                    <FileText className="w-5 h-5 text-amber-600" />
+  1535→                    <div>
+  1536→                      <p className="text-xs text-muted-foreground">Reçu de paiement</p>
+  1537→                      <p className="text-sm font-semibold font-mono">{paymentSuccess.receipt.number}</p>
+  1538→                    </div>
+  1539→                  </div>
+  1540→                  <Button
+  1541→                    size="sm"
+  1542→                    variant="outline"
+  1543→                    className="cursor-pointer"
+  1544→                    onClick={() => downloadDocument(paymentSuccess.receipt.downloadUrl, `recu-${paymentSuccess.receipt.number}.pdf`)}
+  1545→                  >
+  1546→                    <Download className="w-3.5 h-3.5 mr-1" />
+  1547→                    PDF
+  1548→                  </Button>
+  1549→                </div>
+  1550→
+  1551→                <div className="text-[10px] text-muted-foreground bg-slate-50 rounded-md p-2 border">
+  1552→                  Les documents portent le logo HireNova et une signature électronique SHA-256.
+  1553→                  Ils seront inclus dans votre prochain bilan comptable.
+  1554→                </div>
+  1555→
+  1556→                <Button
+  1557→                  className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700"
+  1558→                  onClick={() => setPaymentSuccess(null)}
+  1559→                >
+  1560→                  Continuer
+  1561→                </Button>
+  1562→              </div>
+  1563→            </motion.div>
+  1564→          </motion.div>
+  1565→        )}
+  1566→      </AnimatePresence>
+  1567→
+  1568→      <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+  1569→
+  1570→      {/* Chatbot Widget - always visible */}
+  1571→      <ChatbotWidget />
+  1572→
+  1573→      {/* Footer */}
+  1574→      <footer className="border-t bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+  1575→        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
+  1576→          <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
+  1577→          <div className="flex items-center flex-wrap justify-center gap-2 text-xs">
+  1578→            <span className="text-emerald-600 font-medium">Paiement sécurisé :</span>
+  1579→            <span>🇫🇷 FR</span><span>🇧🇪 BE</span><span>🇨🇭 CH</span><span>🇱🇺 LU</span><span>🇲🇨 MC</span><span>🇪🇸 ES</span><span>🇬🇧 UK</span><span>🇺🇸 US</span><span>🇨🇦 CA</span><span>🇦🇺 AU</span><span>🇸🇦 SA</span><span>🇦🇪 AE</span><span>🇶🇦 QA</span><span>🇰🇼 KW</span><span>🇧🇭 BH</span><span>🇴🇲 OM</span>
+  1580→          </div>
+  1581→          <div className="flex items-center flex-wrap justify-center gap-4 text-xs">
+  1582→            <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+  1583→            <button onClick={() => setStep('campus')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
+  1584→              <GraduationCap className="w-3 h-3" />
+  1585→              HireNova Campus
+  1586→            </button>
+  1587→            <button onClick={() => setStep('referral')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
+  1588→              <Gift className="w-3 h-3" />
+  1589→              Parrainage
+  1590→            </button>
+  1591→            {isAdmin && (
+  1592→              <button onClick={() => setStep('admin')} className="text-emerald-700 hover:underline cursor-pointer flex items-center gap-1 font-semibold">
+  1593→                <Shield className="w-3 h-3" />
+  1594→                Dashboard Admin
+  1595→              </button>
+  1596→            )}
+  1597→          </div>
+  1598→        </div>
+  1599→      </footer>
+  1600→    </div>
+  1601→  )
+  1602→}
+  1603→

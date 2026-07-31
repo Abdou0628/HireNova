@@ -1,0 +1,764 @@
+     1→'use server'
+     2→
+     3→import { NextRequest, NextResponse } from 'next/server'
+     4→import ZAI from 'z-ai-web-dev-sdk'
+     5→
+     6→type Lang = 'fr' | 'en' | 'ar' | 'es'
+     7→type Mode = 'advisor' | 'support' | 'products'
+     8→
+     9→// ─── Language Detection ───────────────────────────────────────────────────
+    10→function detectLanguage(message: string): Lang {
+    11→  const trimmed = message.trim()
+    12→  // Arabic: detect Arabic script range
+    13→  if (/[\u0600-\u06FF]/.test(trimmed)) return 'ar'
+    14→  // Spanish-specific words
+    15→  const spanishWords = /\b(cómo|cual|cuándo|dónde|por qué|qué|también|puedo|puedes|puede|ayuda|soporte|precios|funciona|producto|consejero|buscar|trabajo|empleo|hola|gracias|información|descripción|características|gratis|país|países|generador|entrevista|formación|mercado|freelance|perfil|optimizar|recruiter|roadmap|coach|entrenamiento)\b/i
+    16→  if (spanishWords.test(trimmed)) return 'es'
+    17→  // English
+    18→  const englishWords = /\b(how|what|where|when|why|can|could|would|should|help|support|price|pricing|work|function|feature|product|advisor|search|job|career|hello|hi|thanks|information|description|characteristics|free|country|countries|generator|interview|training|market|freelance|profile|optimize|recruiter|roadmap|coach)\b/i
+    19→  if (englishWords.test(trimmed)) return 'en'
+    20→  // Default: French
+    21→  return 'fr'
+    22→}
+    23→
+    24→// ─── Products Knowledge Base — ALL 13 Modules in 4 Languages ──────────────
+    25→const KB_PRODUCTS: Record<Lang, string> = {
+    26→  fr: `
+    27→MODULES DE L'ÉCOSYSTÈME HIRENOVA (13 modules):
+    28→
+    29→1. **HireNova CV** (Émeraude)
+    30→   - Génération de CV professionnels par IA en 60 secondes
+    31→   - 4 langues: Français, Anglais, Arabe, Espagnol
+    32→   - 3 templates: Moderne, Classique, Créatif
+    33→   - 6 personas: Étudiant, Diplômé, Professionnel, Cadre, Freelance, Expatrié
+    34→   - Export PDF + Word, sans watermark (plan Pro)
+    35→   - Accès: carte "HireNova CV" dans l'écosystème → formulaire CV
+    36→
+    37→2. **HireNova ATS** (Émeraude)
+    38→   - Score de compatibilité ATS (Applicant Tracking System) sur 100
+    39→   - 4 catégories analysées: Mots-clés/SEO, Structure/Format, Impact de l'expérience, Complétude
+    40→   - Suggestions d'amélioration personnalisées
+    41→   - Le score ATS est calculé APRÈS génération du CV (étape Preview)
+    42→   - Accès: carte "HireNova ATS" → créez d'abord un CV, puis lancez l'analyse ATS depuis la page Preview
+    43→
+    44→3. **HireNova Jobs** (Émeraude)
+    45→   - Marketplace d'offres d'emploi locales (Maroc et international)
+    46→   - Publiez des offres (employeur) ou postulez (candidat)
+    47→   - Dashboard employeur avec statistiques
+    48→   - Suivi des candidatures par le candidat
+    49→   - Accès: carte "HireNova Jobs" → marketplace des offres
+    50→
+    51→4. **HireNova Global** (Teal)
+    52→   - 40+ pays couverts sur 5 régions: Europe, Asie, Afrique, Amériques, MENA
+    53→   - Filtres avancés: région, pays, mot-clé
+    54→   - Badges Visa Sponsorship + Relocation Package + Remote
+    55→   - Dashboard employeur global avec stats par région
+    56→   - Publication d'offres internationales
+    57→   - Candidature internationale avec matching IA candidat/offre
+    58→   - Accès: carte "HireNova Global" → marketplace international
+    59→   - Régions: Europe (FR, UK, DE, CH, BE, ES, IT), Amériques (US, CA), Asie (JP, SG, AE), MENA (MA, EG, SA, QA), Afrique (MA, ZA, NG, KE)
+    60→
+    61→5. **HireNova Mobilité** (Violet)
+    62→   - Pipeline OCR + NLP en 4 étapes:
+    63→     * Étape 1: Upload CV (PDF/Image) → extraction OCR du texte brut
+    64→     * Étape 2: Analyse IA (LLM + NLP) → profil structuré (skills, expérience, éducation)
+    65→     * Étape 3: Reformulation automatique CV + lettre de motivation selon les standards du pays cible
+    66→     * Étape 4: Calcul du score de compatibilité + détection des skills gap
+    67→   - 12 pays supportés: France, UK, USA, Canada, Allemagne, UAE, Suisse, Belgique, Espagne, Italie, Japon, Australie
+    68→   - Accès: carte "HireNova Mobilité" → page d'accueil Mobilité
+    69→
+    70→6. **HireNova API** (Sky)
+    71→   - Portail développeur REST
+    72→   - 4 endpoints: POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage
+    73→   - 3 plans: Starter (gratuit, 100 req/mois), Pro (29€/mois, 5000 req/mois), Enterprise (sur devis)
+    74→   - Clé API + dashboard de suivi de consommation
+    75→   - Accès: carte "HireNova API" → documentation API
+    76→
+    77→7. **HireNova LinkedIn** (Bleu LinkedIn)
+    78→   - Optimiseur de profil LinkedIn par IA
+    79→   - Analyse et amélioration: headline, summary, expérience, compétences
+    80→   - Suggestions de mots-clés pour la visibilité recruteurs
+    81→   - Optimisation SEO LinkedIn
+    82→   - Accès: carte "HireNova LinkedIn" → formulaire d'optimisation profil
+    83→
+    84→8. **HireNova Recruiter** (Orange)
+    85→   - Matching IA candidat/offre d'emploi
+    86→   - Algorithme de compatibilité multi-critères
+    87→   - Suggestion de candidats pour les recruteurs
+    88→   - Suggestion d'offres pour les candidats
+    89→   - Dashboard recruteur avec pipelines de recrutement
+    90→   - Accès: carte "HireNova Recruiter" → tableau de matching
+    91→
+    92→9. **HireNova Career** (Rose)
+    93→   - Feuille de route de carrière personnalisée (Career Roadmap)
+    94→   - Analyse des compétences actuelles vs compétences cibles
+    95→   - Plan d'apprentissage sur mesure
+    96→   - Jalons de carrière avec timelines
+    97→   - Recommandations de formations et certifications
+    98→   - Accès: carte "HireNova Career" → page roadmap
+    99→
+   100→10. **HireNova Coach** (Amber)
+   101→    - Coach IA de carrière interactif
+   102→    - Préparation aux entretiens d'embauche (mock interviews)
+   103→    - Retour détaillé sur les réponses
+   104→    - Conseils de négociation salariale
+   105→    - Planification de développement professionnel
+   106→    - Accès: carte "HireNova Coach" → session de coaching
+   107→
+   108→11. **HireNova Formation** (Indigo)
+   109→    - Plateforme de formation et développement de compétences
+   110→    - Parcours d'apprentissage personnalisés
+   111→    - Contenu: vidéo, articles, quiz interactifs
+   112→    - Certifications HireNova
+   113→    - Suivi de progression
+   114→    - Accès: carte "HireNova Formation" → catalogue de formations
+   115→
+   116→12. **HireNova Freelance** (Violet)
+   117→    - Marketplace freelance intégrée
+   118→    - Mise en relation freelances/clients
+   119→    - Portefeuille de projets
+   120→    - Système de paiements sécurisés
+   121→    - Évaluations et avis
+   122→    - Accès: carte "HireNova Freelance" → marketplace freelance
+   123→
+   124→13. **HireNova Interview** (Teal)
+   125→    - Simulation d'entretiens d'embauche par IA
+   126→    - Questions adaptées au poste et au secteur
+   127→    - Évaluation en temps réel des réponses
+   128→    - Rapport détaillé post-entretien
+   129→    - Préparation technique et comportementale
+   130→    - Accès: carte "HireNova Interview" → simulateur d'entretien
+   131→
+   132→TARIFICATION HIRENOVA:
+   133→- Gratuit: 3 CV/mois, watermark, fonctionnalités limitées
+   134→- Pro (6.99€/mois): CV illimités, lettres, score ATS, export PDF+Word, sans watermark
+   135→- Annuel (70€/an): Tout Pro + priorité support
+   136→- Lifetime: paiement unique, accès permanent
+   137→
+   138→TARIFICATION API:
+   139→- Starter: gratuit, 100 requêtes/mois
+   140→- Pro: 29€/mois, 5000 requêtes/mois
+   141→- Enterprise: sur devis`,
+   142→
+   143→  en: `
+   144→HIRENOVA ECOSYSTEM MODULES (13 modules):
+   145→
+   146→1. **HireNova CV** (Emerald)
+   147→   - AI-powered professional CV generation in 60 seconds
+   148→   - 4 languages: French, English, Arabic, Spanish
+   149→   - 3 templates: Modern, Classic, Creative
+   150→   - 6 personas: Student, Graduate, Professional, Executive, Freelancer, Expat
+   151→   - PDF + Word export, no watermark (Pro plan)
+   152→   - Access: "HireNova CV" card in the ecosystem → CV form
+   153→
+   154→2. **HireNova ATS** (Emerald)
+   155→   - ATS (Applicant Tracking System) compatibility score out of 100
+   156→   - 4 categories analyzed: Keywords/SEO, Structure/Format, Experience Impact, Completeness
+   157→   - Personalized improvement suggestions
+   158→   - ATS score calculated AFTER CV generation (Preview step)
+   159→   - Access: "HireNova ATS" card → create a CV first, then launch ATS analysis from Preview page
+   160→
+   161→3. **HireNova Jobs** (Emerald)
+   162→   - Local job marketplace (Morocco and international)
+   163→   - Post jobs (employer) or apply (candidate)
+   164→   - Employer dashboard with statistics
+   165→   - Application tracking for candidates
+   166→   - Access: "HireNova Jobs" card → job marketplace
+   167→
+   168→4. **HireNova Global** (Teal)
+   169→   - 40+ countries across 5 regions: Europe, Asia, Africa, Americas, MENA
+   170→   - Advanced filters: region, country, keyword
+   171→   - Badges: Visa Sponsorship + Relocation Package + Remote
+   172→   - Global employer dashboard with per-region stats
+   173→   - International job posting
+   174→   - AI matching between candidate profile and job offer
+   175→   - Access: "HireNova Global" card → international marketplace
+   176→   - Regions: Europe (FR, UK, DE, CH, BE, ES, IT), Americas (US, CA), Asia (JP, SG, AE), MENA (MA, EG, SA, QA), Africa (MA, ZA, NG, KE)
+   177→
+   178→5. **HireNova Mobility** (Violet)
+   179→   - OCR + NLP Pipeline in 4 steps:
+   180→     * Step 1: Upload CV (PDF/Image) → OCR text extraction
+   181→     * Step 2: AI Analysis (LLM + NLP) → structured profile (skills, experience, education)
+   182→     * Step 3: Automatic CV + cover letter reformulation per target country standards
+   183→     * Step 4: Compatibility score calculation + skills gap detection
+   184→   - 12 supported countries: France, UK, USA, Canada, Germany, UAE, Switzerland, Belgium, Spain, Italy, Japan, Australia
+   185→   - Access: "HireNova Mobility" card → Mobility home page
+   186→
+   187→6. **HireNova API** (Sky)
+   188→   - REST developer portal
+   189→   - 4 endpoints: POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage
+   190→   - 3 plans: Starter (free, 100 req/month), Pro (€29/month, 5000 req/month), Enterprise (custom pricing)
+   191→   - API key + consumption tracking dashboard
+   192→   - Access: "HireNova API" card → API documentation
+   193→
+   194→7. **HireNova LinkedIn** (LinkedIn Blue)
+   195→   - AI-powered LinkedIn profile optimizer
+   196→   - Analysis and improvement: headline, summary, experience, skills
+   197→   - Keyword suggestions for recruiter visibility
+   198→   - LinkedIn SEO optimization
+   199→   - Access: "HireNova LinkedIn" card → profile optimization form
+   200→
+   201→8. **HireNova Recruiter** (Orange)
+   202→   - AI candidate/job matching
+   203→   - Multi-criteria compatibility algorithm
+   204→   - Candidate suggestions for recruiters
+   205→   - Job suggestions for candidates
+   206→   - Recruiter dashboard with recruitment pipelines
+   207→   - Access: "HireNova Recruiter" card → matching dashboard
+   208→
+   209→9. **HireNova Career** (Pink)
+   210→   - Personalized career roadmap
+   211→   - Analysis of current skills vs. target skills
+   212→   - Custom learning plan
+   213→   - Career milestones with timelines
+   214→   - Training and certification recommendations
+   215→   - Access: "HireNova Career" card → roadmap page
+   216→
+   217→10. **HireNova Coach** (Amber)
+   218→    - Interactive AI career coach
+   219→    - Interview preparation (mock interviews)
+   220→    - Detailed feedback on answers
+   221→    - Salary negotiation advice
+   222→    - Professional development planning
+   223→    - Access: "HireNova Coach" card → coaching session
+   224→
+   225→11. **HireNova Formation** (Indigo)
+   226→    - Training and skill development platform
+   227→    - Personalized learning paths
+   228→    - Content: video, articles, interactive quizzes
+   229→    - HireNova certifications
+   230→    - Progress tracking
+   231→    - Access: "HireNova Formation" card → training catalog
+   232→
+   233→12. **HireNova Freelance** (Violet)
+   234→    - Integrated freelance marketplace
+   235→    - Freelancer/client matching
+   236→    - Project portfolio
+   237→    - Secure payment system
+   238→    - Ratings and reviews
+   239→    - Access: "HireNova Freelance" card → freelance marketplace
+   240→
+   241→13. **HireNova Interview** (Teal)
+   242→    - AI-powered job interview simulation
+   243→    - Questions tailored to the position and industry
+   244→    - Real-time answer evaluation
+   245→    - Detailed post-interview report
+   246→    - Technical and behavioral preparation
+   247→    - Access: "HireNova Interview" card → interview simulator
+   248→
+   249→HIRENOVA PRICING:
+   250→- Free: 3 CVs/month, watermark, limited features
+   251→- Pro (€6.99/month): Unlimited CVs, cover letters, ATS score, PDF+Word export, no watermark
+   252→- Annual (€70/year): Everything in Pro + priority support
+   253→- Lifetime: One-time payment, permanent access
+   254→
+   255→API PRICING:
+   256→- Starter: Free, 100 requests/month
+   257→- Pro: €29/month, 5000 requests/month
+   258→- Enterprise: Custom pricing`,
+   259→
+   260→  ar: `
+   261→وحدات منظومة HireNova (13 وحدة):
+   262→
+   263→1. **HireNova CV** (أخضر زمردي)
+   264→   - إنشاء سير ذاتية احترافية بالذكاء الاصطناعي في 60 ثانية
+   265→   - 4 لغات: الفرنسية، الإنجليزية، العربية، الإسبانية
+   266→   - 3 قوالب: عصري، كلاسيكي، إبداعي
+   267→   - 6 شخصيات: طالب، خريج، محترف، مدير تنفيذي، مستقل، مغترب
+   268→   - تصدير PDF + Word، بدون علامة مائية (خطة Pro)
+   269→   - الوصول: بطاقة "HireNova CV" في المنظومة → نموذج السيرة الذاتية
+   270→
+   271→2. **HireNova ATS** (أخضر زمردي)
+   272→   - درجة توافق نظام تتبع المتقدمين (ATS) من 100
+   273→   - 4 فئات محللة: الكلمات المفتاحية/SEO، الهيكل/التنسيق، تأثير الخبرة، الاكتمال
+   274→   - اقتراحات تحسين مخصصة
+   275→   - تُحسب درجة ATS بعد إنشاء السيرة الذاتية (خطوة المعاينة)
+   276→   - الوصول: بطاقة "HireNova ATS" → أنشئ سيرة ذاتية أولاً، ثم شغّل تحليل ATS من صفحة المعاينة
+   277→
+   278→3. **HireNova Jobs** (أخضر زمردي)
+   279→   - سوق عروض العمل المحلية (المغرب ودولياً)
+   280→   - انشر عروض عمل (صاحب عمل) أو تقدم (مرشح)
+   281→   - لوحة تحكم صاحب العمل مع إحصائيات
+   282→   - تتبع الطلبات من قبل المرشح
+   283→   - الوصول: بطاقة "HireNova Jobs" → سوق العروض
+   284→
+   285→4. **HireNova Global** (أزرق مخضر)
+   286→   - أكثر من 40 دولة عبر 5 مناطق: أوروبا، آسيا، أفريقيا، الأمريكيتان، الشرق الأوسط وشمال أفريقيا
+   287→   - فلاتر متقدمة: المنطقة، الدولة، الكلمة المفتاحية
+   288→   - شارات: رعاية التأشيرة + حزمة الانتقال + العمل عن بُعد
+   289→   - لوحة تحكم عالمية لصاحب العمل مع إحصائيات حسب المنطقة
+   290→   - نشر عروض عمل دولية
+   291→   - مطابقة الذكاء الاصطناعي بين ملف المرشح والعرض
+   292→   - الوصول: بطاقة "HireNova Global" → السوق الدولي
+   293→   - المناطق: أوروبا (فرنسا، بريطانيا، ألمانيا، سويسرا، بلجيكا، إسبانيا، إيطاليا)، الأمريكيتان (أمريكا، كندا)، آسيا (اليابان، سنغافورة، الإمارات)، الشرق الأوسط (المغرب، مصر، السعودية، قطر)، أفريقيا (المغرب، جنوب أفريقيا، نيجيريا، كينيا)
+   294→
+   295→5. **HireNova Mobilité** (بنفسجي)
+   296→   - خط أنابيب OCR + NLP في 4 خطوات:
+   297→     * الخطوة 1: رفع السيرة الذاتية (PDF/صورة) → استخراج النص عبر OCR
+   298→     * الخطوة 2: تحليل الذكاء الاصطناعي (LLM + NLP) → ملف منظم (المهارات، الخبرة، التعليم)
+   299→     * الخطوة 3: إعادة صياغة تلقائية للسيرة الذاتية + رسالة تحفيزية حسب معايير الدولة المستهدفة
+   300→     * الخطوة 4: حساب درجة التوافق + كشف فجوات المهارات
+   301→   - 12 دولة مدعومة: فرنسا، بريطانيا، أمريكا، كندا، ألمانيا، الإمارات، سويسرا، بلجيكا، إسبانيا، إيطاليا، اليابان، أستراليا
+   302→   - الوصول: بطاقة "HireNova Mobilité" → صفحة التنقل
+   303→
+   304→6. **HireNova API** (سماوي)
+   305→   - بوابة المطورين REST
+   306→   - 4 نقاط نهاية: POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage
+   307→   - 3 خطط: Starter (مجاني، 100 طلب/شهر)، Pro (29€/شهر، 5000 طلب/شهر)، Enterprise (على حسب الطلب)
+   308→   - مفتاح API + لوحة تتبع الاستهلاك
+   309→   - الوصول: بطاقة "HireNova API" → وثائق API
+   310→
+   311→7. **HireNova LinkedIn** (أزرق لينكدإن)
+   312→   - محسّن ملف لينكدإن بالذكاء الاصطناعي
+   313→   - تحليل وتحسين: العنوان، الملخص، الخبرة، المهارات
+   314→   - اقتراحات كلمات مفتاحية لظهورك لدى مسؤولي التوظيف
+   315→   - تحسين SEO لينكدإن
+   316→   - الوصول: بطاقة "HireNova LinkedIn" → نموذج تحسين الملف
+   317→
+   318→8. **HireNova Recruiter** (برتقالي)
+   319→   - مطابقة الذكاء الاصطناعي بين المرشحين وعروض العمل
+   320→   - خوارزمية توافق متعددة المعايير
+   321→   - اقتراحات مرشحين لمسؤولي التوظيف
+   322→   - اقتراحات عروض عمل للمرشحين
+   323→   - لوحة تحكم مسؤول التوظيف مع خطوط توظيف
+   324→   - الوصول: بطاقة "HireNova Recruiter" → لوحة المطابقة
+   325→
+   326→9. **HireNova Career** (وردي)
+   327→   - خريطة طريق مهنية مخصصة
+   328→   - تحليل المهارات الحالية مقابل المهارات المستهدفة
+   329→   - خطة تعلم مخصصة
+   330→   - معالم مهنية مع جداول زمنية
+   331→   - توصيات تدريب وشهادات
+   332→   - الوصول: بطاقة "HireNova Career" → صفحة خريطة الطريق
+   333→
+   334→10. **HireNova Coach** (كهرماني)
+   335→    - مدرب مهني تفاعلي بالذكاء الاصطناعي
+   336→    - تحضير للمقابلات الوظيفية (مقابلات تجريبية)
+   337→    - ملاحظات مفصلة على الإجابات
+   338→    - نصائح التفاوض على الراتب
+   339→    - تخطيط التطوير المهني
+   340→    - الوصول: بطاقة "HireNova Coach" → جلسة تدريب
+   341→
+   342→11. **HireNova Formation** (نيلي)
+   343→    - منصة تدريب وتطوير المهارات
+   344→    - مسارات تعلم مخصصة
+   345→    - محتوى: فيديو، مقالات، اختبارات تفاعلية
+   346→    - شهادات HireNova
+   347→    - تتبع التقدم
+   348→    - الوصول: بطاقة "HireNova Formation" → كتالوج التدريب
+   349→
+   350→12. **HireNova Freelance** (بنفسجي)
+   351→    - سوق مستقل متكامل
+   352→    - ربط المستقلين بالعملاء
+   353→    - محفظة مشاريع
+   354→    - نظام دفع آمن
+   355→    - تقييمات وآراء
+   356→    - الوصول: بطاقة "HireNova Freelance" → السوق المستقل
+   357→
+   358→13. **HireNova Interview** (أزرق مخضر)
+   359→    - محاكاة مقابلات عمل بالذكاء الاصطناعي
+   360→    - أسئلة مخصصة حسب المنصب والقطاع
+   361→    - تقييم الإجابات في الوقت الفعلي
+   362→    - تقرير مفصل بعد المقابلة
+   363→    - تحضير تقني وسلوكي
+   364→    - الوصول: بطاقة "HireNova Interview" → محاكي المقابلة
+   365→
+   366→أسعار HireNova:
+   367→- مجاني: 3 سير ذاتية/شهر، علامة مائية، ميزات محدودة
+   368→- Pro (6.99€/شهر): سير ذاتية غير محدودة، رسائل، درجة ATS، تصدير PDF+Word، بدون علامة مائية
+   369→- سنوي (70€/سنة): كل ما في Pro + دعم أولوية
+   370→- مدى الحياة: دفعة واحدة، وصول دائم
+   371→
+   372→أسعار API:
+   373→- Starter: مجاني، 100 طلب/شهر
+   374→- Pro: 29€/شهر، 5000 طلب/شهر
+   375→- Enterprise: على حسب الطلب`,
+   376→
+   377→  es: `
+   378→MÓDULOS DEL ECOSISTEMA HIRENOVA (13 módulos):
+   379→
+   380→1. **HireNova CV** (Esmeralda)
+   381→   - Generación de currículums profesionales con IA en 60 segundos
+   382→   - 4 idiomas: Francés, Inglés, Árabe, Español
+   383→   - 3 plantillas: Moderno, Clásico, Creativo
+   384→   - 6 perfiles: Estudiante, Graduado, Profesional, Ejecutivo, Freelance, Expatriado
+   385→   - Exportación PDF + Word, sin marca de agua (plan Pro)
+   386→   - Acceso: tarjeta "HireNova CV" en el ecosistema → formulario de CV
+   387→
+   388→2. **HireNova ATS** (Esmeralda)
+   389→   - Puntuación de compatibilidad ATS (Sistema de Seguimiento de Candidatos) sobre 100
+   390→   - 4 categorías analizadas: Palabras clave/SEO, Estructura/Formato, Impacto de experiencia, Completitud
+   391→   - Sugerencias de mejora personalizadas
+   392→   - La puntuación ATS se calcula DESPUÉS de generar el CV (paso Vista Previa)
+   393→   - Acceso: tarjeta "HireNova ATS" → crea primero un CV, luego lanza el análisis ATS desde la página de Vista Previa
+   394→
+   395→3. **HireNova Jobs** (Esmeralda)
+   396→   - Marketplace de ofertas de empleo locales (Marruecos e internacional)
+   397→   - Publica ofertas (empleador) o postula (candidato)
+   398→   - Dashboard de empleador con estadísticas
+   399→   - Seguimiento de postulaciones del candidato
+   400→   - Acceso: tarjeta "HireNova Jobs" → marketplace de ofertas
+   401→
+   402→4. **HireNova Global** (Turquesa)
+   403→   - 40+ países en 5 regiones: Europa, Asia, África, Américas, MENA
+   404→   - Filtros avanzados: región, país, palabra clave
+   405→   - Insignias: Visa Sponsorship + Relocation Package + Remoto
+   406→   - Dashboard global de empleador con estadísticas por región
+   407→   - Publicación de ofertas internacionales
+   408→   - Matching IA entre perfil del candidato y oferta
+   409→   - Acceso: tarjeta "HireNova Global" → marketplace internacional
+   410→   - Regiones: Europa (FR, UK, DE, CH, BE, ES, IT), Américas (US, CA), Asia (JP, SG, AE), MENA (MA, EG, SA, QA), África (MA, ZA, NG, KE)
+   411→
+   412→5. **HireNova Mobilité** (Violeta)
+   413→   - Pipeline OCR + NLP en 4 pasos:
+   414→     * Paso 1: Subir CV (PDF/Imagen) → extracción OCR de texto
+   415→     * Paso 2: Análisis IA (LLM + NLP) → perfil estructurado (skills, experiencia, educación)
+   416→     * Paso 3: Reformulación automática de CV + carta de motivación según estándares del país destino
+   417→     * Paso 4: Cálculo de puntuación de compatibilidad + detección de brechas de skills
+   418→   - 12 países soportados: Francia, UK, USA, Canadá, Alemania, EAU, Suiza, Bélgica, España, Italia, Japón, Australia
+   419→   - Acceso: tarjeta "HireNova Mobilité" → página de inicio Movilidad
+   420→
+   421→6. **HireNova API** (Celeste)
+   422→   - Portal de desarrolladores REST
+   423→   - 4 endpoints: POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage
+   424→   - 3 planes: Starter (gratuito, 100 req/mes), Pro (29€/mes, 5000 req/mes), Enterprise (bajo presupuesto)
+   425→   - Clave API + dashboard de seguimiento de consumo
+   426→   - Acceso: tarjeta "HireNova API" → documentación API
+   427→
+   428→7. **HireNova LinkedIn** (Azul LinkedIn)
+   429→   - Optimizador de perfil LinkedIn con IA
+   430→   - Análisis y mejora: titular, resumen, experiencia, habilidades
+   431→   - Sugerencias de palabras clave para visibilidad de reclutadores
+   432→   - Optimización SEO de LinkedIn
+   433→   - Acceso: tarjeta "HireNova LinkedIn" → formulario de optimización de perfil
+   434→
+   435→8. **HireNova Recruiter** (Naranja)
+   436→   - Matching IA candidato/oferta de empleo
+   437→   - Algoritmo de compatibilidad multi-criterios
+   438→   - Sugerencias de candidatos para reclutadores
+   439→   - Sugerencias de ofertas para candidatos
+   440→   - Dashboard de reclutador con pipelines de reclutamiento
+   441→   - Acceso: tarjeta "HireNova Recruiter" → dashboard de matching
+   442→
+   443→9. **HireNova Career** (Rosa)
+   444→   - Hoja de ruta profesional personalizada
+   445→   - Análisis de habilidades actuales vs. habilidades objetivo
+   446→   - Plan de aprendizaje personalizado
+   447→   - Hitos profesionales con timelines
+   448→   - Recomendaciones de formación y certificaciones
+   449→   - Acceso: tarjeta "HireNova Career" → página de roadmap
+   450→
+   451→10. **HireNova Coach** (Ámbar)
+   452→    - Coach profesional interactivo con IA
+   453→    - Preparación para entrevistas de trabajo (mock interviews)
+   454→    - Feedback detallado sobre las respuestas
+   455→    - Consejos de negociación salarial
+   456→    - Planificación de desarrollo profesional
+   457→    - Acceso: tarjeta "HireNova Coach" → sesión de coaching
+   458→
+   459→11. **HireNova Formation** (Índigo)
+   460→    - Plataforma de formación y desarrollo de habilidades
+   461→    - Rutas de aprendizaje personalizadas
+   462→    - Contenido: video, artículos, quizzes interactivos
+   463→    - Certificaciones HireNova
+   464→    - Seguimiento de progreso
+   465→    - Acceso: tarjeta "HireNova Formation" → catálogo de formaciones
+   466→
+   467→12. **HireNova Freelance** (Violeta)
+   468→    - Marketplace freelance integrado
+   469→    - Conexión freelancers/clientes
+   470→    - Portafolio de proyectos
+   471→    - Sistema de pagos seguros
+   472→    - Calificaciones y reseñas
+   473→    - Acceso: tarjeta "HireNova Freelance" → marketplace freelance
+   474→
+   475→13. **HireNova Interview** (Turquesa)
+   476→    - Simulación de entrevistas de trabajo con IA
+   477→    - Preguntas adaptadas al puesto y sector
+   478→    - Evaluación en tiempo real de respuestas
+   479→    - Reporte detallado post-entrevista
+   480→    - Preparación técnica y conductual
+   481→    - Acceso: tarjeta "HireNova Interview" → simulador de entrevistas
+   482→
+   483→TARIFICACIÓN HIRENOVA:
+   484→- Gratuito: 3 CVs/mes, marca de agua, funciones limitadas
+   485→- Pro (6,99€/mes): CVs ilimitados, cartas, puntuación ATS, exportación PDF+Word, sin marca de agua
+   486→- Anual (70€/año): Todo Pro + soporte prioritario
+   487→- Lifetime: pago único, acceso permanente
+   488→
+   489→TARIFICACIÓN API:
+   490→- Starter: Gratuito, 100 peticiones/mes
+   491→- Pro: 29€/mes, 5000 peticiones/mes
+   492→- Enterprise: Bajo presupuesto`
+   493→}
+   494→
+   495→// ─── Mode-Specific System Prompt Additions ────────────────────────────────
+   496→const MODE_PROMPTS: Record<Lang, Record<Mode, string>> = {
+   497→  fr: {
+   498→    advisor: `\n\nMode: CONSEILLER DE CARRIÈRE — Tu es un conseiller de carrière bienveillant et expert. Tu aides les utilisateurs avec: préparation aux entretiens, optimisation de CV, stratégies de recherche d'emploi, développement de compétences, conseils de négociation salariale, planification de carrière. Utilise le knowledge base HireNova pour orienter vers les bons outils quand c'est pertinent. Réponds en français.`,
+   499→    support: `\n\nMode: SUPPORT TECHNIQUE — Tu résous les problèmes techniques, bugs, problèmes de facturation, questions sur les plans, problèmes de compte. Si le problème nécessite une intervention humaine, informe que le support peut créer un ticket à support@hirenova.app. Réponds en français.`,
+   500→    products: `\n\nMode: PRODUITS — Tu es l'expert produit HireNova. Tu connais en détail les 13 modules de l'écosystème. Quand on te demande sur un module, explique le flux complet étape par étape, les fonctionnalités, les tarifs. Quand on te demande où accéder, indique la carte correspondante dans l'écosystème. Réponds en français.`
+   501→  },
+   502→  en: {
+   503→    advisor: `\n\nMode: CAREER ADVISOR — You are a compassionate and expert career advisor. You help users with: interview preparation, CV optimization, job search strategies, skill development, salary negotiation advice, career planning. Use the HireNova knowledge base to guide users to the right tools when relevant. Respond in English.`,
+   504→    support: `\n\nMode: TECHNICAL SUPPORT — You resolve technical issues, bugs, billing questions, plan inquiries, account problems. If the issue requires human intervention, inform that support can create a ticket at support@hirenova.app. Respond in English.`,
+   505→    products: `\n\nMode: PRODUCTS — You are the HireNova product expert. You know all 13 ecosystem modules in detail. When asked about a module, explain the complete step-by-step flow, features, and pricing. When asked how to access a module, indicate the corresponding card in the ecosystem. Respond in English.`
+   506→  },
+   507→  ar: {
+   508→    advisor: `\n\nالوضع: مستشار مهني — أنت مستشار مهني خبير ومتعاطف. تساعد المستخدمين في: التحضير للمقابلات، تحسين السيرة الذاتية، استراتيجيات البحث عن عمل، تطوير المهارات، نصائح التفاوض على الراتب، تخطيط المسار المهني. استخدم قاعدة معرفة HireNova لتوجيه المستخدمين للأدوات المناسبة عند الحاجة. أجب بالعربية.`,
+   509→    support: `\n\nالوضع: الدعم الفني — تحل المشاكل التقنية، الأخطاء، أسئلة الفوترة، استفسارات الخطط، مشاكل الحساب. إذا تطلب الأمر تدخلاً بشرياً، أخبر أن الدعم يمكنه إنشاء تذكرة على support@hirenova.app. أجب بالعربية.`,
+   510→    products: `\n\nالوضع: المنتجات — أنت خبير منتجات HireNova. تعرف جميع وحدات المنظومة الـ13 بالتفصيل. عند السؤال عن وحدة، اشرح مسار العمل الكامل خطوة بخطوة، الميزات، والأسعار. عند السؤال عن كيفية الوصول، أشر إلى البطاقة المقابلة في المنظومة. أجب بالعربية.`
+   511→  },
+   512→  es: {
+   513→    advisor: `\n\nModo: ASESOR DE CARRERA — Eres un asesor de carrera experto y compasivo. Ayudas a los usuarios con: preparación para entrevistas, optimización de CV, estrategias de búsqueda de empleo, desarrollo de habilidades, consejos de negociación salarial, planificación profesional. Usa la base de conocimiento de HireNova para guiar a los usuarios hacia las herramientas adecuadas cuando sea relevante. Responde en español.`,
+   514→    support: `\n\nModo: SOPORTE TÉCNICO — Resuelves problemas técnicos, bugs, preguntas de facturación, consultas de planes, problemas de cuenta. Si el problema requiere intervención humana, informa que el soporte puede crear un ticket en support@hirenova.app. Responde en español.`,
+   515→    products: `\n\nModo: PRODUCTOS — Eres el experto en productos de HireNova. Conoces en detalle los 13 módulos del ecosistema. Cuando te preguntan sobre un módulo, explica el flujo completo paso a paso, las características y los precios. Cuando te preguntan cómo acceder, indica la tarjeta correspondiente en el ecosistema. Responde en español.`
+   516→  }
+   517→}
+   518→
+   519→// ─── Rule-Based Responses (multilingual, instant, no SDK cost) ─────────────
+   520→function ruleBasedResponse(message: string, mode: Mode, lang: Lang): string | null {
+   521→  const q = message.toLowerCase().trim()
+   522→
+   523→  // Global / International
+   524→  if (/global|international|visa|relocation|expatri|monde|pays|internacional|دولي|تأشيرة|reubicaci/.test(q)) {
+   525→    const responses: Record<Lang, string> = {
+   526→      fr: `🌍 **HireNova Global — Recrutement International**\n\nHireNova Global est notre module de recrutement international couvrant 40+ pays sur 5 régions (Europe, Asie, Afrique, Amériques, MENA).\n\n**Comment ça fonctionne :**\n1. Cliquez sur la carte "HireNova Global" (couleur teal) dans l'écosystème\n2. Filtrez par région, pays ou mot-clé\n3. Repérez les badges : 🛂 Visa Sponsorship, 📦 Relocation Package, 🏠 Remote\n4. Consultez le détail de l'offre puis postulez\n\n**Pour les employeurs :** Dashboard global avec statistiques par région, publication d'offres internationales.\n**Pour les candidats :** Matching IA entre votre profil et l'offre, candidature multilingue.`,
+   527→      en: `🌍 **HireNova Global — International Recruitment**\n\nHireNova Global is our international recruitment module covering 40+ countries across 5 regions (Europe, Asia, Africa, Americas, MENA).\n\n**How it works:**\n1. Click the "HireNova Global" card (teal) in the ecosystem\n2. Filter by region, country, or keyword\n3. Look for badges: 🛂 Visa Sponsorship, 📦 Relocation Package, 🏠 Remote\n4. View the job details and apply\n\n**For employers:** Global dashboard with per-region statistics, international job posting.\n**For candidates:** AI matching between your profile and the job, multilingual application.`,
+   528→      ar: `🌍 **HireNova Global — التوظيف الدولي**\n\nHireNova Global هو وحدة التوظيف الدولي الخاص بنا ويغطي أكثر من 40 دولة عبر 5 مناطق (أوروبا، آسيا، أفريقيا، الأمريكيتان، الشرق الأوسط وشمال أفريقيا).\n\n**كيف يعمل:**\n1. انقر على بطاقة "HireNova Global" (اللون الأزرق المخضر) في المنظومة\n2. فلتر حسب المنطقة أو الدولة أو الكلمة المفتاحية\n3. ابحث عن الشارات: 🛂 رعاية التأشيرة، 📦 حزمة الانتقال، 🏠 عمل عن بُعد\n4. عرض تفاصيل العرض ثم تقدم\n\n**أصحاب العمل:** لوحة تحكم عالمية مع إحصائيات حسب المنطقة، نشر عروض دولية.\n**المرشحون:** مطابقة الذكاء الاصطناعي بين ملفك والعرض، تقديم متعدد اللغات.`,
+   529→      es: `🌍 **HireNova Global — Reclutamiento Internacional**\n\nHireNova Global es nuestro módulo de reclutamiento internacional que cubre 40+ países en 5 regiones (Europa, Asia, África, Américas, MENA).\n\n**Cómo funciona:**\n1. Haz clic en la tarjeta "HireNova Global" (turquesa) en el ecosistema\n2. Filtra por región, país o palabra clave\n3. Busca las insignias: 🛂 Visa Sponsorship, 📦 Relocation Package, 🏠 Remoto\n4. Ve los detalles de la oferta y postula\n\n**Para empleadores:** Dashboard global con estadísticas por región, publicación de ofertas internacionales.\n**Para candidatos:** Matching IA entre tu perfil y la oferta, postulación multilingüe.`
+   530→    }
+   531→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   532→  }
+   533→
+   534→  // Mobilité / Mobility
+   535→  if (/mobilit|ocr|reformul|adapter.*cv|standard.*pays|pays cible|movilidad|تنقل|تكيف/.test(q)) {
+   536→    const responses: Record<Lang, string> = {
+   537→      fr: `✈️ **HireNova Mobilité — OCR + NLP Pipeline**\n\nHireNova Mobilité adapte votre CV aux standards de chaque pays via un pipeline IA en 4 étapes :\n\n1. **Upload** : Téléversez votre CV (PDF ou image)\n2. **OCR** : Extraction automatique du texte brut\n3. **Analyse IA (LLM+NLP)** : Structuration en profil (skills, expérience, éducation) + calcul du score de compatibilité avec le pays cible\n4. **Reformulation** : CV + lettre de motivation automatiquement adaptés aux normes du pays\n\n**12 pays supportés** : 🇫🇷 France, 🇬🇧 UK, 🇺🇸 USA, 🇨🇦 Canada, 🇩🇪 Allemagne, 🇦🇪 UAE, 🇨🇭 Suisse, 🇧🇪 Belgique, 🇪🇸 Espagne, 🇮🇹 Italie, 🇯🇵 Japon, 🇦🇺 Australie.\n\nAccès : carte "HireNova Mobilité" (couleur violet) dans l'écosystème.`,
+   538→      en: `✈️ **HireNova Mobility — OCR + NLP Pipeline**\n\nHireNova Mobility adapts your CV to each country's standards via a 4-step AI pipeline:\n\n1. **Upload**: Upload your CV (PDF or image)\n2. **OCR**: Automatic text extraction\n3. **AI Analysis (LLM+NLP)**: Profile structuring (skills, experience, education) + compatibility score calculation with target country\n4. **Reformulation**: CV + cover letter automatically adapted to country standards\n\n**12 supported countries**: 🇫🇷 France, 🇬🇧 UK, 🇺🇸 USA, 🇨🇦 Canada, 🇩🇪 Germany, 🇦🇪 UAE, 🇨🇭 Switzerland, 🇧🇪 Belgium, 🇪🇸 Spain, 🇮🇹 Italy, 🇯🇵 Japan, 🇦🇺 Australia\n\nAccess: "HireNova Mobility" card (violet) in the ecosystem.`,
+   539→      ar: `✈️ **HireNova Mobilité — خط أنابيب OCR + NLP**\n\nHireNova Mobilité يكيف سيرتك الذاتية مع معايير كل دولة عبر خط أنابيب ذكاء اصطناعي من 4 خطوات:\n\n1. **الرفع**: ارفع سيرتك الذاتية (PDF أو صورة)\n2. **OCR**: استخراج نص تلقائي\n3. **تحليل الذكاء الاصطناعي (LLM+NLP)**: تنظيم الملف (المهارات، الخبرة، التعليم) + حساب درجة التوافق مع الدولة المستهدفة\n4. **إعادة الصياغة**: سيرة ذاتية + رسالة تحفيزية مكيّفة تلقائياً مع معايير الدولة\n\n**12 دولة مدعومة**: 🇫🇷 فرنسا، 🇬🇧 بريطانيا، 🇺🇸 أمريكا، 🇨🇦 كندا، 🇩🇪 ألمانيا، 🇦🇪 الإمارات، 🇨🇭 سويسرا، 🇧🇪 بلجيكا، 🇪🇸 إسبانيا، 🇮🇹 إيطاليا، 🇯🇵 اليابان، 🇦🇺 أستراليا\n\nالوصول: بطاقة "HireNova Mobilité" (بنفسجي) في المنظومة.`,
+   540→      es: `✈️ **HireNova Mobilité — Pipeline OCR + NLP**\n\nHireNova Mobilité adapta tu CV a los estándares de cada país a través de un pipeline de IA en 4 pasos:\n\n1. **Subida**: Sube tu CV (PDF o imagen)\n2. **OCR**: Extracción automática de texto\n3. **Análisis IA (LLM+NLP)**: Estructuración de perfil (skills, experiencia, educación) + cálculo de puntuación de compatibilidad con el país destino\n4. **Reformulación**: CV + carta de motivación adaptados automáticamente a los estándares del país\n\n**12 países soportados**: 🇫🇷 Francia, 🇬🇧 UK, 🇺🇸 USA, 🇨🇦 Canadá, 🇩🇪 Alemania, 🇦🇪 EAU, 🇨🇭 Suiza, 🇧🇪 Bélgica, 🇪🇸 España, 🇮🇹 Italia, 🇯🇵 Japón, 🇦🇺 Australia\n\nAcceso: tarjeta "HireNova Mobilité" (violeta) en el ecosistema.`
+   541→    }
+   542→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   543→  }
+   544→
+   545→  // CV
+   546→  if (/^.*cv.*$/.test(q) && /comment|marche|fonction|cré|gener|fais|how|work|function|create|generat|cómo|funciona|crear|gener|كيف|يعمل|إنشاء|سيرة/.test(q)) {
+   547→    const responses: Record<Lang, string> = {
+   548→      fr: `📄 **HireNova CV — Générateur de CV IA**\n\nCréez un CV professionnel en 60 secondes :\n\n1. Cliquez sur la carte "HireNova CV" dans l'écosystème\n2. Choisissez votre persona (Étudiant, Diplômé, Professionnel, Cadre, Freelance, Expatrié)\n3. Sélectionnez un template (Moderne, Classique, Créatif) et la langue (FR/EN/AR/ES)\n4. Remplissez le formulaire en 4 étapes : Identité, Expérience, Éducation, Compétences\n5. L'IA génère votre CV optimisé en quelques secondes\n6. Exportez en PDF ou Word (plan Pro)\n\n**Gratuit** : 3 CV/mois. **Pro** : 6.99€/mois, CV illimités.`,
+   549→      en: `📄 **HireNova CV — AI CV Generator**\n\nCreate a professional CV in 60 seconds:\n\n1. Click the "HireNova CV" card in the ecosystem\n2. Choose your persona (Student, Graduate, Professional, Executive, Freelancer, Expat)\n3. Select a template (Modern, Classic, Creative) and language (FR/EN/AR/ES)\n4. Fill in the 4-step form: Identity, Experience, Education, Skills\n5. AI generates your optimized CV in seconds\n6. Export as PDF or Word (Pro plan)\n\n**Free**: 3 CVs/month. **Pro**: €6.99/month, unlimited CVs.`,
+   550→      ar: `📄 **HireNova CV — مولّد السيرة الذاتية بالذكاء الاصطناعي**\n\nأنشئ سيرة ذاتية احترافية في 60 ثانية:\n\n1. انقر على بطاقة "HireNova CV" في المنظومة\n2. اختر شخصيتك (طالب، خريج، محترف، مدير تنفيذي، مستقل، مغترب)\n3. اختر قالباً (عصري، كلاسيكي، إبداعي) ولغة (FR/EN/AR/ES)\n4. املأ النموذج في 4 خطوات: الهوية، الخبرة، التعليم، المهارات\n5. الذكاء الاصطناعي ينشئ سيرتك الذاتية المحسّنة في ثوانٍ\n6. صدّر كـ PDF أو Word (خطة Pro)\n\n**مجاني**: 3 سير ذاتية/شهر. **Pro**: 6.99€/شهر، غير محدود.`,
+   551→      es: `📄 **HireNova CV — Generador de CV con IA**\n\nCrea un currículum profesional en 60 segundos:\n\n1. Haz clic en la tarjeta "HireNova CV" en el ecosistema\n2. Elige tu perfil (Estudiante, Graduado, Profesional, Ejecutivo, Freelance, Expatriado)\n3. Selecciona una plantilla (Moderno, Clásico, Creativo) e idioma (FR/EN/AR/ES)\n4. Rellena el formulario en 4 pasos: Identidad, Experiencia, Educación, Habilidades\n5. La IA genera tu CV optimizado en segundos\n6. Exporta como PDF o Word (plan Pro)\n\n**Gratuito**: 3 CVs/mes. **Pro**: 6,99€/mes, CVs ilimitados.`
+   552→    }
+   553→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   554→  }
+   555→
+   556→  // ATS
+   557→  if (/ats|score|compatib|tracking|applicant|توافق/.test(q)) {
+   558→    const responses: Record<Lang, string> = {
+   559→      fr: `🎯 **HireNova ATS — Score de Compatibilité**\n\nL'analyse ATS évalue la compatibilité de votre CV avec les systèmes de tri automatique des recruteurs.\n\n**Comment ça marche :**\n1. Créez d'abord un CV (carte "HireNova CV")\n2. Sur la page Preview, cliquez sur "Analyse ATS"\n3. Obtenez un score sur 100 avec 4 catégories :\n   - 🎯 Mots-clés / SEO\n   - 🛡️ Structure / Format\n   - 📈 Impact de l'expérience\n   - ✅ Complétude\n4. Recevez des suggestions d'amélioration personnalisées\n\n**Astuce** : visez un score > 80 pour passer les filtres ATS.`,
+   560→      en: `🎯 **HireNova ATS — Compatibility Score**\n\nATS analysis evaluates your CV's compatibility with recruiter screening systems.\n\n**How it works:**\n1. Create a CV first ("HireNova CV" card)\n2. On the Preview page, click "ATS Analysis"\n3. Get a score out of 100 with 4 categories:\n   - 🎯 Keywords / SEO\n   - 🛡️ Structure / Format\n   - 📈 Experience Impact\n   - ✅ Completeness\n4. Receive personalized improvement suggestions\n\n**Tip**: Aim for a score > 80 to pass most ATS filters.`,
+   561→      ar: `🎯 **HireNova ATS — درجة التوافق**\n\nيقيّم تحليل ATS مدى توافق سيرتك الذاتية مع أنظمة فرز مسؤولي التوظيف.\n\n**كيف يعمل:**\n1. أنشئ سيرة ذاتية أولاً (بطاقة "HireNova CV")\n2. على صفحة المعاينة، انقر "تحليل ATS"\n3. احصل على درجة من 100 مع 4 فئات:\n   - 🎯 الكلمات المفتاحية / SEO\n   - 🛡️ الهيكل / التنسيق\n   - 📈 تأثير الخبرة\n   - ✅ الاكتمال\n4. استلم اقتراحات تحسين مخصصة\n\n**نصيحة**: استهدف درجة > 80 لاجتياز فلاتر ATS.`,
+   562→      es: `🎯 **HireNova ATS — Puntuación de Compatibilidad**\n\nEl análisis ATS evalúa la compatibilidad de tu CV con los sistemas de filtrado de reclutadores.\n\n**Cómo funciona:**\n1. Crea primero un CV (tarjeta "HireNova CV")\n2. En la página de Vista Previa, haz clic en "Análisis ATS"\n3. Obtén una puntuación sobre 100 con 4 categorías:\n   - 🎯 Palabras clave / SEO\n   - 🛡️ Estructura / Formato\n   - 📈 Impacto de experiencia\n   - ✅ Completitud\n4. Recibe sugerencias de mejora personalizadas\n\n**Consejo**: Apunta a una puntuación > 80 para pasar los filtros ATS.`
+   563→    }
+   564→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   565→  }
+   566→
+   567→  // Jobs
+   568→  if (/jobs|emploi|offre|marketplace|postul|trabajo|oferta|empleo|وظائف|عمل|عروض/.test(q) && !/global|international|internacional|دولي/.test(q)) {
+   569→    const responses: Record<Lang, string> = {
+   570→      fr: `💼 **HireNova Jobs — Marketplace d'Emplois**\n\nHireNova Jobs connecte candidats et employeurs au Maroc et à l'international.\n\n**Candidats :** Parcourez les offres, filtrez, postulez en un clic, suivez vos candidatures.\n**Employeurs :** Publiez des offres, dashboard avec statistiques, gérez les candidatures.\n\nAccès : carte "HireNova Jobs" dans l'écosystème.`,
+   571→      en: `💼 **HireNova Jobs — Job Marketplace**\n\nHireNova Jobs connects candidates and employers in Morocco and internationally.\n\n**Candidates:** Browse offers, filter, apply in one click, track your applications.\n**Employers:** Post jobs, dashboard with statistics, manage applications.\n\nAccess: "HireNova Jobs" card in the ecosystem.`,
+   572→      ar: `💼 **HireNova Jobs — سوق الوظائف**\n\nيربط HireNova Jobs المرشحين وأصحاب العمل في المغرب ودولياً.\n\n**المرشحون:** تصفح العروض، فلتر، تقدم بنقرة واحدة، تابع طلباتك.\n**أصحاب العمل:** انشر عروض عمل، لوحة تحكم مع إحصائيات، أدِر الطلبات.\n\nالوصول: بطاقة "HireNova Jobs" في المنظومة.`,
+   573→      es: `💼 **HireNova Jobs — Marketplace de Empleos**\n\nHireNova Jobs conecta candidatos y empleadores en Marruecos e internacionalmente.\n\n**Candidatos:** Navega ofertas, filtra, postula en un clic, rastrea tus postulaciones.\n**Empleadores:** Publica ofertas, dashboard con estadísticas, gestiona postulaciones.\n\nAcceso: tarjeta "HireNova Jobs" en el ecosistema.`
+   574→    }
+   575→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   576→  }
+   577→
+   578→  // API
+   579→  if (/api|endpoint|developer|développeur|rest|intégr|desarrollador|integraci/.test(q)) {
+   580→    const responses: Record<Lang, string> = {
+   581→      fr: `🔌 **HireNova API — Portail Développeur**\n\nIntégrez les fonctionnalités HireNova via notre API REST.\n\n**Endpoints :** POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage\n\n**Plans :** Starter (gratuit, 100 req/mois), Pro (29€/mois, 5000 req/mois), Enterprise (sur devis)\n\nAccès : carte "HireNova API" dans l'écosystème.`,
+   582→      en: `🔌 **HireNova API — Developer Portal**\n\nIntegrate HireNova features via our REST API.\n\n**Endpoints:** POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage\n\n**Plans:** Starter (free, 100 req/month), Pro (€29/month, 5000 req/month), Enterprise (custom pricing)\n\nAccess: "HireNova API" card in the ecosystem.`,
+   583→      ar: `🔌 **HireNova API — بوابة المطورين**\n\nادمج ميزات HireNova عبر واجهة REST API الخاصة بنا.\n\n**نقاط النهاية:** POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage\n\n**الخطط:** Starter (مجاني، 100 طلب/شهر)، Pro (29€/شهر، 5000 طلب/شهر)، Enterprise (حسب الطلب)\n\nالوصول: بطاقة "HireNova API" في المنظومة.`,
+   584→      es: `🔌 **HireNova API — Portal de Desarrolladores**\n\nIntegra las funciones de HireNova a través de nuestra API REST.\n\n**Endpoints:** POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage\n\n**Planes:** Starter (gratuito, 100 peticiones/mes), Pro (29€/mes, 5000 peticiones/mes), Enterprise (bajo presupuesto)\n\nAcceso: tarjeta "HireNova API" en el ecosistema.`
+   585→    }
+   586→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   587→  }
+   588→
+   589→  // LinkedIn
+   590→  if (/linkedin|لينكدإن|perfil.*linkedin/.test(q)) {
+   591→    const responses: Record<Lang, string> = {
+   592→      fr: `🔗 **HireNova LinkedIn — Optimiseur de Profil**\n\nOptimisez votre profil LinkedIn grâce à l'IA :\n- Analyse et amélioration du headline, résumé, expérience et compétences\n- Suggestions de mots-clés pour la visibilité recruteurs\n- Optimisation SEO LinkedIn\n\nAccès : carte "HireNova LinkedIn" dans l'écosystème.`,
+   593→      en: `🔗 **HireNova LinkedIn — Profile Optimizer**\n\nOptimize your LinkedIn profile with AI:\n- Analysis and improvement of headline, summary, experience, and skills\n- Keyword suggestions for recruiter visibility\n- LinkedIn SEO optimization\n\nAccess: "HireNova LinkedIn" card in the ecosystem.`,
+   594→      ar: `🔗 **HireNova LinkedIn — محسّن الملف الشخصي**\n\nحسّن ملفك على لينكدإن بالذكاء الاصطناعي:\n- تحليل وتحسين العنوان، الملخص، الخبرة والمهارات\n- اقتراحات كلمات مفتاحية لظهورك لدى مسؤولي التوظيف\n- تحسين SEO لينكدإن\n\nالوصول: بطاقة "HireNova LinkedIn" في المنظومة.`,
+   595→      es: `🔗 **HireNova LinkedIn — Optimizador de Perfil**\n\nOptimiza tu perfil de LinkedIn con IA:\n- Análisis y mejora de titular, resumen, experiencia y habilidades\n- Sugerencias de palabras clave para visibilidad de reclutadores\n- Optimización SEO de LinkedIn\n\nAcceso: tarjeta "HireNova LinkedIn" en el ecosistema.`
+   596→    }
+   597→    if (mode === 'products') return responses[lang]
+   598→  }
+   599→
+   600→  // Recruiter
+   601→  if (/recruiter|matching|reclutador|توظيف|مطابقة/.test(q)) {
+   602→    const responses: Record<Lang, string> = {
+   603→      fr: `🤝 **HireNova Recruiter — Matching IA**\n\nMatching intelligent entre candidats et offres d'emploi :\n- Algorithme de compatibilité multi-critères\n- Suggestions de candidats pour les recruteurs\n- Suggestions d'offres pour les candidats\n- Dashboard recruteur avec pipelines\n\nAccès : carte "HireNova Recruiter" dans l'écosystème.`,
+   604→      en: `🤝 **HireNova Recruiter — AI Matching**\n\nSmart matching between candidates and job offers:\n- Multi-criteria compatibility algorithm\n- Candidate suggestions for recruiters\n- Job suggestions for candidates\n- Recruiter dashboard with pipelines\n\nAccess: "HireNova Recruiter" card in the ecosystem.`,
+   605→      ar: `🤝 **HireNova Recruiter — مطابقة الذكاء الاصطناعي**\n\nمطابقة ذكية بين المرشحين وعروض العمل:\n- خوارزمية توافق متعددة المعايير\n- اقتراحات مرشحين لمسؤولي التوظيف\n- اقتراحات عروض للمرشحين\n- لوحة تحكم مسؤول التوظيف مع خطوط توظيف\n\nالوصول: بطاقة "HireNova Recruiter" في المنظومة.`,
+   606→      es: `🤝 **HireNova Recruiter — Matching IA**\n\nMatching inteligente entre candidatos y ofertas de empleo:\n- Algoritmo de compatibilidad multi-criterios\n- Sugerencias de candidatos para reclutadores\n- Sugerencias de ofertas para candidatos\n- Dashboard de reclutador con pipelines\n\nAcceso: tarjeta "HireNova Recruiter" en el ecosistema.`
+   607→    }
+   608→    if (mode === 'products') return responses[lang]
+   609→  }
+   610→
+   611→  // Career Roadmap
+   612→  if (/career|roadmap|parcours|مسار.*مهني|hoja.*ruta|plan.*carrera/.test(q)) {
+   613→    const responses: Record<Lang, string> = {
+   614→      fr: `🗺️ **HireNova Career — Feuille de Route Professionnelle**\n\nPlanifiez votre évolution professionnelle :\n- Analyse des compétences actuelles vs. cibles\n- Plan d'apprentissage sur mesure\n- Jalons de carrière avec timelines\n- Recommandations de formations et certifications\n\nAccès : carte "HireNova Career" dans l'écosystème.`,
+   615→      en: `🗺️ **HireNova Career — Career Roadmap**\n\nPlan your professional evolution:\n- Analysis of current vs. target skills\n- Custom learning plan\n- Career milestones with timelines\n- Training and certification recommendations\n\nAccess: "HireNova Career" card in the ecosystem.`,
+   616→      ar: `🗺️ **HireNova Career — خريطة الطريق المهنية**\n\nخطط لتطويرك المهني:\n- تحليل المهارات الحالية مقابل المستهدفة\n- خطة تعلم مخصصة\n- معالم مهنية مع جداول زمنية\n- توصيات تدريب وشهادات\n\nالوصول: بطاقة "HireNova Career" في المنظومة.`,
+   617→      es: `🗺️ **HireNova Career — Hoja de Ruta Profesional**\n\nPlanifica tu evolución profesional:\n- Análisis de habilidades actuales vs. objetivo\n- Plan de aprendizaje personalizado\n- Hitos profesionales con timelines\n- Recomendaciones de formación y certificaciones\n\nAcceso: tarjeta "HireNova Career" en el ecosistema.`
+   618→    }
+   619→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   620→  }
+   621→
+   622→  // Coach
+   623→  if (/coach|coaching|entraîneur|تدريب|مدرب|entrenador|asesoramiento/.test(q)) {
+   624→    const responses: Record<Lang, string> = {
+   625→      fr: `🎓 **HireNova Coach — Coach IA de Carrière**\n\nVotre coach interactif pour :\n- Préparation aux entretiens (mock interviews)\n- Retour détaillé sur vos réponses\n- Conseils de négociation salariale\n- Planification de développement professionnel\n\nAccès : carte "HireNova Coach" dans l'écosystème.`,
+   626→      en: `🎓 **HireNova Coach — AI Career Coach**\n\nYour interactive coach for:\n- Interview preparation (mock interviews)\n- Detailed feedback on your answers\n- Salary negotiation advice\n- Professional development planning\n\nAccess: "HireNova Coach" card in the ecosystem.`,
+   627→      ar: `🎓 **HireNova Coach — مدرب مهني بالذكاء الاصطناعي**\n\nمدربك التفاعلي لـ:\n- التحضير للمقابلات (مقابلات تجريبية)\n- ملاحظات مفصلة على إجاباتك\n- نصائح التفاوض على الراتب\n- تخطيط التطوير المهني\n\nالوصول: بطاقة "HireNova Coach" في المنظومة.`,
+   628→      es: `🎓 **HireNova Coach — Coach Profesional IA**\n\nTu coach interactivo para:\n- Preparación para entrevistas (mock interviews)\n- Feedback detallado sobre tus respuestas\n- Consejos de negociación salarial\n- Planificación de desarrollo profesional\n\nAcceso: tarjeta "HireNova Coach" en el ecosistema.`
+   629→    }
+   630→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   631→  }
+   632→
+   633→  // Formation
+   634→  if (/formation|training|تدريب|تعليم|formaci|aprendizaje|curso/.test(q)) {
+   635→    const responses: Record<Lang, string> = {
+   636→      fr: `📚 **HireNova Formation — Plateforme de Formation**\n\nDéveloppez vos compétences :\n- Parcours d'apprentissage personnalisés\n- Contenu varié : vidéo, articles, quiz interactifs\n- Certifications HireNova\n- Suivi de progression\n\nAccès : carte "HireNova Formation" dans l'écosystème.`,
+   637→      en: `📚 **HireNova Formation — Training Platform**\n\nDevelop your skills:\n- Personalized learning paths\n- Varied content: video, articles, interactive quizzes\n- HireNova certifications\n- Progress tracking\n\nAccess: "HireNova Formation" card in the ecosystem.`,
+   638→      ar: `📚 **HireNova Formation — منصة التدريب**\n\nطوّر مهاراتك:\n- مسارات تعلم مخصصة\n- محتوى متنوع: فيديو، مقالات، اختبارات تفاعلية\n- شهادات HireNova\n- تتبع التقدم\n\nالوصول: بطاقة "HireNova Formation" في المنظومة.`,
+   639→      es: `📚 **HireNova Formation — Plataforma de Formación**\n\nDesarrolla tus habilidades:\n- Rutas de aprendizaje personalizadas\n- Contenido variado: video, artículos, quizzes interactivos\n- Certificaciones HireNova\n- Seguimiento de progreso\n\nAcceso: tarjeta "HireNova Formation" en el ecosistema.`
+   640→    }
+   641→    if (mode === 'products') return responses[lang]
+   642→  }
+   643→
+   644→  // Freelance
+   645→  if (/freelance|freelancer|independant|مستقل|حُر|freelance/.test(q)) {
+   646→    const responses: Record<Lang, string> = {
+   647→      fr: `💼 **HireNova Freelance — Marketplace Freelance**\n\nTrouvez des missions ou des freelances :\n- Mise en relation freelances/clients\n- Portefeuille de projets\n- Système de paiements sécurisés\n- Évaluations et avis\n\nAccès : carte "HireNova Freelance" dans l'écosystème.`,
+   648→      en: `💼 **HireNova Freelance — Freelance Marketplace**\n\nFind projects or freelancers:\n- Freelancer/client matching\n- Project portfolio\n- Secure payment system\n- Ratings and reviews\n\nAccess: "HireNova Freelance" card in the ecosystem.`,
+   649→      ar: `💼 **HireNova Freelance — السوق المستقل**\n\nاعثر على مشاريع أو مستقلين:\n- ربط المستقلين بالعملاء\n- محفظة مشاريع\n- نظام دفع آمن\n- تقييمات وآراء\n\nالوصول: بطاقة "HireNova Freelance" في المنظومة.`,
+   650→      es: `💼 **HireNova Freelance — Marketplace Freelance**\n\nEncuentra proyectos o freelancers:\n- Conexión freelancers/clientes\n- Portafolio de proyectos\n- Sistema de pagos seguros\n- Calificaciones y reseñas\n\nAcceso: tarjeta "HireNova Freelance" en el ecosistema.`
+   651→    }
+   652→    if (mode === 'products') return responses[lang]
+   653→  }
+   654→
+   655→  // Interview
+   656→  if (/interview|entretien|مقابل|entrevista/.test(q)) {
+   657→    const responses: Record<Lang, string> = {
+   658→      fr: `🎤 **HireNova Interview — Simulation d'Entretiens IA**\n\nPréparez-vous aux entretiens :\n- Questions adaptées au poste et au secteur\n- Évaluation en temps réel de vos réponses\n- Rapport détaillé post-entretien\n- Préparation technique et comportementale\n\nAccès : carte "HireNova Interview" dans l'écosystème.`,
+   659→      en: `🎤 **HireNova Interview — AI Interview Simulation**\n\nPrepare for interviews:\n- Questions tailored to the position and industry\n- Real-time answer evaluation\n- Detailed post-interview report\n- Technical and behavioral preparation\n\nAccess: "HireNova Interview" card in the ecosystem.`,
+   660→      ar: `🎤 **HireNova Interview — محاكاة مقابلات بالذكاء الاصطناعي**\n\nحضّر للمقابلات:\n- أسئلة مخصصة حسب المنصب والقطاع\n- تقييم الإجابات في الوقت الفعلي\n- تقرير مفصل بعد المقابلة\n- تحضير تقني وسلوكي\n\nالوصول: بطاقة "HireNova Interview" في المنظومة.`,
+   661→      es: `🎤 **HireNova Interview — Simulación de Entrevistas IA**\n\nPrepárate para entrevistas:\n- Preguntas adaptadas al puesto y sector\n- Evaluación en tiempo real de respuestas\n- Reporte detallado post-entrevista\n- Preparación técnica y conductual\n\nAcceso: tarjeta "HireNova Interview" en el ecosistema.`
+   662→    }
+   663→    if (mode === 'advisor' || mode === 'products') return responses[lang]
+   664→  }
+   665→
+   666→  // Tarification / Pricing
+   667→  if (/prix|tarif|coût|coute|combien|plan|gratuit|pro|lifetime|annuel|price|pricing|cost|free|annual|precio|costo|gratis|سعر|تكلفة|مجاني/.test(q)) {
+   668→    const responses: Record<Lang, string> = {
+   669→      fr: `💳 **Tarification HireNova**\n\n**CV Generator :**\n- Gratuit : 3 CV/mois, watermark\n- Pro : 6.99€/mois — CV illimités, lettres, ATS, export PDF+Word\n- Annuel : 70€/an — Tout Pro + priorité support\n- Lifetime : paiement unique, accès permanent\n\n**API :**\n- Starter : gratuit, 100 req/mois\n- Pro : 29€/mois, 5000 req/mois\n- Enterprise : sur devis`,
+   670→      en: `💳 **HireNova Pricing**\n\n**CV Generator:**\n- Free: 3 CVs/month, watermark\n- Pro: €6.99/month — Unlimited CVs, cover letters, ATS, PDF+Word export\n- Annual: €70/year — Everything in Pro + priority support\n- Lifetime: One-time payment, permanent access\n\n**API:**\n- Starter: Free, 100 req/month\n- Pro: €29/month, 5000 req/month\n- Enterprise: Custom pricing`,
+   671→      ar: `💳 **أسعار HireNova**\n\n**مولّد السير الذاتية:**\n- مجاني: 3 سير ذاتية/شهر، علامة مائية\n- Pro: 6.99€/شهر — غير محدود، رسائل، ATS، تصدير PDF+Word\n- سنوي: 70€/سنة — كل ما في Pro + دعم أولوية\n- مدى الحياة: دفعة واحدة، وصول دائم\n\n**API:**\n- Starter: مجاني، 100 طلب/شهر\n- Pro: 29€/شهر، 5000 طلب/شهر\n- Enterprise: حسب الطلب`,
+   672→      es: `💳 **Tarificación HireNova**\n\n**Generador de CV:**\n- Gratuito: 3 CVs/mes, marca de agua\n- Pro: 6,99€/mes — CVs ilimitados, cartas, ATS, exportación PDF+Word\n- Anual: 70€/año — Todo Pro + soporte prioritario\n- Lifetime: Pago único, acceso permanente\n\n**API:**\n- Starter: Gratuito, 100 peticiones/mes\n- Pro: 29€/mes, 5000 peticiones/mes\n- Enterprise: Bajo presupuesto`
+   673→    }
+   674→    return responses[lang]
+   675→  }
+   676→
+   677→  // Help / Greetings
+   678→  if (/^(bonjour|salut|hello|hi|coucou|aide|help|comment.*marche|que.*peux|مرحب|أهلا|مساعدة|كيف|hola|ayuda|cómo funciona|qué puedes)/.test(q)) {
+   679→    const responses: Record<Lang, string> = {
+   680→      fr: `Bonjour ! 👋 Je suis l'assistant HireNova. Je peux vous renseigner sur nos 13 modules :\n\n📄 **HireNova CV** — génération de CV IA\n🎯 **HireNova ATS** — score de compatibilité\n💼 **HireNova Jobs** — marketplace d'emplois\n🌍 **HireNova Global** — recrutement international\n✈️ **HireNova Mobilité** — adaptation CV par pays\n🔌 **HireNova API** — intégration développeur\n🔗 **HireNova LinkedIn** — optimisation profil\n🤝 **HireNova Recruiter** — matching IA\n🗺️ **HireNova Career** — feuille de route professionnelle\n🎓 **HireNova Coach** — coach IA\n📚 **HireNova Formation** — formation en ligne\n💼 **HireNova Freelance** — marketplace freelance\n🎤 **HireNova Interview** — simulation d'entretiens\n\nPosez-moi votre question !`,
+   681→      en: `Hello! 👋 I'm the HireNova assistant. I can help you with our 13 modules:\n\n📄 **HireNova CV** — AI CV generation\n🎯 **HireNova ATS** — compatibility score\n💼 **HireNova Jobs** — job marketplace\n🌍 **HireNova Global** — international recruitment\n✈️ **HireNova Mobility** — CV adaptation by country\n🔌 **HireNova API** — developer integration\n🔗 **HireNova LinkedIn** — profile optimization\n🤝 **HireNova Recruiter** — AI matching\n🗺️ **HireNova Career** — career roadmap\n🎓 **HireNova Coach** — AI coach\n📚 **HireNova Formation** — online training\n💼 **HireNova Freelance** — freelance marketplace\n🎤 **HireNova Interview** — interview simulation\n\nAsk me your question!`,
+   682→      ar: `مرحباً! 👋 أنا مساعد HireNova. يمكنني مساعدتك حول وحداتنا الـ13:\n\n📄 **HireNova CV** — إنشاء سيرة ذاتية بالذكاء الاصطناعي\n🎯 **HireNova ATS** — درجة التوافق\n💼 **HireNova Jobs** — سوق الوظائف\n🌍 **HireNova Global** — التوظيف الدولي\n✈️ **HireNova Mobilité** — تكيف السيرة الذاتية حسب الدولة\n🔌 **HireNova API** — تكامل المطورين\n🔗 **HireNova LinkedIn** — تحسين الملف الشخصي\n🤝 **HireNova Recruiter** — مطابقة الذكاء الاصطناعي\n🗺️ **HireNova Career** — خريطة الطريق المهنية\n🎓 **HireNova Coach** — مدرب ذكي\n📚 **HireNova Formation** — تدريب عبر الإنترنت\n💼 **HireNova Freelance** — السوق المستقل\n🎤 **HireNova Interview** — محاكاة المقابلات\n\nاسألني سؤالك!`,
+   683→      es: `¡Hola! 👋 Soy el asistente de HireNova. Puedo ayudarte con nuestros 13 módulos:\n\n📄 **HireNova CV** — Generación de CV con IA\n🎯 **HireNova ATS** — Puntuación de compatibilidad\n💼 **HireNova Jobs** — Marketplace de empleos\n🌍 **HireNova Global** — Reclutamiento internacional\n✈️ **HireNova Mobilité** — Adaptación de CV por país\n🔌 **HireNova API** — Integración para desarrolladores\n🔗 **HireNova LinkedIn** — Optimización de perfil\n🤝 **HireNova Recruiter** — Matching IA\n🗺️ **HireNova Career** — Hoja de ruta profesional\n🎓 **HireNova Coach** — Coach IA\n📚 **HireNova Formation** — Formación online\n💼 **HireNova Freelance** — Marketplace freelance\n🎤 **HireNova Interview** — Simulación de entrevistas\n\n¡Pregúntame lo que necesites!`
+   684→    }
+   685→    return responses[lang]
+   686→  }
+   687→
+   688→  return null
+   689→}
+   690→
+   691→// ─── Fallback Messages ─────────────────────────────────────────────────────
+   692→const FALLBACK: Record<Lang, string> = {
+   693→  fr: `Je suis l'assistant HireNova. Voici nos 13 modules :\n\n📄 CV • 🎯 ATS • 💼 Jobs • 🌍 Global • ✈️ Mobilité • 🔌 API\n🔗 LinkedIn • 🤝 Recruiter • 🗺️ Career • 🎓 Coach • 📚 Formation • 💼 Freelance • 🎤 Interview\n\nReformulez votre demande sur l'un de ces modules.`,
+   694→  en: `I'm the HireNova assistant. Here are our 13 modules:\n\n📄 CV • 🎯 ATS • 💼 Jobs • 🌍 Global • ✈️ Mobility • 🔌 API\n🔗 LinkedIn • 🤝 Recruiter • 🗺️ Career • 🎓 Coach • 📚 Formation • 💼 Freelance • 🎤 Interview\n\nPlease rephrase your question about one of these modules.`,
+   695→  ar: `أنا مساعد HireNova. إليك وحداتنا الـ13:\n\n📄 CV • 🎯 ATS • 💼 Jobs • 🌍 Global • ✈️ Mobilité • 🔌 API\n🔗 LinkedIn • 🤝 Recruiter • 🗺️ Career • 🎓 Coach • 📚 Formation • 💼 Freelance • 🎤 Interview\n\nيُرجى إعادة صياغة سؤالك حول إحدى هذه الوحدات.`,
+   696→  es: `Soy el asistente de HireNova. Estos son nuestros 13 módulos:\n\n📄 CV • 🎯 ATS • 💼 Jobs • 🌍 Global • ✈️ Mobilité • 🔌 API\n🔗 LinkedIn • 🤝 Recruiter • 🗺️ Career • 🎓 Coach • 📚 Formation • 💼 Freelance • 🎤 Interview\n\nReformula tu pregunta sobre uno de estos módulos.`
+   697→}
+   698→
+   699→const ERROR_MSG: Record<Lang, string> = {
+   700→  fr: 'Je suis temporairement indisponible. Reformulez votre question sur les modules HireNova.',
+   701→  en: 'I\'m temporarily unavailable. Please rephrase your question about HireNova modules.',
+   702→  ar: 'أنا غير متاح مؤقتاً. يرجى إعادة صياغة سؤالك حول وحدات HireNova.',
+   703→  es: 'Estoy temporalmente no disponible. Reformula tu pregunta sobre los módulos de HireNova.'
+   704→}
+   705→
+   706→const INVALID_MSG: Record<Lang, string> = {
+   707→  fr: "Je n'ai pas reçu de message valide. Pouvez-vous reformuler ?",
+   708→  en: "I didn't receive a valid message. Could you rephrase?",
+   709→  ar: 'لم أتلق رسالة صالحة. هل يمكنك إعادة الصياغة؟',
+   710→  es: 'No recibí un mensaje válido. ¿Puedes reformular?'
+   711→}
+   712→
+   713→// ─── Main API Route ────────────────────────────────────────────────────────
+   714→export async function POST(request: NextRequest) {
+   715→  try {
+   716→    const body = await request.json()
+   717→    const { message = '', mode = 'advisor', conversationHistory = [] } = body
+   718→
+   719→    const safeMode = (['advisor', 'support', 'products'].includes(mode) ? mode : 'advisor') as Mode
+   720→    const lang = detectLanguage(message)
+   721→
+   722→    if (!message || typeof message !== 'string') {
+   723→      return NextResponse.json({ success: true, response: INVALID_MSG[lang], lang })
+   724→    }
+   725→
+   726→    // 1) Try rule-based answer first (instant, no SDK cost)
+   727→    const ruleAnswer = ruleBasedResponse(message, safeMode, lang)
+   728→    if (ruleAnswer) {
+   729→      return NextResponse.json({ success: true, response: ruleAnswer, source: 'rules', lang })
+   730→    }
+   731→
+   732→    // 2) Fallback to LLM via ZAI SDK
+   733→    try {
+   734→      const zai = ZAI.create()
+   735→      const systemPrompt = KB_PRODUCTS[lang] + MODE_PROMPTS[lang][safeMode]
+   736→
+   737→      const messages = [
+   738→        { role: 'system' as const, content: systemPrompt },
+   739→        ...conversationHistory.slice(-10).map((m: any) => ({ role: m.role as string, content: m.content })),
+   740→        { role: 'user' as const, content: message }
+   741→      ]
+   742→
+   743→      const res = await zai.chat.completions.create({
+   744→        model: 'deepseek-chat',
+   745→        messages,
+   746→        temperature: 0.7,
+   747→        max_tokens: 800
+   748→      })
+   749→
+   750→      const response = res.choices?.[0]?.message?.content?.trim()
+   751→      if (response) {
+   752→        return NextResponse.json({ success: true, response, source: 'llm', lang })
+   753→      }
+   754→    } catch (sdkErr) {
+   755→      console.error('[chatbot] SDK error:', sdkErr instanceof Error ? sdkErr.message : String(sdkErr))
+   756→    }
+   757→
+   758→    // 3) Final graceful fallback
+   759→    return NextResponse.json({ success: true, response: FALLBACK[lang], source: 'fallback', lang })
+   760→  } catch (error) {
+   761→    console.error('[chatbot] route error:', error instanceof Error ? error.message : String(error))
+   762→    return NextResponse.json({ success: true, response: ERROR_MSG.fr, lang: 'fr' })
+   763→  }
+   764→}
