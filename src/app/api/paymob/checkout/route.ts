@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { createPaymobCheckout, isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan } from '@/lib/paymob'
+import { createPaymobCheckout, isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan, type PaymobBillingData } from '@/lib/paymob'
 
 /**
  * PayMob Checkout API — Create a PayMob payment session.
@@ -22,7 +22,23 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { planType: planTypeParam } = body as { planType?: string }
+    const { planType: planTypeParam, billingData: clientBilling } = body as {
+      planType?: string
+      billingData?: {
+        firstName?: string
+        lastName?: string
+        email?: string
+        phoneNumber?: string
+        city?: string
+        state?: string
+        country?: string
+        postalCode?: string
+        street?: string
+        building?: string
+        apartment?: string
+        floor?: string
+      }
+    }
 
     const validPlans: PaymobPlan[] = ['starter', 'pro', 'career_plus', 'employer', 'annual']
     if (!planTypeParam || !validPlans.includes(planTypeParam as PaymobPlan)) {
@@ -34,7 +50,14 @@ export async function POST(request: NextRequest) {
 
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true, plan: true },
+      select: {
+        email: true, name: true, plan: true,
+        resumes: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { phone: true, location: true, fullName: true, email: true },
+        },
+      },
     })
 
     if (!user) {
@@ -45,11 +68,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You already have an active plan' }, { status: 400 })
     }
 
+    // Build billing data from: client body > user's latest resume > user profile > safe defaults
+    const latestResume = user.resumes?.[0]
+    const billingData: PaymobBillingData = {
+      firstName: clientBilling?.firstName || latestResume?.fullName?.split(' ')[0] || user.name?.split(' ')[0] || undefined,
+      lastName: clientBilling?.lastName || latestResume?.fullName?.split(' ').slice(1).join(' ') || user.name?.split(' ').slice(1).join(' ') || undefined,
+      email: clientBilling?.email || latestResume?.email || user.email || undefined,
+      phoneNumber: clientBilling?.phoneNumber || latestResume?.phone || undefined,
+      city: clientBilling?.city || latestResume?.location || undefined,
+      state: clientBilling?.state || undefined,
+      country: clientBilling?.country || undefined,
+      postalCode: clientBilling?.postalCode || undefined,
+      street: clientBilling?.street || undefined,
+      building: clientBilling?.building || undefined,
+      apartment: clientBilling?.apartment || undefined,
+      floor: clientBilling?.floor || undefined,
+    }
+
     const result = await createPaymobCheckout({
       userId,
       userEmail: user.email,
       userName: user.name || 'User',
       planType,
+      billingData,
     })
 
     // Save Paymob order ID to user

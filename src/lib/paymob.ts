@@ -44,7 +44,7 @@ export const PAYMOB_AMOUNT_TO_PLAN: Record<number, PaymobPlan> = {
   700: 'annual',
 }
 
-export const PAYMOB_CURRENCY = 'EGP' // Paymob processes in EGP internally for Africa
+export const PAYMOB_CURRENCY = 'MAD' // ISO 4217 — Moroccan Dirham (PayMob supports MAD for Moroccan merchants)
 
 // ─── PayMob API Types ────────────────────────────────────
 
@@ -58,6 +58,28 @@ interface PaymobOrderResponse {
 
 interface PaymobPaymentKeyResponse {
   token: string
+}
+
+// ─── Billing Data Types ────────────────────────────────
+
+/**
+ * Billing data for PayMob payment key creation.
+ * All fields are optional — sensible defaults are used for missing values.
+ */
+export interface PaymobBillingData {
+  firstName?: string
+  lastName?: string
+  email?: string
+  phoneNumber?: string
+  apartment?: string
+  floor?: string
+  street?: string
+  building?: string
+  postalCode?: string
+  city?: string
+  state?: string
+  country?: string
+  shippingMethod?: string
 }
 
 // ─── PayMob API Functions ────────────────────────────────
@@ -98,7 +120,12 @@ async function getPaymentKey(
   amountCents: number,
   userEmail: string,
   userName: string,
+  billingData?: PaymobBillingData,
 ): Promise<string> {
+  // Use provided billing data or derive from name/email with safe defaults
+  const firstName = billingData?.firstName || userName.split(' ')[0] || 'User'
+  const lastName = billingData?.lastName || userName.split(' ').slice(1).join(' ') || ''
+
   const res = await fetch(`${PAYMOB_BASE_URL}/acceptance/payment_keys/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -108,19 +135,19 @@ async function getPaymentKey(
       expiration: 3600, // 1 hour
       order_id: orderId,
       billing_data: {
-        apartment: 'NA',
-        email: userEmail,
-        floor: 'NA',
-        first_name: userName.split(' ')[0] || 'User',
-        street: 'NA',
-        building: 'NA',
-        phone_number: 'NA',
-        shipping_method: 'NA',
-        postal_code: 'NA',
-        city: 'Casablanca',
-        country: 'MA',
-        last_name: userName.split(' ').slice(1).join(' ') || '',
-        state: 'Casablanca-Settat',
+        apartment: billingData?.apartment || 'NA',
+        email: billingData?.email || userEmail,
+        floor: billingData?.floor || 'NA',
+        first_name: firstName,
+        street: billingData?.street || 'NA',
+        building: billingData?.building || 'NA',
+        phone_number: billingData?.phoneNumber || 'NA',
+        shipping_method: billingData?.shippingMethod || 'NA',
+        postal_code: billingData?.postalCode || 'NA',
+        city: billingData?.city || 'NA',
+        country: billingData?.country || 'NA',
+        last_name: lastName,
+        state: billingData?.state || 'NA',
       },
       currency: PAYMOB_CURRENCY,
       integration_id: PAYMOB_INTEGRATION_ID,
@@ -144,15 +171,16 @@ export async function createPaymobCheckout(params: {
   userEmail: string
   userName: string
   planType: PaymobPlan
+  billingData?: PaymobBillingData
 }): Promise<{ paymentUrl: string; orderId: string; merchantOrderId: string }> {
-  const { userId, userEmail, userName, planType } = params
+  const { userId, userEmail, userName, planType, billingData } = params
   const amount = PAYMOB_PRICES[planType]
   // Encode plan type in merchant_order_id for webhook retrieval
   const merchantOrderId = `hirenova-${planType}-${userId}-${Date.now()}`
 
   const token = await getAuthToken()
   const orderId = await createOrder(token, amount, merchantOrderId)
-  const paymentKey = await getPaymentKey(token, orderId, amount, userEmail, userName)
+  const paymentKey = await getPaymentKey(token, orderId, amount, userEmail, userName, billingData)
 
   const paymentUrl = `${PAYMOB_BASE_URL}/acceptance/iframes/${PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`
 

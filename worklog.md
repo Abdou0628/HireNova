@@ -1419,3 +1419,65 @@ Stage Summary:
 - Final report with strengths, weaknesses, improvement plan, recommendation
 - Requires active plan (starter/pro/etc.) to use
 - Key files: llm.ts (new), interview/start (new), interview/answer (new), interview/complete (new), interview/sessions (new), interview-simulator.tsx (new), cv-store.ts, page-client.tsx, profile-button.tsx
+
+---
+Task ID: 2-a
+Agent: Bug-Fix Agent #1
+Task: Fix chatbot wrong API paths (/api/external/ → /api/v1/)
+
+Work Log:
+- Read worklog.md for project context (HireNova — 6-module recruitment platform)
+- Searched entire codebase for /api/external/ — found only 1 file: src/app/api/chatbot/route.ts
+- Verified correct API paths exist in src/app/api/v1/: cv/generate, cl/generate, ats/analyze, usage
+- Replaced all 8 occurrences of /api/external/ with /api/v1/ in chatbot/route.ts (4 in KNOWLEDGE_BASE, 4 in ruleBasedResponse)
+- Verified no remaining /api/external/ references anywhere in the codebase
+
+Stage Summary:
+- Fixed 8 incorrect API path references in the chatbot knowledge base and rule-based responses
+- All API endpoints now correctly reference /api/v1/cv/generate, /api/v1/cl/generate, /api/v1/ats/analyze, /api/v1/usage
+- Users asking about API integration will now receive the correct endpoint paths
+
+---
+Task ID: 2-b
+Agent: Bug-Fix Agent #2
+Task: Fix PayMob hardcoded billing data
+
+Work Log:
+- Read worklog.md for project context
+- Analyzed src/lib/paymob.ts — found hardcoded billing: city='Casablanca', country='MA', state='Casablanca-Settat', phone_number='NA'
+- Analyzed Prisma schema — User model has no city/country/phone fields, but Resume model has phone + location
+- Identified 2 callers: /api/checkout (unified) and /api/paymob/checkout (direct)
+- Exported new `PaymobBillingData` interface with all optional billing fields
+- Modified `getPaymentKey()` to accept optional `billingData` parameter, using provided values or safe 'NA' defaults
+- Modified `createPaymobCheckout()` to accept optional `billingData` parameter and pass it through
+- Updated /api/checkout route: added billingData parsing from request body, fetches user's latest resume for phone/location, passes billing data to PayMob
+- Updated /api/paymob/checkout route: same billing data enrichment logic
+- Verified no new TypeScript errors introduced (all errors are pre-existing)
+
+Stage Summary:
+- Eliminated hardcoded Moroccan billing data (Casablanca/MA) from PayMob integration
+- Billing data now sourced from: client request body > user's latest resume (phone, location, name) > user profile > 'NA' defaults
+- Function signature is backward-compatible (billingData is optional)
+- All PayMob billing fields (city, country, state, phone) now reflect actual user data when available
+
+---
+Task ID: 2-c
+Agent: Bug-Fix Agent #3
+Task: Fix PayMob currency mismatch EGP → MAD
+
+Work Log:
+- Read worklog.md for context — confirmed PayMob integration is for MAD/African payments, prices 90/190/390/490/700 MAD
+- Read src/lib/paymob.ts completely — found PAYMOB_CURRENCY constant on line 47 set to 'EGP' with misleading comment
+- Confirmed EGP was only referenced in paymob.ts (single source of truth constant)
+- Confirmed webhook route already correctly uses 'MAD' for invoices, receipts, and accounting entries
+- Confirmed no other files import or reference PAYMOB_CURRENCY directly
+- Changed PAYMOB_CURRENCY from 'EGP' to 'MAD' with corrected ISO 4217 comment
+- Verified amount values remain unchanged (already in MAD, no cents conversion needed)
+- No currency conversion or display issues found — landing.tsx displays MAD prices correctly, checkout routes pass amounts as-is
+
+Stage Summary:
+- Fixed critical currency mismatch: PayMob API calls now send 'MAD' instead of 'EGP'
+- This ensures PayMob charges users in Moroccan Dirhams matching the displayed prices
+- Without this fix, PayMob would interpret 190 as 190 EGP (~$6 USD) instead of 190 MAD (~$19 USD equivalent)
+- File changed: src/lib/paymob.ts line 47
+- No other files needed changes

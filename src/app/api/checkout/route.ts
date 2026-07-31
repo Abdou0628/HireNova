@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { isStripeConfigured, type Currency, type HireNovaPlan, PLAN_PRICES } from '@/lib/stripe'
-import { isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan } from '@/lib/paymob'
+import { isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan, type PaymobBillingData } from '@/lib/paymob'
 import { STORE_ID, VARIANTS, getPlans, type PlanType as LSPlanType } from '@/lib/lemonsqueezy'
 import { createCheckout } from '@lemonsqueezy/lemonsqueezy.js'
 
@@ -25,10 +25,24 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { planType: planTypeParam, currency: currencyParam, provider: providerParam } = body as {
+    const { planType: planTypeParam, currency: currencyParam, provider: providerParam, billingData: clientBilling } = body as {
       planType?: string
       currency?: string
       provider?: string
+      billingData?: {
+        firstName?: string
+        lastName?: string
+        email?: string
+        phoneNumber?: string
+        city?: string
+        state?: string
+        country?: string
+        postalCode?: string
+        street?: string
+        building?: string
+        apartment?: string
+        floor?: string
+      }
     }
 
     // Validate plan
@@ -44,10 +58,18 @@ export async function POST(request: NextRequest) {
     const currency = (['eur', 'usd', 'gbp', 'mad'].includes(currencyParam) ? currencyParam : 'eur') as Currency
     const userId = session.user.id
 
-    // Fetch user
+    // Fetch user and their most recent resume for billing info
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, plan: true, stripeCustomerId: true, lsCustomerId: true },
+      select: {
+        id: true, email: true, name: true, plan: true,
+        stripeCustomerId: true, lsCustomerId: true,
+        resumes: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { phone: true, location: true, fullName: true, email: true },
+        },
+      },
     })
 
     if (!user) {
@@ -68,11 +90,30 @@ export async function POST(request: NextRequest) {
       if (isPaymobConfigured()) {
         const { createPaymobCheckout } = await import('@/lib/paymob')
         const pmPlan = planType as PaymobPlan
+
+        // Build billing data from: client body > user's latest resume > user profile > safe defaults
+        const latestResume = user.resumes?.[0]
+        const billingData: PaymobBillingData = {
+          firstName: clientBilling?.firstName || latestResume?.fullName?.split(' ')[0] || user.name?.split(' ')[0] || undefined,
+          lastName: clientBilling?.lastName || latestResume?.fullName?.split(' ').slice(1).join(' ') || user.name?.split(' ').slice(1).join(' ') || undefined,
+          email: clientBilling?.email || latestResume?.email || user.email || undefined,
+          phoneNumber: clientBilling?.phoneNumber || latestResume?.phone || undefined,
+          city: clientBilling?.city || latestResume?.location || undefined,
+          state: clientBilling?.state || undefined,
+          country: clientBilling?.country || undefined,
+          postalCode: clientBilling?.postalCode || undefined,
+          street: clientBilling?.street || undefined,
+          building: clientBilling?.building || undefined,
+          apartment: clientBilling?.apartment || undefined,
+          floor: clientBilling?.floor || undefined,
+        }
+
         const result = await createPaymobCheckout({
           userId,
           userEmail: user.email,
           userName: user.name || 'User',
           planType: pmPlan,
+          billingData,
         })
 
         await db.user.update({

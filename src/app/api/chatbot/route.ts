@@ -60,7 +60,7 @@ Tu es l'assistant IA officiel de HireNova by E-Society 2050, la plateforme tout-
 
 6. **HireNova API** (Sky)
    - Portail développeur REST
-   - 4 endpoints: POST /api/external/cv/generate, POST /api/external/cl/generate, POST /api/external/ats/analyze, GET /api/external/usage
+   - 4 endpoints: POST /api/v1/cv/generate, POST /api/v1/cl/generate, POST /api/v1/ats/analyze, GET /api/v1/usage
    - 3 plans: Starter (gratuit, 100 req/mois), Pro (29€/mois, 5000 req/mois), Enterprise (sur devis)
    - Clé API + dashboard de suivi de consommation
    - Accès: carte "HireNova API" → documentation API
@@ -187,10 +187,10 @@ Accès : carte "HireNova Jobs" dans l'écosystème.`
 Intégrez les fonctionnalités HireNova dans vos applications via notre API REST.
 
 **Endpoints disponibles :**
-- \`POST /api/external/cv/generate\` — Générer un CV
-- \`POST /api/external/cl/generate\` — Générer une lettre de motivation
-- \`POST /api/external/ats/analyze\` — Analyser un score ATS
-- \`GET /api/external/usage\` — Suivi de consommation
+- \`POST /api/v1/cv/generate\` — Générer un CV
+- \`POST /api/v1/cl/generate\` — Générer une lettre de motivation
+- \`POST /api/v1/ats/analyze\` — Analyser un score ATS
+- \`GET /api/v1/usage\` — Suivi de consommation
 
 **Plans :**
 - Starter : gratuit, 100 requêtes/mois
