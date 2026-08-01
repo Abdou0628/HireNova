@@ -31,7 +31,6 @@ import SatisfactionPrompt from '@/components/support/satisfaction-prompt'
 import ATSAnalysis from '@/components/cv/ats-analysis'
 import { events } from '@/lib/analytics'
 import { getPersonaConfig } from '@/lib/persona-engine'
-import SuggestionCard from './persona-suggestions'
 
 type PreviewTab = 'cv' | 'cl'
 
@@ -374,9 +373,50 @@ export default function Preview() {
               </div>
               <p className="text-xs text-muted-foreground mb-3">{t(language, 'previewSuggestDesc')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {personaSuggestions.map(sug => (
-                  <SuggestionCard key={sug.key} suggestion={sug} language={language as CVLanguage} onATS={() => setShowATS(true)} onCareer={() => setStep('careerHome')} onInterview={() => setStep('interview')} />
-                ))}
+                {personaSuggestions.map((sug, i) => {
+                  const categoryColors: Record<string, string> = {
+                    cv: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+                    cl: 'bg-blue-50 border-blue-200 text-blue-700',
+                    ats: 'bg-violet-50 border-violet-200 text-violet-700',
+                    career: 'bg-amber-50 border-amber-200 text-amber-700',
+                    interview: 'bg-rose-50 border-rose-200 text-rose-700',
+                  }
+                  const categoryLabels: Record<string, string> = {
+                    cv: t(language, 'previewSuggestCv'),
+                    cl: t(language, 'previewSuggestCl'),
+                    ats: t(language, 'previewSuggestAts'),
+                    career: t(language, 'previewSuggestCareer'),
+                    interview: t(language, 'previewSuggestInterview'),
+                  }
+                  const priorityBadge = sug.priority === 'high'
+                    ? 'bg-red-100 text-red-700 border-red-200'
+                    : sug.priority === 'medium'
+                      ? 'bg-amber-100 text-amber-700 border-amber-200'
+                      : 'bg-slate-100 text-slate-600 border-slate-200'
+                  const handleSugClick = () => {
+                    if (sug.category === 'ats') setShowATS(true)
+                    else if (sug.category === 'career') setStep('careerHome')
+                    else if (sug.category === 'interview') setStep('interview')
+                  }
+                  const isClickable = sug.category !== 'cv' && sug.category !== 'cl'
+                  return (
+                    <div
+                      key={sug.key}
+                      onClick={isClickable ? handleSugClick : undefined}
+                      className={`flex items-start gap-2 p-3 rounded-lg border ${categoryColors[sug.category] || 'bg-slate-50 border-slate-200'} ${isClickable ? 'cursor-pointer hover:shadow-sm transition-shadow' : ''}`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-semibold uppercase">{categoryLabels[sug.category]}</span>
+                          <span className={`text-[9px] px-1.5 py-0 rounded-full border ${priorityBadge}`}>{sug.priority === 'high' ? '!' : '●'}</span>
+                        </div>
+                        <p className="text-xs font-medium">{sug.label[language as 'fr' | 'en' | 'ar' | 'es'] ?? sug.label.fr}</p>
+                        <p className="text-[10px] mt-0.5 opacity-80 line-clamp-2">{sug.description[language as 'fr' | 'en' | 'ar' | 'es'] ?? sug.description.fr}</p>
+                      </div>
+                      {isClickable && <ArrowRight className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-50" />}
+                    </div>
+                  )
+                })}
               </div>
             </motion.div>
           )}

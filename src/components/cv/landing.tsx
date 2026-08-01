@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, MessageSquare, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale, Network } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, MessageSquare, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale, Network, HeartHandshake } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -494,7 +494,7 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Persona Selection Section */}
+        {/* Persona Selection Section — Marketing Expert Grade */}
         <section ref={personasRef} className="relative py-16 sm:py-20 bg-gradient-to-b from-white to-emerald-50/50">
           <div className="absolute inset-0 -z-10">
             <Image src="/images/hero-coaching.jpg" alt="" fill className="object-cover opacity-[0.22]" />
@@ -502,14 +502,18 @@ export default function Landing() {
           </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              className="text-center mb-10"
+              className="text-center mb-4"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Qui êtes-vous ?</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">Sélectionnez votre profil pour un CV personnalisé</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">{t(language, 'personaSectionTitle')}</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto mb-2">{t(language, 'personaSectionSubtitle')}</p>
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
+                <HeartHandshake className="w-3 h-3 mr-1" />
+                {t(language, 'personaEqualChance')}
+              </Badge>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {([{
@@ -588,20 +592,30 @@ export default function Landing() {
                         >
                           <span className="text-xl">{persona.emoji}</span>
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-foreground text-sm">{t(language, persona.nameKey)}</h3>
                           <p className="text-xs text-muted-foreground mt-1 line-clamp-2"><span className="truncate block max-w-full">{t(language, persona.descKey)}</span></p>
                         </div>
-                      </div>
-                      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-emerald-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>{t(language, 'personaChoose')}</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 text-emerald-600 border-emerald-200">CV+LM+ATS</Badge>
+                          <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
+            {/* Social proof */}
+            <motion.div
+              className="mt-8 text-center"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <p className="text-sm text-muted-foreground">{t(language, 'personaSocialProof')}</p>
+            </motion.div>
           </div>
         </section>
 

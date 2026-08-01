@@ -2103,3 +2103,19 @@ Stage Summary:
 - All 4 languages supported
 - Verified via Agent Browser: organigramme renders all 19 agents correctly
 
+
+---
+Task ID: 2-a
+Agent: i18n-agent
+Task: Add persona enhancement i18n keys in 4 languages
+Work Log:
+- Added 100+ TranslationKey entries to the type union (after intelligenceNoForecast)
+- Added FR translations for application types, fields, availability, notice, visa options
+- Added EN translations for application types, fields, availability, notice, visa options
+- Added AR translations for application types, fields, availability, notice, visa options
+- Added ES translations for application types, fields, availability, notice, visa options
+- Added persona marketing keys (tagline, valueProp, socialProof, equalChance)
+- Added preview enhancement keys (auto CL, auto ATS, suggestions)
+Stage Summary:
+- 100+ new i18n keys in 4 languages (FR, EN, AR, ES)
+- Lint passes clean
