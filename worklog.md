@@ -2184,3 +2184,56 @@ Stage Summary:
 - Equal opportunity / zero discrimination philosophy embedded throughout
 - 3 new components + 1 API route created
 - HireNova positioned as world reference in employability
+---
+Task ID: 2-4-5
+Agent: backend-builder
+Task: Cookie consent, newsletter API, job matching API
+
+Work Log:
+- Read worklog.md, Prisma schema (UserConsent, JobNotification, Resume, JobListing, GlobalJobListing models), auth config (authOptions, getServerSession pattern), i18n setup, cv-store, existing API patterns
+- Created src/app/api/consent/route.ts — GET returns UserConsent by userId or null, POST upserts UserConsent (if logged in) or returns success (if anonymous, localStorage-only)
+- Created src/app/api/notifications/route.ts — GET returns last 50 JobNotifications with unread count, PATCH marks specific IDs or all as read
+- Created src/app/api/jobs/match-candidates/route.ts — POST matching engine: fetches job (local or global), fetches subscribed candidates with resumes, scores each on skills (max 40), location (15), industry (15), target job (15), language (10), experience (5), filters >= 30, creates JobNotification records for eligible candidates
+- Created src/components/support/cookie-consent.tsx — Client component with: fixed bottom banner (z-50), Cookie icon, 3 cookie categories (Necessary/Analytics/Marketing), Accept All + Customize buttons, Sheet panel with Switch toggles and newsletter checkboxes, 4-language inline i18n (FR/EN/AR/ES), framer-motion slide animation, localStorage persistence + server sync
+- Fixed react-hooks/set-state-in-effect lint error by using useState lazy initializer instead of useEffect + setState
+- Verified: `bun run lint` passes with 0 errors
+
+Stage Summary:
+- 3 API routes created: /api/consent (GET+POST), /api/notifications (GET+PATCH), /api/jobs/match-candidates (POST)
+- 1 Cookie Consent banner component with Sheet customization panel
+- Matching engine scores candidates 0-100 across 6 criteria (skills, location, industry, target job, language, experience)
+- Full 4-language support (FR/EN/AR/ES) in cookie consent component
+- All lint checks pass
+
+---
+Task ID: 2-4-5-6-7
+Agent: CTO Principal (Main) + backend-builder subagent
+Task: Cookie consent, newsletter consent, employer→candidate job matching
+
+Work Log:
+- Added 2 Prisma models: UserConsent (analytics, marketing, newsletter preferences) + JobNotification (match score, read status)
+- Ran db:push successfully
+- Created /api/consent (GET/POST) — persist user consent in DB when logged in
+- Created /api/notifications (GET/PATCH) — candidate notification list + mark read
+- Created /api/jobs/match-candidates (POST) — 6-criteria matching engine:
+  - Skills match (max 40 pts), Location (+15), Industry (+15), Target job (+15), Language (+10), Experience (+5)
+  - Filters candidates >= 30 points, creates JobNotification records
+- Created cookie-consent.tsx with:
+  - Fixed bottom banner (z-50) with framer-motion animation
+  - 3 cookie categories: Necessary (always on), Analytics, Marketing
+  - Sheet panel with Switch toggles + newsletter checkboxes
+  - 4-language inline i18n (FR/EN/AR/ES)
+  - localStorage persistence + server sync via /api/consent
+  - Texte exact utilisateur: "HireNova utilise des cookies nécessaires au fonctionnement du service..."
+- Added 32 i18n keys in 4 languages (cookie, newsletter, notifications, matching)
+- Wired CookieConsent into page-client.tsx
+- Auto-trigger matching when subscribed employer posts a job (jobs/route.ts)
+- Verified via Agent Browser: banner appears, customize sheet opens, all controls work
+
+Stage Summary:
+- Cookie consent banner with exact user-specified wording in 4 languages
+- Newsletter consent with job offers + new features options
+- Employer job posting auto-triggers candidate matching (subscribed employers)
+- 3 new API routes: /api/consent, /api/notifications, /api/jobs/match-candidates
+- 2 new Prisma models: UserConsent, JobNotification
+- Equal opportunity: matching is based on skills/experience, no discrimination

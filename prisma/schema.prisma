@@ -67,6 +67,8 @@ model User {
   whiteLabelTenants   WhiteLabelTenant[]
   legalDocuments      LegalDocument[]
   complianceChecks    ComplianceCheck[]
+  userConsents         UserConsent[]
+  jobNotifications     JobNotification[]
 }
 
 // ===== HireNova Formation — Training & Certification =====
@@ -880,4 +882,52 @@ model ComplianceCheck {
 
   @@index([userId])
   @@index([jurisdiction])
+}
+
+// ===== User Consent — Cookie & Newsletter =====
+
+model UserConsent {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Cookie consent
+  analyticsCookies  Boolean  @default(false)
+  marketingCookies  Boolean  @default(false)
+  // Newsletter consent
+  newsletterConsent  Boolean  @default(false)
+  newsletterJobs     Boolean  @default(false) // receive job matches
+  newsletterProducts Boolean  @default(false) // receive new features/services
+  // Metadata
+  ipAddress        String?
+  userAgent        String?
+  consentVersion   String   @default("1.0")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ===== Job Notification — Employer → Candidate Matching =====
+
+model JobNotification {
+  id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId         String?
+  jobTitle      String
+  jobCompany    String
+  jobLocation   String?
+  jobType       String?
+  salaryMin     Int?
+  salaryMax     Int?
+  currency      String   @default("MAD")
+  matchScore    Int      @default(0) // 0-100
+  matchReasons  String   // JSON array of matched criteria
+  isRead        Boolean  @default(false)
+  isDismissed   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
 }

@@ -51,6 +51,18 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Auto-trigger candidate matching for subscribed employers
+    if (user.plan && user.plan !== 'free') {
+      try {
+        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+        fetch(`${baseUrl}/api/jobs/match-candidates`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: job.id })
+        }).catch(() => { /* silent — matching is async best-effort */ })
+      } catch { /* silent */ }
+    }
+
     return NextResponse.json({ success: true, data: job })
   } catch (error) {
     return NextResponse.json({ success: false, error: { code: 500, message: 'Erreur serveur' } }, { status: 500 })

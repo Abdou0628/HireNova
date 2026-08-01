@@ -117,6 +117,8 @@ const OrchestrationHub = dynamic(() => import('@/components/orchestration/orches
 // Job Application — Demande d'emploi
 const JobApplicationForm = dynamic(() => import('@/components/cv/job-application-form'), { ssr: false, loading: () => <Loading /> })
 const JobApplicationPreview = dynamic(() => import('@/components/cv/job-application-preview'), { ssr: false, loading: () => <Loading /> })
+// Cookie Consent
+import { CookieConsent } from '@/components/support/cookie-consent'
 
 export default function Home() {
   const { step } = useCVStore()
@@ -225,6 +227,7 @@ export default function Home() {
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>
+      <CookieConsent />
     </SessionProvider>
   )
 }

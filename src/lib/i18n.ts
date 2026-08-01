@@ -854,6 +854,20 @@ export type TranslationKey =
   | 'previewStepAts' | 'previewStepApplication' | 'previewStepComplete'
   | 'previewGenerateApp' | 'previewGenerateAppDesc'
   | 'previewEqualOpportunity' | 'previewWorldReference'
+  // Cookie Consent
+  | 'cookieTitle' | 'cookieDesc' | 'cookieNecessary' | 'cookieNecessaryDesc'
+  | 'cookieAnalytics' | 'cookieAnalyticsDesc' | 'cookieMarketing' | 'cookieMarketingDesc'
+  | 'cookieAcceptAll' | 'cookieCustomize' | 'cookieRejectAll' | 'cookieSavePrefs'
+  | 'cookiePolicyTitle' | 'cookiePolicyLink'
+  // Newsletter
+  | 'nlTitle' | 'nlJobs' | 'nlJobsDesc' | 'nlProducts' | 'nlProductsDesc'
+  | 'nlConsent' | 'nlConsentDesc'
+  // Notifications
+  | 'notifTitle' | 'notifMarkRead' | 'notifMarkAllRead' | 'notifNoNew' | 'notifNewMatch'
+  | 'notifMatchScore' | 'notifViewJob' | 'notifDismiss'
+  // Job Matching
+  | 'matchTitle' | 'matchTriggered' | 'matchCandidatesFound' | 'matchNotified'
+  | 'matchNoCandidates' | 'matchScoreLabel'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -2434,6 +2448,45 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     previewGenerateAppDesc: 'Adaptée à votre profil, expérience et position hiérarchique.',
     previewEqualOpportunity: 'HireNova IA — Égalité des chances, zéro discrimination. Référence mondiale en employabilité.',
     previewWorldReference: 'Référence mondiale en employabilité — 60 000+ utilisateurs dans 40+ pays',
+    // Cookie Consent
+    cookieTitle: 'Nous respectons votre vie privée',
+    cookieDesc: 'HireNova utilise des cookies nécessaires au fonctionnement du service ainsi que, selon votre consentement, des cookies de mesure d\'audience et d\'amélioration de l\'expérience.',
+    cookieNecessary: 'Nécessaires',
+    cookieNecessaryDesc: 'Requis au bon fonctionnement du site. Ils ne peuvent pas être désactivés.',
+    cookieAnalytics: 'Mesure d\'audience',
+    cookieAnalyticsDesc: 'Nous aident à comprendre comment les visiteurs utilisent le site pour l\'améliorer.',
+    cookieMarketing: 'Amélioration de l\'expérience',
+    cookieMarketingDesc: 'Permettent de personnaliser votre expérience et de vous proposer des contenus adaptés.',
+    cookieAcceptAll: 'Tout accepter',
+    cookieCustomize: 'Personnaliser',
+    cookieRejectAll: 'Refuser les optionnels',
+    cookieSavePrefs: 'Enregistrer mes préférences',
+    cookiePolicyTitle: 'Politique de Cookies',
+    cookiePolicyLink: 'Le détail figure dans la Politique Cookies.',
+    // Newsletter
+    nlTitle: 'Restez informé',
+    nlJobs: 'Offres d\'emploi correspondantes',
+    nlJobsDesc: 'Recevez les offres correspondant à votre profil lorsque nos employeurs abonnés publient.',
+    nlProducts: 'Nouveautés et services',
+    nlProductsDesc: 'Découvrez nos nouvelles fonctionnalités, conseils carrière et améliorations.',
+    nlConsent: 'Communication',
+    nlConsentDesc: 'Acceptez-vous de recevoir nos communications ? Vous pouvez modifier vos préférences à tout moment.',
+    // Notifications
+    notifTitle: 'Notifications',
+    notifMarkRead: 'Marquer comme lu',
+    notifMarkAllRead: 'Tout marquer comme lu',
+    notifNoNew: 'Aucune nouvelle notification',
+    notifNewMatch: 'Nouvelle offre correspondante',
+    notifMatchScore: 'Score de correspondance',
+    notifViewJob: 'Voir l\'offre',
+    notifDismiss: 'Ignorer',
+    // Job Matching
+    matchTitle: 'Matching Candidats',
+    matchTriggered: 'Matching déclenché',
+    matchCandidatesFound: 'candidats correspondants trouvés',
+    matchNotified: 'candidats notifiés',
+    matchNoCandidates: 'Aucun candidat correspondant trouvé',
+    matchScoreLabel: 'Score',
   },
   en: {
     siteTitle: 'HireNova',
@@ -4013,6 +4066,45 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     previewGenerateAppDesc: 'Tailored to your profile, experience and hierarchical position.',
     previewEqualOpportunity: 'HireNova IA — Equal opportunity, zero discrimination. World reference in employability.',
     previewWorldReference: 'World reference in employability — 60,000+ users in 40+ countries',
+    // Cookie Consent
+    cookieTitle: 'We respect your privacy',
+    cookieDesc: 'HireNova uses cookies necessary for the service to function, and, depending on your consent, analytics and experience improvement cookies.',
+    cookieNecessary: 'Necessary',
+    cookieNecessaryDesc: 'Required for the website to function properly. They cannot be disabled.',
+    cookieAnalytics: 'Analytics',
+    cookieAnalyticsDesc: 'Help us understand how visitors use the site to improve it.',
+    cookieMarketing: 'Experience improvement',
+    cookieMarketingDesc: 'Allow us to personalize your experience and suggest relevant content.',
+    cookieAcceptAll: 'Accept all',
+    cookieCustomize: 'Customize',
+    cookieRejectAll: 'Reject optional',
+    cookieSavePrefs: 'Save my preferences',
+    cookiePolicyTitle: 'Cookie Policy',
+    cookiePolicyLink: 'Details are available in the Cookie Policy.',
+    // Newsletter
+    nlTitle: 'Stay informed',
+    nlJobs: 'Matching job offers',
+    nlJobsDesc: 'Receive job offers matching your profile when our subscribed employers post.',
+    nlProducts: 'New features & services',
+    nlProductsDesc: 'Discover new features, career tips and improvements.',
+    nlConsent: 'Communication',
+    nlConsentDesc: 'Do you agree to receive our communications? You can change your preferences at any time.',
+    // Notifications
+    notifTitle: 'Notifications',
+    notifMarkRead: 'Mark as read',
+    notifMarkAllRead: 'Mark all as read',
+    notifNoNew: 'No new notifications',
+    notifNewMatch: 'New matching offer',
+    notifMatchScore: 'Match score',
+    notifViewJob: 'View job',
+    notifDismiss: 'Dismiss',
+    // Job Matching
+    matchTitle: 'Candidate Matching',
+    matchTriggered: 'Matching triggered',
+    matchCandidatesFound: 'matching candidates found',
+    matchNotified: 'candidates notified',
+    matchNoCandidates: 'No matching candidates found',
+    matchScoreLabel: 'Score',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -5591,6 +5683,45 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     previewGenerateAppDesc: 'مخصص لملفك وخبرتك وموقعك الهرمي.',
     previewEqualOpportunity: 'HireNova IA — فرص متساوية، صفر تمييز. مرجع عالمي في التوظيف.',
     previewWorldReference: 'مرجع عالمي في التوظيف — أكثر من 60,000 مستخدم في أكثر من 40 دولة',
+    // Cookie Consent
+    cookieTitle: 'نحترم خصوصيتك',
+    cookieDesc: 'يستخدم HireNova ملفات تعريف الارتباط الضرورية لعمل الخدمة، ووفقاً لموافقتك، ملفات تعريف الارتباط لقياس الجمهور وتحسين التجربة.',
+    cookieNecessary: 'ضرورية',
+    cookieNecessaryDesc: 'مطلوبة لعمل الموقع بشكل صحيح. لا يمكن تعطيلها.',
+    cookieAnalytics: 'قياس الجمهور',
+    cookieAnalyticsDesc: 'تساعدنا على فهم كيف يستخدم الزوار الموقع لتحسينه.',
+    cookieMarketing: 'تحسين التجربة',
+    cookieMarketingDesc: 'تسمح لنا بتخصيص تجربتك واقتراح محتوى ملائم.',
+    cookieAcceptAll: 'قبول الكل',
+    cookieCustomize: 'تخصيص',
+    cookieRejectAll: 'رفض الاختيارية',
+    cookieSavePrefs: 'حفظ تفضيلاتي',
+    cookiePolicyTitle: 'سياسة ملفات تعريف الارتباط',
+    cookiePolicyLink: 'التفاصيل في سياسة ملفات تعريف الارتباط.',
+    // Newsletter
+    nlTitle: 'ابق على اطلاع',
+    nlJobs: 'عروض عمل متطابقة',
+    nlJobsDesc: 'تلق عروض العمل المناسبة لملفك عندما ينشر أرباب العمل المشتركون لدينا.',
+    nlProducts: 'جديد الخدمات',
+    nlProductsDesc: 'اكتشف ميزاتنا الجديدة ونصائح المهنية والتحسينات.',
+    nlConsent: 'التواصل',
+    nlConsentDesc: 'هل توافق على تلقي اتصالاتنا؟ يمكنك تعديل تفضيلاتك في أي وقت.',
+    // Notifications
+    notifTitle: 'الإشعارات',
+    notifMarkRead: 'وضع كمقروء',
+    notifMarkAllRead: 'وضع الكل كمقروء',
+    notifNoNew: 'لا توجد إشعارات جديدة',
+    notifNewMatch: 'عرض وظيفي جديد متطابق',
+    notifMatchScore: 'درجة التطابق',
+    notifViewJob: 'عرض الوظيفة',
+    notifDismiss: 'تجاهل',
+    // Job Matching
+    matchTitle: 'مطابقة المرشحين',
+    matchTriggered: 'تم بدء المطابقة',
+    matchCandidatesFound: 'مرشحين متطابقين تم العثور عليهم',
+    matchNotified: 'مرشحين تم إشعارهم',
+    matchNoCandidates: 'لم يتم العثور على مرشحين متطابقين',
+    matchScoreLabel: 'الدرجة',
   },
   es: {
     siteTitle: 'HireNova',
@@ -7170,6 +7301,45 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     previewGenerateAppDesc: 'Adaptada a tu perfil, experiencia y posición jerárquica.',
     previewEqualOpportunity: 'HireNova IA — Igualdad de oportunidades, cero discriminación. Referencia mundial en empleabilidad.',
     previewWorldReference: 'Referencia mundial en empleabilidad — 60,000+ usuarios en 40+ países',
+    // Cookie Consent
+    cookieTitle: 'Respetamos tu privacidad',
+    cookieDesc: 'HireNova utiliza cookies necesarias para el funcionamiento del servicio así como, según tu consentimiento, cookies de medición de audiencia y mejora de la experiencia.',
+    cookieNecessary: 'Necesarias',
+    cookieNecessaryDesc: 'Requeridas para el correcto funcionamiento del sitio. No se pueden desactivar.',
+    cookieAnalytics: 'Medición de audiencia',
+    cookieAnalyticsDesc: 'Nos ayudan a entender cómo los visitantes usan el sitio para mejorarlo.',
+    cookieMarketing: 'Mejora de la experiencia',
+    cookieMarketingDesc: 'Permiten personalizar tu experiencia y sugerir contenidos adaptados.',
+    cookieAcceptAll: 'Aceptar todo',
+    cookieCustomize: 'Personalizar',
+    cookieRejectAll: 'Rechazar opcionales',
+    cookieSavePrefs: 'Guardar mis preferencias',
+    cookiePolicyTitle: 'Política de Cookies',
+    cookiePolicyLink: 'El detalle figura en la Política de Cookies.',
+    // Newsletter
+    nlTitle: 'Mantente informado',
+    nlJobs: 'Ofertas de empleo coincidentes',
+    nlJobsDesc: 'Recibe ofertas que coincidan con tu perfil cuando nuestros empleadores suscritos publiquen.',
+    nlProducts: 'Novedades y servicios',
+    nlProductsDesc: 'Descubre nuevas funcionalidades, consejos profesionales y mejoras.',
+    nlConsent: 'Comunicación',
+    nlConsentDesc: '¿Aceptas recibir nuestras comunicaciones? Puedes modificar tus preferencias en cualquier momento.',
+    // Notifications
+    notifTitle: 'Notificaciones',
+    notifMarkRead: 'Marcar como leído',
+    notifMarkAllRead: 'Marcar todo como leído',
+    notifNoNew: 'Sin notificaciones nuevas',
+    notifNewMatch: 'Nueva oferta coincidente',
+    notifMatchScore: 'Puntuación de coincidencia',
+    notifViewJob: 'Ver oferta',
+    notifDismiss: 'Descartar',
+    // Job Matching
+    matchTitle: 'Matching de Candidatos',
+    matchTriggered: 'Matching iniciado',
+    matchCandidatesFound: 'candidatos coincidentes encontrados',
+    matchNotified: 'candidatos notificados',
+    matchNoCandidates: 'No se encontraron candidatos coincidentes',
+    matchScoreLabel: 'Puntuación',
   }
 }
 
