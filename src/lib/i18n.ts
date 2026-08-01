@@ -842,6 +842,18 @@ export type TranslationKey =
   | 'previewSuggestCv' | 'previewSuggestCl' | 'previewSuggestAts'
   | 'previewSuggestCareer' | 'previewSuggestInterview'
   | 'personaSectionTitle' | 'personaSectionSubtitle' | 'personaEqualChance'
+  // Job Application — Demande d'emploi
+  | 'jaTitle' | 'jaSubtitle' | 'jaSubmit' | 'jaGenerating' | 'jaGenerated'
+  | 'jaAppType' | 'jaTargetCompany' | 'jaTargetPosition' | 'jaHiringManager'
+  | 'jaStartDate' | 'jaSalaryExpectation' | 'jaAvailability'
+  | 'jaAdditionalInfo' | 'jaDownload' | 'jaBack' | 'jaBackPreview'
+  | 'jaNoPersona' | 'jaNoPersonaDesc' | 'jaDocTitle'
+  // Preview marketing enhancements
+  | 'previewPersonaBanner' | 'previewNextStep' | 'previewAllDocsReady'
+  | 'previewYourJourney' | 'previewStepCv' | 'previewStepCl'
+  | 'previewStepAts' | 'previewStepApplication' | 'previewStepComplete'
+  | 'previewGenerateApp' | 'previewGenerateAppDesc'
+  | 'previewEqualOpportunity' | 'previewWorldReference'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -2388,6 +2400,40 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaSectionTitle: 'Quel est votre profil ?',
     personaSectionSubtitle: 'Sélectionnez votre profil pour un parcours complet et personnalisé — CV, lettre de motivation, analyse ATS et candidature adaptés à votre situation.',
     personaEqualChance: 'Égalité des chances — Zéro discrimination',
+    // Job Application
+    jaTitle: 'Demande d\'emploi',
+    jaSubtitle: 'Générez une candidature professionnelle adaptée à votre profil et au poste visé.',
+    jaSubmit: 'Générer ma demande',
+    jaGenerating: 'Rédaction de votre demande d\'emploi par IA...',
+    jaGenerated: 'Votre demande d\'emploi est prête !',
+    jaAppType: 'Type de candidature',
+    jaTargetCompany: 'Entreprise cible',
+    jaTargetPosition: 'Poste visé',
+    jaHiringManager: 'Responsable du recrutement',
+    jaStartDate: 'Date de disponibilité',
+    jaSalaryExpectation: 'Prétentions salariales',
+    jaAvailability: 'Disponibilité',
+    jaAdditionalInfo: 'Informations complémentaires',
+    jaDownload: 'Télécharger la demande',
+    jaBack: 'Retour',
+    jaBackPreview: 'Retour à la prévisualisation',
+    jaNoPersona: 'Aucun profil sélectionné',
+    jaNoPersonaDesc: 'Veuillez d\'abord créer un CV avec un profil pour générer une demande d\'emploi adaptée.',
+    jaDocTitle: 'Demande d\'Emploi',
+    // Preview marketing
+    previewPersonaBanner: 'Votre parcours de recrutement complet',
+    previewNextStep: 'Prochaine étape recommandée',
+    previewAllDocsReady: 'Tous vos documents sont prêts',
+    previewYourJourney: 'Votre parcours',
+    previewStepCv: 'CV',
+    previewStepCl: 'Lettre de motivation',
+    previewStepAts: 'Analyse ATS',
+    previewStepApplication: 'Demande d\'emploi',
+    previewStepComplete: 'Complété',
+    previewGenerateApp: 'Générer une demande d\'emploi',
+    previewGenerateAppDesc: 'Adaptée à votre profil, expérience et position hiérarchique.',
+    previewEqualOpportunity: 'HireNova IA — Égalité des chances, zéro discrimination. Référence mondiale en employabilité.',
+    previewWorldReference: 'Référence mondiale en employabilité — 60 000+ utilisateurs dans 40+ pays',
   },
   en: {
     siteTitle: 'HireNova',
@@ -3933,6 +3979,40 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaSectionTitle: 'What is your profile?',
     personaSectionSubtitle: 'Select your profile for a complete, personalized journey — CV, cover letter, ATS analysis and application tailored to your situation.',
     personaEqualChance: 'Equal Opportunity — Zero Discrimination',
+    // Job Application
+    jaTitle: 'Job Application',
+    jaSubtitle: 'Generate a professional application tailored to your profile and target position.',
+    jaSubmit: 'Generate my application',
+    jaGenerating: 'AI is writing your job application...',
+    jaGenerated: 'Your job application is ready!',
+    jaAppType: 'Application type',
+    jaTargetCompany: 'Target company',
+    jaTargetPosition: 'Target position',
+    jaHiringManager: 'Hiring manager',
+    jaStartDate: 'Availability date',
+    jaSalaryExpectation: 'Salary expectations',
+    jaAvailability: 'Availability',
+    jaAdditionalInfo: 'Additional information',
+    jaDownload: 'Download application',
+    jaBack: 'Back',
+    jaBackPreview: 'Back to preview',
+    jaNoPersona: 'No profile selected',
+    jaNoPersonaDesc: 'Please create a CV with a profile first to generate a tailored job application.',
+    jaDocTitle: 'Job Application',
+    // Preview marketing
+    previewPersonaBanner: 'Your complete recruitment journey',
+    previewNextStep: 'Recommended next step',
+    previewAllDocsReady: 'All your documents are ready',
+    previewYourJourney: 'Your journey',
+    previewStepCv: 'CV',
+    previewStepCl: 'Cover Letter',
+    previewStepAts: 'ATS Analysis',
+    previewStepApplication: 'Job Application',
+    previewStepComplete: 'Completed',
+    previewGenerateApp: 'Generate a job application',
+    previewGenerateAppDesc: 'Tailored to your profile, experience and hierarchical position.',
+    previewEqualOpportunity: 'HireNova IA — Equal opportunity, zero discrimination. World reference in employability.',
+    previewWorldReference: 'World reference in employability — 60,000+ users in 40+ countries',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -5477,6 +5557,40 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaSectionTitle: 'ما هو ملفك؟',
     personaSectionSubtitle: 'اختر ملفك لمسار كامل ومخصص — سيرة ذاتية، رسالة تحفيزية، تحليل ATS وطلب عمل مخصص لوضعك.',
     personaEqualChance: 'فرص متساوية — صفر تمييز',
+    // Job Application
+    jaTitle: 'طلب توظيف',
+    jaSubtitle: 'أنشئ طلب توظيف احترافي مخصص لملفك والوظيفة المستهدفة.',
+    jaSubmit: 'إنشاء طلبي',
+    jaGenerating: 'الذكاء الاصطناعي يكتب طلب التوظيف الخاص بك...',
+    jaGenerated: 'طلب التوظيف الخاص بك جاهز!',
+    jaAppType: 'نوع الطلب',
+    jaTargetCompany: 'الشركة المستهدفة',
+    jaTargetPosition: 'الوظيفة المستهدفة',
+    jaHiringManager: 'مسؤول التوظيف',
+    jaStartDate: 'تاريخ التوفر',
+    jaSalaryExpectation: 'التوقعات المالية',
+    jaAvailability: 'التوفر',
+    jaAdditionalInfo: 'معلومات إضافية',
+    jaDownload: 'تحميل الطلب',
+    jaBack: 'رجوع',
+    jaBackPreview: 'العودة إلى المعاينة',
+    jaNoPersona: 'لم يتم اختيار ملف',
+    jaNoPersonaDesc: 'يرجى إنشاء سيرة ذاتية مع ملف أولاً لإنشاء طلب توظيف مخصص.',
+    jaDocTitle: 'طلب توظيف',
+    // Preview marketing
+    previewPersonaBanner: 'رحلة التوظيف الكاملة الخاصة بك',
+    previewNextStep: 'الخطوة التالية الموصى بها',
+    previewAllDocsReady: 'جميع مستنداتك جاهزة',
+    previewYourJourney: 'رحلتك',
+    previewStepCv: 'السيرة الذاتية',
+    previewStepCl: 'رسالة تحفيزية',
+    previewStepAts: 'تحليل ATS',
+    previewStepApplication: 'طلب توظيف',
+    previewStepComplete: 'مكتمل',
+    previewGenerateApp: 'إنشاء طلب توظيف',
+    previewGenerateAppDesc: 'مخصص لملفك وخبرتك وموقعك الهرمي.',
+    previewEqualOpportunity: 'HireNova IA — فرص متساوية، صفر تمييز. مرجع عالمي في التوظيف.',
+    previewWorldReference: 'مرجع عالمي في التوظيف — أكثر من 60,000 مستخدم في أكثر من 40 دولة',
   },
   es: {
     siteTitle: 'HireNova',
@@ -7022,6 +7136,40 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaSectionTitle: '¿Cuál es tu perfil?',
     personaSectionSubtitle: 'Selecciona tu perfil para un recorrido completo y personalizado — CV, carta de motivación, análisis ATS y solicitud adaptados a tu situación.',
     personaEqualChance: 'Igualdad de oportunidades — Cero discriminación',
+    // Job Application
+    jaTitle: 'Solicitud de Empleo',
+    jaSubtitle: 'Genera una solicitud profesional adaptada a tu perfil y puesto objetivo.',
+    jaSubmit: 'Generar mi solicitud',
+    jaGenerating: 'La IA está redactando tu solicitud de empleo...',
+    jaGenerated: '¡Tu solicitud de empleo está lista!',
+    jaAppType: 'Tipo de solicitud',
+    jaTargetCompany: 'Empresa objetivo',
+    jaTargetPosition: 'Puesto objetivo',
+    jaHiringManager: 'Responsable de selección',
+    jaStartDate: 'Fecha de disponibilidad',
+    jaSalaryExpectation: 'Pretensiones salariales',
+    jaAvailability: 'Disponibilidad',
+    jaAdditionalInfo: 'Información adicional',
+    jaDownload: 'Descargar solicitud',
+    jaBack: 'Volver',
+    jaBackPreview: 'Volver a la vista previa',
+    jaNoPersona: 'Ningún perfil seleccionado',
+    jaNoPersonaDesc: 'Por favor, crea un CV con un perfil primero para generar una solicitud adaptada.',
+    jaDocTitle: 'Solicitud de Empleo',
+    // Preview marketing
+    previewPersonaBanner: 'Tu recorrido completo de reclutamiento',
+    previewNextStep: 'Siguiente paso recomendado',
+    previewAllDocsReady: 'Todos tus documentos están listos',
+    previewYourJourney: 'Tu recorrido',
+    previewStepCv: 'CV',
+    previewStepCl: 'Carta de motivación',
+    previewStepAts: 'Análisis ATS',
+    previewStepApplication: 'Solicitud de empleo',
+    previewStepComplete: 'Completado',
+    previewGenerateApp: 'Generar solicitud de empleo',
+    previewGenerateAppDesc: 'Adaptada a tu perfil, experiencia y posición jerárquica.',
+    previewEqualOpportunity: 'HireNova IA — Igualdad de oportunidades, cero discriminación. Referencia mundial en empleabilidad.',
+    previewWorldReference: 'Referencia mundial en empleabilidad — 60,000+ usuarios en 40+ países',
   }
 }
 

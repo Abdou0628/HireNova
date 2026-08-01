@@ -49,6 +49,8 @@ export type AppStep =
   | 'legalHome' | 'legalContracts' | 'legalCompliance' | 'legalTemplates'
   // HireNova IA COMMAND CENTER — Orchestration
   | 'orchestrationHub' | 'orchestrationDispatch' | 'orchestrationCollab'
+  // Job Application — Demande d'emploi adaptative
+  | 'jobApplication' | 'jobApplicationPreview'
 
 export type TemplateStyle = 'modern' | 'classic' | 'creative'
 export type CVLanguage = 'fr' | 'en' | 'ar' | 'es'

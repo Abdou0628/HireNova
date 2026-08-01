@@ -114,6 +114,9 @@ const LegalCompliance = dynamic(() => import('@/components/legal/legal-complianc
 const LegalTemplates = dynamic(() => import('@/components/legal/legal-templates'), { ssr: false, loading: () => <Loading /> })
 // HireNova IA Command Center — Orchestration
 const OrchestrationHub = dynamic(() => import('@/components/orchestration/orchestration-hub'), { ssr: false, loading: () => <Loading /> })
+// Job Application — Demande d'emploi
+const JobApplicationForm = dynamic(() => import('@/components/cv/job-application-form'), { ssr: false, loading: () => <Loading /> })
+const JobApplicationPreview = dynamic(() => import('@/components/cv/job-application-preview'), { ssr: false, loading: () => <Loading /> })
 
 export default function Home() {
   const { step } = useCVStore()
@@ -216,6 +219,9 @@ export default function Home() {
         {step === 'orchestrationHub' && <OrchestrationHub />}
         {step === 'orchestrationDispatch' && <OrchestrationHub />}
         {step === 'orchestrationCollab' && <OrchestrationHub />}
+        {/* Job Application — Demande d'emploi */}
+        {step === 'jobApplication' && <JobApplicationForm />}
+        {step === 'jobApplicationPreview' && <JobApplicationPreview />}
         {/* Admin Dashboard */}
         {step === 'admin' && <AdminDashboardFull />}
       </ErrorBoundary>

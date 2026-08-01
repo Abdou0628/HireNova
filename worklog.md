@@ -2119,3 +2119,68 @@ Work Log:
 Stage Summary:
 - 100+ new i18n keys in 4 languages (FR, EN, AR, ES)
 - Lint passes clean
+---
+Task ID: 5-a
+Agent: job-application-builder
+Task: Build persona-adaptive job application form, preview, and API
+
+Work Log:
+- Read worklog.md, persona-engine.ts, cv-store.ts, i18n.ts, preview.tsx for context
+- Created POST /api/job-application/generate/route.ts with persona-adaptive LLM prompt (6 persona strategies: student, graduate, professional, executive, freelance, expat)
+- Created src/components/cv/job-application-form.tsx: persona intro banner, application type pills, dynamic persona-specific fields (text/textarea/select/date), common fields (company, position, hiring manager, availability, salary, additional info), loading state, validation, RTL support
+- Created src/components/cv/job-application-preview.tsx: A4-style document container, subject badge, PDF download (print window), Word download (blob), CTA back to CV preview
+- All new files pass ESLint with zero errors (pre-existing error in preview.tsx:363 is unrelated)
+- Used safeT() wrapper for dynamic i18n keys from persona-engine
+- Appended work record to agent-ctx/5-a-job-application-builder.md
+
+Stage Summary:
+- 3 new files created: API route + 2 React components
+- Persona-adaptive prompts for 6 profiles with unique positioning strategies
+- Dynamic form rendering based on personaConfig.applicationFields
+- Full i18n support (FR/EN/AR/ES) with RTL for Arabic
+- Download functionality (PDF via print, Word via blob) matching existing preview.tsx pattern
+
+---
+Task ID: 4-7
+Agent: CTO Principal (Main)
+Task: Audit & enhance Persona system — marketing-grade UX, job application, complete journey
+
+Work Log:
+- Audited existing persona system: persona-engine.ts (444 lines, 6 personas × 4 languages), form.tsx (1058 lines with persona-specific fields), preview.tsx
+- Added 2 new AppSteps to cv-store.ts: 'jobApplication' | 'jobApplicationPreview'
+- Added 30+ i18n keys in 4 languages (FR/EN/AR/ES) for job application + preview marketing
+- Redesigned preview.tsx (280 lines) with marketing-grade UX:
+  - Persona marketing banner (tagline + valueProp + socialProof)
+  - Journey progress tracker (CV → CL → ATS → Job Application)
+  - 3 CTAs: Generate Cover Letter (blue), ATS Analysis (emerald), Job Application (amber)
+  - Persona suggestions grid (existing persona-suggestions.tsx)
+  - Equal opportunity footer with ShieldCheck + Globe icons
+- Built job-application-form.tsx (441 lines) via subagent:
+  - Persona intro banner with gradient
+  - Dynamic application type pills from personaConfig
+  - Persona-specific fields rendered dynamically
+  - Common fields (company, position, hiring manager, availability, salary, additional info)
+  - Smart deduplication of fields already in persona-specific section
+  - No-persona fallback screen
+  - RTL support, equal opportunity footer
+- Built job-application-preview.tsx (296 lines) via subagent:
+  - A4-style document container
+  - Subject badge, paragraph rendering
+  - PDF + Word download
+  - CTA back to CV preview
+- Built API route /api/job-application/generate (227 lines):
+  - 6 persona-specific LLM prompt strategies (student/graduate/professional/executive/freelance/expat)
+  - 4 language instructions (FR/EN/AR/ES)
+  - z-ai-web-dev-sdk integration (default import, async create inside function)
+  - Returns JSON {subject, header, body, closing, signOff}
+- Added routing in page-client.tsx (2 new dynamic imports + 2 step cases)
+- Verified: lint clean (0 errors), dev server 200 OK, browser console 0 errors
+- Verified via Agent Browser: landing page renders all 6 personas, equal opportunity text visible, responsive mobile
+
+Stage Summary:
+- Complete persona → CV → CL → ATS → Job Application journey implemented
+- Each persona has: specific form fields, auto CL generation, ATS analysis, adaptive job application
+- 6 persona types with marketing-grade positioning and 4-language support
+- Equal opportunity / zero discrimination philosophy embedded throughout
+- 3 new components + 1 API route created
+- HireNova positioned as world reference in employability
