@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireNova - Mise à jour des fichiers</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f0fdf4; min-height: 100vh; padding: 20px; }
+.container { max-width: 700px; margin: 0 auto; }
+h1 { color: #059669; margin-bottom: 8px; font-size: 24px; }
+.subtitle { color: #666; margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
+.step { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #e5e7eb; }
+.step-num { display: inline-block; background: #059669; color: white; width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 13px; font-weight: 700; margin-right: 8px; }
+.step-title { font-weight: 700; font-size: 15px; color: #1f2937; }
+.step-desc { font-size: 13px; color: #666; margin-top: 6px; line-height: 1.5; }
+code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: 'Consolas', monospace; }
+.file-card { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
+.file-name { font-size: 14px; font-weight: 600; color: #1f2937; }
+.file-path { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+.btn { display: inline-block; padding: 8px 16px; background: #059669; color: white; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: background 0.2s; }
+.btn:hover { background: #047857; }
+.warn { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 14px; margin: 16px 0; font-size: 13px; color: #92400e; }
+.hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📦 Mise à jour HireNova</h1>
+<p class="subtitle">
+  Téléchargez chaque fichier ci-dessous, puis placez-le dans le bon dossier sur votre PC.<br>
+  <strong>Les 2 fichiers PNG du logo sont facultatifs</strong> (seulement si vous voulez le nouveau logo visuel).
+</p>
+
+<div class="step">
+  <span class="step-num">1</span>
+  <span class="step-title">Téléchargez les 5 fichiers essentiels</span>
+  <p class="step-desc">Clic droit sur chaque bouton vert → « Enregistrer le lien sous... »<br>Ou clic gauche pour ouvrir, puis Ctrl+S pour sauvegarder.</p>
+</div>
+
+<div class="file-card">
+  <div>
+    <div class="file-name">logo.svg</div>
+    <div class="file-path">→ placer dans public/</div>
+  </div>
+  <a class="btn" href="/update-logo.svg" download>⬇ Télécharger</a>
+</div>
+
+<div class="file-card">
+  <div>
+    <div class="file-name">route.ts (reset-password)</div>
+    <div class="file-path">→ placer dans src/app/api/auth/reset-password/</div>
+  </div>
+  <a class="btn" href="/update-route.ts" download>⬇ Télécharger</a>
+</div>
+
+<div class="file-card">
+  <div>
+    <div class="file-name">auth-modal.tsx</div>
+    <div class="file-path">→ placer dans src/components/auth/</div>
+  </div>
+  <a class="btn" href="/update-auth-modal.tsx" download>⬇ Télécharger</a>
+</div>
+
+<div class="file-card">
+  <div>
+    <div class="file-name">i18n.ts</div>
+    <div class="file-path">→ placer dans src/lib/</div>
+  </div>
+  <a class="btn" href="/update-i18n.ts" download>⬇ Télécharger</a>
+</div>
+
+<div class="hr"></div>
+
+<div class="file-card" style="opacity:0.7">
+  <div>
+    <div class="file-name">hirenova-logo.png <small>(facultatif)</small></div>
+    <div class="file-path">→ remplacer dans public/</div>
+  </div>
+  <a class="btn" href="/update-hirenova-logo.png" download style="background:#6b7280">⬇</a>
+</div>
+
+<div class="file-card" style="opacity:0.7">
+  <div>
+    <div class="file-name">hirenova-mark.png <small>(facultatif)</small></div>
+    <div class="file-path">→ remplacer dans public/</div>
+  </div>
+  <a class="btn" href="/update-hirenova-mark.png" download style="background:#6b7280">⬇</a>
+</div>
+
+<div class="file-card" style="opacity:0.7">
+  <div>
+    <div class="file-name">hirenova-mark-white.png <small>(facultatif)</small></div>
+    <div class="file-path">→ remplacer dans public/</div>
+  </div>
+  <a class="btn" href="/update-hirenova-mark-white.png" download style="background:#6b7280">⬇</a>
+</div>
+
+<hr class="hr">
+
+<div class="step">
+  <span class="step-num">2</span>
+  <span class="step-title">Placer les fichiers sur votre PC</span>
+  <p class="step-desc">
+    Ouvrez l'explorateur de fichiers et allez dans :<br>
+    <code>C:\Users\espacegamers\Desktop\HireNova</code><br><br>
+    Placez chaque fichier dans le bon dossier :
+  </p>
+  <ul style="font-size:13px; color:#444; margin-top:8px; padding-left:24px; line-height:2">
+    <li><code>logo.svg</code> → dans le dossier <code>public</code></li>
+    <li><code>route.ts</code> → dans le dossier <code>src\app\api\auth\reset-password</code></li>
+    <li><code>auth-modal.tsx</code> → dans le dossier <code>src\components\auth</code></li>
+    <li><code>i18n.ts</code> → dans le dossier <code>src\lib</code></li>
+  </ul>
+</div>
+
+<div class="step">
+  <span class="step-num">3</span>
+  <span class="step-title">Redémarrer le serveur</span>
+  <p class="step-desc">
+    1. Allez dans la fenêtre PowerShell où tourne le serveur<br>
+    2. Appuyez sur <code>Ctrl + C</code> pour l'arrêter<br>
+    3. Tapez <code>bunx next dev -p 3000</code> pour le relancer<br>
+    4. Attendez « Ready in ...ms »<br>
+    5. Ouvrez <code>http://localhost:3000</code><br>
+    6. Appuyez sur <code>Ctrl + Shift + R</code> (hard refresh)
+  </p>
+</div>
+
+<div class="warn">
+  ⚠️ <strong>Important :</strong> Quand vous téléchargez <code>route.ts</code>, renommez-le bien en <code>route.ts</code> (pas <code>update-route.ts</code>).<br>
+  Même chose pour les autres fichiers — enlevez le préfixe « update- » du nom.
+</div>
+
+</div>
+</body>
+</html>
