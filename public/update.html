@@ -3,153 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HireNova - Mise à jour complète</title>
+<title>HireNova - Mise à jour</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,-apple-system,sans-serif;background:#f0fdf4;min-height:100vh;padding:16px}
-.c{max-width:720px;margin:0 auto}
-h1{color:#059669;font-size:22px;margin-bottom:4px}
+body{font-family:system-ui,sans-serif;background:#f0fdf4;min-height:100vh;padding:16px}
+.c{max-width:700px;margin:0 auto}
+h1{color:#059669;font-size:20px;margin-bottom:12px}
 .sub{color:#666;font-size:13px;margin-bottom:16px;line-height:1.5}
-.s{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #e5e7eb}
-.sn{display:inline-block;background:#059669;color:#fff;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:6px}
-.st{font-weight:700;font-size:14px;color:#1f2937}
-.sd{font-size:12px;color:#666;margin-top:4px;line-height:1.5}
-code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:11px;font-family:Consolas,monospace}
-.fc{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:6px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.imp{background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#166534;line-height:1.6}
+.fc{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
 .fn{font-size:13px;font-weight:600;color:#1f2937}
-.fp{font-size:11px;color:#9ca3af;margin-top:1px}
-.fp code{color:#059669;background:#ecfdf5}
-.b{display:inline-block;padding:7px 14px;background:#059669;color:#fff;text-decoration:none;border-radius:7px;font-size:12px;font-weight:600;white-space:nowrap}
+.fp{font-size:11px;color:#9ca3af;margin-top:2px}
+.b{display:inline-block;padding:8px 14px;background:#059669;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
 .b:hover{background:#047857}
-.b2{background:#6b7280}
-.b2:hover{background:#4b5563}
-.w{background:#fef3c7;border:1px solid #fbbf24;border-radius:10px;padding:12px;margin:14px 0;font-size:12px;color:#92400e}
-.hr{border:none;border-top:1px solid #e5e7eb;margin:16px 0}
-.imp{background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px;margin:14px 0;font-size:12px;color:#991b1b}
+.b:disabled{background:#9ca3af;cursor:not-allowed}
+.log{background:#1f2937;color:#86efac;border-radius:10px;padding:14px;margin-top:16px;font-family:monospace;font-size:11px;line-height:1.8;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+.err{color:#fca5a5}
+.ok{color:#86efac}
 </style>
 </head>
 <body>
 <div class="c">
-
 <h1>📦 Mise à jour complète HireNova</h1>
-<p class="sub">Cette page contient TOUS les fichiers modifiés pour transformer HireNova de « générateur de CV » en « plateforme IA de gestion des carrières et du recrutement », avec le nouveau logo, la vérification email, le mot de passe oublié et le formulaire amélioré.</p>
-
+<p class="sub">Cliquez sur chaque bouton vert pour télécharger le fichier. Enregistrez-le dans le bon dossier sur votre PC.</p>
 <div class="imp">
-  ⚠️ <strong>IMPORTANT :</strong> Téléchargez les 8 fichiers obligatoires (boutons verts).<br>
-  Les 3 fichiers PNG (boutons gris) sont facultatifs (nouveau logo visuel).
+  ✅ <strong>Comment faire :</strong><br>
+  1. Cliquez sur chaque bouton « ⬇ Télécharger »<br>
+  2. Le fichier se télécharge dans votre dossier <strong>Téléchargements</strong><br>
+  3. <strong>Renommez</strong> chaque fichier (enlevez le numéro au début du nom)<br>
+  4. Placez-le au bon endroit dans <code>C:\Users\espacegamers\Desktop\HireNova</code><br>
+  5. Puis redémarrez le serveur : <code>Ctrl+C</code> puis <code>bunx next dev -p 3000</code>
 </div>
-
-<div class="s">
-  <span class="sn">1</span>
-  <span class="st">Téléchargez les fichiers</span>
-  <p class="sd">Clic droit sur chaque bouton → « Enregistrer le lien sous... »</p>
+<div id="files"></div>
+<div class="log" id="log">En attente...</div>
 </div>
-
-<!-- Fichier 1 -->
-<div class="fc">
-  <div><div class="fn">1. package.json</div><div class="fp">→ remplacer <code>package.json</code> à la racine</div></div>
-  <a class="b" href="/files/f6-package.json" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 2 -->
-<div class="fc">
-  <div><div class="fn">2. trusted-types.js</div><div class="fp">→ nouveau fichier dans <code>public/</code></div></div>
-  <a class="b" href="/files/f2-trusted-types.js" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 3 -->
-<div class="fc">
-  <div><div class="fn">3. layout.tsx</div><div class="fp">→ remplacer dans <code>src/app/</code></div></div>
-  <a class="b" href="/files/f7-layout.tsx" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 4 -->
-<div class="fc">
-  <div><div class="fn">4. manifest.ts</div><div class="fp">→ remplacer dans <code>src/app/</code></div></div>
-  <a class="b" href="/files/f8-manifest.ts" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 5 -->
-<div class="fc">
-  <div><div class="fn">5. i18n.ts</div><div class="fp">→ remplacer dans <code>src/lib/</code></div></div>
-  <a class="b" href="/files/f9-i18n.ts" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 6 -->
-<div class="fc">
-  <div><div class="fn">6. auth-modal.tsx</div><div class="fp">→ remplacer dans <code>src/components/auth/</code></div></div>
-  <a class="b" href="/files/f10-auth-modal.tsx" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 7 -->
-<div class="fc">
-  <div><div class="fn">7. route.ts (reset-password)</div><div class="fp">→ remplacer dans <code>src/app/api/auth/reset-password/</code></div></div>
-  <a class="b" href="/files/f11-reset-password-route.ts" download>⬇ Télécharger</a>
-</div>
-
-<!-- Fichier 8 -->
-<div class="fc">
-  <div><div class="fn">8. logo.svg</div><div class="fp">→ remplacer dans <code>public/</code></div></div>
-  <a class="b" href="/files/f1-logo.svg" download>⬇ Télécharger</a>
-</div>
-
-<div class="hr"></div>
-<p style="font-size:12px;color:#9ca3af;text-align:center">Fichiers facultatifs (nouveau logo visuel)</p>
-
-<div class="fc" style="opacity:0.6">
-  <div><div class="fn">hirenova-logo.png</div><div class="fp">→ remplacer dans <code>public/</code></div></div>
-  <a class="b b2" href="/files/f3-hirenova-logo.png" download>⬇</a>
-</div>
-<div class="fc" style="opacity:0.6">
-  <div><div class="fn">hirenova-mark.png</div><div class="fp">→ remplacer dans <code>public/</code></div></div>
-  <a class="b b2" href="/files/f4-hirenova-mark.png" download>⬇</a>
-</div>
-<div class="fc" style="opacity:0.6">
-  <div><div class="fn">hirenova-mark-white.png</div><div class="fp">→ remplacer dans <code>public/</code></div></div>
-  <a class="b b2" href="/files/f5-hirenova-mark-white.png" download>⬇</a>
-</div>
-
-<hr class="hr">
-
-<div class="s">
-  <span class="sn">2</span>
-  <span class="st">Placer les fichiers sur votre PC</span>
-  <p class="sd">
-    Ouvrez l'explorateur et allez dans :<br>
-    <code>C:\Users\espacegamers\Desktop\HireNova</code><br><br>
-    <strong>Renommez les fichiers téléchargés</strong> (enlevez le préfixe « f1- », « f2- » etc.) :
-  </p>
-  <ul style="font-size:11px;color:#444;margin-top:6px;padding-left:20px;line-height:2">
-    <li><code>f6-package.json</code> → <code>package.json</code> (à la racine du projet)</li>
-    <li><code>f2-trusted-types.js</code> → <code>trusted-types.js</code> (dans <code>public/</code>)</li>
-    <li><code>f7-layout.tsx</code> → <code>layout.tsx</code> (dans <code>src/app/</code>)</li>
-    <li><code>f8-manifest.ts</code> → <code>manifest.ts</code> (dans <code>src/app/</code>)</li>
-    <li><code>f9-i18n.ts</code> → <code>i18n.ts</code> (dans <code>src/lib/</code>)</li>
-    <li><code>f10-auth-modal.tsx</code> → <code>auth-modal.tsx</code> (dans <code>src/components/auth/</code>)</li>
-    <li><code>f11-reset-password-route.ts</code> → <code>route.ts</code> (dans <code>src/app/api/auth/reset-password/</code>)</li>
-    <li><code>f1-logo.svg</code> → <code>logo.svg</code> (dans <code>public/</code>)</li>
-  </ul>
-</div>
-
-<div class="s">
-  <span class="sn">3</span>
-  <span class="st">Redémarrer le serveur</span>
-  <p class="sd">
-    1. Allez dans la fenêtre PowerShell du serveur<br>
-    2. Appuyez sur <code>Ctrl + C</code><br>
-    3. Tapez : <code>bunx next dev -p 3000</code><br>
-    4. Attendez « Ready in ...ms »<br>
-    5. Ouvrez <code>http://localhost:3000</code><br>
-    6. Appuyez sur <code>Ctrl + Shift + R</code> (hard refresh)
-  </p>
-</div>
-
-<div class="w">
-  💡 <strong>Astuce :</strong> Si le navigateur affiche toujours l'ancienne version après le redémarrage,<br>
-  essayez d'ouvrir une <strong>fenêtre de navigation privée</strong> (<code>Ctrl + Shift + N</code>)<br>
-  ou videz le cache : <code>Ctrl + Shift + Suppr</code> → cochez « Images et fichiers en cache » → Effacer.
-</div>
-
-</div>
+<script>
+const FILES=[
+  {url:'/files/f6-package.json',name:'1-package.json',dest:'package.json (à la racine du projet)'},
+  {url:'/files/f2-trusted-types.js',name:'2-trusted-types.js',dest:'public/trusted-types.js (NOUVEAU fichier)'},
+  {url:'/files/f7-layout.tsx',name:'3-layout.tsx',dest:'src/app/layout.tsx (remplacer)'},
+  {url:'/files/f8-manifest.ts',name:'4-manifest.ts',dest:'src/app/manifest.ts (remplacer)'},
+  {url:'/files/f9-i18n.ts',name:'5-i18n.ts',dest:'src/lib/i18n.ts (remplacer)'},
+  {url:'/files/f10-auth-modal.tsx',name:'6-auth-modal.tsx',dest:'src/components/auth/auth-modal.tsx (remplacer)'},
+  {url:'/files/f11-reset-password-route.ts',name:'7-reset-password-route.ts',dest:'src/app/api/auth/reset-password/route.ts (remplacer)'},
+  {url:'/files/f1-logo.svg',name:'8-logo.svg',dest:'public/logo.svg (remplacer)'}
+];
+const log=document.getElementById('log');
+const container=document.getElementById('files');
+FILES.forEach((f,i)=>{
+  const div=document.createElement('div');div.className='fc';
+  div.innerHTML=`<div><div class="fn">${f.name}</div><div class="fp">→ ${f.dest}</div></div>`;
+  const btn=document.createElement('button');btn.className='b';btn.textContent='⬇ Télécharger';
+  btn.onclick=async()=>{btn.disabled=true;btn.textContent='⏳...';
+    try{const r=await fetch(f.url);if(!r.ok)throw new Error(r.status);
+    const b=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();URL.revokeObjectURL(a.href);
+    btn.textContent='✅ OK';log.innerHTML+=`<span class="ok">✅ ${f.name} téléchargé</span>\n`;
+    }catch(e){btn.textContent='❌ Erreur';log.innerHTML+=`<span class="err">❌ ${f.name}: ${e.message}</span>\n`;btn.disabled=false;}
+  };
+  div.appendChild(btn);container.appendChild(div);
+});
+</script>
 </body>
 </html>
