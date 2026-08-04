@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'HireNova — Générateur de CV IA & Score ATS',
+    name: 'HireNova — Plateforme IA de Gestion de Carrière & Recrutement',
     short_name: 'HireNova',
     description:
-      'Créez un CV professionnel optimisé ATS et une lettre de motivation en 60 secondes avec l\'IA.',
+      'Plateforme IA complète de gestion de carrière et recrutement. CV, lettres de motivation, score ATS, coaching, marketplace d\'emplois et recrutement international.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

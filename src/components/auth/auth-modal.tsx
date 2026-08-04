@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw } from 'lucide-react'
+import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -25,6 +25,94 @@ interface AuthModalProps {
   onClose: () => void
   initialMode: Mode
   onAuthSuccess?: () => void
+}
+
+// Password strength calculation
+function getPasswordStrength(password: string): { score: number; label: string; color: string } {
+  if (!password) return { score: 0, label: '', color: '' }
+  let score = 0
+  if (password.length >= 8) score++
+  if (password.length >= 12) score++
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++
+  if (/\d/.test(password)) score++
+  if (/[^a-zA-Z0-9]/.test(password)) score++
+  if (score <= 1) return { score: 1, label: 'passwordStrengthWeak', color: 'bg-red-500' }
+  if (score <= 2) return { score: 2, label: 'passwordStrengthFair', color: 'bg-orange-500' }
+  if (score <= 3) return { score: 3, label: 'passwordStrengthGood', color: 'bg-yellow-500' }
+  return { score: 4, label: 'passwordStrengthStrong', color: 'bg-emerald-500' }
+}
+
+// Password strength meter component
+function PasswordStrengthMeter({ password, lang }: { password: string; lang: string }) {
+  const strength = getPasswordStrength(password)
+  if (!password) return null
+  return (
+    <div className="space-y-1.5">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map((level) => (
+          <div
+            key={level}
+            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              level <= strength.score ? strength.color : 'bg-gray-200 dark:bg-gray-700'
+            }`}
+          />
+        ))}
+      </div>
+      <p className={`text-xs font-medium ${
+        strength.score <= 1 ? 'text-red-500' :
+        strength.score <= 2 ? 'text-orange-500' :
+        strength.score <= 3 ? 'text-yellow-600' : 'text-emerald-600'
+      }`}>
+        {t(lang, 'passwordStrengthLabel')} : {t(lang, strength.label)}
+      </p>
+    </div>
+  )
+}
+
+// Password input with eye toggle
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  placeholder,
+  minLength,
+  lang,
+  className,
+  required,
+}: {
+  id: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  minLength?: number
+  lang: string
+  className?: string
+  required?: boolean
+}) {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className={`rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20 pr-10 ${className || ''}`}
+        placeholder={placeholder}
+        minLength={minLength}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        tabIndex={-1}
+        aria-label={show ? t(lang, 'hidePassword') : t(lang, 'showPassword')}
+      >
+        {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  )
 }
 
 // 6-digit code input component
@@ -92,6 +180,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [regConfirmPassword, setRegConfirmPassword] = useState('')
   const [resetEmail, setResetEmail] = useState('')
   const [resetCode, setResetCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -107,6 +196,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     setEmail('')
     setPassword('')
     setName('')
+    setRegConfirmPassword('')
     setResetEmail('')
     setResetCode('')
     setNewPassword('')
@@ -138,14 +228,9 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         toast.success(t(lang, 'loginSuccess'))
         handleClose()
         onAuthSuccess?.()
-        // Force a session refresh so the avatar/profile appears immediately.
-        // router.refresh() updates server components, then a focus event
-        // triggers useSession refetch. If session still not detected after
-        // 800ms, do a hard reload as a fallback (handles iframe cookie timing).
         router.refresh()
         window.dispatchEvent(new Event('focus'))
         setTimeout(() => {
-          // Check if session was picked up; if not, hard reload
           const avatarBtn = document.querySelector('[aria-label="Menu du profil"]')
           if (!avatarBtn) {
             window.location.reload()
@@ -162,6 +247,14 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !email || !password) return
+    if (password !== regConfirmPassword) {
+      toast.error(t(lang, 'passwordsNoMatch'))
+      return
+    }
+    if (password.length < 8) {
+      toast.error(t(lang, 'forgotPasswordNewPasswordPh'))
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/auth/register', {
@@ -208,7 +301,6 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       if (data.success) {
         setCodeExpiresIn(data.expiresIn)
         setMode('forgot-code')
-        // In production, the code is sent via email. For development, show it.
         if (data.code) {
           toast.success(`${t(lang, 'codeSentTo')} ${resetEmail}`, { duration: 8000, description: `${t(lang, 'codeSentDevNote')} : ${data.code}` })
         }
@@ -266,7 +358,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       toast.error(t(lang, 'codePasswordMismatch'))
       return
     }
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       toast.error(t(lang, 'forgotPasswordNewPasswordPh'))
       return
     }
@@ -365,6 +457,10 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     : <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
       </svg>
+
+  // Password match indicator for registration
+  const regPasswordsMatch = !isLogin && regConfirmPassword.length > 0 && password === regConfirmPassword
+  const regPasswordsNoMatch = !isLogin && regConfirmPassword.length > 0 && password !== regConfirmPassword
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
@@ -492,32 +588,37 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               <Label htmlFor="new-password" className="text-sm font-medium text-foreground">
                 {t(lang, 'forgotPasswordNewPassword')}
               </Label>
-              <Input
+              <PasswordInput
                 id="new-password"
-                type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                lang={lang}
                 placeholder={t(lang, 'forgotPasswordNewPasswordPh')}
-                minLength={6}
+                minLength={8}
               />
+              <PasswordStrengthMeter password={newPassword} lang={lang} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirm-password" className="text-sm font-medium text-foreground">
                 {t(lang, 'forgotPasswordConfirm')}
               </Label>
-              <Input
+              <PasswordInput
                 id="confirm-password"
-                type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                lang={lang}
                 placeholder={t(lang, 'forgotPasswordNewPasswordPh')}
-                minLength={6}
+                minLength={8}
               />
+              {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+                <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
+              )}
+              {confirmPassword.length > 0 && newPassword === confirmPassword && (
+                <p className="text-xs text-emerald-600 font-medium">{t(lang, 'passwordsMatch')}</p>
+              )}
             </div>
 
             <Button
@@ -607,17 +708,43 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
                 {t(lang, 'loginPassword')}
               </Label>
-              <Input
+              <PasswordInput
                 id="auth-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                lang={lang}
                 placeholder="••••••••"
-                minLength={6}
+                minLength={isLogin ? undefined : 8}
               />
+              {!isLogin && <PasswordStrengthMeter password={password} lang={lang} />}
             </div>
+
+            {/* Confirm password for registration */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="reg-confirm-password" className="text-sm font-medium text-foreground">
+                  {t(lang, 'confirmPasswordLabel')}
+                </Label>
+                <PasswordInput
+                  id="reg-confirm-password"
+                  value={regConfirmPassword}
+                  onChange={(e) => setRegConfirmPassword(e.target.value)}
+                  required
+                  lang={lang}
+                  placeholder={t(lang, 'confirmPasswordPh')}
+                  minLength={8}
+                />
+                {regPasswordsMatch && (
+                  <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {t(lang, 'passwordsMatch')}
+                  </p>
+                )}
+                {regPasswordsNoMatch && (
+                  <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
+                )}
+              </div>
+            )}
 
             <Button
               type="submit"

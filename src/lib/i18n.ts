@@ -868,6 +868,11 @@ export type TranslationKey =
   // Job Matching
   | 'matchTitle' | 'matchTriggered' | 'matchCandidatesFound' | 'matchNotified'
   | 'matchNoCandidates' | 'matchScoreLabel'
+  // Auth enhancements
+  | 'passwordStrengthLabel' | 'passwordStrengthWeak' | 'passwordStrengthFair' | 'passwordStrengthGood' | 'passwordStrengthStrong'
+  | 'confirmPasswordLabel' | 'confirmPasswordPh' | 'passwordsMatch' | 'passwordsNoMatch'
+  | 'showPassword' | 'hidePassword'
+  | 'emailNotVerified' | 'emailNotVerifiedDesc' | 'verifyEmailResend' | 'verifyEmailSent'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -2008,7 +2013,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordVerifyDesc: 'Nous avons trouvé votre compte abonné. Définissez votre nouveau mot de passe.',
     forgotPasswordUserFound: 'Compte abonné trouvé',
     forgotPasswordNewPassword: 'Nouveau mot de passe',
-    forgotPasswordNewPasswordPh: 'Minimum 6 caractères',
+    forgotPasswordNewPasswordPh: 'Minimum 8 caractères',
     forgotPasswordConfirm: 'Confirmer le nouveau mot de passe',
     forgotPasswordSuccess: 'Mot de passe mis à jour avec succès !',
     forgotPasswordBackToLogin: 'Retour à la connexion',
@@ -2487,6 +2492,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     matchNotified: 'candidats notifiés',
     matchNoCandidates: 'Aucun candidat correspondant trouvé',
     matchScoreLabel: 'Score',
+    // Auth enhancements
+    passwordStrengthLabel: 'Force du mot de passe',
+    passwordStrengthWeak: 'Faible',
+    passwordStrengthFair: 'Moyen',
+    passwordStrengthGood: 'Bon',
+    passwordStrengthStrong: 'Fort',
+    confirmPasswordLabel: 'Confirmer le mot de passe',
+    confirmPasswordPh: 'Retapez le mot de passe',
+    passwordsMatch: 'Les mots de passe correspondent',
+    passwordsNoMatch: 'Les mots de passe ne correspondent pas',
+    showPassword: 'Afficher',
+    hidePassword: 'Masquer',
+    emailNotVerified: 'Email non vérifié',
+    emailNotVerifiedDesc: 'Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités.',
+    verifyEmailResend: 'Renvoyer l\'email de vérification',
+    verifyEmailSent: 'Email de vérification envoyé !',
   },
   en: {
     siteTitle: 'HireNova',
@@ -3626,7 +3647,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordVerifyDesc: 'We found your subscriber account. Set your new password.',
     forgotPasswordUserFound: 'Subscriber account found',
     forgotPasswordNewPassword: 'New password',
-    forgotPasswordNewPasswordPh: 'Minimum 6 characters',
+    forgotPasswordNewPasswordPh: 'Minimum 8 characters',
     forgotPasswordConfirm: 'Confirm new password',
     forgotPasswordSuccess: 'Password updated successfully!',
     forgotPasswordBackToLogin: 'Back to sign in',
@@ -4105,6 +4126,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     matchNotified: 'candidates notified',
     matchNoCandidates: 'No matching candidates found',
     matchScoreLabel: 'Score',
+    // Auth enhancements
+    passwordStrengthLabel: 'Password strength',
+    passwordStrengthWeak: 'Weak',
+    passwordStrengthFair: 'Fair',
+    passwordStrengthGood: 'Good',
+    passwordStrengthStrong: 'Strong',
+    confirmPasswordLabel: 'Confirm password',
+    confirmPasswordPh: 'Re-type the password',
+    passwordsMatch: 'Passwords match',
+    passwordsNoMatch: 'Passwords do not match',
+    showPassword: 'Show',
+    hidePassword: 'Hide',
+    emailNotVerified: 'Email not verified',
+    emailNotVerifiedDesc: 'Please verify your email address to access all features.',
+    verifyEmailResend: 'Resend verification email',
+    verifyEmailSent: 'Verification email sent!',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -5243,7 +5280,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordVerifyDesc: 'وجدنا حسابك المشترك. قم بتعيين كلمة المرور الجديدة.',
     forgotPasswordUserFound: 'تم العثور على حساب مشترك',
     forgotPasswordNewPassword: 'كلمة المرور الجديدة',
-    forgotPasswordNewPasswordPh: '6 أحرف على الأقل',
+    forgotPasswordNewPasswordPh: '8 أحرف على الأقل',
     forgotPasswordConfirm: 'تأكيد كلمة المرور الجديدة',
     forgotPasswordSuccess: 'تم تحديث كلمة المرور بنجاح!',
     forgotPasswordBackToLogin: 'العودة لتسجيل الدخول',
@@ -5722,6 +5759,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     matchNotified: 'مرشحين تم إشعارهم',
     matchNoCandidates: 'لم يتم العثور على مرشحين متطابقين',
     matchScoreLabel: 'الدرجة',
+    // Auth enhancements
+    passwordStrengthLabel: 'قوة كلمة المرور',
+    passwordStrengthWeak: 'ضعيفة',
+    passwordStrengthFair: 'متوسطة',
+    passwordStrengthGood: 'جيدة',
+    passwordStrengthStrong: 'قوية',
+    confirmPasswordLabel: 'تأكيد كلمة المرور',
+    confirmPasswordPh: 'أعد كتابة كلمة المرور',
+    passwordsMatch: 'كلمات المرور متطابقة',
+    passwordsNoMatch: 'كلمات المرور غير متطابقة',
+    showPassword: 'إظهار',
+    hidePassword: 'إخفاء',
+    emailNotVerified: 'البريد الإلكتروني غير مُوثّق',
+    emailNotVerifiedDesc: 'يرجى التحقق من بريدك الإلكتروني للوصول إلى جميع الميزات.',
+    verifyEmailResend: 'إعادة إرسال بريد التحقق',
+    verifyEmailSent: 'تم إرسال بريد التحقق!',
   },
   es: {
     siteTitle: 'HireNova',
@@ -6861,7 +6914,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     forgotPasswordVerifyDesc: 'Encontramos tu cuenta de suscriptor. Define tu nueva contraseña.',
     forgotPasswordUserFound: 'Cuenta de suscriptor encontrada',
     forgotPasswordNewPassword: 'Nueva contraseña',
-    forgotPasswordNewPasswordPh: 'Mínimo 6 caracteres',
+    forgotPasswordNewPasswordPh: 'Mínimo 8 caracteres',
     forgotPasswordConfirm: 'Confirmar nueva contraseña',
     forgotPasswordSuccess: '¡Contraseña actualizada con éxito!',
     forgotPasswordBackToLogin: 'Volver a iniciar sesión',
@@ -7340,6 +7393,22 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     matchNotified: 'candidatos notificados',
     matchNoCandidates: 'No se encontraron candidatos coincidentes',
     matchScoreLabel: 'Puntuación',
+    // Auth enhancements
+    passwordStrengthLabel: 'Fortaleza de la contraseña',
+    passwordStrengthWeak: 'Débil',
+    passwordStrengthFair: 'Regular',
+    passwordStrengthGood: 'Buena',
+    passwordStrengthStrong: 'Fuerte',
+    confirmPasswordLabel: 'Confirmar contraseña',
+    confirmPasswordPh: 'Reescribe la contraseña',
+    passwordsMatch: 'Las contraseñas coinciden',
+    passwordsNoMatch: 'Las contraseñas no coinciden',
+    showPassword: 'Mostrar',
+    hidePassword: 'Ocultar',
+    emailNotVerified: 'Email no verificado',
+    emailNotVerifiedDesc: 'Por favor verifica tu email para acceder a todas las funciones.',
+    verifyEmailResend: 'Reenviar email de verificación',
+    verifyEmailSent: '¡Email de verificación enviado!',
   }
 }
 

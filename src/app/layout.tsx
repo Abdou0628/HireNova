@@ -4,24 +4,27 @@ import './globals.css'
 const SITE_URL = 'https://hirenova.com'
 const SITE_NAME = 'HireNova'
 const SITE_DESCRIPTION_FR =
-  'Générez un CV professionnel optimisé ATS et une lettre de motivation en 60 secondes avec l\'IA. Disponible en français, anglais, arabe et espagnol. Score ATS détaillé, templates premium, téléchargement PDF et Word.'
+  'Plateforme IA de gestion de carrière et recrutement. CV, lettres de motivation, score ATS, coaching IA, préparation entretiens, marketplace d\'emplois et recrutement international. Disponible en français, anglais, arabe et espagnol.'
 const SITE_DESCRIPTION_EN =
-  'Generate an ATS-optimized professional resume and cover letter in 60 seconds with AI. Available in French, English, Arabic and Spanish. Detailed ATS score, premium templates, PDF and Word download.'
+  'AI career management and recruitment platform. Resumes, cover letters, ATS scoring, AI coaching, interview preparation, job marketplace, and international recruitment. Available in French, English, Arabic, and Spanish.'
 const SITE_DESCRIPTION_AR =
-  'أنشئ سيرة ذاتية احترافية محسّنة لـ ATS ورسالة تعريف في 60 ثانية بالذكاء الاصطناعي. متوفر بالفرنسية والإنجليزية والعربية والإسبانية.'
+  'منصة إدارة المسار المهني والتوظيف بالذكاء الاصطناعي. سير ذاتية، رسائل تعريف، تقييم ATS، تدريب ذكي، تحضير مقابلات، سوق وظائف، وتوظيف دولي.'
 const SITE_DESCRIPTION_ES =
-  'Genera un currículum profesional optimizado para ATS y una carta de presentación en 60 segundos con IA. Disponible en francés, inglés, árabe y español.'
+  'Plataforma IA de gestión de carrera y reclutamiento. Currículums, cartas de presentación, puntuación ATS, coaching IA, preparación de entrevistas, bolsa de empleo y reclutamiento internacional.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'HireNova — Générateur de CV IA, Lettre de Motivation & Score ATS | E-Society 2050',
+    default: 'HireNova — Plateforme IA de Gestion de Carrière & Recrutement | E-Society 2050',
     template: '%s | HireNova',
   },
   description: SITE_DESCRIPTION_FR,
   keywords: [
     // Core
-    'HireNova', 'E-Society 2050', 'générateur CV IA',
+    'HireNova', 'E-Society 2050', 'plateforme IA gestion carrière',
+    // Career
+    'gestion carrière', 'coaching carrière IA', 'orientation professionnelle',
+    'préparation entretien', 'coaching IA', 'plan de carrière',
     // CV
     'créer CV', 'CV professionnel', 'générateur CV', 'CV en ligne', 'créer CV gratuit',
     'CV multilingue', 'CV français', 'CV anglais', 'CV arabe', 'CV espagnol',
@@ -31,6 +34,9 @@ export const metadata: Metadata = {
     // Cover letter
     'lettre de motivation', 'générateur lettre de motivation', 'cover letter generator',
     'lettre de motivation IA', 'créer lettre de motivation',
+    // Recruitment
+    'recrutement IA', 'marketplace emploi', 'offre emploi',
+    'recrutement international', 'visa relocation',
     // Features
     'CV PDF', 'CV Word', 'template CV', 'modèle CV', 'resume template',
     'IA CV', 'intelligence artificielle CV', 'AI resume builder',
@@ -40,6 +46,7 @@ export const metadata: Metadata = {
     // Long tail
     'comment faire un CV professionnel', 'CV pour recruteur', 'CV qui passe les ATS',
     'lettre de motivation exemple', 'CV sans expérience', 'CV étudiant',
+    'plateforme recrutement IA', 'coaching entretien IA',
   ],
   authors: [{ name: 'E-Society 2050', url: 'https://esociety2050.com' }],
   creator: 'E-Society 2050',
@@ -76,21 +83,21 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: 'HireNova — Générateur de CV IA & Lettre de Motivation en 60 secondes',
+    title: 'HireNova — Plateforme IA de Gestion de Carrière & Recrutement',
     description: SITE_DESCRIPTION_FR,
     images: [
       {
         url: '/images/hero-career.jpg',
         width: 1200,
         height: 630,
-        alt: 'HireNova — Créez votre CV professionnel avec l\'IA en 60 secondes',
+        alt: 'HireNova — Plateforme IA de Gestion de Carrière & Recrutement',
         type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HireNova — Générateur de CV IA & Score ATS',
+    title: 'HireNova — Plateforme IA de Gestion de Carrière & Recrutement',
     description: SITE_DESCRIPTION_FR,
     images: ['/images/hero-career.jpg'],
     creator: '@hirenova_ai',
@@ -185,13 +192,13 @@ export default function RootLayout({
               },
               description: SITE_DESCRIPTION_FR,
               featureList: [
-                'Génération de CV par IA',
-                'Génération de lettre de motivation par IA',
-                'Score ATS détaillé',
+                'Génération de CV et lettre de motivation par IA',
+                'Score ATS détaillé et optimisation',
+                'Coaching carrière et préparation entretiens IA',
+                'Marketplace d\'emplois et recrutement international',
                 '4 langues (FR, EN, AR, ES)',
-                '3 templates professionnels',
                 'Export PDF et Word',
-                'Optimisation pour systèmes ATS',
+                'Matching intelligent candidats-offres',
               ],
               screenshot: `${SITE_URL}/images/hero-career.jpg`,
             }),
@@ -216,6 +223,11 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-background text-foreground">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(window.trustedTypes&&!window.__trustedTypesPolicyCreated){window.__trustedTypesPolicyCreated=true;window.trustedTypes.createPolicy("default",{createHTML:function(s){return s},createScript:function(s){return s},createScriptURL:function(s){return s}})}`,
+          }}
+        />
         {/* Global ChunkLoadError retry — auto-reload when server restarts (persistent loop) */}
         <script
           dangerouslySetInnerHTML={{

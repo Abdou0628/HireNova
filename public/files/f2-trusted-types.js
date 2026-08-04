@@ -1,1 +1,0 @@
-if(window.trustedTypes&&!window.__trustedTypesPolicyCreated){window.__trustedTypesPolicyCreated=true;window.trustedTypes.createPolicy('default',{createHTML:function(s){return s},createScript:function(s){return s},createScriptURL:function(s){return s}})}

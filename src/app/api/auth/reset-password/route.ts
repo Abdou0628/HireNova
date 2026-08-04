@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'Le mot de passe doit contenir au moins 6 caractères' },
+        { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' },
         { status: 400 }
       )
     }
