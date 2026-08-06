@@ -3,158 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HireNova - Mise a jour</title>
-<script src="/jszip.min.js"></script>
+<title>HireNova Update</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.container { max-width: 680px; width: 100%; background: #1e293b; border-radius: 16px; padding: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-.logo { text-align: center; margin-bottom: 24px; }
-.logo h1 { font-size: 28px; color: #10b981; margin-bottom: 4px; }
-.logo p { color: #94a3b8; font-size: 14px; }
-.file-list { background: #0f172a; border-radius: 10px; padding: 16px; margin: 20px 0; }
-.file-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 13px; font-family: 'Consolas', monospace; }
-.file-item:last-child { border-bottom: none; }
-.file-item .check { color: #10b981; font-weight: bold; }
-.file-item .path { color: #94a3b8; flex: 1; }
-.btn { display: block; width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 16px; }
-.btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.4); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-.progress { margin-top: 16px; display: none; }
-.progress-bar { background: #334155; border-radius: 8px; height: 8px; overflow: hidden; }
-.progress-fill { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; width: 0; transition: width 0.3s; border-radius: 8px; }
-.progress-text { text-align: center; margin-top: 8px; font-size: 13px; color: #94a3b8; }
-.status { text-align: center; padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 14px; display: none; }
-.status.success { display: block; background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-.status.error { display: block; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-.steps { background: #0f172a; border-radius: 10px; padding: 16px; margin-top: 20px; }
-.steps h3 { color: #10b981; margin-bottom: 12px; font-size: 15px; }
-.steps ol { padding-left: 20px; }
-.steps li { padding: 6px 0; font-size: 13px; color: #94a3b8; line-height: 1.6; }
-.steps code { background: #334155; padding: 2px 8px; border-radius: 4px; color: #e2e8f0; font-size: 12px; }
+body{font-family:Segoe UI,system-ui,sans-serif;background:#fff;color:#111;padding:30px;max-width:700px;margin:0 auto}
+h1{color:#059669;margin-bottom:8px}
+p.sub{color:#666;margin-bottom:24px}
+.file{border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.file .name{font-family:Consolas,monospace;font-size:13px;color:#333}
+.file .info{font-size:11px;color:#888;margin-top:2px}
+a.dl{background:#059669;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+a.dl:hover{background:#047857}
+.steps{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px;margin-top:24px}
+.steps h2{color:#059669;font-size:16px;margin-bottom:10px}
+.steps ol{padding-left:20px;font-size:13px;line-height:2}
+.steps code{background:#e5e7eb;padding:2px 6px;border-radius:4px;font-size:12px}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="logo">
-    <h1>HireNova Update</h1>
-    <p>Mise a jour v2.0 - Gestion de Carriere & Recrutement</p>
-  </div>
+<h1>HireNova Mise a jour</h1>
+<p class="sub">Repositionnement + Auth enhancements — telechargez chaque fichier</p>
 
-  <div class="file-list">
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">package.json (suppression tee)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">src/app/layout.tsx (titre + TrustedHTML)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">src/app/manifest.ts (repositionnement)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">src/lib/i18n.ts (16 cles FR/EN/AR/ES)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">src/components/auth/auth-modal.tsx (force mdp, oeil, confirm)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">src/app/api/auth/reset-password/route.ts (8 chars)</span></div>
-    <div class="file-item"><span class="check">&#10003;</span><span class="path">public/trusted-types.js (polyfill)</span></div>
-  </div>
-
-  <button class="btn btn-primary" id="downloadBtn" onclick="downloadUpdate()">
-    Telecharger hirenova-update.zip
-  </button>
-
-  <div class="progress" id="progress">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-text" id="progressText">Preparation...</div>
-  </div>
-
-  <div class="status" id="status"></div>
-
-  <div class="steps">
-    <h3>Instructions d'installation</h3>
-    <ol>
-      <li>Cliquez le bouton <strong>Telecharger</strong> ci-dessus</li>
-      <li>Ouvrez <strong>PowerShell</strong> sur votre PC</li>
-      <li>Restaurez les fichiers originaux avec git :
-        <br><code>cd C:\Users\espacegamers\Desktop\HireNova</code>
-        <br><code>git checkout -- package.json src/app/layout.tsx src/app/manifest.ts src/lib/i18n.ts src/components/auth/auth-modal.tsx src/app/api/auth/reset-password/route.ts</code>
-      </li>
-      <li>Extrayez le ZIP dans le dossier du projet :
-        <br><code>Expand-Archive -Path "$HOME\Downloads\hirenova-update.zip" -DestinationPath "C:\Users\espacegamers\Desktop\HireNova" -Force</code>
-      </li>
-      <li>Relancez le serveur :
-        <br><code>cd C:\Users\espacegamers\Desktop\HireNova; bun run dev</code>
-      </li>
-    </ol>
-  </div>
+<div class="file">
+  <div><div class="name">src/lib/i18n.ts</div><div class="info">Repositionnement FR/EN/AR/ES + force mdp + confirm</div></div>
+  <a class="dl" href="/updates/i18n_ts" download="i18n.ts">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">src/app/layout.tsx</div><div class="info">Titre + TrustedHTML polyfill</div></div>
+  <a class="dl" href="/updates/layout_tsx" download="layout.tsx">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">src/components/auth/auth-modal.tsx</div><div class="info">Barre force mdp + oeil + confirm mdp</div></div>
+  <a class="dl" href="/updates/auth-modal_tsx" download="auth-modal.tsx">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">src/app/manifest.ts</div><div class="info">Repositionnement PWA</div></div>
+  <a class="dl" href="/updates/manifest_ts" download="manifest.ts">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">package.json</div><div class="info">Suppression tee</div></div>
+  <a class="dl" href="/updates/package_json" download="package.json">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">src/app/api/auth/reset-password/route.ts</div><div class="info">8 caracteres minimum</div></div>
+  <a class="dl" href="/updates/reset-password-route_ts" download="route.ts">Telecharger</a>
+</div>
+<div class="file">
+  <div><div class="name">public/trusted-types.js</div><div class="info">Polyfill TrustedHTML</div></div>
+  <a class="dl" href="/updates/trusted-types_js" download="trusted-types.js">Telecharger</a>
 </div>
 
-<script>
-const FILES = [
-  { url: '/updates/package_json', target: 'package.json' },
-  { url: '/updates/layout_tsx', target: 'src/app/layout.tsx' },
-  { url: '/updates/manifest_ts', target: 'src/app/manifest.ts' },
-  { url: '/updates/i18n_ts', target: 'src/lib/i18n.ts' },
-  { url: '/updates/auth-modal_tsx', target: 'src/components/auth/auth-modal.tsx' },
-  { url: '/updates/reset-password-route_ts', target: 'src/app/api/auth/reset-password/route.ts' },
-  { url: '/updates/trusted-types_js', target: 'public/trusted-types.js' },
-];
-
-async function downloadUpdate() {
-  const btn = document.getElementById('downloadBtn');
-  const progress = document.getElementById('progress');
-  const progressFill = document.getElementById('progressFill');
-  const progressText = document.getElementById('progressText');
-  const status = document.getElementById('status');
-
-  btn.disabled = true;
-  btn.textContent = 'Preparation en cours...';
-  progress.style.display = 'block';
-  status.className = 'status';
-  status.style.display = 'none';
-
-  try {
-    const zip = new JSZip();
-
-    for (let i = 0; i < FILES.length; i++) {
-      const file = FILES[i];
-      progressText.textContent = `Telechargement: ${file.target} (${i+1}/${FILES.length})`;
-      progressFill.style.width = `${((i) / FILES.length) * 100}%`;
-
-      const resp = await fetch(file.url);
-      if (!resp.ok) throw new Error(`Failed to fetch ${file.url}: ${resp.status}`);
-      const text = await resp.text();
-      zip.file(file.target, text);
-    }
-
-    progressText.textContent = 'Creation du ZIP...';
-    progressFill.style.width = '90%';
-
-    const blob = await zip.generateAsync({
-      type: 'blob',
-      compression: 'DEFLATE',
-      compressionOptions: { level: 9 }
-    });
-
-    progressFill.style.width = '100%';
-    progressText.textContent = 'Telechargement termine!';
-
-    // Trigger download
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'hirenova-update.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    status.className = 'status success';
-    status.textContent = 'ZIP telecharge! Suivez les instructions ci-dessous pour installer.';
-    btn.textContent = 'Telecharge a nouveau';
-    btn.disabled = false;
-
-  } catch (err) {
-    console.error(err);
-    status.className = 'status error';
-    status.textContent = 'Erreur: ' + err.message;
-    btn.textContent = 'Reessayer';
-    btn.disabled = false;
-  }
-}
-</script>
+<div class="steps">
+  <h2>Installation</h2>
+  <ol>
+    <li>Telechargez les 7 fichiers ci-dessus</li>
+    <li>Dans PowerShell, restaurez puis copiez :
+      <br><code>cd C:\Users\espacegamers\Desktop\HireNova; git checkout -- .</code></li>
+    <li>Remplacez chaque fichier :
+      <br><code>Copy-Item "$HOME\Downloads\i18n.ts" "src\lib\i18n.ts" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\layout.tsx" "src\app\layout.tsx" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\auth-modal.tsx" "src\components\auth\auth-modal.tsx" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\manifest.ts" "src\app\manifest.ts" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\package.json" "package.json" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\route.ts" "src\app\api\auth\reset-password\route.ts" -Force</code>
+      <br><code>Copy-Item "$HOME\Downloads\trusted-types.js" "public\trusted-types.js" -Force</code></li>
+    <li>Relancez :
+      <br><code>taskkill /F /IM node.exe 2>$null; bun run dev</code></li>
+  </ol>
+</div>
 </body>
 </html>
