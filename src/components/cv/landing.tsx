@@ -225,6 +225,47 @@ export default function Landing() {
   const isAdmin = !!adminEmail && session?.user?.email === adminEmail
   const [paymobPolling, setPaymobPolling] = useState(false)
 
+  // Handle ?verify=success|error|expired from email verification redirect
+  const [verifyStatus, setVerifyStatus] = useState<string | null>(null)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const v = params.get('verify')
+    if (v) {
+      setVerifyStatus(v)
+      window.history.replaceState({}, '', window.location.pathname)
+      if (v === 'success') {
+        toast.success(t(language, 'verifySuccessBanner'), { duration: 6000 })
+      } else if (v === 'error') {
+        toast.error(t(language, 'verifyErrorBanner'), { duration: 5000 })
+      } else if (v === 'expired') {
+        toast.warning(t(language, 'verifyExpiredBanner'), { duration: 5000 })
+      }
+    }
+  }, [])
+
+  // Email verification banner for logged-in unverified users
+  const userEmailVerified = (session?.user as any)?.emailVerified !== false
+  const [verifyBannerVisible, setVerifyBannerVisible] = useState(true)
+  const [verifyResendLoading, setVerifyResendLoading] = useState(false)
+
+  const handleResendVerification = async () => {
+    setVerifyResendLoading(true)
+    try {
+      const res = await fetch('/api/auth/send-verification', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        toast.success(t(language, 'registerVerifyEmail'), { description: t(language, 'registerVerifyEmailDesc') })
+      } else {
+        toast.error(data.error || 'Error')
+      }
+    } catch {
+      toast.error('Error')
+    } finally {
+      setVerifyResendLoading(false)
+    }
+  }
+
   // Handle checkout success/cancel redirect from Stripe/LemonSqueezy/PayMob
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -379,6 +420,37 @@ export default function Landing() {
           </div>
         </div>
       </header>
+
+      {/* Email verification banner for unverified users */}
+      {isLoggedIn && !userEmailVerified && verifyBannerVisible && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <Mail className="w-5 h-5 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800">
+                <span className="font-semibold">{t(language, 'verifyBannerTitle')} — </span>
+                {t(language, 'verifyBannerDesc')}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleResendVerification}
+                disabled={verifyResendLoading}
+                className="text-sm font-medium text-amber-700 hover:text-amber-900 underline cursor-pointer disabled:opacity-50 transition-colors"
+              >
+                {verifyResendLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : t(language, 'verifyBannerResend')}
+              </button>
+              <button
+                onClick={() => setVerifyBannerVisible(false)}
+                className="text-sm text-amber-600 hover:text-amber-800 cursor-pointer transition-colors ml-1"
+                aria-label={t(language, 'verifyBannerClose')}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <main className="flex-1">

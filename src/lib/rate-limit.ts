@@ -75,6 +75,30 @@ export function checkRateLimit(
 }
 
 /**
+ * Generic rate limiter that works with any custom key (email, IP, etc.).
+ * Returns { success, retryAfterMs }.
+ */
+export async function rateLimit(
+  key: string,
+  opts: { maxRequests: number; windowMs: number }
+): Promise<{ success: boolean; retryAfterMs: number }> {
+  const now = Date.now()
+  let entry = store.get(`custom:${key}`)
+  if (!entry) {
+    entry = { timestamps: [] }
+    store.set(`custom:${key}`, entry)
+  }
+  entry.timestamps = entry.timestamps.filter((ts) => now - ts < opts.windowMs)
+  if (entry.timestamps.length >= opts.maxRequests) {
+    const oldest = entry.timestamps[0]
+    const retryAfterMs = oldest + opts.windowMs - now
+    return { success: false, retryAfterMs }
+  }
+  entry.timestamps.push(now)
+  return { success: true, retryAfterMs: 0 }
+}
+
+/**
  * Determine rate-limit category from a request path.
  */
 export function getRateLimitCategory(pathname: string): RateLimitCategory {

@@ -260,10 +260,10 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, language: lang }),
       })
       if (res.ok) {
-        toast.success(t(lang, 'registerSuccess'))
+        toast.success(t(lang, 'registerVerifyEmail'), { duration: 6000, description: t(lang, 'registerVerifyEmailDesc') })
         const result = await signIn('credentials', {
           email,
           password,
@@ -306,8 +306,6 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         }
       } else if (data.code === 'USER_NOT_FOUND') {
         toast.error(t(lang, 'forgotPasswordNoAccount'))
-      } else if (data.code === 'NO_ACTIVE_PLAN') {
-        toast.error(t(lang, 'forgotPasswordNoPlan'))
       } else {
         toast.error(data.error || t(lang, 'forgotPasswordError'))
       }
@@ -498,11 +496,6 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
                 className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
                 placeholder={t(lang, 'forgotPasswordEmailPh')}
               />
-            </div>
-
-            <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
-              <span>{t(lang, 'codeSubscriberOnly')}</span>
             </div>
 
             <Button

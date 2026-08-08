@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { scanInput, sanitizeString, logSecurityEvent } from '@/lib/security'
 import { sendResetCodeEmail } from '@/lib/email'
+import { rateLimit } from '@/lib/rate-limit'
 import type { CVLanguage } from '@/lib/i18n'
 
-const PAID_PLANS = ['pro', 'annual', 'lifetime']
 const CODE_EXPIRY_MINUTES = 15
 
 function generateCode(): string {
@@ -44,23 +44,25 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = sanitizeString(email.toLowerCase().trim())
 
-    // Find user and check active subscription
+    // Rate limit: max 3 reset code requests per email per 15 minutes
+    const rateLimitResult = await rateLimit(`reset-code:${normalizedEmail}`, { maxRequests: 3, windowMs: 15 * 60 * 1000 })
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Trop de demandes. Veuillez réessayer dans quelques minutes.' },
+        { status: 429 }
+      )
+    }
+
+    // Find user
     const user = await db.user.findUnique({
       where: { email: normalizedEmail },
-      select: { id: true, email: true, name: true, plan: true },
+      select: { id: true, email: true, name: true },
     })
 
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Aucun compte trouvé avec cet email', code: 'USER_NOT_FOUND' },
         { status: 404 }
-      )
-    }
-
-    if (!PAID_PLANS.includes(user.plan)) {
-      return NextResponse.json(
-        { success: false, error: 'Ce compte n\'a pas d\'abonnement actif. Veuillez d\'abord souscrire à un plan.', code: 'NO_ACTIVE_PLAN' },
-        { status: 403 }
       )
     }
 

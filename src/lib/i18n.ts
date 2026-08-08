@@ -443,6 +443,16 @@ export type TranslationKey =
   | 'codeNoCode'
   | 'codePasswordMismatch'
   | 'codeSuccessDesc'
+  // Email verification notice
+  | 'registerVerifyEmail'
+  | 'registerVerifyEmailDesc'
+  | 'verifyBannerTitle'
+  | 'verifyBannerDesc'
+  | 'verifyBannerResend'
+  | 'verifyBannerClose'
+  | 'verifySuccessBanner'
+  | 'verifyErrorBanner'
+  | 'verifyExpiredBanner'
   // ATS Analysis
   | 'atsAnalyzeBtn'
   | 'atsAnalyzing'
@@ -2054,6 +2064,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'Aucun code en attente. Veuillez recommencer.',
     codePasswordMismatch: 'Les mots de passe ne correspondent pas.',
     codeSuccessDesc: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+    // Email verification notice
+    registerVerifyEmail: 'Vérifiez votre email !',
+    registerVerifyEmailDesc: 'Un lien de vérification a été envoyé à votre adresse email. Veuillez le confirmer pour activer votre compte.',
+    verifyBannerTitle: 'Email non vérifié',
+    verifyBannerDesc: 'Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités.',
+    verifyBannerResend: 'Renvoyer le lien',
+    verifyBannerClose: 'Fermer',
+    verifySuccessBanner: 'Votre email a été vérifié avec succès ! Bienvenue sur HireNova.',
+    verifyErrorBanner: 'Le lien de vérification est invalide.',
+    verifyExpiredBanner: 'Le lien de vérification a expiré. Veuillez demander un nouveau lien.',
     // ATS Analysis
     atsAnalyzeBtn: 'Analyser mon score ATS',
     atsAnalyzing: "L'IA analyse votre CV...",
@@ -3711,6 +3731,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'No pending code. Please start over.',
     codePasswordMismatch: 'Passwords do not match.',
     codeSuccessDesc: 'You can now sign in with your new password.',
+    // Email verification notice
+    registerVerifyEmail: 'Verify your email!',
+    registerVerifyEmailDesc: 'A verification link has been sent to your email address. Please confirm it to activate your account.',
+    verifyBannerTitle: 'Email not verified',
+    verifyBannerDesc: 'Please verify your email address to access all features.',
+    verifyBannerResend: 'Resend link',
+    verifyBannerClose: 'Close',
+    verifySuccessBanner: 'Your email has been verified successfully! Welcome to HireNova.',
+    verifyErrorBanner: 'The verification link is invalid.',
+    verifyExpiredBanner: 'The verification link has expired. Please request a new one.',
     // ATS Analysis
     atsAnalyzeBtn: 'Analyze my ATS Score',
     atsAnalyzing: 'AI is analyzing your resume...',
@@ -5367,6 +5397,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'لا يوجد رمز معلق. يرجى البدء من جديد.',
     codePasswordMismatch: 'كلمات المرور غير متطابقة.',
     codeSuccessDesc: 'يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.',
+    // Email verification notice
+    registerVerifyEmail: 'تحقق من بريدك الإلكتروني!',
+    registerVerifyEmailDesc: 'تم إرسال رابط تحقق إلى عنوان بريدك الإلكتروني. يرجى تأكيده لتفعيل حسابك.',
+    verifyBannerTitle: 'البريد الإلكتروني غير مُوثّق',
+    verifyBannerDesc: 'يرجى التحقق من عنوان بريدك الإلكتروني للوصول إلى جميع الميزات.',
+    verifyBannerResend: 'إعادة إرسال الرابط',
+    verifyBannerClose: 'إغلاق',
+    verifySuccessBanner: 'تم التحقق من بريدك الإلكتروني بنجاح! مرحبًا بك في HireNova.',
+    verifyErrorBanner: 'رابط التحقق غير صالح.',
+    verifyExpiredBanner: 'انتهت صلاحية رابط التحقق. يرجى طلب رابط جديد.',
     // ATS Analysis
     atsAnalyzeBtn: 'تحليل نقطتي ATS',
     atsAnalyzing: 'الذكاء الاصطناعي يحلل سيرتك الذاتية...',
@@ -7024,6 +7064,16 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     codeNoCode: 'No hay código pendiente. Por favor empieza de nuevo.',
     codePasswordMismatch: 'Las contraseñas no coinciden.',
     codeSuccessDesc: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
+    // Email verification notice
+    registerVerifyEmail: '¡Verifica tu email!',
+    registerVerifyEmailDesc: 'Se ha enviado un enlace de verificación a tu dirección de correo. Por favor confírmalo para activar tu cuenta.',
+    verifyBannerTitle: 'Email no verificado',
+    verifyBannerDesc: 'Por favor verifica tu dirección de email para acceder a todas las funciones.',
+    verifyBannerResend: 'Reenviar enlace',
+    verifyBannerClose: 'Cerrar',
+    verifySuccessBanner: '¡Tu email ha sido verificado con éxito! Bienvenido a HireNova.',
+    verifyErrorBanner: 'El enlace de verificación no es válido.',
+    verifyExpiredBanner: 'El enlace de verificación ha expirado. Por favor solicita uno nuevo.',
     // ATS Analysis
     atsAnalyzeBtn: 'Analizar mi puntuación ATS',
     atsAnalyzing: 'La IA está analizando tu currículum...',

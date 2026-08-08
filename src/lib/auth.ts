@@ -207,6 +207,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image,
           plan: user.plan,
+          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -217,6 +218,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email ?? '';
         token.plan = (user as { plan?: string }).plan ?? "free";
+        token.emailVerified = (user as { emailVerified?: boolean }).emailVerified ?? false;
       }
       return token;
     },
@@ -228,6 +230,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as { image?: string | null }).image =
           token.picture as string | null;
         (session.user as { plan?: string }).plan = token.plan as string;
+        (session.user as { emailVerified?: boolean }).emailVerified = token.emailVerified as boolean;
       }
       return session;
     },
@@ -251,11 +254,13 @@ declare module "next-auth" {
       name?: string | null;
       image?: string | null;
       plan: string;
+      emailVerified?: boolean;
     };
   }
 
   interface User {
     plan?: string;
+    emailVerified?: boolean;
   }
 }
 
@@ -264,5 +269,6 @@ declare module "next-auth/jwt" {
     id: string;
     email: string;
     plan: string;
+    emailVerified?: boolean;
   }
 }

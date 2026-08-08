@@ -3,6 +3,8 @@ import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { scanInput, sanitizeString, logSecurityEvent } from "@/lib/security";
 import { scheduleOnboardingEmails, sendVerificationEmail } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
+import type { CVLanguage } from "@/lib/i18n";
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -16,7 +18,7 @@ function getClientIP(request: Request): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, name, password } = body;
+    const { email, name, password, language } = body;
 
     // Input sanitization & security scan
     if (email) {
@@ -69,15 +71,42 @@ export async function POST(request: Request) {
     }
 
     // Validate password
-    if (!password || password.length < 6) {
+    if (!password || password.length < 8) {
       return NextResponse.json(
-        { success: false, error: "Password must be at least 6 characters" },
+        { success: false, error: "Password must be at least 8 characters" },
         { status: 400 }
       );
     }
 
-    // Normalize email
+    // Validate name length
+    if (name && (name.trim().length < 2 || name.trim().length > 100)) {
+      return NextResponse.json(
+        { success: false, error: "Name must be between 2 and 100 characters" },
+        { status: 400 }
+      );
+    }
+
+    // Rate limit: max 5 registrations per IP per hour
+    const clientIP = getClientIP(request);
+    const regRateLimit = await rateLimit(`register:${clientIP}`, { maxRequests: 5, windowMs: 60 * 60 * 1000 });
+    if (!regRateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many registration attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    // Normalize email (before rate limit check)
     const normalizedEmail = sanitizeString(email.toLowerCase().trim());
+
+    // Rate limit: max 3 registrations per email per hour
+    const emailRateLimit = await rateLimit(`register-email:${normalizedEmail}`, { maxRequests: 3, windowMs: 60 * 60 * 1000 });
+    if (!emailRateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many attempts with this email. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
@@ -118,7 +147,8 @@ export async function POST(request: Request) {
       data: { verificationToken, verificationTokenExpires },
     });
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000';
-    sendVerificationEmail(user.email, displayName, 'fr' as any, verificationToken, siteUrl).catch((err) => {
+    const userLang: CVLanguage = language && ['fr', 'en', 'ar', 'es'].includes(language) ? language : 'fr';
+    sendVerificationEmail(user.email, displayName, userLang, verificationToken, siteUrl).catch((err) => {
       console.error('[register] verification email failed:', err instanceof Error ? err.message : String(err));
     });
 

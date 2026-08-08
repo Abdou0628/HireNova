@@ -59,7 +59,7 @@ export default function ChatbotWidget() {
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const lang = useCVStore(s => s.nuage)
+  const lang = useCVStore(s => s.language)
 
   const isRTL = lang === 'ar'
 
