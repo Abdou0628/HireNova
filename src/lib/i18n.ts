@@ -758,6 +758,9 @@ export type TranslationKey =
   // Chatbot modes
   | 'chatbotModeAdvisor' | 'chatbotModeSupport' | 'chatbotModeProducts'
   | 'chatbotAdvisorTitle' | 'chatbotSupportTitle' | 'chatbotProductsTitle'
+  | 'chatbotSuggestionAdvisor1' | 'chatbotSuggestionAdvisor2' | 'chatbotSuggestionAdvisor3'
+  | 'chatbotSuggestionSupport1' | 'chatbotSuggestionSupport2' | 'chatbotSuggestionSupport3'
+  | 'chatbotSuggestionProducts1' | 'chatbotSuggestionProducts2' | 'chatbotSuggestionProducts3'
   // Campus
   | 'campusOverview' | 'campusUniversities' | 'campusWorkshops' | 'campusStudents'
   | 'campusSubtitle' | 'campusPartnerUnis' | 'campusTotalStudents' | 'campusWorkshopsCount'
@@ -873,6 +876,12 @@ export type TranslationKey =
   | 'confirmPasswordLabel' | 'confirmPasswordPh' | 'passwordsMatch' | 'passwordsNoMatch'
   | 'showPassword' | 'hidePassword'
   | 'emailNotVerified' | 'emailNotVerifiedDesc' | 'verifyEmailResend' | 'verifyEmailSent'
+  // Email verification email templates
+  | 'verifyEmailSubject' | 'verifyEmailTitle' | 'verifyEmailBody' | 'verifyEmailButton' | 'verifyEmailAltText' | 'verifyEmailExpires'
+  | 'verifyEmailSuccessTitle' | 'verifyEmailSuccessDesc'
+  | 'verifyEmailErrorTitle' | 'verifyEmailErrorDesc'
+  // Password reset email template
+  | 'resetCodeSubject' | 'resetCodeTitle' | 'resetCodeBody' | 'resetCodeExpires'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -967,7 +976,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     clTitle: 'Lettre de Motivation',
     clSubtitle: 'Générez une lettre de motivation persuasive en 30 secondes',
     clDescription: 'Notre IA rédige une lettre de motivation personnalisée, parfaitement adaptée à l\'offre d\'emploi visée. Disponible en français, anglais, arabe et espagnol.',
-    clCta: 'Créer ma lettre de motivation',
+    clCta: "Explorer l'écosystème HireNova",
     clBackToCv: 'Retour au CV',
     clCompanyName: 'Nom de l\'entreprise',
     clCompanyNamePlaceholder: 'Ex: Google, Renault, Société Générale...',
@@ -1217,7 +1226,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFreelanceDesc: 'Travailleur indépendant en recherche de missions',
     personaExpatDesc: 'Professionnel international en mobilité',
     personaChoose: 'Choisir ce profil',
-    ctaChooseProfile: 'Démarrer',
+    ctaChooseProfile: 'Créer mon compte',
     personaFieldsTitle: 'Informations spécifiques au profil',
     internshipRequest: 'Demande de stage',
     internshipRequestDesc: 'Adapter le CV et la lettre pour une recherche de stage.',
@@ -1800,6 +1809,15 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     chatbotAdvisorTitle: 'Votre conseiller IA',
     chatbotSupportTitle: "Besoin d'aide ?",
     chatbotProductsTitle: 'Nos solutions',
+    chatbotSuggestionAdvisor1: 'Comment optimiser mon CV ?',
+    chatbotSuggestionAdvisor2: 'Conseils pour mon entretien',
+    chatbotSuggestionAdvisor3: 'Planifier ma transition de carri\u00e8re',
+    chatbotSuggestionSupport1: 'Probl\u00e8me de connexion',
+    chatbotSuggestionSupport2: 'Comment r\u00e9initialiser mon mot de passe ?',
+    chatbotSuggestionSupport3: 'Mon plan ne fonctionne pas',
+    chatbotSuggestionProducts1: 'Quels sont vos tarifs ?',
+    chatbotSuggestionProducts2: 'D\u00e9couvrir tous les modules',
+    chatbotSuggestionProducts3: 'API pour les entreprises',
     // Campus
     campusOverview: 'Vue d\'ensemble',
     campusUniversities: 'Universités',
@@ -2508,6 +2526,20 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     emailNotVerifiedDesc: 'Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités.',
     verifyEmailResend: 'Renvoyer l\'email de vérification',
     verifyEmailSent: 'Email de vérification envoyé !',
+    verifyEmailSubject: 'Vérifiez votre adresse email — HireNova',
+    verifyEmailTitle: 'Confirmez votre adresse email',
+    verifyEmailBody: 'Merci de vous être inscrit sur HireNova. Pour activer votre compte et accéder à toutes nos fonctionnalités, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous.',
+    verifyEmailButton: 'Vérifier mon email',
+    verifyEmailAltText: 'Ou copiez ce lien dans votre navigateur :',
+    verifyEmailExpires: 'Ce lien expire dans 30 minutes.',
+    verifyEmailSuccessTitle: 'Email vérifié !',
+    verifyEmailSuccessDesc: 'Votre adresse email a été vérifiée avec succès. Bienvenue sur HireNova !',
+    verifyEmailErrorTitle: 'Vérification échouée',
+    verifyEmailErrorDesc: 'Le lien est invalide ou a expiré. Veuillez demander un nouvel email de vérification.',
+    resetCodeSubject: 'Code de réinitialisation — HireNova',
+    resetCodeTitle: 'Réinitialisez votre mot de passe',
+    resetCodeBody: 'Vous avez demandé une réinitialisation de mot de passe. Utilisez le code ci-dessous pour définir un nouveau mot de passe.',
+    resetCodeExpires: 'Ce code expire dans 15 minutes.',
   },
   en: {
     siteTitle: 'HireNova',
@@ -2601,7 +2633,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     clTitle: 'Cover Letter',
     clSubtitle: 'Generate a persuasive cover letter in 30 seconds',
     clDescription: 'Our AI writes a personalized cover letter, perfectly tailored to the job posting. Available in French, English, Arabic, and Spanish.',
-    clCta: 'Create my cover letter',
+    clCta: "Explore the HireNova ecosystem",
     clBackToCv: 'Back to CV',
     clCompanyName: 'Company Name',
     clCompanyNamePlaceholder: 'E.g. Google, Renault, Société Générale...',
@@ -2851,7 +2883,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFreelanceDesc: 'Independent worker seeking projects',
     personaExpatDesc: 'International professional on the move',
     personaChoose: 'Choose this profile',
-    ctaChooseProfile: 'Get started',
+    ctaChooseProfile: 'Create my account',
     personaFieldsTitle: 'Profile-specific information',
     internshipRequest: 'Internship Request',
     internshipRequestDesc: 'Tailor the CV and cover letter for an internship search.',
@@ -3434,6 +3466,15 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     chatbotAdvisorTitle: 'Your AI Advisor',
     chatbotSupportTitle: 'Need Help?',
     chatbotProductsTitle: 'Our Solutions',
+    chatbotSuggestionAdvisor1: 'How to optimize my resume?',
+    chatbotSuggestionAdvisor2: 'Tips for my interview',
+    chatbotSuggestionAdvisor3: 'Plan my career transition',
+    chatbotSuggestionSupport1: 'Login issue',
+    chatbotSuggestionSupport2: 'How to reset my password?',
+    chatbotSuggestionSupport3: 'My plan is not working',
+    chatbotSuggestionProducts1: 'What are your prices?',
+    chatbotSuggestionProducts2: 'Discover all modules',
+    chatbotSuggestionProducts3: 'API for businesses',
     // Campus
     campusOverview: 'Overview',
     campusUniversities: 'Universities',
@@ -4142,6 +4183,20 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     emailNotVerifiedDesc: 'Please verify your email address to access all features.',
     verifyEmailResend: 'Resend verification email',
     verifyEmailSent: 'Verification email sent!',
+    verifyEmailSubject: 'Verify your email address — HireNova',
+    verifyEmailTitle: 'Confirm your email address',
+    verifyEmailBody: 'Thank you for signing up on HireNova. To activate your account and access all features, please confirm your email address by clicking the button below.',
+    verifyEmailButton: 'Verify my email',
+    verifyEmailAltText: 'Or copy this link into your browser:',
+    verifyEmailExpires: 'This link expires in 30 minutes.',
+    verifyEmailSuccessTitle: 'Email verified!',
+    verifyEmailSuccessDesc: 'Your email address has been verified successfully. Welcome to HireNova!',
+    verifyEmailErrorTitle: 'Verification failed',
+    verifyEmailErrorDesc: 'The link is invalid or has expired. Please request a new verification email.',
+    resetCodeSubject: 'Password reset code — HireNova',
+    resetCodeTitle: 'Reset your password',
+    resetCodeBody: 'You requested a password reset. Use the code below to set a new password.',
+    resetCodeExpires: 'This code expires in 15 minutes.',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -4234,7 +4289,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     clTitle: 'رسالة الدافع',
     clSubtitle: 'أنشئ رسالة دافع مقنعة في 30 ثانية',
     clDescription: 'يكتب الذكاء الاصطناعي لدينا رسالة دافع مخصصة، مصممة بشكل مثالي للوظيفة المستهدفة. متاحة بالفرنسية والإنجليزية والعربية والإسبانية.',
-    clCta: 'إنشاء رسالة الدافع الخاصة بي',
+    clCta: 'استكشاف نظام HireNova',
     clBackToCv: 'العودة إلى السيرة الذاتية',
     clCompanyName: 'اسم الشركة',
     clCompanyNamePlaceholder: 'مثال: Google, Renault, Société Générale...',
@@ -4484,7 +4539,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFreelanceDesc: 'عامل مستقل يبحث عن مشاريع',
     personaExpatDesc: 'محترف دولي متنقل',
     personaChoose: 'اختر هذا الملف',
-    ctaChooseProfile: 'ابدأ الآن',
+    ctaChooseProfile: 'إنشاء حسابي',
     personaFieldsTitle: 'معلومات خاصة بالملف',
     internshipRequest: 'طلب تدريب',
     internshipRequestDesc: 'تكييف السيرة الذاتية والرسالة للبحث عن تدريب.',
@@ -5067,6 +5122,15 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     chatbotAdvisorTitle: 'مستشارك الذكي',
     chatbotSupportTitle: 'هل تحتاج مساعدة؟',
     chatbotProductsTitle: 'حلولنا',
+    chatbotSuggestionAdvisor1: 'كيف أحسن سيرتي الذاتية؟',
+    chatbotSuggestionAdvisor2: 'نصائح لمقابلتي',
+    chatbotSuggestionAdvisor3: 'تخطيط تحويلي المهني',
+    chatbotSuggestionSupport1: 'مشكلة في التصل',
+    chatbotSuggestionSupport2: 'كيف أعيد تعيين كلمة المرور؟',
+    chatbotSuggestionSupport3: 'خطتي لا يعمل',
+    chatbotSuggestionProducts1: 'ما هي أسعاركم؟',
+    chatbotSuggestionProducts2: 'اكتشاف جميع الوحدات',
+    chatbotSuggestionProducts3: 'API للشركات',
     // Campus
     campusOverview: 'نظرة عامة',
     campusUniversities: 'الجامعات',
@@ -5775,6 +5839,20 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     emailNotVerifiedDesc: 'يرجى التحقق من بريدك الإلكتروني للوصول إلى جميع الميزات.',
     verifyEmailResend: 'إعادة إرسال بريد التحقق',
     verifyEmailSent: 'تم إرسال بريد التحقق!',
+    verifyEmailSubject: 'تحقق من بريدك الإلكتروني — HireNova',
+    verifyEmailTitle: 'أكد عنوان بريدك الإلكتروني',
+    verifyEmailBody: 'شكرًا لتسجيلك في HireNova. لتفعيل حسابك والوصول إلى جميع الميزات، يرجى تأكيد عنوان بريدك الإلكتروني بالنقر على الزر أدناه.',
+    verifyEmailButton: 'التحقق من بريدي الإلكتروني',
+    verifyEmailAltText: 'أو انسخ هذا الرابط في متصفحك:',
+    verifyEmailExpires: 'ينتهي هذا الرابط خلال 30 دقيقة.',
+    verifyEmailSuccessTitle: 'تم التحقق من البريد الإلكتروني!',
+    verifyEmailSuccessDesc: 'تم التحقق من بريدك الإلكتروني بنجاح. مرحبًا بك في HireNova!',
+    verifyEmailErrorTitle: 'فشل التحقق',
+    verifyEmailErrorDesc: 'الرابط غير صالح أو منتهي الصلاحية. يرجى طلب بريد تحقق جديد.',
+    resetCodeSubject: 'رمز إعادة تعيين كلمة المرور — HireNova',
+    resetCodeTitle: 'أعد تعيين كلمة المرور',
+    resetCodeBody: 'طلبت إعادة تعيين كلمة المرور. استخدم الرمز أدناه لتعيين كلمة مرور جديدة.',
+    resetCodeExpires: 'ينتهي هذا الرمز خلال 15 دقيقة.',
   },
   es: {
     siteTitle: 'HireNova',
@@ -5868,7 +5946,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     clTitle: 'Carta de Motivación',
     clSubtitle: 'Genera una carta de motivación persuasiva en 30 segundos',
     clDescription: 'Nuestra IA redacta una carta de motivación personalizada, perfectamente adaptada a la oferta de empleo. Disponible en francés, inglés, árabe y español.',
-    clCta: 'Crear mi carta de motivación',
+    clCta: 'Explorar el ecosistema HireNova',
     clBackToCv: 'Volver al CV',
     clCompanyName: 'Nombre de la empresa',
     clCompanyNamePlaceholder: 'Ej: Google, Renault, Société Générale...',
@@ -6118,7 +6196,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     personaFreelanceDesc: 'Trabajador independiente en busca de proyectos',
     personaExpatDesc: 'Profesional internacional en movilidad',
     personaChoose: 'Elegir este perfil',
-    ctaChooseProfile: 'Comenzar',
+    ctaChooseProfile: 'Crear mi cuenta',
     personaFieldsTitle: 'Información específica del perfil',
     internshipRequest: 'Solicitud de prácticas',
     internshipRequestDesc: 'Adaptar el CV y la carta para una búsqueda de prácticas.',
@@ -6701,6 +6779,15 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     chatbotAdvisorTitle: 'Tu asesor IA',
     chatbotSupportTitle: '¿Necesitas ayuda?',
     chatbotProductsTitle: 'Nuestras soluciones',
+    chatbotSuggestionAdvisor1: '¿Cómo optimizar mi currículum?',
+    chatbotSuggestionAdvisor2: 'Consejos para mi entrevista',
+    chatbotSuggestionAdvisor3: 'Planificar mi transición de carrera',
+    chatbotSuggestionSupport1: 'Problema de conexión',
+    chatbotSuggestionSupport2: '¿Cómo restablecer mi contraseña?',
+    chatbotSuggestionSupport3: 'Mi plan no funciona',
+    chatbotSuggestionProducts1: '¿Cuáles son sus precios?',
+    chatbotSuggestionProducts2: 'Descubrir todos los módulos',
+    chatbotSuggestionProducts3: 'API para empresas',
     // Campus
     campusOverview: 'Resumen',
     campusUniversities: 'Universidades',
@@ -7409,6 +7496,20 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     emailNotVerifiedDesc: 'Por favor verifica tu email para acceder a todas las funciones.',
     verifyEmailResend: 'Reenviar email de verificación',
     verifyEmailSent: '¡Email de verificación enviado!',
+    verifyEmailSubject: 'Verifica tu email — HireNova',
+    verifyEmailTitle: 'Confirma tu dirección de email',
+    verifyEmailBody: 'Gracias por registrarte en HireNova. Para activar tu cuenta y acceder a todas las funciones, confirma tu dirección de email haciendo clic en el botón de abajo.',
+    verifyEmailButton: 'Verificar mi email',
+    verifyEmailAltText: 'O copia este enlace en tu navegador:',
+    verifyEmailExpires: 'Este enlace expira en 30 minutos.',
+    verifyEmailSuccessTitle: '¡Email verificado!',
+    verifyEmailSuccessDesc: 'Tu dirección de email ha sido verificada con éxito. ¡Bienvenido a HireNova!',
+    verifyEmailErrorTitle: 'Verificación fallida',
+    verifyEmailErrorDesc: 'El enlace no es válido o ha expirado. Por favor solicita un nuevo email de verificación.',
+    resetCodeSubject: 'Código de restablecimiento — HireNova',
+    resetCodeTitle: 'Restablece tu contraseña',
+    resetCodeBody: 'Solicitaste un restablecimiento de contraseña. Usa el código de abajo para establecer una nueva contraseña.',
+    resetCodeExpires: 'Este código expira en 15 minutos.',
   }
 }
 

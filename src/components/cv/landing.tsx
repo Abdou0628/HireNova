@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, MessageSquare, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale, Network, HeartHandshake } from 'lucide-react'
+import { Sparkles, Globe, Shield, PenLine, ArrowRight, FileText, Star, Languages, Check, X, Crown, Zap, Loader2, LayoutTemplate, Download, GraduationCap, Briefcase, Rocket, Plane, UserCheck, Award, Bot, MessageCircle, MessageSquare, Linkedin, Search, Compass, BookOpen, Laptop, ChevronDown, HelpCircle, Users, ThumbsUp, Lock, Code2, BarChart3, PlusCircle, CheckCircle2, Copy, Gift, Building2, Mail, Wand2, Store, Brain, Scale, Network, HeartHandshake, UserPlus } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -134,6 +134,7 @@ export default function Landing() {
   const liveStats = usePublicStats()
   const personasRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDivElement>(null)
+  const ecosystemRef = useRef<HTMLDivElement>(null)
 
   function scrollToPersonas() {
     personasRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -141,6 +142,9 @@ export default function Landing() {
   function scrollToPricing() {
     events.pricingViewed()
     pricingRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  function scrollToEcosystem() {
+    ecosystemRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
   const { data: session } = useSession()
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -454,9 +458,16 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all cursor-pointer"
-                  onClick={() => requireAuthAndPlan('form')}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setAuthMode('register')
+                      setAuthModalOpen(true)
+                      return
+                    }
+                    scrollToEcosystem()
+                  }}
                 >
-                  <FileText className="mr-2 w-5 h-5" />
+                  <UserPlus className="mr-2 w-5 h-5" />
                   {t(language, 'ctaChooseProfile')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -464,9 +475,9 @@ export default function Landing() {
                   size="lg"
                   variant="outline"
                   className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl transition-all cursor-pointer"
-                  onClick={() => requireAuthAndPlan('clForm')}
+                  onClick={scrollToEcosystem}
                 >
-                  <PenLine className="mr-2 w-5 h-5" />
+                  <Compass className="mr-2 w-5 h-5" />
                   {t(language, 'clCta')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -1025,7 +1036,7 @@ export default function Landing() {
         </section>
 
         {/* HireNova Ecosystem — Future Products Roadmap */}
-        <section className="relative py-16 sm:py-24 bg-gradient-to-b from-teal-50/40 via-white to-emerald-50/30">
+        <section ref={ecosystemRef} className="relative py-16 sm:py-24 bg-gradient-to-b from-teal-50/40 via-white to-emerald-50/30">
           <div className="absolute inset-0 -z-10">
             <Image src="/images/bg-pattern.jpg" alt="" fill className="object-cover opacity-8" />
             <div className="absolute inset-0 bg-white/85" />
@@ -1466,9 +1477,16 @@ export default function Landing() {
                 <Button
                   size="lg"
                   className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg rounded-xl font-semibold shadow-lg transition-all cursor-pointer"
-                  onClick={() => requireAuthAndPlan('form')}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setAuthMode('register')
+                      setAuthModalOpen(true)
+                      return
+                    }
+                    scrollToEcosystem()
+                  }}
                 >
-                  <FileText className="mr-2 w-5 h-5" />
+                  <UserPlus className="mr-2 w-5 h-5" />
                   {t(language, 'ctaChooseProfile')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -1476,9 +1494,9 @@ export default function Landing() {
                   size="lg"
                   variant="outline"
                   className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl font-semibold transition-all cursor-pointer"
-                  onClick={() => requireAuthAndPlan('clForm')}
+                  onClick={scrollToEcosystem}
                 >
-                  <PenLine className="mr-2 w-5 h-5" />
+                  <Compass className="mr-2 w-5 h-5" />
                   {t(language, 'clCta')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>

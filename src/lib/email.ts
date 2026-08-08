@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { t, type CVLanguage } from './i18n'
 
 /**
  * HireNova Email Service
@@ -75,9 +76,11 @@ export async function sendEmail({ to, subject, html, text }: EmailParams): Promi
 
 // ============= Email Templates =============
 
-function emailWrapper(content: string, previewText: string): string {
+function emailWrapper(content: string, previewText: string, lang: string = 'fr'): string {
+  const isRTL = lang === 'ar'
+  const dir = isRTL ? 'rtl' : 'ltr'
   return `<!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}" dir="${dir}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,13 +109,19 @@ function emailWrapper(content: string, previewText: string): string {
           <tr>
             <td style="padding:24px 40px;background:#f8fafb;border-top:1px solid #e2e8f0;">
               <p style="font-size:12px;color:#64748b;margin:0 0 8px 0;line-height:1.6;">
-                Vous recevez cet email car vous avez un compte HireNova.<br>
-                <a href="${APP_URL}" style="color:#059669;">Visiter HireNova</a> · 
-                <a href="${APP_URL}/?support=1" style="color:#059669;">Support</a> · 
-                <a href="${APP_URL}/?unsubscribe=1" style="color:#94a3b8;">Se désabonner</a>
+                ${lang === 'en' ? 'You are receiving this email because you have a HireNova account.' :
+                  lang === 'ar' ? 'تتلقى هذا البريد الإلكتروني لأن لديك حسابًا على HireNova.' :
+                  lang === 'es' ? 'Recibes este email porque tienes una cuenta HireNova.' :
+                  'Vous recevez cet email car vous avez un compte HireNova.'}<br>
+                <a href="${APP_URL}" style="color:#059669;">${lang === 'en' ? 'Visit HireNova' : lang === 'ar' ? 'زيارة HireNova' : lang === 'es' ? 'Visitar HireNova' : 'Visiter HireNova'}</a> · 
+                <a href="${APP_URL}/?support=1" style="color:#059669;">${lang === 'en' ? 'Support' : lang === 'ar' ? 'الدعم' : lang === 'es' ? 'Soporte' : 'Support'}</a> · 
+                <a href="${APP_URL}/?unsubscribe=1" style="color:#94a3b8;">${lang === 'en' ? 'Unsubscribe' : lang === 'ar' ? 'إلغاء الاشتراك' : lang === 'es' ? 'Darse de baja' : 'Se désabonner'}</a>
               </p>
               <p style="font-size:11px;color:#94a3b8;margin:0;">
-                © 2026 E-Society 2050 — HireNova. Tous droits réservés.
+                ${lang === 'en' ? '© 2026 E-Society 2050 — HireNova. All rights reserved.' :
+                  lang === 'ar' ? '© 2026 E-Society 2050 — HireNova. جميع الحقوق محفوظة.' :
+                  lang === 'es' ? '© 2026 E-Society 2050 — HireNova. Todos los derechos reservados.' :
+                  '© 2026 E-Society 2050 — HireNova. Tous droits réservés.'}
               </p>
             </td>
           </tr>
@@ -340,4 +349,69 @@ export async function scheduleOnboardingEmails(userId: string, email: string, na
   }
 
   return { scheduled: sequence.length, userId }
+}
+
+// ============= Email Verification Template =============
+
+export async function sendVerificationEmail(
+  email: string,
+  name: string,
+  language: CVLanguage,
+  token: string,
+  siteUrl: string
+): Promise<boolean> {
+  const verificationUrl = `${siteUrl}/api/auth/verify-email?token=${token}`
+  const displayName = name || email.split('@')[0]
+  const subject = t(language, 'verifyEmailSubject')
+  const title = t(language, 'verifyEmailTitle')
+  const body = t(language, 'verifyEmailBody')
+  const buttonText = t(language, 'verifyEmailButton')
+  const altText = t(language, 'verifyEmailAltText')
+  const expiresText = t(language, 'verifyEmailExpires')
+
+  const htmlContent = `
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px 0;color:#0f172a;">${title} 👋</h2>
+    <p style="font-size:15px;line-height:1.7;color:#475569;margin:0 0 16px 0;">${body}</p>
+    ${ctaButton(buttonText, verificationUrl)}
+    <p style="font-size:14px;color:#64748b;margin:16px 0 8px 0;font-weight:500;">${altText}</p>
+    <p style="font-size:13px;color:#64748b;margin:0 0 0 0;word-break:break-all;background:#f1f5f9;padding:10px 14px;border-radius:6px;font-family:monospace;">${verificationUrl}</p>
+    <p style="font-size:12px;color:#94a3b8;margin:16px 0 0 0;">⏰ ${expiresText}</p>
+  `
+
+  const previewText = t(language, 'verifyEmailSubject')
+  const html = emailWrapper(htmlContent, previewText, language)
+
+  return sendEmail({ to: email, subject, html })
+}
+
+// ============= Password Reset Code Template =============
+
+export async function sendResetCodeEmail(
+  email: string,
+  name: string,
+  code: string,
+  language: CVLanguage
+): Promise<boolean> {
+  const displayName = name || email.split('@')[0]
+  const subject = t(language, 'resetCodeSubject')
+  const title = t(language, 'resetCodeTitle')
+  const body = t(language, 'resetCodeBody')
+  const expiresText = t(language, 'resetCodeExpires')
+
+  const htmlContent = `
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px 0;color:#0f172a;">${title} 🔐</h2>
+    <p style="font-size:15px;line-height:1.7;color:#475569;margin:0 0 24px 0;">${body}</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border-radius:12px;border:2px dashed #bbf7d0;">
+      <tr><td style="padding:32px;text-align:center;">
+        <p style="font-size:13px;color:#15803d;margin:0 0 8px 0;font-weight:600;letter-spacing:1px;text-transform:uppercase;">${language === 'en' ? 'YOUR RESET CODE' : language === 'ar' ? 'رمز إعادة التعيين' : language === 'es' ? 'TU CÓDIGO DE RESTABLECIMIENTO' : 'VOTRE CODE DE RÉINITIALISATION'}</p>
+        <p style="font-size:40px;font-weight:800;color:#0f172a;margin:0;letter-spacing:8px;font-family:monospace;">${code}</p>
+      </td></tr>
+    </table>
+    <p style="font-size:12px;color:#94a3b8;margin:0;">⏰ ${expiresText}</p>
+  `
+
+  const previewText = t(language, 'resetCodeSubject')
+  const html = emailWrapper(htmlContent, previewText, language)
+
+  return sendEmail({ to: email, subject, html })
 }

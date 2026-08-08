@@ -1,4 +1,30 @@
 ---
+Task ID: 3
+Agent: Main Agent
+Task: Build complete email verification system for user registration
+
+Work Log:
+- Updated prisma/schema.prisma: added `emailVerified Boolean @default(false)`, `verificationToken String?`, `verificationTokenExpires DateTime?` to User model
+- Ran `bun run db:push` — schema synced, Prisma Client regenerated
+- Updated src/lib/i18n.ts: added 14 new TranslationKeys (verifyEmailSubject/Title/Body/Button/AltText/Expires/SuccessTitle/SuccessDesc/ErrorTitle/ErrorDesc, resetCodeSubject/Title/Body/Expires) with translations in all 4 languages (FR/EN/AR/ES)
+- Updated src/lib/email.ts:
+  - Added `import { t, type CVLanguage } from './i18n'`
+  - Made `emailWrapper()` accept optional `lang` parameter for RTL support (Arabic dir="rtl")
+  - Localized footer text in all 4 languages
+  - Added `sendVerificationEmail(email, name, language, token, siteUrl)` — professional HTML template with CTA button, copyable link, expiry notice
+  - Added `sendResetCodeEmail(email, name, code, language)` — professional HTML template with prominent 6-digit code display, dashed border card, expiry notice
+- Created src/app/api/auth/send-verification/route.ts: POST endpoint requiring session, generates crypto.randomUUID token, 30-min expiry, sends verification email, handles already-verified case
+- Created src/app/api/auth/verify-email/route.ts: GET endpoint, reads token from query, validates + checks expiry, marks emailVerified=true, clears token, redirects to homepage with ?verify=success|error|expired
+- Updated src/app/api/auth/send-reset-code/route.ts: imported and calls `sendResetCodeEmail()`, kept dev mode console.log, reads language from request body
+
+Stage Summary:
+- 6 files modified/created (schema, i18n, email.ts, 2 new API routes, 1 updated route)
+- Lint: 0 new errors (12 pre-existing errors in bundled third-party code, 333 pre-existing warnings)
+- Email templates support RTL for Arabic
+- All email templates match HireNova branding (emerald gradient header, green CTA buttons)
+- Verification flow: POST /api/auth/send-verification → email with link → GET /api/auth/verify-email?token=xxx → redirect to /?verify=success
+
+---
 Task ID: 2
 Agent: Main Agent (continuation session)
 Task: Fix package.json tee issue and relaunch dev server

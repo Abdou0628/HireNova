@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { scanInput, sanitizeString, logSecurityEvent } from "@/lib/security";
-import { scheduleOnboardingEmails } from "@/lib/email";
+import { scheduleOnboardingEmails, sendVerificationEmail } from "@/lib/email";
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -107,6 +107,19 @@ export async function POST(request: Request) {
     const displayName = user.name || user.email.split("@")[0];
     scheduleOnboardingEmails(user.id, user.email, displayName).catch((err) => {
       console.error("[register] onboarding sequence failed:", err instanceof Error ? err.message : String(err));
+    });
+
+    // Send email verification link
+    const { randomUUID } = await import('crypto');
+    const verificationToken = randomUUID();
+    const verificationTokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 min
+    await db.user.update({
+      where: { id: user.id },
+      data: { verificationToken, verificationTokenExpires },
+    });
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000';
+    sendVerificationEmail(user.email, displayName, 'fr' as any, verificationToken, siteUrl).catch((err) => {
+      console.error('[register] verification email failed:', err instanceof Error ? err.message : String(err));
     });
 
     return NextResponse.json(

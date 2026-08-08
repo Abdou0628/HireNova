@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { scanInput, sanitizeString, logSecurityEvent } from '@/lib/security'
+import { sendResetCodeEmail } from '@/lib/email'
+import type { CVLanguage } from '@/lib/i18n'
 
 const PAID_PLANS = ['pro', 'annual', 'lifetime']
 const CODE_EXPIRY_MINUTES = 15
@@ -74,6 +76,24 @@ export async function POST(request: NextRequest) {
         resetCodeExpires: expiresAt,
       },
     })
+
+    // Send reset code email
+    let language: CVLanguage = 'fr'
+    if (body?.language && ['fr', 'en', 'ar', 'es'].includes(body.language)) {
+      language = body.language as CVLanguage
+    }
+
+    await sendResetCodeEmail(
+      user.email,
+      user.name || '',
+      code,
+      language
+    ).catch((err) => {
+      console.error('[send-reset-code] Failed to send reset email:', err instanceof Error ? err.message : String(err))
+    })
+
+    // Dev mode: log the code for debugging
+    console.log(`[send-reset-code] Code for ${user.email}: ${code} (expires in ${CODE_EXPIRY_MINUTES} min)`)
 
     return NextResponse.json({
       success: true,

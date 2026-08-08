@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Loader2, GraduationCap, Wrench, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -18,10 +18,37 @@ interface Message {
   content: string
 }
 
-const MODE_TABS: { mode: ChatMode; icon: string; labelKey: 'chatbotModeAdvisor' | 'chatbotModeSupport' | 'chatbotModeProducts'; welcomeKey: 'chatbotAdvisorTitle' | 'chatbotSupportTitle' | 'chatbotProductsTitle' }[] = [
-  { mode: 'advisor', icon: '🎓', labelKey: 'chatbotModeAdvisor', welcomeKey: 'chatbotAdvisorTitle' },
-  { mode: 'support', icon: '🛠️', labelKey: 'chatbotModeSupport', welcomeKey: 'chatbotSupportTitle' },
-  { mode: 'products', icon: '📦', labelKey: 'chatbotModeProducts', welcomeKey: 'chatbotProductsTitle' },
+interface ModeTab {
+  mode: ChatMode
+  icon: string
+  IconComp: typeof GraduationCap
+  labelKey: 'chatbotModeAdvisor' | 'chatbotModeSupport' | 'chatbotModeProducts'
+  welcomeKey: 'chatbotAdvisorTitle' | 'chatbotSupportTitle' | 'chatbotProductsTitle'
+}
+
+const MODE_TABS: ModeTab[] = [
+  { mode: 'advisor', icon: '🌹', IconComp: GraduationCap, labelKey: 'chatbotModeAdvisor', welcomeKey: 'chatbotAdvisorTitle' },
+  { mode: 'support', icon: '🛠️', IconComp: Wrench, labelKey: 'chatbotModeSupport', welcomeKey: 'chatbotSupportTitle' },
+  { mode: 'products', icon: '📦', IconComp: Package, labelKey: 'chatbotModeProducts', welcomeKey: 'chatbotProductsTitle' },
+]
+
+type SuggestionKey = `chatbotSuggestion${Capitalize<ChatMode>}${number}`
+
+interface Suggestion {
+  key: SuggestionKey
+  mode: ChatMode
+}
+
+const SUGGESTION_KEYS: Suggestion[] = [
+  { key: 'chatbotSuggestionAdvisor1', mode: 'advisor' },
+  { key: 'chatbotSuggestionAdvisor2', mode: 'advisor' },
+  { key: 'chatbotSuggestionAdvisor3', mode: 'advisor' },
+  { key: 'chatbotSuggestionSupport1', mode: 'support' },
+  { key: 'chatbotSuggestionSupport2', mode: 'support' },
+  { key: 'chatbotSuggestionSupport3', mode: 'support' },
+  { key: 'chatbotSuggestionProducts1', mode: 'products' },
+  { key: 'chatbotSuggestionProducts2', mode: 'products' },
+  { key: 'chatbotSuggestionProducts3', mode: 'products' },
 ]
 
 export default function ChatbotWidget() {
@@ -41,20 +68,23 @@ export default function ChatbotWidget() {
     if (!tab) return ''
     const name = t(lang, tab.welcomeKey)
     const greetings: Record<CVLanguage, string> = {
-      fr: `${name} 👋 Comment puis-je vous aider ?`,
-      en: `${name} 👋 How can I help you?`,
-      ar: `${name} 👋 كيف يمكنني مساعدتك؟`,
-      es: `${name} 👋 ¿Cómo puedo ayudarte?`,
+      fr: `${name} \ud83d\udc4b Comment puis-je vous aider \u00e0 propulser votre carri\u00e8re ?`,
+      en: `${name} \ud83d\udc4b How can I help you advance your career?`,
+      ar: `${name} \ud83d\udc4b \u0643\u064a\u0641 \u064a\u0645\u0643\u0646\u0646\u064a \u0645\u0633\u0627\u0639\u062f\u062a\u0643 \u0641\u064a \u062a\u0637\u0648\u064a\u0631 \u0645\u0633\u0627\u0631\u0643 \u0627\u0644\u0645\u0647\u0646\u064a\u061f`,
+      es: `${name} \ud83d\udc4b \u00bfC\u00f3mo puedo ayudarte a impulsar tu carrera?`,
     }
     return greetings[lang]
   }
 
   const placeholderText: Record<CVLanguage, string> = {
-    fr: 'Écrivez votre message...',
+    fr: '\u00c9crivez votre message...',
     en: 'Type your message...',
-    ar: 'اكتب رسالتك...',
+    ar: '\u0627\u0643\u062a\u0628 \u0631\u0633\u0627\u0644\u062a\u0643...',
     es: 'Escribe tu mensaje...',
   }
+
+  const modeSuggestions = SUGGESTION_KEYS.filter(s => s.mode === mode)
+  const showSuggestions = messages.length <= 1 && !isLoading
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -68,11 +98,10 @@ export default function ChatbotWidget() {
     }
   }, [messages])
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return
-    const userMsg = input.trim()
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return
     setInput('')
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }])
+    setMessages(prev => [...prev, { role: 'user', content: text.trim() }])
     setIsLoading(true)
     events.chatbotMessageSent(mode)
 
@@ -81,7 +110,7 @@ export default function ChatbotWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: userMsg,
+          message: text.trim(),
           mode,
           conversationHistory: messages.slice(-6)
         })
@@ -91,24 +120,31 @@ export default function ChatbotWidget() {
         setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
       } else {
         const errMsg: Record<CVLanguage, string> = {
-          fr: 'Désolé, une erreur est survenue.',
+          fr: 'D\u00e9sol\u00e9, une erreur est survenue.',
           en: 'Sorry, an error occurred.',
-          ar: 'عذراً، حدث خطأ.',
-          es: 'Lo siento, ocurrió un error.',
+          ar: '\u0639\u0630\u0631\u0627\u064b\u060c \u062d\u062f\u062b \u062e\u0637\u0623.',
+          es: 'Lo siento, ocurri\u00f3 un error.',
         }
         setMessages(prev => [...prev, { role: 'assistant', content: errMsg[lang] }])
       }
     } catch {
       const connErr: Record<CVLanguage, string> = {
-        fr: 'Erreur de connexion. Réessayez.',
+        fr: 'Erreur de connexion. R\u00e9essayez.',
         en: 'Connection error. Please retry.',
-        ar: 'خطأ في الاتصال. حاول مرة أخرى.',
-        es: 'Error de conexión. Intenta de nuevo.',
+        ar: '\u062e\u0637\u0623 \u0641\u064a \u0627\u0644\u0627\u062a\u0635\u0627\u0644. \u062d\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.',
+        es: 'Error de conexi\u00f3n. Intenta de nuevo.',
       }
       setMessages(prev => [...prev, { role: 'assistant', content: connErr[lang] }])
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleSend = () => sendMessage(input)
+
+  const handleSuggestionClick = (suggestionKey: SuggestionKey) => {
+    const text = t(lang, suggestionKey)
+    sendMessage(text)
   }
 
   return (
@@ -129,7 +165,7 @@ export default function ChatbotWidget() {
               size="lg"
               className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 hover:shadow-xl cursor-pointer"
               onClick={() => setIsOpen(true)}
-              aria-label="Open HireNova IA CHAT BOT ADVANCED"
+              aria-label="Open HireNova AI Assistant"
             >
               <MessageCircle className="w-6 h-6 text-white" />
             </Button>
@@ -148,48 +184,56 @@ export default function ChatbotWidget() {
             transition={{ duration: 0.2 }}
           >
             <Card
-              className={`w-[340px] sm:w-[380px] h-[500px] flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${isRTL ? 'font-sans' : ''}`}
+              className={`w-[340px] sm:w-[400px] h-[540px] flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${isRTL ? 'font-sans' : ''}`}
               dir={isRTL ? 'rtl' : 'ltr'}
             >
               {/* Header */}
               <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Bot className="w-5 h-5" aria-hidden="true" />
-                  <span className="font-semibold text-sm">HireNova Assistant</span>
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <Bot className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-sm block leading-tight">HireNova AI</span>
+                    <span className="text-emerald-100 text-[10px]">{t(lang, MODE_TABS.find(t2 => t2.mode === mode)!.labelKey)}</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="hover:bg-white/20 rounded-lg p-1 cursor-pointer"
+                  className="hover:bg-white/20 rounded-lg p-1.5 cursor-pointer transition-colors"
                   aria-label="Close chatbot"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Mode Toggle — 3 tabs */}
-              <div className="flex border-b" role="tablist" aria-label="Chatbot mode">
-                {MODE_TABS.map((tab) => (
-                  <button
-                    key={tab.mode}
-                    role="tab"
-                    aria-selected={mode === tab.mode}
-                    aria-controls={`chatbot-panel-${tab.mode}`}
-                    onClick={() => { setMode(tab.mode); setMessages([]) }}
-                    className={`flex-1 py-2 text-xs font-medium cursor-pointer transition-colors ${
-                      mode === tab.mode
-                        ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50'
-                        : 'text-muted-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    {tab.icon} {t(lang, tab.labelKey)}
-                  </button>
-                ))}
+              {/* Mode Toggle — 3 large buttons */}
+              <div className="flex gap-2 p-3 bg-muted/30 border-b" role="tablist" aria-label="Chatbot mode">
+                {MODE_TABS.map((tab) => {
+                  const IconComp = tab.IconComp
+                  const isActive = mode === tab.mode
+                  return (
+                    <button
+                      key={tab.mode}
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => { setMode(tab.mode); setMessages([]) }}
+                      className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg text-[10px] font-medium cursor-pointer transition-all ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                          : 'bg-white text-muted-foreground hover:bg-muted/50 border'
+                      }`}
+                    >
+                      <IconComp className="w-4 h-4" />
+                      <span>{t(lang, tab.labelKey)}</span>
+                    </button>
+                  )
+                })}
               </div>
 
               {/* Messages */}
               <div
                 ref={scrollRef}
-                id={`chatbot-panel-${mode}`}
                 role="tabpanel"
                 className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/20"
               >
@@ -232,6 +276,23 @@ export default function ChatbotWidget() {
                   </div>
                 )}
               </div>
+
+              {/* Quick Action Suggestions */}
+              {showSuggestions && (
+                <div className="px-3 pb-2">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    {modeSuggestions.map((s) => (
+                      <button
+                        key={s.key}
+                        onClick={() => handleSuggestionClick(s.key)}
+                        className="flex-shrink-0 text-[11px] px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50/80 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition-colors cursor-pointer whitespace-nowrap"
+                      >
+                        {t(lang, s.key)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Input */}
               <div className="p-3 border-t bg-white">
