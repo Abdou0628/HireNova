@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw, Eye, EyeOff } from 'lucide-react'
+import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw, Eye, EyeOff, UserCheck, Lock, AtSign, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -17,8 +17,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { t } from '@/lib/i18n'
 import { useCVStore } from '@/store/cv-store'
+import MathCaptcha from '@/components/auth/math-captcha'
 
-type Mode = 'login' | 'register' | 'forgot-email' | 'forgot-code' | 'forgot-new-password' | 'forgot-success'
+type Mode = 'login' | 'register' | 'register-verify' | 'forgot-email' | 'forgot-code' | 'forgot-new-password' | 'forgot-success'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -65,6 +66,47 @@ function PasswordStrengthMeter({ password, lang }: { password: string; lang: str
       }`}>
         {t(lang, 'passwordStrengthLabel')} : {t(lang, strength.label)}
       </p>
+    </div>
+  )
+}
+
+function getPasswordReqs(password: string) {
+  return {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecial: /[^a-zA-Z0-9]/.test(password),
+  }
+}
+
+function PasswordRequirements({ password, lang }: { password: string; lang: string }) {
+  const reqs = getPasswordReqs(password)
+  const items = [
+    { key: 'regReqMinLength' as const, met: reqs.minLength },
+    { key: 'regReqUpper' as const, met: reqs.hasUpper },
+    { key: 'regReqLower' as const, met: reqs.hasLower },
+    { key: 'regReqNumber' as const, met: reqs.hasNumber },
+    { key: 'regReqSpecial' as const, met: reqs.hasSpecial },
+  ]
+  if (!password) return null
+  return (
+    <div className="space-y-1.5 p-3 bg-muted/50 rounded-xl border">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+        {t(lang, 'regRequirements')}
+      </p>
+      {items.map((item) => (
+        <div key={item.key} className="flex items-center gap-2 text-xs">
+          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+            item.met ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
+          }`}>
+            {item.met && <CheckCircle2 className="w-3 h-3" />}
+          </div>
+          <span className={item.met ? 'text-emerald-700' : 'text-muted-foreground'}>
+            {t(lang, item.key)}
+          </span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -187,6 +229,12 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const [confirmPassword, setConfirmPassword] = useState('')
   const [resetUserName, setResetUserName] = useState<string | null>(null)
   const [codeExpiresIn, setCodeExpiresIn] = useState<number>(0)
+  const [captchaVerified, setCaptchaVerified] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [honeypot, setHoneypot] = useState('')
+  const [registeredEmail, setRegisteredEmail] = useState('')
+  const [captchaResetKey, setCaptchaResetKey] = useState(0)
+  const [verifyResendLoading, setVerifyResendLoading] = useState(false)
 
   const { language } = useCVStore()
   const lang = language
@@ -255,6 +303,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       toast.error(t(lang, 'forgotPasswordNewPasswordPh'))
       return
     }
+    if (honeypot) return
     setLoading(true)
     try {
       const res = await fetch('/api/auth/register', {
@@ -264,18 +313,11 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       })
       if (res.ok) {
         toast.success(t(lang, 'registerVerifyEmail'), { duration: 6000, description: t(lang, 'registerVerifyEmailDesc') })
-        const result = await signIn('credentials', {
-          email,
-          password,
-          redirect: false,
-        })
-        if (result?.ok) {
-          toast.success(t(lang, 'loginSuccess'))
-          handleClose()
-          onAuthSuccess?.()
-          router.refresh()
-          window.dispatchEvent(new Event('focus'))
-        }
+        setRegisteredEmail(email)
+        setMode('register-verify')
+        setCaptchaVerified(false)
+        setCaptchaResetKey(k => k + 1)
+        return
       } else {
         toast.error(t(lang, 'registerError'))
       }
@@ -413,6 +455,21 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     }
   }
 
+  const handleResendVerification = async () => {
+    setVerifyResendLoading(true)
+    try {
+      const res = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: registeredEmail }),
+      })
+      if (res.ok) {
+        toast.success(t(lang, 'verifyBannerResend') || 'Email renvoyé')
+      }
+    } catch { /* silent */ }
+    setVerifyResendLoading(false)
+  }
+
   const toggleMode = () => {
     resetForm()
     setMode((m) => (m === 'login' ? 'register' : 'login'))
@@ -420,6 +477,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
 
   const isLogin = mode === 'login'
   const isForgot = mode === 'forgot-email' || mode === 'forgot-code' || mode === 'forgot-new-password' || mode === 'forgot-success'
+  const isRegisterVerify = mode === 'register-verify'
 
   // Header content
   const headerTitle = isForgot
@@ -480,6 +538,58 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
             )}
           </DialogHeader>
         </div>
+
+        {/* REGISTER - EMAIL VERIFICATION STEP */}
+        {isRegisterVerify && (
+          <div className="p-6 space-y-5">
+            <div className="text-center py-2">
+              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-10 h-10 text-emerald-600" />
+              </div>
+              <p className="text-foreground font-semibold text-base mb-1">
+                {t(lang, 'registerVerifyEmail')}
+              </p>
+              <p className="text-muted-foreground text-sm mb-3">
+                {t(lang, 'registerVerifyEmailDesc')}
+              </p>
+              <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2">
+                <AtSign className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm font-medium text-emerald-800">{registeredEmail}</span>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+              <span>{t(lang, 'registerVerifyWarning')}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={handleResendVerification}
+                disabled={verifyResendLoading}
+                variant="outline"
+                className="w-full border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl py-3 text-sm font-semibold cursor-pointer transition-all"
+              >
+                {verifyResendLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                {t(lang, 'verifyBannerResend')}
+              </Button>
+              <Button
+                onClick={() => { handleClose(); onAuthSuccess?.() }}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-sm font-semibold cursor-pointer transition-all"
+              >
+                {t(lang, 'registerVerifyContinue')}
+              </Button>
+            </div>
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={goToLogin}
+                className="text-xs text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer inline-flex items-center gap-1"
+              >
+                <ArrowLeft className="w-3 h-3" />
+                {t(lang, 'forgotPasswordBackToLogin')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* FORGOT PASSWORD - Step 1: Enter email */}
         {mode === 'forgot-email' && (
@@ -661,16 +771,25 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         )}
 
         {/* LOGIN / REGISTER */}
-        {!isForgot && (
+        {!isForgot && !isRegisterVerify && (
           <form
             onSubmit={isLogin ? handleLogin : handleRegister}
             className="p-6 space-y-4"
           >
+            {/* Security badge */}
+            {!isLogin && (
+              <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
+                <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span className="font-medium">{t(lang, 'regSecurityBadge')}</span>
+              </div>
+            )}
+
             {/* Name + Email side by side for register */}
             {!isLogin ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="auth-name" className="text-sm font-medium text-foreground">
+                    <UserCheck className="w-3.5 h-3.5 inline mr-1.5" />
                     {t(lang, 'loginName')}
                   </Label>
                   <Input
@@ -720,6 +839,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                    <Lock className="w-3.5 h-3.5 inline mr-1.5" />
                     {t(lang, 'loginPassword')}
                   </Label>
                   <PasswordInput
@@ -759,6 +879,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
             ) : (
               <div className="space-y-2">
                 <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                  <Lock className="w-3.5 h-3.5 inline mr-1.5" />
                   {t(lang, 'loginPassword')}
                 </Label>
                 <PasswordInput
@@ -772,9 +893,53 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
               </div>
             )}
 
+            {/* Password requirements + CAPTCHA grid */}
+            {!isLogin && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <PasswordRequirements password={password} lang={lang} />
+                <MathCaptcha
+                  key={captchaResetKey}
+                  lang={lang}
+                  onVerified={() => setCaptchaVerified(true)}
+                  onError={() => setCaptchaVerified(false)}
+                />
+              </div>
+            )}
+
+            {/* Honeypot — hidden from real users */}
+            {!isLogin && (
+              <div className="absolute -left-[9999px] opacity-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Terms & Conditions */}
+            {!isLogin && (
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl border">
+                <input
+                  type="checkbox"
+                  id="terms-accept"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  required
+                />
+                <label htmlFor="terms-accept" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                  {t(lang, 'regTermsAccept')}
+                </label>
+              </div>
+            )}
+
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && (!termsAccepted || !captchaVerified))}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 text-base font-semibold cursor-pointer transition-all"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
