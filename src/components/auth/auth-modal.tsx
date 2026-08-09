@@ -458,10 +458,10 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const handleResendVerification = async () => {
     setVerifyResendLoading(true)
     try {
-      const res = await fetch('/api/auth/send-verification', {
+      const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: registeredEmail }),
+        body: JSON.stringify({ email: registeredEmail, language: lang }),
       })
       if (res.ok) {
         toast.success(t(lang, 'verifyBannerResend') || 'Email renvoyé')

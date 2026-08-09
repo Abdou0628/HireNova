@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { SessionProvider } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
@@ -7,6 +9,26 @@ import { useCVStore } from '@/store/cv-store'
 import ErrorBoundary from '@/components/error-boundary'
 import AnalyticsBootstrap from '@/components/analytics-bootstrap'
 import { events } from '@/lib/analytics'
+import { toast } from 'sonner'
+
+// Email verification toast handler
+function VerificationHandler() {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const status = searchParams.get('verify')
+    if (!status) return
+    // Clean URL immediately
+    window.history.replaceState({}, '', '/')
+    if (status === 'success') {
+      toast.success('✅ Votre email a été vérifié avec succès ! Vous pouvez maintenant vous connecter.')
+    } else if (status === 'expired') {
+      toast.error('⏰ Le lien de vérification a expiré. Veuillez demander un nouveau lien.')
+    } else {
+      toast.error('❌ Lien de vérification invalide. Veuillez réessayer.')
+    }
+  }, [searchParams])
+  return null
+}
 
 function Loading() {
   return (
@@ -125,6 +147,7 @@ export default function Home() {
 
   return (
     <SessionProvider refetchOnWindowFocus refetchInterval={0}>
+      <VerificationHandler />
       <AnalyticsBootstrap />
       <ErrorBoundary stepName="HireNova">
         {step === 'landing' && <Landing />}
