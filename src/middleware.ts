@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getRateLimitCategory } from '@/lib/rate-limit'
-import { logSecurityEvent } from '@/lib/security'
 
 /**
  * Helper to extract client IP from request headers.
@@ -46,16 +45,6 @@ export function middleware(request: NextRequest) {
     const { allowed, retryAfterMs } = checkRateLimit(ip, category)
 
     if (!allowed) {
-      logSecurityEvent({
-        type: 'rate_limit',
-        severity: 'medium',
-        ip,
-        path: pathname,
-        method: request.method,
-        userAgent: request.headers.get('user-agent') || undefined,
-        details: { category, retryAfterMs },
-      }).catch(() => {})
-
       const retryAfter = Math.ceil(retryAfterMs / 1000)
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.', code: 'RATE_LIMITED' },
