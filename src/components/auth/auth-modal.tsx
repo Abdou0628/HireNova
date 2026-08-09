@@ -462,7 +462,8 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
-      <DialogContent className="sm:max-w-md rounded-2xl p-0 overflow-hidden">
+      <DialogContent className={!isLogin ? "sm:max-w-xl md:max-w-2xl rounded-2xl p-0 overflow-hidden" : "sm:max-w-md rounded-2xl p-0 overflow-hidden"}>
+        <div className="max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-br from-emerald-600 to-teal-700 px-6 py-8 text-center">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mx-auto mb-3">
@@ -665,77 +666,109 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
             onSubmit={isLogin ? handleLogin : handleRegister}
             className="p-6 space-y-4"
           >
-            {!isLogin && (
+            {/* Name + Email side by side for register */}
+            {!isLogin ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="auth-name" className="text-sm font-medium text-foreground">
+                    {t(lang, 'loginName')}
+                  </Label>
+                  <Input
+                    id="auth-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                    placeholder={t(lang, 'loginName')}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
+                    {t(lang, 'loginEmail')}
+                  </Label>
+                  <Input
+                    id="auth-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                    placeholder="email@example.com"
+                  />
+                </div>
+              </div>
+            ) : (
               <div className="space-y-2">
-                <Label htmlFor="auth-name" className="text-sm font-medium text-foreground">
-                  {t(lang, 'loginName')}
+                <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
+                  {t(lang, 'loginEmail')}
                 </Label>
                 <Input
-                  id="auth-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  id="auth-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
-                  placeholder={t(lang, 'loginName')}
+                  placeholder="email@example.com"
                 />
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
-                {t(lang, 'loginEmail')}
-              </Label>
-              <Input
-                id="auth-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
-                placeholder="email@example.com"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
-                {t(lang, 'loginPassword')}
-              </Label>
-              <PasswordInput
-                id="auth-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                lang={lang}
-                placeholder="••••••••"
-                minLength={isLogin ? undefined : 8}
-              />
-              {!isLogin && <PasswordStrengthMeter password={password} lang={lang} />}
-            </div>
-
-            {/* Confirm password for registration */}
-            {!isLogin && (
+            {/* Password + Confirm password side by side for register */}
+            {!isLogin ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                    {t(lang, 'loginPassword')}
+                  </Label>
+                  <PasswordInput
+                    id="auth-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    lang={lang}
+                    placeholder="••••••••"
+                    minLength={8}
+                  />
+                  <PasswordStrengthMeter password={password} lang={lang} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-confirm-password" className="text-sm font-medium text-foreground">
+                    {t(lang, 'confirmPasswordLabel')}
+                  </Label>
+                  <PasswordInput
+                    id="reg-confirm-password"
+                    value={regConfirmPassword}
+                    onChange={(e) => setRegConfirmPassword(e.target.value)}
+                    required
+                    lang={lang}
+                    placeholder={t(lang, 'confirmPasswordPh')}
+                    minLength={8}
+                  />
+                  {regPasswordsMatch && (
+                    <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {t(lang, 'passwordsMatch')}
+                    </p>
+                  )}
+                  {regPasswordsNoMatch && (
+                    <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
+                  )}
+                </div>
+              </div>
+            ) : (
               <div className="space-y-2">
-                <Label htmlFor="reg-confirm-password" className="text-sm font-medium text-foreground">
-                  {t(lang, 'confirmPasswordLabel')}
+                <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                  {t(lang, 'loginPassword')}
                 </Label>
                 <PasswordInput
-                  id="reg-confirm-password"
-                  value={regConfirmPassword}
-                  onChange={(e) => setRegConfirmPassword(e.target.value)}
+                  id="auth-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   lang={lang}
-                  placeholder={t(lang, 'confirmPasswordPh')}
-                  minLength={8}
+                  placeholder="••••••••"
                 />
-                {regPasswordsMatch && (
-                  <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> {t(lang, 'passwordsMatch')}
-                  </p>
-                )}
-                {regPasswordsNoMatch && (
-                  <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
-                )}
               </div>
             )}
 
@@ -774,6 +807,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
             </div>
           </form>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   )
