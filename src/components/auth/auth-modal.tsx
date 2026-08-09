@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Loader2, KeyRound, ArrowLeft, CheckCircle2, ShieldCheck, Mail, RefreshCw, Eye, EyeOff, UserCheck, Lock, AtSign, AlertTriangle } from 'lucide-react'
+import { Loader2, KeyRound, ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck, Mail, RefreshCw, Eye, EyeOff, UserCheck, Lock, AtSign, AlertTriangle, ImageIcon, MoveHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -17,9 +17,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { t } from '@/lib/i18n'
 import { useCVStore } from '@/store/cv-store'
-import MathCaptcha from '@/components/auth/math-captcha'
+import ImageCaptcha from '@/components/auth/image-captcha'
+import SliderVerification from '@/components/auth/slider-verification'
 
 type Mode = 'login' | 'register' | 'register-verify' | 'forgot-email' | 'forgot-code' | 'forgot-new-password' | 'forgot-success'
+type RegisterStep = 1 | 2 | 3
 
 interface AuthModalProps {
   isOpen: boolean
@@ -163,18 +165,15 @@ function CodeInput({ length = 6, onComplete }: { length?: number; onComplete: (c
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const handleChange = (index: number, value: string) => {
-    // Only allow digits
     const digit = value.replace(/\D/g, '').slice(-1)
     const newValues = [...values]
     newValues[index] = digit
     setValues(newValues)
 
-    // Auto-focus next input
     if (digit && index < length - 1) {
       inputRefs.current[index + 1]?.focus()
     }
 
-    // Check if complete
     if (newValues.every((v) => v !== '')) {
       onComplete(newValues.join(''))
     }
@@ -216,8 +215,52 @@ function CodeInput({ length = 6, onComplete }: { length?: number; onComplete: (c
   )
 }
 
+// Step indicator for registration
+function RegisterStepIndicator({ currentStep, lang }: { currentStep: RegisterStep; lang: string }) {
+  const steps = [
+    { num: 1, label: lang === 'ar' ? 'البيانات' : lang === 'en' ? 'Info' : lang === 'es' ? 'Datos' : 'Informations', icon: UserCheck },
+    { num: 2, label: lang === 'ar' ? 'صور' : lang === 'en' ? 'Images' : lang === 'es' ? 'Imágenes' : 'Images', icon: ImageIcon },
+    { num: 3, label: lang === 'ar' ? 'تحقق' : lang === 'en' ? 'Verify' : lang === 'es' ? 'Verificar' : 'Vérification', icon: MoveHorizontal },
+  ]
+
+  return (
+    <div className="flex items-center justify-center gap-1 sm:gap-2">
+      {steps.map((step, idx) => {
+        const isCompleted = currentStep > step.num
+        const isCurrent = currentStep === step.num
+        const Icon = step.icon
+        return (
+          <div key={step.num} className="flex items-center gap-1 sm:gap-2">
+            <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              isCompleted
+                ? 'bg-emerald-100 text-emerald-700'
+                : isCurrent
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-muted text-muted-foreground'
+            }`}>
+              {isCompleted ? (
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              ) : (
+                <Icon className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">{step.label}</span>
+              <span className="sm:hidden">{step.num}</span>
+            </div>
+            {idx < steps.length - 1 && (
+              <div className={`w-4 sm:w-8 h-0.5 rounded-full transition-colors ${
+                isCompleted ? 'bg-emerald-400' : 'bg-border'
+              }`} />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<Mode>(initialMode)
+  const [registerStep, setRegisterStep] = useState<RegisterStep>(1)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -229,16 +272,23 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
   const [confirmPassword, setConfirmPassword] = useState('')
   const [resetUserName, setResetUserName] = useState<string | null>(null)
   const [codeExpiresIn, setCodeExpiresIn] = useState<number>(0)
-  const [captchaVerified, setCaptchaVerified] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [honeypot, setHoneypot] = useState('')
   const [registeredEmail, setRegisteredEmail] = useState('')
-  const [captchaResetKey, setCaptchaResetKey] = useState(0)
   const [verifyResendLoading, setVerifyResendLoading] = useState(false)
+  const [imageCaptchaVerified, setImageCaptchaVerified] = useState(false)
+  const [sliderVerified, setSliderVerified] = useState(false)
+  const [imageCaptchaKey, setImageCaptchaKey] = useState(0)
+  const [sliderKey, setSliderKey] = useState(0)
 
   const { language } = useCVStore()
   const lang = language
   const router = useRouter()
+
+  const isLogin = mode === 'login'
+  const isRegister = mode === 'register'
+  const isForgot = mode === 'forgot-email' || mode === 'forgot-code' || mode === 'forgot-new-password' || mode === 'forgot-success'
+  const isRegisterVerify = mode === 'register-verify'
 
   const resetForm = () => {
     setEmail('')
@@ -252,6 +302,13 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     setResetUserName(null)
     setCodeExpiresIn(0)
     setLoading(false)
+    setRegisterStep(1)
+    setTermsAccepted(false)
+    setHoneypot('')
+    setImageCaptchaVerified(false)
+    setSliderVerified(false)
+    setImageCaptchaKey(k => k + 1)
+    setSliderKey(k => k + 1)
   }
 
   const handleClose = () => {
@@ -292,17 +349,29 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     }
   }
 
+  // Validate step 1 form
+  const isStep1Valid = name.trim().length >= 2 && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && password.length >= 8 && password === regConfirmPassword && termsAccepted && !honeypot
+
+  // Move to step 2
+  const goToStep2 = () => {
+    if (!isStep1Valid) return
+    setRegisterStep(2)
+    setImageCaptchaKey(k => k + 1)
+    setImageCaptchaVerified(false)
+  }
+
+  // Move to step 3 (after image captcha verified)
+  const goToStep3 = () => {
+    if (!imageCaptchaVerified) return
+    setRegisterStep(3)
+    setSliderKey(k => k + 1)
+    setSliderVerified(false)
+  }
+
+  // Final submit after all verifications
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !email || !password) return
-    if (password !== regConfirmPassword) {
-      toast.error(t(lang, 'passwordsNoMatch'))
-      return
-    }
-    if (password.length < 8) {
-      toast.error(t(lang, 'forgotPasswordNewPasswordPh'))
-      return
-    }
+    if (!imageCaptchaVerified || !sliderVerified) return
     if (honeypot) return
     setLoading(true)
     try {
@@ -312,23 +381,21 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         body: JSON.stringify({ name, email, password, language: lang }),
       })
       if (res.ok) {
-        toast.success(t(lang, 'registerVerifyEmail'), { duration: 6000, description: t(lang, 'registerVerifyEmailDesc') })
+        toast.success(t(lang, 'registerVerifyEmail') || 'Vérifiez votre email', { duration: 6000, description: t(lang, 'registerVerifyEmailDesc') })
         setRegisteredEmail(email)
         setMode('register-verify')
-        setCaptchaVerified(false)
-        setCaptchaResetKey(k => k + 1)
         return
       } else {
-        toast.error(t(lang, 'registerError'))
+        toast.error(t(lang, 'registerError') || "Erreur d'inscription")
       }
     } catch {
-      toast.error(t(lang, 'registerError'))
+      toast.error(t(lang, 'registerError') || "Erreur d'inscription")
     } finally {
       setLoading(false)
     }
   }
 
-  // Step 1: Send code
+  // Step 1: Send code (forgot password)
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!resetEmail) return
@@ -358,7 +425,7 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     }
   }
 
-  // Step 2: Verify code
+  // Step 2: Verify code (forgot password)
   const handleVerifyCode = async (code: string) => {
     setLoading(true)
     try {
@@ -475,10 +542,6 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
     setMode((m) => (m === 'login' ? 'register' : 'login'))
   }
 
-  const isLogin = mode === 'login'
-  const isForgot = mode === 'forgot-email' || mode === 'forgot-code' || mode === 'forgot-new-password' || mode === 'forgot-success'
-  const isRegisterVerify = mode === 'register-verify'
-
   // Header content
   const headerTitle = isForgot
     ? mode === 'forgot-email'
@@ -488,9 +551,9 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         : mode === 'forgot-new-password'
           ? t(lang, 'forgotPasswordVerify')
           : t(lang, 'forgotPasswordSuccess')
-    : isLogin
-      ? t(lang, 'loginTitle')
-      : t(lang, 'registerTitle')
+    : isRegister
+      ? t(lang, 'registerTitle')
+      : t(lang, 'loginTitle')
 
   const headerDesc = isForgot
     ? mode === 'forgot-email'
@@ -500,9 +563,9 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
         : mode === 'forgot-new-password'
           ? t(lang, 'forgotPasswordVerifyDesc')
           : ''
-    : isLogin
-      ? t(lang, 'loginEmail')
-      : t(lang, 'registerTitle')
+    : isRegister
+      ? t(lang, 'registerTitle')
+      : t(lang, 'loginEmail')
 
   const headerIcon = isForgot
     ? mode === 'forgot-success'
@@ -510,13 +573,15 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
       : mode === 'forgot-code'
         ? <Mail className="w-6 h-6 text-white" />
         : <KeyRound className="w-6 h-6 text-white" />
-    : <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
-      </svg>
+    : isRegister
+      ? <UserCheck className="w-6 h-6 text-white" />
+      : <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
+        </svg>
 
   // Password match indicator for registration
-  const regPasswordsMatch = !isLogin && regConfirmPassword.length > 0 && password === regConfirmPassword
-  const regPasswordsNoMatch = !isLogin && regConfirmPassword.length > 0 && password !== regConfirmPassword
+  const regPasswordsMatch = regConfirmPassword.length > 0 && password === regConfirmPassword
+  const regPasswordsNoMatch = regConfirmPassword.length > 0 && password !== regConfirmPassword
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
@@ -770,202 +835,313 @@ export default function AuthModal({ isOpen, onClose, initialMode, onAuthSuccess 
           </div>
         )}
 
-        {/* LOGIN / REGISTER */}
-        {!isForgot && !isRegisterVerify && (
+        {/* ============= REGISTER - MULTI-STEP WIZARD ============= */}
+        {isRegister && (
+          <div className="p-6 space-y-5">
+            {/* Step indicator */}
+            <RegisterStepIndicator currentStep={registerStep} lang={lang} />
+
+            {/* Security badge */}
+            <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span className="font-medium">{t(lang, 'regSecurityBadge')}</span>
+            </div>
+
+            {/* ====== STEP 1: Form ====== */}
+            {registerStep === 1 && (
+              <div className="space-y-4">
+                {/* Name + Email */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="auth-name" className="text-sm font-medium text-foreground">
+                      <UserCheck className="w-3.5 h-3.5 inline mr-1.5" />
+                      {t(lang, 'loginName')}
+                    </Label>
+                    <Input
+                      id="auth-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                      placeholder={t(lang, 'loginName')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
+                      {t(lang, 'loginEmail')}
+                    </Label>
+                    <Input
+                      id="auth-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                </div>
+
+                {/* Password + Confirm password */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                      <Lock className="w-3.5 h-3.5 inline mr-1.5" />
+                      {t(lang, 'loginPassword')}
+                    </Label>
+                    <PasswordInput
+                      id="auth-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      lang={lang}
+                      placeholder="••••••••"
+                      minLength={8}
+                    />
+                    <PasswordStrengthMeter password={password} lang={lang} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-confirm-password" className="text-sm font-medium text-foreground">
+                      {t(lang, 'confirmPasswordLabel')}
+                    </Label>
+                    <PasswordInput
+                      id="reg-confirm-password"
+                      value={regConfirmPassword}
+                      onChange={(e) => setRegConfirmPassword(e.target.value)}
+                      required
+                      lang={lang}
+                      placeholder={t(lang, 'confirmPasswordPh')}
+                      minLength={8}
+                    />
+                    {regPasswordsMatch && (
+                      <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {t(lang, 'passwordsMatch')}
+                      </p>
+                    )}
+                    {regPasswordsNoMatch && (
+                      <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Password requirements */}
+                <PasswordRequirements password={password} lang={lang} />
+
+                {/* Honeypot — hidden from real users */}
+                <div className="absolute -left-[9999px] opacity-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
+                {/* Terms & Conditions */}
+                <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl border">
+                  <input
+                    type="checkbox"
+                    id="terms-accept"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    required
+                  />
+                  <label htmlFor="terms-accept" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                    {t(lang, 'regTermsAccept')}
+                  </label>
+                </div>
+
+                {/* Step 1 navigation */}
+                <Button
+                  type="button"
+                  onClick={goToStep2}
+                  disabled={!isStep1Valid}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 text-base font-semibold cursor-pointer transition-all"
+                >
+                  {t(lang, 'registerNextStep') || (lang === 'ar' ? 'التالي' : lang === 'en' ? 'Next' : lang === 'es' ? 'Siguiente' : 'Suivant')}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* ====== STEP 2: Image CAPTCHA ====== */}
+            {registerStep === 2 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {lang === 'ar' ? 'الخطوة 2: تحقق من الصور' : lang === 'en' ? 'Step 2: Image verification' : lang === 'es' ? 'Paso 2: Verificación de imágenes' : 'Étape 2 : Vérification par images'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={goToLogin}
+                    className="text-xs text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    {t(lang, 'forgotPasswordBackToLogin')}
+                  </button>
+                </div>
+
+                <ImageCaptcha
+                  key={imageCaptchaKey}
+                  lang={lang}
+                  onVerified={() => setImageCaptchaVerified(true)}
+                  onError={() => setImageCaptchaVerified(false)}
+                />
+
+                {/* Step 2 navigation */}
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setRegisterStep(1)}
+                    className="flex-1 border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl py-4 text-sm font-semibold cursor-pointer transition-all"
+                  >
+                    <ArrowLeft className="mr-2 w-4 h-4" />
+                    {t(lang, 'previous') || 'Précédent'}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={goToStep3}
+                    disabled={!imageCaptchaVerified}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-4 text-sm font-semibold cursor-pointer transition-all"
+                  >
+                    {t(lang, 'registerNextStep') || (lang === 'ar' ? 'التالي' : lang === 'en' ? 'Next' : lang === 'es' ? 'Siguiente' : 'Suivant')}
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ====== STEP 3: Slider Verification ====== */}
+            {registerStep === 3 && (
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {lang === 'ar' ? 'الخطوة 3: تحقق بالسحب' : lang === 'en' ? 'Step 3: Slider verification' : lang === 'es' ? 'Paso 3: Verificación deslizando' : 'Étape 3 : Vérification par glissement'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={goToLogin}
+                    className="text-xs text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    {t(lang, 'forgotPasswordBackToLogin')}
+                  </button>
+                </div>
+
+                <SliderVerification
+                  key={sliderKey}
+                  lang={lang}
+                  onVerified={() => setSliderVerified(true)}
+                  onError={() => setSliderVerified(false)}
+                />
+
+                {/* Step 3 navigation */}
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setRegisterStep(2)}
+                    className="flex-1 border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl py-4 text-sm font-semibold cursor-pointer transition-all"
+                  >
+                    <ArrowLeft className="mr-2 w-4 h-4" />
+                    {t(lang, 'previous') || 'Précédent'}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={loading || !sliderVerified}
+                    className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-4 text-sm font-semibold cursor-pointer transition-all"
+                  >
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t(lang, 'registerButton')}
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* Bottom toggle */}
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer"
+              >
+                {isRegister ? t(lang, 'registerHasAccount') : t(lang, 'loginNoAccount')}
+                <span className="ml-1 font-semibold text-emerald-600">
+                  {isRegister ? t(lang, 'loginButton') : t(lang, 'registerButton')}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ============= LOGIN ============= */}
+        {isLogin && (
           <form
-            onSubmit={isLogin ? handleLogin : handleRegister}
+            onSubmit={handleLogin}
             className="p-6 space-y-4"
           >
-            {/* Security badge */}
-            {!isLogin && (
-              <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
-                <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
-                <span className="font-medium">{t(lang, 'regSecurityBadge')}</span>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
+                {t(lang, 'loginEmail')}
+              </Label>
+              <Input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                placeholder="email@example.com"
+              />
+            </div>
 
-            {/* Name + Email side by side for register */}
-            {!isLogin ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="auth-name" className="text-sm font-medium text-foreground">
-                    <UserCheck className="w-3.5 h-3.5 inline mr-1.5" />
-                    {t(lang, 'loginName')}
-                  </Label>
-                  <Input
-                    id="auth-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
-                    placeholder={t(lang, 'loginName')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
-                    {t(lang, 'loginEmail')}
-                  </Label>
-                  <Input
-                    id="auth-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="auth-email" className="text-sm font-medium text-foreground">
-                  {t(lang, 'loginEmail')}
-                </Label>
-                <Input
-                  id="auth-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="rounded-xl border-border focus:border-emerald-500 focus:ring-emerald-500/20"
-                  placeholder="email@example.com"
-                />
-              </div>
-            )}
-
-            {/* Password + Confirm password side by side for register */}
-            {!isLogin ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
-                    <Lock className="w-3.5 h-3.5 inline mr-1.5" />
-                    {t(lang, 'loginPassword')}
-                  </Label>
-                  <PasswordInput
-                    id="auth-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    lang={lang}
-                    placeholder="••••••••"
-                    minLength={8}
-                  />
-                  <PasswordStrengthMeter password={password} lang={lang} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-confirm-password" className="text-sm font-medium text-foreground">
-                    {t(lang, 'confirmPasswordLabel')}
-                  </Label>
-                  <PasswordInput
-                    id="reg-confirm-password"
-                    value={regConfirmPassword}
-                    onChange={(e) => setRegConfirmPassword(e.target.value)}
-                    required
-                    lang={lang}
-                    placeholder={t(lang, 'confirmPasswordPh')}
-                    minLength={8}
-                  />
-                  {regPasswordsMatch && (
-                    <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> {t(lang, 'passwordsMatch')}
-                    </p>
-                  )}
-                  {regPasswordsNoMatch && (
-                    <p className="text-xs text-red-500 font-medium">{t(lang, 'passwordsNoMatch')}</p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
-                  <Lock className="w-3.5 h-3.5 inline mr-1.5" />
-                  {t(lang, 'loginPassword')}
-                </Label>
-                <PasswordInput
-                  id="auth-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  lang={lang}
-                  placeholder="••••••••"
-                />
-              </div>
-            )}
-
-            {/* Password requirements + CAPTCHA grid */}
-            {!isLogin && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <PasswordRequirements password={password} lang={lang} />
-                <MathCaptcha
-                  key={captchaResetKey}
-                  lang={lang}
-                  onVerified={() => setCaptchaVerified(true)}
-                  onError={() => setCaptchaVerified(false)}
-                />
-              </div>
-            )}
-
-            {/* Honeypot — hidden from real users */}
-            {!isLogin && (
-              <div className="absolute -left-[9999px] opacity-0 h-0 w-0 overflow-hidden" aria-hidden="true">
-                <input
-                  type="text"
-                  name="website"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* Terms & Conditions */}
-            {!isLogin && (
-              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl border">
-                <input
-                  type="checkbox"
-                  id="terms-accept"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  required
-                />
-                <label htmlFor="terms-accept" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-                  {t(lang, 'regTermsAccept')}
-                </label>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="auth-password" className="text-sm font-medium text-foreground">
+                <Lock className="w-3.5 h-3.5 inline mr-1.5" />
+                {t(lang, 'loginPassword')}
+              </Label>
+              <PasswordInput
+                id="auth-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                lang={lang}
+                placeholder="••••••••"
+              />
+            </div>
 
             <Button
               type="submit"
-              disabled={loading || (!isLogin && (!termsAccepted || !captchaVerified))}
+              disabled={loading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-5 text-base font-semibold cursor-pointer transition-all"
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLogin ? t(lang, 'loginButton') : t(lang, 'registerButton')}
+              {t(lang, 'loginButton')}
             </Button>
 
             <div className="text-center pt-2 space-y-1">
-              {isLogin && (
-                <button
-                  type="button"
-                  onClick={goToForgotPassword}
-                  className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium"
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  {t(lang, 'forgotPasswordButton')}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={goToForgotPassword}
+                className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                {t(lang, 'forgotPasswordButton')}
+              </button>
               <div>
                 <button
                   type="button"
                   onClick={toggleMode}
                   className="text-sm text-muted-foreground hover:text-emerald-600 transition-colors cursor-pointer"
                 >
-                  {isLogin ? t(lang, 'loginNoAccount') : t(lang, 'registerHasAccount')}
+                  {t(lang, 'loginNoAccount')}
                   <span className="ml-1 font-semibold text-emerald-600">
-                    {isLogin ? t(lang, 'registerButton') : t(lang, 'loginButton')}
+                    {t(lang, 'registerButton')}
                   </span>
                 </button>
               </div>
