@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { withAuth } from '@/lib/hnsa'
+import { withAuth, forwardToSIEM, createSIEMEvent } from '@/lib/hnsa'
+import { encryptBeforeWrite, decryptAfterRead } from '@/lib/hnsa/encryption-middleware'
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -43,9 +44,24 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
+    // Encrypt sensitive fields before writing
+    let encryptedData: Record<string, string>
+    try {
+      encryptedData = encryptBeforeWrite(updateData)
+    } catch (encErr) {
+      forwardToSIEM(createSIEMEvent({
+        type: 'FIELD_ENCRYPTION_ERROR',
+        severity: 'critical',
+        path: '/api/user/profile',
+        userId,
+        metadata: { error: encErr instanceof Error ? encErr.message : String(encErr) },
+      })).catch(() => {})
+      encryptedData = updateData
+    }
+
     const updated = await db.user.update({
       where: { id: userId },
-      data: updateData,
+      data: encryptedData,
       select: {
         id: true,
         name: true,
@@ -60,7 +76,10 @@ export async function PATCH(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ success: true, data: updated })
+    // Decrypt sensitive fields after reading
+    const decrypted = decryptAfterRead(updated as unknown as Record<string, any>)
+
+    return NextResponse.json({ success: true, data: decrypted })
   } catch (error) {
     console.error('[user/profile] Update error:', error)
     return NextResponse.json(

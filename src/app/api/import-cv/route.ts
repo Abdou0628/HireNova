@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { withAuth } from '@/lib/hnsa'
+import { encryptBeforeWrite } from '@/lib/hnsa/encryption-middleware'
+// NOTE: This route currently parses CV files and returns structured data without saving to DB.
+// When a db.resume.create() is added, wrap the data with encryptBeforeWrite() before the write.
+// Sensitive fields (phone, location, industry, linkedin, etc.) will be encrypted automatically.
 
 export async function POST(request: NextRequest) {
   try {

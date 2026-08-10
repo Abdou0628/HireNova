@@ -11,6 +11,7 @@
 
 import { db } from '@/lib/db';
 import { logAudit, AUDIT_ACTIONS } from './audit';
+import { createSIEMEvent, forwardToSIEM } from './siem';
 
 // ===== Lock Level Configuration =====
 
@@ -234,6 +235,20 @@ export async function recordFailedLogin(
       },
     });
 
+    // SIEM: account lockout (critical)
+    forwardToSIEM(createSIEMEvent({
+      type: 'ACCOUNT_LOCKOUT',
+      severity: 'critical',
+      ip,
+      metadata: {
+        action: 'ACCOUNT_LOCKED',
+        email,
+        lockLevel: newLevelConfig.level,
+        failedAttempts: lockout.failedAttempts,
+        lockedUntil: lockedUntil.toISOString(),
+      },
+    })).catch(() => {});
+
     // Audit: account locked
     logAudit({
       actorEmail: email,
@@ -248,6 +263,21 @@ export async function recordFailedLogin(
         failedAttempts: lockout.failedAttempts,
       },
     });
+  }
+
+  // SIEM: auth failure on 3rd+ failed attempt (non-blocking)
+  if (lockout.failedAttempts >= 3) {
+    forwardToSIEM(createSIEMEvent({
+      type: 'AUTH_FAILURE',
+      severity: 'warning',
+      ip,
+      metadata: {
+        action: 'LOGIN_FAILURE',
+        email,
+        failedAttempts: lockout.failedAttempts,
+        locked: escalated && newLevelConfig.level > 0,
+      },
+    })).catch(() => {});
   }
 
   const isLocked = escalated && newLevelConfig.level > 0;
@@ -370,6 +400,17 @@ export async function isAccountLocked(
       details: { reason: 'auto_unlock_expired' },
     });
 
+    // SIEM: account unlock (auto)
+    forwardToSIEM(createSIEMEvent({
+      type: 'ACCOUNT_UNLOCK',
+      severity: 'info',
+      metadata: {
+        action: 'ACCOUNT_UNLOCKED',
+        email,
+        reason: 'auto_unlock_expired',
+      },
+    })).catch(() => {});
+
     return {
       locked: false,
       lockLevel: 0,
@@ -446,6 +487,18 @@ export async function unlockAccount(
       previousFailedAttempts: lockout.failedAttempts,
     },
   });
+
+  // SIEM: account unlock (admin)
+  forwardToSIEM(createSIEMEvent({
+    type: 'ACCOUNT_UNLOCK',
+    severity: 'info',
+    userId: adminId,
+    metadata: {
+      action: 'ADMIN_USER_UNLOCKED',
+      email,
+      previousLockLevel: lockout.lockLevel,
+    },
+  })).catch(() => {});
 
   return true;
 }

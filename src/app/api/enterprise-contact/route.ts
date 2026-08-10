@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
+import { forwardToSIEM, createSIEMEvent } from '@/lib/hnsa'
+import { encryptBeforeWrite } from '@/lib/hnsa/encryption-middleware'
 
 /**
  * POST /api/enterprise-contact
@@ -54,25 +56,40 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Encrypt sensitive fields before writing (phone, companyName, industry)
+    const rawData = {
+      contactName: String(contactName).trim().slice(0, 100),
+      workEmail: String(workEmail).toLowerCase().trim().slice(0, 150),
+      phone: phone ? String(phone).trim().slice(0, 30) : null,
+      companyName: String(companyName).trim().slice(0, 150),
+      jobTitle: jobTitle ? String(jobTitle).trim().slice(0, 100) : null,
+      industry: industry ? String(industry).trim().slice(0, 80) : null,
+      companySize: companySize ? String(companySize).trim().slice(0, 30) : null,
+      country: country ? String(country).trim().slice(0, 80) : null,
+      website: website ? String(website).trim().slice(0, 200) : null,
+      usersCount: usersCount ? String(usersCount).trim().slice(0, 30) : null,
+      useCase: useCase ? String(useCase).trim().slice(0, 100) : null,
+      message: String(message).trim().slice(0, 3000),
+      budget: budget ? String(budget).trim().slice(0, 30) : null,
+      status: 'new',
+      source: 'pricing_page',
+    }
+    let inquiryData = rawData
+    try {
+      inquiryData = encryptBeforeWrite(rawData)
+    } catch (encErr) {
+      forwardToSIEM(createSIEMEvent({
+        type: 'FIELD_ENCRYPTION_ERROR',
+        severity: 'critical',
+        path: '/api/enterprise-contact',
+        metadata: { error: encErr instanceof Error ? encErr.message : String(encErr) },
+      })).catch(() => {})
+      // Fallback: use unencrypted data so the inquiry is still saved
+    }
+
     // Save inquiry
     const inquiry = await db.enterpriseInquiry.create({
-      data: {
-        contactName: String(contactName).trim().slice(0, 100),
-        workEmail: String(workEmail).toLowerCase().trim().slice(0, 150),
-        phone: phone ? String(phone).trim().slice(0, 30) : null,
-        companyName: String(companyName).trim().slice(0, 150),
-        jobTitle: jobTitle ? String(jobTitle).trim().slice(0, 100) : null,
-        industry: industry ? String(industry).trim().slice(0, 80) : null,
-        companySize: companySize ? String(companySize).trim().slice(0, 30) : null,
-        country: country ? String(country).trim().slice(0, 80) : null,
-        website: website ? String(website).trim().slice(0, 200) : null,
-        usersCount: usersCount ? String(usersCount).trim().slice(0, 30) : null,
-        useCase: useCase ? String(useCase).trim().slice(0, 100) : null,
-        message: String(message).trim().slice(0, 3000),
-        budget: budget ? String(budget).trim().slice(0, 30) : null,
-        status: 'new',
-        source: 'pricing_page',
-      },
+      data: inquiryData,
     }).catch((err) => {
       console.error('[enterprise-contact] DB error:', err)
       return null

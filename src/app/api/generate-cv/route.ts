@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
 import type { GeneratedCV } from '@/store/cv-store'
-import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
+import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent, forwardToSIEM, createSIEMEvent } from '@/lib/hnsa'
+import { encryptBeforeWrite } from '@/lib/hnsa/encryption-middleware'
 import { scanInput, logSecurityEvent } from '@/lib/security'
 
 function getClientIP(request: NextRequest): string {
@@ -259,31 +260,42 @@ RÈGLES :
       )
     }
 
-    // Save to database
-    await db.resume.create({
-      data: {
-        userId: userId || null,
-        fullName,
-        email,
-        phone: phone || null,
-        location: location || null,
-        linkedin: linkedin || null,
-        website: website || null,
-        targetJob,
-        industry: industry || null,
-        experience,
-        education,
-        skills,
-        languages,
-        summary: summary || null,
-        softSkills: softSkills || null,
-        dateOfBirth: dateOfBirth || null,
-        birthPlace: birthPlace || null,
-        birthCountry: birthCountry || null,
-        language,
-        generatedContent: JSON.stringify(generatedCV),
-      },
-    })
+    // Save to database — encrypt sensitive fields before write
+    try {
+      const resumeData = encryptBeforeWrite({
+          userId: userId || null,
+          fullName,
+          email,
+          phone: phone || null,
+          location: location || null,
+          linkedin: linkedin || null,
+          website: website || null,
+          targetJob,
+          industry: industry || null,
+          experience,
+          education,
+          skills,
+          languages,
+          summary: summary || null,
+          softSkills: softSkills || null,
+          dateOfBirth: dateOfBirth || null,
+          birthPlace: birthPlace || null,
+          birthCountry: birthCountry || null,
+          language,
+          generatedContent: JSON.stringify(generatedCV),
+        })
+      await db.resume.create({ data: resumeData })
+    } catch (encErr) {
+      forwardToSIEM(createSIEMEvent({
+        type: 'FIELD_ENCRYPTION_ERROR',
+        severity: 'critical',
+        path: '/api/generate-cv',
+        userId,
+        metadata: { error: encErr instanceof Error ? encErr.message : String(encErr) },
+      })).catch(() => {})
+      // Re-throw to trigger the outer 500 handler
+      throw encErr
+    }
 
     // Increment usage counter for free users
     if (userId && usage.remaining !== Infinity) {

@@ -10,27 +10,32 @@ interface CacheEntry {
   recommendations: ReturnType<typeof getRecommendations>
   banner: ReturnType<typeof getPersonalizedBanner>
   expiresAt: number
+  locale: string
 }
 
 const cache = new Map<string, CacheEntry>()
 const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
 
-function getFromCache(userId: string): CacheEntry | null {
-  const entry = cache.get(userId)
+const SUPPORTED_LOCALES = ['fr', 'en', 'ar', 'es'] as const
+
+function getFromCache(userId: string, locale: string): CacheEntry | null {
+  const key = `${userId}:${locale}`
+  const entry = cache.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
-    cache.delete(userId)
+    cache.delete(key)
     return null
   }
   return entry
 }
 
-function setCache(userId: string, data: CacheEntry): void {
+function setCache(userId: string, locale: string, data: Omit<CacheEntry, 'locale'>): void {
   // Evict expired entries to prevent memory leaks
   for (const [key, val] of cache) {
     if (Date.now() > val.expiresAt) cache.delete(key)
   }
-  cache.set(userId, data)
+  const key = `${userId}:${locale}`
+  cache.set(key, { ...data, locale })
 }
 
 // ─── GET /api/upsell/recommendations ──────────────────────────────────────────
@@ -44,8 +49,15 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Check cache first
-  const cached = getFromCache(auth.userId)
+  // Read locale from query param (default 'fr')
+  const { searchParams } = new URL(request.url)
+  const rawLocale = searchParams.get('locale') ?? 'fr'
+  const locale = SUPPORTED_LOCALES.includes(rawLocale as typeof SUPPORTED_LOCALES[number])
+    ? rawLocale
+    : 'fr'
+
+  // Check cache first (locale-aware)
+  const cached = getFromCache(auth.userId, locale)
   if (cached) {
     return NextResponse.json({
       recommendations: cached.recommendations,
@@ -55,18 +67,59 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch user data from DB in parallel
-    const [user, resumeCount, coverLetterCount, applicationsCount, linkedinCount, interviewCount, careerAssessments, mobilityCount] =
-      await Promise.all([
-        db.user.findUnique({ where: { id: auth.userId } }),
-        db.resume.count({ where: { userId: auth.userId } }),
-        db.coverLetter.count({ where: { userId: auth.userId } }),
-        db.application.count({ where: { candidateId: auth.userId } }),
-        db.linkedinAnalysis.count({ where: { userId: auth.userId } }),
-        db.interviewSession.count({ where: { userId: auth.userId } }),
-        db.careerAssessment.count({ where: { userId: auth.userId } }),
-        db.mobilityProfile.count({ where: { userId: auth.userId } }),
-      ])
+    // 30-day window for recent activity
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    // Fetch all user data from DB in parallel
+    const [
+      user,
+      resumeCount,
+      coverLetterCount,
+      applicationsCount,
+      linkedinCount,
+      interviewCount,
+      careerAssessments,
+      mobilityCount,
+      // AI context enrichment
+      recentAudits,
+      paymentAgg,
+      freelanceProposalsCount,
+      formationEnrollmentsCount,
+      coachSessionsCount,
+      globalApplicationsCount,
+      referralCount,
+    ] = await Promise.all([
+      db.user.findUnique({ where: { id: auth.userId } }),
+      db.resume.count({ where: { userId: auth.userId } }),
+      db.coverLetter.count({ where: { userId: auth.userId } }),
+      db.application.count({ where: { candidateId: auth.userId } }),
+      db.linkedInAnalysis.count({ where: { userId: auth.userId } }),
+      db.interviewSession.count({ where: { userId: auth.userId } }),
+      db.careerAssessment.count({ where: { userId: auth.userId } }),
+      db.mobilityProfile.count({ where: { userId: auth.userId } }),
+      // Enrichment queries
+      db.securityAudit.findMany({
+        where: {
+          actorId: auth.userId,
+          createdAt: { gte: thirtyDaysAgo },
+        },
+        select: { action: true },
+      }),
+      db.payment.aggregate({
+        where: {
+          userId: auth.userId,
+          status: 'succeeded',
+        },
+        _count: true,
+        _sum: { amount: true },
+      }),
+      db.freelanceProposal.count({ where: { userId: auth.userId } }),
+      db.enrollment.count({ where: { userId: auth.userId } }),
+      db.coachSession.count({ where: { userId: auth.userId } }),
+      db.globalApplication.count({ where: { candidateId: auth.userId } }),
+      db.referral.count({ where: { referrerId: auth.userId } }),
+    ])
 
     if (!user) {
       return NextResponse.json(
@@ -93,6 +146,13 @@ export async function GET(request: NextRequest) {
     if (mobilityCount > 0) modulesUsed.push('mod_mobility')
     if (applicationsCount > 0) modulesUsed.push('mod_jobs')
 
+    // Extract recent action types from audit log
+    const recentActions = recentAudits.map(a => a.action)
+
+    // Payment aggregates (amount is stored in cents → convert to EUR)
+    const totalPayments = paymentAgg._count
+    const totalSpentEur = (paymentAgg._sum.amount ?? 0) / 100
+
     // Build user context for the upsell engine
     const context: UserContext = {
       currentPlan: user.plan,
@@ -106,14 +166,24 @@ export async function GET(request: NextRequest) {
       hasCareerRoadmap: careerAssessments > 0,
       lastActivityDate: user.updatedAt.toISOString(),
       role: user.role,
+      locale,
+      // AI context enrichment
+      recentActions,
+      totalPayments,
+      totalSpentEur,
+      freelanceProposalsCount,
+      formationEnrollmentsCount,
+      coachSessionsCount,
+      globalApplicationsCount,
+      referralCount,
     }
 
     // Get recommendations
     const recommendations = getRecommendations(context)
     const banner = getPersonalizedBanner(context)
 
-    // Cache result
-    setCache(auth.userId, {
+    // Cache result (locale-aware key)
+    setCache(auth.userId, locale, {
       recommendations,
       banner,
       expiresAt: Date.now() + CACHE_TTL_MS,

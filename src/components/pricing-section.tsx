@@ -225,11 +225,12 @@ const MODULES: IndividualModule[] = [
   },
 ]
 
-// ─── B2B Data ───────────────────────────────────────────────────────────────
+// ─── B2B Data (raw EUR prices — computed at render time) ───────────────────
 
 interface B2BTier {
   name: string
-  price: string
+  monthlyEur: number | null  // null = custom pricing ("Sur devis")
+  minMonthlyEur?: number      // for "X+" tiers (e.g. campus/whitelabel enterprise)
   description: string
   features: string[]
 }
@@ -239,39 +240,66 @@ const B2B: Record<string, { label: string; icon: any; tiers: B2BTier[] }> = {
     label: 'Recruteur',
     icon: Building2,
     tiers: [
-      { name: 'Starter', price: '99 €/mois', description: 'Petites entreprises', features: ['5 offres d\'emploi actives', 'Dashboard recruteur', 'Recherche candidats', 'Export CSV'] },
-      { name: 'Professional', price: '249 €/mois', description: 'Agences de recrutement', features: ['25 offres actives', 'Pipeline IA', 'Matching avancé', 'Support prioritaire', 'Multi-utilisateurs'] },
-      { name: 'Business', price: '499 €/mois', description: 'Multi-recruteurs', features: ['Offres illimitées', 'API intégrée', 'SSO', 'Support dédié', 'Rapports avancés'] },
-      { name: 'Enterprise', price: 'Sur devis', description: 'Solutions sur mesure', features: ['Tout illimité', 'SLA garanti', 'Intégration custom', 'Account manager dédié', 'Formation équipe'] },
+      { name: 'Starter', monthlyEur: 99, description: 'Petites entreprises', features: ['5 offres d\'emploi actives', 'Dashboard recruteur', 'Recherche candidats', 'Export CSV'] },
+      { name: 'Professional', monthlyEur: 249, description: 'Agences de recrutement', features: ['25 offres actives', 'Pipeline IA', 'Matching avancé', 'Support prioritaire', 'Multi-utilisateurs'] },
+      { name: 'Business', monthlyEur: 499, description: 'Multi-recruteurs', features: ['Offres illimitées', 'API intégrée', 'SSO', 'Support dédié', 'Rapports avancés'] },
+      { name: 'Enterprise', monthlyEur: null, description: 'Solutions sur mesure', features: ['Tout illimité', 'SLA garanti', 'Intégration custom', 'Account manager dédié', 'Formation équipe'] },
     ],
   },
   campus: {
     label: 'Campus SaaS',
     icon: GraduationCap,
     tiers: [
-      { name: 'Starter', price: '299 €/mois', description: 'Écoles & universités', features: ['500 étudiants max', 'CV center', 'ATS intégré', 'Statistiques de base'] },
-      { name: 'Professional', price: '699 €/mois', description: 'Grands campus', features: ['2 000 étudiants', 'Job board intégré', 'Analytics avancés', 'Branding custom', 'API access'] },
-      { name: 'Enterprise', price: '1 499+ €/mois', description: 'Réseaux d\'écoles', features: ['Étudiants illimités', 'Multi-campus', 'White label partiel', 'SSO & LMS', 'Support dédié 24/7'] },
+      { name: 'Starter', monthlyEur: 299, description: 'Écoles & universités', features: ['500 étudiants max', 'CV center', 'ATS intégré', 'Statistiques de base'] },
+      { name: 'Professional', monthlyEur: 699, description: 'Grands campus', features: ['2 000 étudiants', 'Job board intégré', 'Analytics avancés', 'Branding custom', 'API access'] },
+      { name: 'Enterprise', monthlyEur: 1499, minMonthlyEur: 1499, description: 'Réseaux d\'écoles', features: ['Étudiants illimités', 'Multi-campus', 'White label partiel', 'SSO & LMS', 'Support dédié 24/7'] },
     ],
   },
   whitelabel: {
     label: 'White Label',
     icon: Store,
     tiers: [
-      { name: 'Starter', price: '499 €/mois', description: 'Marque propre', features: ['Branding complet', 'Domaine custom', 'Modules au choix', 'Support standard'] },
-      { name: 'Pro', price: '999 €/mois', description: 'Déploiement complet', features: ['Tout Starter +', 'API full access', 'Analytics avancés', 'Support prioritaire', 'Formation équipe'] },
-      { name: 'Enterprise', price: '2 500+ €/mois', description: 'Solution clé en main', features: ['Tout Pro +', 'Source code access', 'SLA 99.9%', 'Account manager dédié', 'Développement custom'] },
+      { name: 'Starter', monthlyEur: 499, description: 'Marque propre', features: ['Branding complet', 'Domaine custom', 'Modules au choix', 'Support standard'] },
+      { name: 'Pro', monthlyEur: 999, description: 'Déploiement complet', features: ['Tout Starter +', 'API full access', 'Analytics avancés', 'Support prioritaire', 'Formation équipe'] },
+      { name: 'Enterprise', monthlyEur: 2500, minMonthlyEur: 2500, description: 'Solution clé en main', features: ['Tout Pro +', 'Source code access', 'SLA 99.9%', 'Account manager dédié', 'Développement custom'] },
     ],
   },
   api: {
     label: 'API',
     icon: Code2,
     tiers: [
-      { name: 'Starter', price: '49 €/mois', description: 'Intégration basique', features: ['1 000 requêtes/mois', 'Endpoints CV', 'Documentation', 'Support email'] },
-      { name: 'Pro', price: '149 €/mois', description: 'Intégration avancée', features: ['10 000 requêtes/mois', 'Tous les endpoints', 'Webhooks', 'Support prioritaire'] },
-      { name: 'Business', price: '399 €/mois', description: 'Volume élevé', features: ['50 000 requêtes/mois', 'Rate limiting custom', 'SLA garanti', 'Account manager', 'Analytics API'] },
+      { name: 'Starter', monthlyEur: 49, description: 'Intégration basique', features: ['1 000 requêtes/mois', 'Endpoints CV', 'Documentation', 'Support email'] },
+      { name: 'Pro', monthlyEur: 149, description: 'Intégration avancée', features: ['10 000 requêtes/mois', 'Tous les endpoints', 'Webhooks', 'Support prioritaire'] },
+      { name: 'Business', monthlyEur: 399, description: 'Volume élevé', features: ['50 000 requêtes/mois', 'Rate limiting custom', 'SLA garanti', 'Account manager', 'Analytics API'] },
     ],
   },
+}
+
+// ─── B2B Price Computation (mirrors pricing-engine.ts formatTierPriceRaw) ───
+
+const B2B_ANNUAL_MULTIPLIER = 10 // 17% savings
+
+function computeB2BPrice(tier: B2BTier, currency: Currency, billing: BillingPeriod): string {
+  if (tier.monthlyEur === null) return 'Sur devis'
+
+  const rate = CONVERSION[currency]
+  const sym = SYMBOLS[currency]
+  const multiplier = billing === 'annual' ? B2B_ANNUAL_MULTIPLIER : 1
+  const amount = Math.round(tier.monthlyEur * rate * multiplier * 100) / 100
+  const period = billing === 'annual' ? '/an' : '/mois'
+  const isMin = !!tier.minMonthlyEur
+
+  if (currency === 'mad') {
+    const val = Math.round(amount)
+    return isMin ? `${val}+ ${sym}${period}` : `${val} ${sym}${period}`
+  }
+
+  if (billing === 'annual') {
+    const val = Math.round(amount)
+    return isMin ? `${sym}${val}+${period}` : `${sym}${val}${period}`
+  }
+
+  return isMin ? `${sym}${amount.toFixed(2)}+${period}` : `${sym}${amount.toFixed(2)}${period}`
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -291,6 +319,7 @@ export default function PricingSection({
 }: PricingSectionProps) {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly')
   const [selectedModule, setSelectedModule] = useState<IndividualModule | null>(null)
+  const [checkoutSuccessId, setCheckoutSuccessId] = useState<string | null>(null)
 
   const isAnnual = billingPeriod === 'annual'
   const isLoggedIn = !!session?.user
@@ -314,6 +343,7 @@ export default function PricingSection({
         window.location.href = data.url
       } else if (data.code === 'DEV_PAYMENT' && data.success) {
         setPaymentSuccess(data.data)
+        setCheckoutSuccessId(planId)
         toast.success(`Paiement réussi — ${data.data.planLabel || planId} activé. Facture ${data.data.invoice.number} générée.`)
       } else {
         toast.error(data.error || 'Erreur lors du paiement')
@@ -463,10 +493,17 @@ export default function PricingSection({
                     >
                       {checkoutLoading === plan.id ? (
                         <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                      ) : checkoutSuccessId === plan.id ? (
+                        <Check className="mr-2 w-4 h-4" />
                       ) : (
                         <Icon className="mr-1.5 w-3.5 h-3.5" />
                       )}
-                      {isAnnual ? `${fmtAnnual(plan.monthlyEur, currency)}/an` : 'COMMENCER'}
+                      {checkoutSuccessId === plan.id
+                        ? 'ACTIVÉ'
+                        : isAnnual
+                          ? `${fmtAnnual(plan.monthlyEur, currency)}/an`
+                          : 'COMMENCER'
+                      }
                     </Button>
                   </CardContent>
                 </Card>
@@ -586,7 +623,7 @@ export default function PricingSection({
                               </div>
                             </div>
                             <div className="mb-4">
-                              <span className="text-2xl font-extrabold text-foreground">{tier.price}</span>
+                              <span className="text-2xl font-extrabold text-foreground">{computeB2BPrice(tier, currency, billingPeriod)}</span>
                             </div>
                             <div className="space-y-2 mb-6 flex-grow">
                               {tier.features.map((f) => (
@@ -596,7 +633,7 @@ export default function PricingSection({
                                 </div>
                               ))}
                             </div>
-                            {tier.price === 'Sur devis' ? (
+                            {tier.monthlyEur === null ? (
                               <Button
                                 variant="outline"
                                 className="w-full rounded-xl py-2.5 text-sm font-semibold cursor-pointer border-slate-300 text-slate-700 hover:bg-slate-50"
@@ -668,12 +705,18 @@ export default function PricingSection({
                   </div>
                   <Button
                     className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer"
+                    disabled={checkoutLoading === selectedModule.id}
                     onClick={() => {
                       handleCheckout(selectedModule.id)
                       setSelectedModule(null)
                     }}
                   >
-                    COMMENCER
+                    {checkoutLoading === selectedModule.id ? (
+                      <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                    ) : checkoutSuccessId === selectedModule.id ? (
+                      <Check className="mr-2 w-4 h-4" />
+                    ) : null}
+                    {checkoutSuccessId === selectedModule.id ? 'ACTIVÉ' : 'COMMENCER'}
                   </Button>
                 </div>
               </div>

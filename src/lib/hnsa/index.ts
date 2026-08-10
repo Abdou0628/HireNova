@@ -40,6 +40,7 @@ export {
   encryptSensitiveData,
   decryptSensitiveData,
 } from './field-encryption';
+export { encryptBeforeWrite, decryptAfterRead, getSensitiveFieldNames, isFieldEncrypted } from './encryption-middleware';
 export {
   forwardToSIEM,
   batchForwardToSIEM,

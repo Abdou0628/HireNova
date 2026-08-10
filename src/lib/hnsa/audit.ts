@@ -8,6 +8,8 @@
  */
 
 import { db } from '@/lib/db';
+import { forwardToSIEM, createSIEMEvent } from './siem';
+import type { SIEMEventType, SIEMSeverity } from './siem';
 
 // ===== Standard Audit Action Types =====
 
@@ -150,6 +152,40 @@ export interface AuditTrailResult {
   totalPages: number;
 }
 
+// ===== SIEM Mapping =====
+
+/** Maps audit actions to their corresponding SIEM event type and severity. */
+const ACTION_TO_SIEM_MAP: Record<
+  string,
+  { type: SIEMEventType; severity: SIEMSeverity } | undefined
+> = {
+  LOGIN_SUCCESS: { type: 'AUTH_SUCCESS', severity: 'info' },
+  LOGIN_FAILURE: { type: 'AUTH_FAILURE', severity: 'warning' },
+  REGISTER: { type: 'AUTH_SUCCESS', severity: 'info' },
+  PASSWORD_RESET_REQUESTED: { type: 'AUTH_SUCCESS', severity: 'info' },
+  PASSWORD_RESET_COMPLETED: { type: 'AUTH_SUCCESS', severity: 'info' },
+  MFA_ENABLED: { type: 'MFA_ENABLED', severity: 'info' },
+  MFA_DISABLED: { type: 'MFA_DISABLED', severity: 'warning' },
+  SESSION_REVOKED: { type: 'AUTH_SUCCESS', severity: 'info' },
+  RATE_LIMIT_EXCEEDED: { type: 'RATE_LIMIT_EXCEEDED', severity: 'warning' },
+  BRUTE_FORCE_DETECTED: { type: 'API_ABUSE_DETECTED', severity: 'critical' },
+  ACCOUNT_LOCKED: { type: 'ACCOUNT_LOCKOUT', severity: 'critical' },
+  ACCOUNT_UNLOCKED: { type: 'ACCOUNT_UNLOCK', severity: 'info' },
+  SUSPICIOUS_ACTIVITY: { type: 'SUSPICIOUS_REQUEST', severity: 'critical' },
+  IDOR_ATTEMPT: { type: 'SUSPICIOUS_REQUEST', severity: 'critical' },
+  PAYMENT_INITIATED: { type: 'PAYMENT_INITIATED', severity: 'info' },
+  PAYMENT_SUCCEEDED: { type: 'PAYMENT_SUCCESS', severity: 'info' },
+  PAYMENT_FAILED: { type: 'PAYMENT_FAILURE', severity: 'warning' },
+  PAYMENT_REFUNDED: { type: 'REFUND_PROCESSED', severity: 'info' },
+  ADMIN_USER_MODIFIED: { type: 'ADMIN_ACTION', severity: 'warning' },
+  ADMIN_USER_UNLOCKED: { type: 'ADMIN_ACTION', severity: 'info' },
+  ADMIN_CONFIG_CHANGED: { type: 'ADMIN_ACTION', severity: 'warning' },
+  ADMIN_ROLE_CHANGED: { type: 'ADMIN_ACTION', severity: 'warning' },
+  CV_DELETED: { type: 'DATA_DELETE', severity: 'info' },
+  CL_DELETED: { type: 'DATA_DELETE', severity: 'info' },
+  PROFILE_UPDATED: { type: 'ADMIN_ACTION', severity: 'info' },
+};
+
 // ===== Functions =====
 
 /**
@@ -202,6 +238,24 @@ export async function logAudit(params: LogAuditParams): Promise<void> {
         sessionId: params.sessionId ?? null,
       },
     });
+
+    // Forward to SIEM (non-blocking, fire-and-forget)
+    const siemMapping = ACTION_TO_SIEM_MAP[params.action];
+    if (siemMapping) {
+      forwardToSIEM(createSIEMEvent({
+        type: siemMapping.type,
+        severity: siemMapping.severity,
+        userId: params.actorId ?? undefined,
+        ip: params.ip,
+        userAgent: params.userAgent ?? undefined,
+        path: params.path ?? undefined,
+        metadata: {
+          action: params.action,
+          resource: params.resource,
+          outcome: params.outcome ?? 'success',
+        },
+      })).catch(() => {});
+    }
   } catch (error) {
     // Non-blocking: never let audit logging break the request flow
     console.error('[HNSA] Failed to write audit log:', error);
