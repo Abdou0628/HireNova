@@ -72,6 +72,9 @@ model User {
   complianceChecks    ComplianceCheck[]
   userConsents         UserConsent[]
   jobNotifications     JobNotification[]
+  payments            Payment[]     @relation("UserPayments")
+  paymentMethods      PaymentMethod[] @relation("UserPaymentMethods")
+  invoices            Invoice[]    @relation("UserInvoices")
 }
 
 // ===== HireNova Formation — Training & Certification =====
@@ -494,6 +497,139 @@ model EmailLog {
   @@index([userId])
   @@index([email])
   @@index([template])
+}
+
+// ===== HireNova Payment Orchestrator — Provider Registry =====
+
+model PaymentProvider {
+  id                 String   @id @default(cuid())
+  name               String   @unique // stripe | paymob | lemonsqueezy | payzone | naps | cmi
+  displayName        String   @default("")
+  country            String   @default("") // MA, FR, EU, US, INTL
+  currencies         String   @default("[]") // JSON array: ["MAD", "EUR", "USD"]
+  paymentMethods     String   @default("[]") // JSON array: ["card", "mobile", "bank_transfer"]
+  supportsRecurring   Boolean  @default(false)
+  supportsRefund     Boolean  @default(false)
+  supportsTokenization Boolean @default(false)
+  supportsWebhooks   Boolean  @default(false)
+  priority           Int      @default(0) // lower = higher priority
+  enabled            Boolean  @default(true)
+  config             String   @default("{}") // JSON: provider-specific config (API keys stored in env, not here)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  payments           Payment[]
+
+  @@index([enabled])
+  @@index([country])
+  @@index([priority])
+}
+
+// ===== HireNova Payment — Immutable Financial Ledger =====
+
+model Payment {
+  id                   String   @id @default(cuid())
+  userId               String?
+  user                 User?    @relation("UserPayments", fields: [userId], references: [id], onDelete: SetNull)
+  subscriptionId       String?
+  methodId             String?  // FK to PaymentMethod (optional)
+  provider             String   // stripe | paymob | lemonsqueezy | payzone | naps | cmi
+  providerPaymentId    String?  // external ID from the payment provider
+  amount               Int      // stored in cents (smallest currency unit)
+  currency             String   @default("EUR")
+  status               String   @default("created") // created | pending | authorized | captured | succeeded | failed | cancelled | expired | refunded | partially_refunded
+  description          String   @default("")
+  metadata             String?  // JSON: additional context
+  idempotencyKey       String   @unique
+  expiresAt            DateTime?
+  capturedAt           DateTime?
+  refundedAt           DateTime?
+  refundedAmount       Int      @default(0) // in cents
+  providerData         String?  // JSON: raw response from provider
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  events               PaymentEvent[]
+  invoice              Invoice?
+  method               PaymentMethod? @relation(fields: [methodId], references: [id])
+  providerConfig       PaymentProvider? @relation(fields: [provider], references: [name])
+
+  @@index([userId])
+  @@index([provider])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@index([providerPaymentId])
+  @@index([createdAt])
+}
+
+// ===== Payment Events — Immutable State Machine Log =====
+
+model PaymentEvent {
+  id          String   @id @default(cuid())
+  paymentId   String
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  eventType   String   // payment_created | payment_pending | payment_authorized | payment_captured | payment_succeeded | payment_failed | payment_refunded | payment_cancelled | payment_expired | payment_partially_refunded
+  statusFrom  String?  // previous status
+  statusTo    String   // new status
+  providerEventId String? // event_id from webhook for idempotency
+  data        String?  // JSON: event payload
+  createdAt   DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([providerEventId])
+  @@index([createdAt])
+}
+
+// ===== Payment Methods — Tokenized Cards/Wallets =====
+
+model PaymentMethod {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation("UserPaymentMethods", fields: [userId], references: [id], onDelete: Cascade)
+  provider         String   // stripe | paymob | payzone | naps | cmi
+  providerTokenId  String?  // token from the provider (NEVER store full card number)
+  type             String   @default("card") // card | mobile | bank_transfer | wallet
+  last4            String?  // last 4 digits only
+  brand            String?  // visa, mastercard, etc.
+  expMonth         Int?
+  expYear          Int?
+  isDefault        Boolean  @default(false)
+  enabled          Boolean  @default(true)
+  metadata         String?  // JSON: additional non-sensitive data
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  payments         Payment[]
+
+  @@index([userId])
+  @@index([provider])
+  @@index([isDefault])
+}
+
+// ===== Invoice — Billing Records =====
+
+model Invoice {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation("UserInvoices", fields: [userId], references: [id], onDelete: SetNull)
+  paymentId       String?  @unique
+  payment         Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  invoiceNumber   String   @unique
+  amount          Int      // in cents
+  currency        String   @default("EUR")
+  status          String   @default("draft") // draft | pending | paid | failed | refunded | cancelled
+  description     String   @default("")
+  lineItems       String   @default("[]") // JSON: [{description, amount, quantity}]
+  dueDate         DateTime?
+  paidAt          DateTime?
+  metadata        String?  // JSON
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ===== Accounting Entries — Financial tracking for all payments =====
