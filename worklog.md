@@ -368,3 +368,33 @@ Stage Summary:
 - Page renders fully with all sections: Hero, Profile Selection, AI Features, Pricing, Ecosystem (18+ modules), FAQ, Marketplace, API, International, Mobility, LinkedIn, Footer
 - All HNSA modifications are saved on GitHub and on the local PC
 - Server stability is limited by sandbox process management (not a code issue)
+---
+Task ID: 2
+Agent: Pricing Implementation Agent
+Task: Implement CTO pricing strategy - remove free tier, add 4 B2C bundles, B2B tiers, individual modules
+
+Work Log:
+- Created src/components/pricing-section.tsx with new pricing UI
+- Replaced old pricing section (~370 lines) in landing.tsx with 15-line component call
+- Removed PricingFeature interface, MAD_PRICES, MAD_MONTHLY, pricingFeatures constants
+- Removed unused handleCheckout function and isUsd/isGbp/isMad variables from landing.tsx
+- Added PricingSection import to landing.tsx
+- Added billing period toggle (MENSUEL/ANNUEL with 17% savings message)
+- Currency toggle moved below billing toggle (EUR/USD/GBP/MAD)
+- Added 4 B2C bundle cards: Start, Career, Professional, AI Power
+- Added 11 individual module cards with dialog detail view
+- Added B2B section with tabs: Recruiter, Campus SaaS, White Label, API
+- All text hardcoded in French, no i18n keys needed
+- Multi-currency support with conversion rates (USD×1.08, GBP×0.86, MAD×10.84)
+- Mobile-responsive: 1-col mobile, 2-col sm, 4-col lg for bundles; 3-4 col grid for modules
+- Checkout flow replicates existing pattern (POST /api/checkout with planType + currency)
+- ESLint: 0 new errors in src/ (12 pre-existing errors all in public/ bundled code)
+
+Stage Summary:
+- No free tier, no free trial, no lifetime plans
+- 4 B2C bundles: Start €9.90, Career €19.90, Professional €29.90, AI Power €39.90
+- Annual billing = 10 months for 12 (17% savings, no "2 months free" messaging)
+- Multi-currency: EUR/USD/GBP/MAD with approximate conversions
+- 11 individual modules with detail dialog: CV, ATS, JOBS, GLOBAL, MOBILITY, INTERVIEW, LINKEDIN, CAREER, COACH, FORMATION, FREELANCE
+- B2B: Recruiter (€99-499), Campus SaaS (€299-1499), White Label (€499-2500), API (€49-399)
+- pricingRef preserved for scroll-to-pricing functionality
