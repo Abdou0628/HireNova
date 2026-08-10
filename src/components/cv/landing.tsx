@@ -497,6 +497,7 @@ export default function Landing() {
                 className="mb-6"
               >
                 <div className="flex flex-col items-center">
+                  <span className="text-xs font-medium text-emerald-600/80 tracking-widest uppercase mb-2">{t(language, 'logoTagRecruitment')}</span>
                   <Image src="/hirenova-logo.png" alt="HireNova" width={80} height={80} className="rounded-2xl shadow-lg shadow-emerald-600/20 mx-auto" />
                   <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
                 </div>

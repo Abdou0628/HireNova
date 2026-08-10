@@ -618,6 +618,7 @@ export type TranslationKey =
   | 'recruiterStep3Title' | 'recruiterStep3Desc'
   | 'recruiterMatching' | 'recruiterScoring' | 'recruiterPipeline'
   | 'recruiterHomeTitle' | 'recruiterHomeSubtitle'
+  | 'logoTagRecruitment'
   | 'recruiterOpenPositions' | 'recruiterTotalCandidates' | 'recruiterMatchRate' | 'recruiterAvgTimeHire'
   | 'recruiterQuickActions' | 'recruiterNewJob' | 'recruiterViewPipeline' | 'recruiterFindCandidates' | 'recruiterAIMatch'
   | 'recruiterRecentJobs' | 'recruiterNoJobs'
@@ -897,6 +898,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
     siteTitle: 'HireNova',
     siteSubtitle: 'Votre plateforme IA de gestion de carrière et recrutement',
+    logoTagRecruitment: 'et Recrutement',
     siteDescription:
       'CV, lettres de motivation, coaching IA, préparation entretiens et marketplace d\'emplois — tout en une seule plateforme.',
     cta: 'Commencer maintenant',
@@ -2564,6 +2566,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   en: {
     siteTitle: 'HireNova',
     siteSubtitle: 'Your AI career management and recruitment platform',
+    logoTagRecruitment: '& Recruitment',
     siteDescription:
       'Resumes, cover letters, AI coaching, interview preparation, and job marketplace — all in one platform.',
     cta: 'Get started now',
@@ -4231,6 +4234,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   ar: {
     siteTitle: 'HireNova',
     siteSubtitle: 'منصتك الذكية لإدارة المسار المهني والتوظيف',
+    logoTagRecruitment: 'والتوظيف',
     siteDescription:
       'سير ذاتية، رسائل تعريف، تدريب ذكي، تحضير مقابلات وسوق وظائف — كل ذلك في منصة واحدة.',
     cta: 'ابدأ الآن',
@@ -5897,6 +5901,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   es: {
     siteTitle: 'HireNova',
     siteSubtitle: 'Tu plataforma IA de gestión de carrera y reclutamiento',
+    logoTagRecruitment: 'y Reclutamiento',
     siteDescription:
       'Currículums, cartas de presentación, coaching IA, preparación de entrevistas y bolsa de empleo — todo en una sola plataforma.',
     cta: 'Comenzar ahora',
