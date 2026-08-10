@@ -3085,7 +3085,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     recruiterScoring: 'Candidate scoring',
     recruiterPipeline: 'Dashboard',
     recruiterHomeTitle: 'Recruiter Dashboard',
-    recruiterHomeSubtitle: 'HireNova — your AI career management and recruitment platform. Manage your job postings and track your recruitment pipeline.'
+    recruiterHomeSubtitle: 'HireNova — your AI career management and recruitment platform. Manage your job postings and track your recruitment pipeline.',
     recruiterOpenPositions: 'Open positions',
     recruiterTotalCandidates: 'Total candidates',
     recruiterMatchRate: 'Match rate',
@@ -4751,7 +4751,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     recruiterScoring: 'تقييم المرشحين',
     recruiterPipeline: 'لوحة المعلومات',
     recruiterHomeTitle: 'لوحة تحكم المسؤول',
-    recruiterHomeSubtitle: 'HireNova — منصتك الذكية لإدارة المسار المهني والتوظيف. أدر عروض الوظائف وتتبع خط أنابيب التوظيف.'
+    recruiterHomeSubtitle: 'HireNova — منصتك الذكية لإدارة المسار المهني والتوظيف. أدر عروض الوظائف وتتبع خط أنابيب التوظيف.',
     recruiterOpenPositions: 'وظائف مفتوحة',
     recruiterTotalCandidates: 'إجمالي المرشحين',
     recruiterMatchRate: 'معدل المطابقة',
@@ -6418,7 +6418,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     recruiterScoring: 'Puntuación de candidatos',
     recruiterPipeline: 'Panel de control',
     recruiterHomeTitle: 'Panel del reclutador',
-    recruiterHomeSubtitle: 'HireNova — tu plataforma IA de gestión de carrera y reclutamiento. Gestiona tus ofertas y sigue tu pipeline de reclutamiento.'
+    recruiterHomeSubtitle: 'HireNova — tu plataforma IA de gestión de carrera y reclutamiento. Gestiona tus ofertas y sigue tu pipeline de reclutamiento.',
     recruiterOpenPositions: 'Puestos abiertos',
     recruiterTotalCandidates: 'Total candidatos',
     recruiterMatchRate: 'Tasa de matching',
