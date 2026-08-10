@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 import ZAI from 'z-ai-web-dev-sdk'
 
 const zai = ZAI.create()
@@ -7,6 +8,9 @@ const zai = ZAI.create()
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ success: false, error: { code: 401, message: 'Auth requis' } }, { status: auth.statusCode })
+
     const job = await db.jobListing.findUnique({ where: { id } })
     if (!job) return NextResponse.json({ success: false, error: { code: 404, message: 'Offre non trouvée' } }, { status: 404 })
 

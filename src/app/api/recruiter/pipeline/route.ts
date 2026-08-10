@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 // GET /api/recruiter/pipeline — fetch all recruiter jobs with candidates
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Use a demo user ID for now — in production this comes from auth session
-    const userId = 'demo-recruiter'
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
+    const userId = auth.userId
 
     let jobs = await db.recruiterJob.findMany({
       where: { userId },
@@ -127,6 +130,9 @@ export async function GET() {
 // POST /api/recruiter/pipeline — move candidate stage or create job
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await req.json()
 
     // Create new job

@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+    }
+
     const { employer, employee, contractType, startDate, salary, responsibilities, clauses, language } = await req.json()
 
     if (!employer?.trim() || !employee?.trim()) {

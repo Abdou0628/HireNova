@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { chatCompletionJSON } from '@/lib/llm'
+import { withAuth } from '@/lib/hnsa'
 
 interface RoadmapPhase {
   phase: 'short' | 'medium' | 'long'
@@ -11,9 +12,14 @@ interface RoadmapPhase {
   milestones: string[]
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json()
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
+    const body = await request.json()
     const { assessmentId, language } = body
 
     if (!assessmentId) {

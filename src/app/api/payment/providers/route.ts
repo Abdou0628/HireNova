@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/hnsa'
 import { getAvailableProviders, PLAN_PRICES, formatCents, type Currency, type HireNovaPlan } from '@/lib/stripe'
 import { isPaymobConfigured } from '@/lib/paymob'
 import { STORE_ID } from '@/lib/lemonsqueezy'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const providers = getAvailableProviders()
 
     const providerStatus = {

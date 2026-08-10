@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 
 const COACH_SYSTEM_PROMPT = `You are "HireNova IA Coach", a warm, motivational, and actionable AI career coach. 
 Your personality:
@@ -20,8 +21,13 @@ Your approach:
 
 When a session ends, provide a brief 3-4 sentence summary with key takeaways.`
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const sessions = await db.coachSession.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50,
@@ -35,6 +41,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const body = await req.json()
     const { message, messages, sessionId, topic, language, action } = body
 

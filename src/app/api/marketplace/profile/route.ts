@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
 
     let profile = await db.communityProfile.findUnique({
-      where: { userId: session.user.email },
+      where: { userId: auth.email },
       include: { user: { select: { name: true, image: true, email: true } } },
     })
 
@@ -18,7 +16,7 @@ export async function GET() {
     if (!profile) {
       profile = await db.communityProfile.create({
         data: {
-          userId: session.user.email,
+          userId: auth.email,
           bio: '',
           skills: '[]',
           badges: '["early-adopter"]',
@@ -37,18 +35,16 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
 
     const body = await req.json()
     const { bio, skills } = body
 
     const profile = await db.communityProfile.upsert({
-      where: { userId: session.user.email },
+      where: { userId: auth.email },
       create: {
-        userId: session.user.email,
+        userId: auth.email,
         bio: bio || '',
         skills: skills || '[]',
         badges: '["early-adopter"]',

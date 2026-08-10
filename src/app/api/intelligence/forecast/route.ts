@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 async function ensureSeedData() {
   const count = await db.marketTrend.count()
@@ -24,9 +25,14 @@ async function ensureSeedData() {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { skill, industry, region, language } = await req.json()
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
+    const { skill, industry, region, language } = await request.json()
 
     if (!skill || skill.trim().length === 0) {
       return NextResponse.json({ error: 'Skill is required' }, { status: 400 })

@@ -8,32 +8,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { getAuditTrail } from '@/lib/hnsa'
+import { db } from '@/lib/db'
+import { getAuditTrail, withAuth } from '@/lib/hnsa'
 
 export async function GET(request: NextRequest) {
   try {
-    // --- Auth check ---
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      )
-    }
-
-    // --- Admin check (HNSA Pillar 1: IAM) ---
-    const { db } = await import('@/lib/db')
-    const user = await db.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, role: true },
-    })
-
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden — admin only', code: 'FORBIDDEN' },
-        { status: 403 }
-      )
+    // --- Auth + Admin check ---
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     // --- Parse query params ---

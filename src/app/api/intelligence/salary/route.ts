@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 const SEED_SALARIES = [
   { jobTitle: 'Développeur Full-Stack', industry: 'Tech', location: 'Paris, France', salaryMin: 38000, salaryAvg: 52000, salaryMax: 70000, currency: 'EUR', source: 'HireNova Intelligence' },
@@ -27,10 +28,15 @@ async function ensureSeedData() {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     await ensureSeedData()
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const query = (searchParams.get('q') || '').toLowerCase().trim()
 
     let results

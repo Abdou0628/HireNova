@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 import { stripe, isStripeConfigured, STRIPE_PRICE_IDS, PLAN_PRICES, VALID_PLANS, type Currency, type HireNovaPlan } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   try {
     // 1. Auth check
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     // 2. Stripe config check
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Check if user already has a plan
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: auth.userId! },
       select: { id: true, email: true, name: true, plan: true, stripeCustomerId: true },
     })
 
@@ -93,21 +92,21 @@ export async function POST(request: NextRequest) {
       success_url: `${baseUrl}/?checkout=success&plan=${plan}&provider=stripe`,
       cancel_url: `${baseUrl}/?checkout=canceled`,
       metadata: {
-        userId: session.user.id,
+        userId: auth.userId!,
         planType: plan,
         currency,
       },
       allow_promotion_codes: true,
       subscription_data: isAnnual ? undefined : {
         metadata: {
-          userId: session.user.id,
+          userId: auth.userId!,
           planType: plan,
           currency,
         },
       },
       payment_intent_data: isAnnual ? {
         metadata: {
-          userId: session.user.id,
+          userId: auth.userId!,
           planType: plan,
           currency,
         },

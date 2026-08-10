@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 
 const zai = ZAI.create()
 
@@ -125,6 +126,14 @@ const COUNTRY_FORMATS: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { success: false, error: { code: 401, message: 'Auth requis' } },
+        { status: auth.statusCode }
+      )
+    }
+
     const body = await request.json()
     const { profileId, targetCountry } = body
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
 export async function GET(req: NextRequest) {
   try {
@@ -54,7 +54,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession()
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await req.json()
     const { title, body: postBody, category, language } = body
 
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const post = await db.communityPost.create({
       data: {
-        userId: session?.user?.email || null,
+        userId: auth.email || null,
         title,
         body: postBody,
         category: category || 'career-advice',
@@ -76,13 +78,13 @@ export async function POST(req: NextRequest) {
     })
 
     // Update community profile stats
-    if (session?.user?.email) {
+    if (auth.email) {
       const existingProfile = await db.communityProfile.findUnique({
-        where: { userId: session.user.email },
+        where: { userId: auth.email },
       })
       if (existingProfile) {
         await db.communityProfile.update({
-          where: { userId: session.user.email },
+          where: { userId: auth.email },
           data: { postsCount: { increment: 1 }, reputation: { increment: 5 } },
         })
       }
@@ -95,9 +97,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// POST /api/marketplace/posts — for upvoting and replying
+// PUT /api/marketplace/posts — for upvoting and replying
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await req.json()
     const { postId, action } = body
 
@@ -118,7 +123,6 @@ export async function PUT(req: NextRequest) {
     }
 
     if (action === 'reply') {
-      const session = await getServerSession()
       const { body: replyBody } = body
       if (!replyBody) {
         return NextResponse.json({ error: 'Reply body is required' }, { status: 400 })
@@ -127,7 +131,7 @@ export async function PUT(req: NextRequest) {
       const reply = await db.communityReply.create({
         data: {
           postId,
-          userId: session?.user?.email || null,
+          userId: auth.email || null,
           body: replyBody,
         },
         include: {
@@ -141,13 +145,13 @@ export async function PUT(req: NextRequest) {
       })
 
       // Update community profile stats
-      if (session?.user?.email) {
+      if (auth.email) {
         const existingProfile = await db.communityProfile.findUnique({
-          where: { userId: session.user.email },
+          where: { userId: auth.email },
         })
         if (existingProfile) {
           await db.communityProfile.update({
-            where: { userId: session.user.email },
+            where: { userId: auth.email },
             data: { repliesCount: { increment: 1 }, reputation: { increment: 2 } },
           })
         }
@@ -164,8 +168,10 @@ export async function PUT(req: NextRequest) {
 }
 
 // Seed demo data on first request if empty
-export async function PATCH() {
+export async function PATCH(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     const count = await db.communityPost.count()
     if (count > 0) {
       return NextResponse.json({ seeded: false, message: 'Posts already exist' })

@@ -7,30 +7,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 export async function GET(request: NextRequest) {
   try {
     // --- Auth + Admin check ---
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      )
-    }
-
-    const admin = await db.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, role: true },
-    })
-
-    if (!admin || admin.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden', code: 'FORBIDDEN' },
-        { status: 403 }
-      )
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     const { searchParams } = request.nextUrl

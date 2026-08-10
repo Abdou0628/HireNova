@@ -32,3 +32,24 @@ export type {
 export { scanRequestBody } from './body-scanner';
 export { withAuth } from './with-auth';
 export { generateTOTPSecret, generateTOTP, verifyTOTP, generateOTPAuthURI } from './totp';
+export {
+  encryptField,
+  decryptField,
+  isEncrypted,
+  sensitiveFields,
+  encryptSensitiveData,
+  decryptSensitiveData,
+} from './field-encryption';
+export {
+  forwardToSIEM,
+  batchForwardToSIEM,
+  createSIEMEvent,
+  getLocalSIEMEvents,
+  getLocalSIEMBufferSize,
+} from './siem';
+export type {
+  SIEMEvent,
+  SIEMEventType,
+  SIEMSeverity,
+  CreateSIEMEventParams,
+} from './siem';

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 import { sendEmail, emailTemplates, scheduleOnboardingEmails } from '@/lib/email'
 
 /**
@@ -15,11 +14,11 @@ import { sendEmail, emailTemplates, scheduleOnboardingEmails } from '@/lib/email
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json(
         { success: false, error: { code: 401, message: 'Non authentifié' } },
-        { status: 401 }
+        { status: auth.statusCode }
       )
     }
 
@@ -27,7 +26,7 @@ export async function POST(request: NextRequest) {
     const step = body.step || 'welcome'
 
     const user = await db.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: auth.email! },
       select: { id: true, email: true, name: true, createdAt: true },
     })
 
@@ -75,18 +74,18 @@ export async function POST(request: NextRequest) {
  * GET /api/email/onboarding
  * Returns the onboarding sequence status for the current user.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json(
         { success: false, error: { code: 401, message: 'Non authentifié' } },
-        { status: 401 }
+        { status: auth.statusCode }
       )
     }
 
     const user = await db.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: auth.email! },
       select: { id: true, email: true, name: true, createdAt: true, plan: true },
     })
 

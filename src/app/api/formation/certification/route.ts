@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 import ZAI from 'z-ai-web-dev-sdk'
 
 // GET /api/formation/certification — get user certifications
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json({ certifications: [] })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
-    const user = await db.user.findUnique({ where: { email: session.user.email } })
+    const user = await db.user.findUnique({ where: { email: auth.email! } })
     if (!user) {
       return NextResponse.json({ certifications: [] })
     }
@@ -31,15 +31,14 @@ export async function GET() {
 // POST /api/formation/certification — generate exam or submit answers
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession()
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+    }
     const body = await req.json()
     const { action, courseId, courseTitle, language, answers } = body
 
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const user = await db.user.findUnique({ where: { email: session.user.email } })
+    const user = await db.user.findUnique({ where: { email: auth.email! } })
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }

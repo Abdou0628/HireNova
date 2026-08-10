@@ -1,20 +1,19 @@
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 
 /**
  * Get all interview sessions for the current user.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const sessions = await db.interviewSession.findMany({
-      where: { userId: session.user.id },
+      where: { userId: auth.userId! },
       orderBy: { createdAt: 'desc' },
       take: 20,
       include: {

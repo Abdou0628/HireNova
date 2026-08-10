@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 import type { CVLanguage, PersonaType } from '@/lib/i18n'
 
 const langInstructions: Record<string, string> = {
@@ -60,6 +61,14 @@ interface AppFormData {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.reason },
+        { status: auth.statusCode }
+      )
+    }
+
     const body = await request.json()
     const {
       persona,

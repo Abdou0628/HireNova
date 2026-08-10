@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withAuth } from '@/lib/hnsa';
 import { getPaymentStatus, updatePaymentStatus } from '@/lib/payment/orchestrator';
 import { getAdapterOrNull } from '@/lib/payment/adapters';
 import type { PaymentStatus } from '@/lib/payment/types';
@@ -16,13 +15,13 @@ export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     // ── Authentication ──
-    const session = await getServerSession(authOptions);
+    const auth = await withAuth(request);
     const apiKey = request.headers.get('x-api-key');
 
-    if (!session?.user?.id && apiKey !== process.env.INTERNAL_API_KEY) {
+    if (!auth.authorized && apiKey !== process.env.INTERNAL_API_KEY) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+        { error: auth.reason },
+        { status: auth.statusCode }
       );
     }
 

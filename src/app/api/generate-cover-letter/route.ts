@@ -1,11 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import type { GeneratedCoverLetter } from '@/store/cv-store'
+import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 import { scanInput, logSecurityEvent } from '@/lib/security'
-import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -64,7 +62,7 @@ const toneMap: Record<string, Record<string, string>> = {
   },
 }
 
-export async function POST(request: globalThis.Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const {
@@ -116,14 +114,14 @@ export async function POST(request: globalThis.Request) {
     }
 
     // Check usage limit
-    const session = await getServerSession(authOptions)
-    const userId = session?.user?.id as string | undefined
-    if (!userId) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json(
         { error: 'Vous devez créer un compte et souscrire à un abonnement pour générer une lettre de motivation.', code: 'AUTH_REQUIRED' },
-        { status: 401 }
+        { status: auth.statusCode }
       )
     }
+    const userId = auth.userId!
 
     // --- HNSA AI Security Gateway ---
     const aiCheck = checkAIAbuseLimit(userId)

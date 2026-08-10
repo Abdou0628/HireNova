@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 const SEED_TRENDS = [
   { skill: 'Intelligence Artificielle', industry: 'Tech', growthRate: 34.5, demand: 'high', region: 'Europe' },
@@ -25,10 +26,15 @@ async function ensureSeedData() {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     await ensureSeedData()
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(request.url)
     const industry = searchParams.get('industry') || ''
     const region = searchParams.get('region') || ''
 
@@ -48,9 +54,14 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json()
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
+    const body = await request.json()
     const { industry, region, language } = body
 
     await ensureSeedData()

@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/hnsa'
 
 interface Template {
   id: string
@@ -386,6 +387,9 @@ Signatures:
   },
 ]
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await withAuth(request)
+  if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
   return NextResponse.json({ templates })
 }

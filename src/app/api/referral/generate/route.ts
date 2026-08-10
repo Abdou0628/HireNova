@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
-import { authOptions } from '@/lib/auth'
 import { generateReferralAgreement } from '@/lib/documents'
+import { withAuth } from '@/lib/hnsa'
 
 /**
  * Generate referral code and auto-generate referral agreement (contrat de parrainage)
@@ -10,15 +9,10 @@ import { generateReferralAgreement } from '@/lib/documents'
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: { code: 401, message: 'Authentification requise' } },
-        { status: 401 }
-      )
-    }
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
 
-    const userId = session.user.id
+    const userId = auth.userId
 
     const user = await db.user.findUnique({
       where: { id: userId },

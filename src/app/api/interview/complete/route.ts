@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 import { chatCompletionJSON } from '@/lib/llm'
 
@@ -9,9 +8,9 @@ import { chatCompletionJSON } from '@/lib/llm'
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const body = await request.json()
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Session non trouvee' }, { status: 404 })
     }
 
-    if (interviewSession.userId !== session.user.id) {
+    if (interviewSession.userId !== auth.userId) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 403 })
     }
 

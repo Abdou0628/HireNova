@@ -307,14 +307,14 @@ export default function PricingSection({
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planType: planId, currency }),
+        body: JSON.stringify({ planType: planId, currency, billing: billingPeriod }),
       })
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
       } else if (data.code === 'DEV_PAYMENT' && data.success) {
         setPaymentSuccess(data.data)
-        toast.success(`Paiement réussi — Plan ${planId} activé. Facture ${data.data.invoice.number} générée.`)
+        toast.success(`Paiement réussi — ${data.data.planLabel || planId} activé. Facture ${data.data.invoice.number} générée.`)
       } else {
         toast.error(data.error || 'Erreur lors du paiement')
       }

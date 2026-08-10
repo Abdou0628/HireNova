@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 // POST /api/recruiter/match — AI matching via LLM
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { jobDescription, language = 'fr' } = await req.json()
 
     if (!jobDescription || jobDescription.trim().length < 20) {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withAuth } from '@/lib/hnsa';
 import { rateLimit } from '@/lib/rate-limit';
 import { createPayment as orchestratorCreate, updatePaymentStatus, getPaymentStatus } from '@/lib/payment/orchestrator';
 import { selectProvider } from '@/lib/payment/registry';
@@ -19,17 +18,17 @@ export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     // ── Authentication (session or API key) ──
-    const session = await getServerSession(authOptions);
+    const auth = await withAuth(request);
     const apiKey = request.headers.get('x-api-key');
 
-    if (!session?.user?.id && apiKey !== process.env.INTERNAL_API_KEY) {
+    if (!auth.authorized && apiKey !== process.env.INTERNAL_API_KEY) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+        { error: auth.reason },
+        { status: auth.statusCode }
       );
     }
 
-    const userId = session?.user?.id ?? 'api-key-user';
+    const userId = auth.userId ?? 'api-key-user';
 
     // ── Rate limiting ──
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';

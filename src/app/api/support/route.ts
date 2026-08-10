@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await request.json()
     const { name, email, subject, message } = body
 
@@ -21,17 +23,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Le message doit contenir au moins 10 caractères' }, { status: 400 })
     }
 
-    const session = await getServerSession(authOptions)
-    let userId: string | undefined
-
-    if (session?.user?.id) {
-      const user = await db.user.findUnique({ where: { id: session.user.id } })
-      if (user) userId = user.id
-    }
-
     const ticket = await db.supportTicket.create({
       data: {
-        userId,
+        userId: auth.userId,
         name: name.trim(),
         email: email.toLowerCase().trim(),
         subject: subject.trim(),

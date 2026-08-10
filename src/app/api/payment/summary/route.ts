@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withAuth } from '@/lib/hnsa';
 import { getFinancialSummary } from '@/lib/payment/ledger';
 
 export const runtime = 'nodejs';
@@ -15,13 +14,13 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // ── Authentication (admin only via API key or session plan check) ──
-    const session = await getServerSession(authOptions);
+    const auth = await withAuth(request);
     const apiKey = request.headers.get('x-api-key');
 
-    if (!session?.user?.id && apiKey !== process.env.INTERNAL_API_KEY) {
+    if (!auth.authorized && apiKey !== process.env.INTERNAL_API_KEY) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+        { error: auth.reason },
+        { status: auth.statusCode }
       );
     }
 

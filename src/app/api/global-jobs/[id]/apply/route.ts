@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 import ZAI from 'z-ai-web-dev-sdk'
 
 const zai = ZAI.create()
@@ -9,6 +10,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { success: false, error: { code: 401, message: 'Auth requis' } },
+        { status: auth.statusCode }
+      )
+    }
+
     const { id } = await params
     const body = await request.json()
     const { candidateName, candidateEmail, coverNote } = body

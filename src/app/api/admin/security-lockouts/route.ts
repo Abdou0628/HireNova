@@ -8,32 +8,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
-import { unlockAccount, getLockoutStatus } from '@/lib/hnsa'
-import { logAudit, AUDIT_ACTIONS } from '@/lib/hnsa'
+import { unlockAccount, getLockoutStatus, logAudit, AUDIT_ACTIONS, withAuth } from '@/lib/hnsa'
 
 /** GET — List all lockouts (paginated) */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      )
-    }
-
-    const admin = await db.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, role: true, email: true },
-    })
-
-    if (!admin || admin.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden', code: 'FORBIDDEN' },
-        { status: 403 }
-      )
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     const { searchParams } = request.nextUrl
@@ -69,25 +52,12 @@ export async function GET(request: NextRequest) {
 /** POST — Unlock an account */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      )
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
-    const admin = await db.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, role: true, email: true },
-    })
-
-    if (!admin || admin.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden', code: 'FORBIDDEN' },
-        { status: 403 }
-      )
-    }
+    const adminId = auth.userId!
 
     const body = await request.json()
     const { email } = body
@@ -99,12 +69,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const unlocked = await unlockAccount(email, admin.id)
+    const unlocked = await unlockAccount(email, adminId)
 
     if (unlocked) {
       await logAudit({
-        actorId: admin.id,
-        actorEmail: session.user.email,
+        actorId: adminId,
+        actorEmail: auth.email!,
         actorRole: 'admin',
         action: AUDIT_ACTIONS.ADMIN.ADMIN_USER_UNLOCKED,
         resource: 'account_lockout',

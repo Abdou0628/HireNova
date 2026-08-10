@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const language = (formData.get('language') as string) || 'fr'

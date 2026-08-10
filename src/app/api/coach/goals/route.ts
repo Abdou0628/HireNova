@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const goals = await db.coachGoal.findMany({
       orderBy: [{ completed: 'asc' }, { createdAt: 'desc' }],
     })
@@ -16,6 +22,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const body = await req.json()
     const { title, description, category, priority, deadline, language } = body
 
@@ -75,6 +86,11 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const body = await req.json()
     const { id, title, description, category, priority, deadline, progress, completed } = body
 
@@ -108,6 +124,11 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+
     const body = await req.json()
     const { id } = body
 

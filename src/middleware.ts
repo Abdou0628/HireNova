@@ -94,7 +94,7 @@ function applyHNSASecurityHeaders(response: NextResponse, requestId: string): vo
 
 const SUSPICIOUS_PATHS = [
   '/wp-admin', '/wp-login', '/.env', '/.git', '/.svn', '/.htaccess',
-  '/phpmyadmin', '/admin/config', '/backup', '/config.php', '/database',
+  '/phpmyadmin', '/backup', '/config.php', '/database',
   '/solr', '/actuator', '/.dockerenv', '/proc/self', '/etc/passwd',
   '/console', '/debug', '/trace', '/server-status', '/elmah.axd', '/trace.axd',
 ]

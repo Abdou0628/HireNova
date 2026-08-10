@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 
 // GET — Return user notifications with unread count
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json(
         { success: false, error: { code: 401, message: 'Auth requis' } },
-        { status: 401 }
+        { status: auth.statusCode }
       )
     }
 
-    const userId = session.user.id
+    const userId = auth.userId!
 
     const [notifications, unreadCount] = await Promise.all([
       db.jobNotification.findMany({
@@ -42,15 +41,15 @@ export async function GET() {
 // PATCH — Mark notifications as read
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json(
         { success: false, error: { code: 401, message: 'Auth requis' } },
-        { status: 401 }
+        { status: auth.statusCode }
       )
     }
 
-    const userId = session.user.id
+    const userId = auth.userId!
     const body = await request.json()
 
     if (body.markAll) {

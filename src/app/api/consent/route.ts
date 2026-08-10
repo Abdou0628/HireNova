@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 // GET — Return current user's consent (if logged in) or null
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
       return NextResponse.json({ success: true, data: null })
     }
 
     const consent = await db.userConsent.findUnique({
-      where: { userId: session.user.id }
+      where: { userId: auth.userId! }
     })
 
     return NextResponse.json({ success: true, data: consent })
@@ -42,12 +41,12 @@ export async function POST(request: NextRequest) {
       || 'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
-    const session = await getServerSession(authOptions)
+    const auth = await withAuth(request)
 
-    if (session?.user?.id) {
+    if (auth.authorized) {
       // Logged in — upsert to DB
       const consent = await db.userConsent.upsert({
-        where: { userId: session.user.id },
+        where: { userId: auth.userId! },
         update: {
           analyticsCookies: !!analyticsCookies,
           marketingCookies: !!marketingCookies,
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
           userAgent,
         },
         create: {
-          userId: session.user.id,
+          userId: auth.userId!,
           analyticsCookies: !!analyticsCookies,
           marketingCookies: !!marketingCookies,
           newsletterConsent: !!newsletterConsent,

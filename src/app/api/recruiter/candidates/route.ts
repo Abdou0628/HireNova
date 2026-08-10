@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 // GET /api/recruiter/candidates — list all candidates with optional filters
 export async function GET(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const q = searchParams.get('q') || ''
     const minScore = parseInt(searchParams.get('minScore') || '0', 10)

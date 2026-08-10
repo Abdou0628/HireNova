@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AGENTS, CTO_PRINCIPAL, type DispatchResult, type CVLanguage } from '@/lib/agent-registry'
 import ZAI from 'z-ai-web-dev-sdk'
+import { withAuth } from '@/lib/hnsa'
 
 // Agent keyword map for fast classification (no LLM needed for obvious cases)
 const AGENT_KEYWORDS: Record<string, string[]> = {
@@ -101,6 +102,9 @@ Réponds UNIQUEMENT en JSON:
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await request.json()
     const { message, language = 'fr' } = body as { message: string; language?: CVLanguage }
 
@@ -176,7 +180,11 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: Return full agent registry
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await withAuth(request)
+  if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
+
   return NextResponse.json({
     ctoPrincipal: CTO_PRINCIPAL,
     agents: AGENTS,

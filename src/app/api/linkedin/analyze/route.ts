@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
-import { getServerSession } from 'next-auth'
-import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
+import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 const zai = ZAI.create()
 
@@ -89,8 +88,14 @@ export async function POST(request: NextRequest) {
     const systemPrompt = LANG_PROMPTS[lang] || LANG_PROMPTS['fr']
 
     // --- HNSA AI Security Gateway ---
-    const session = await getServerSession()
-    const userId = session?.user?.id || 'anonymous-linkedin'
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { success: false, error: { code: 401, message: 'Auth requis' } },
+        { status: auth.statusCode }
+      )
+    }
+    const userId = auth.userId!
     const aiCheck = checkAIAbuseLimit(userId)
     if (!aiCheck.allowed) {
       return NextResponse.json(

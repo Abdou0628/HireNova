@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server'
-import { unlockAccount } from '@/lib/hnsa'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/hnsa'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     const { email } = await request.json()
@@ -15,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    const success = await unlockAccount(email, session.user.id)
+    const success = await unlockAccount(email, auth.userId!)
     if (!success) {
       return NextResponse.json({ error: 'Account not found' }, { status: 404 })
     }

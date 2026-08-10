@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 import { generateInvoiceForPayment, generateReceiptForPayment } from '@/lib/documents'
 
@@ -25,9 +24,9 @@ import { generateInvoiceForPayment, generateReceiptForPayment } from '@/lib/docu
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const body = await request.json()
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch user
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: auth.userId! },
       select: { id: true, email: true, name: true, plan: true },
     })
 

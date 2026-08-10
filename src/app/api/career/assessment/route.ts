@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession()
+    const auth = await withAuth(req)
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
 
@@ -17,9 +17,9 @@ export async function GET(req: NextRequest) {
     }
 
     // Get all assessments for the current user (or latest 10 if not logged in)
-    const assessments = session?.user?.email
+    const assessments = auth.authorized
       ? await db.careerAssessment.findMany({
-          where: { user: { email: session.user.email } },
+          where: { user: { email: auth.email! } },
           orderBy: { createdAt: 'desc' },
           take: 10,
         })
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession()
+    const auth = await withAuth(req)
     const body = await req.json()
     const { answers, language } = body
 
@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
 
     // Find user if logged in
     let userId: string | undefined
-    if (session?.user?.email) {
-      const user = await db.user.findUnique({ where: { email: session.user.email } })
+    if (auth.authorized && auth.email) {
+      const user = await db.user.findUnique({ where: { email: auth.email } })
       userId = user?.id
     }
 

@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
 // GET /api/formation/courses — list all courses (with optional filters)
 export async function GET(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+    }
+
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category') || ''
     const level = searchParams.get('level') || ''
@@ -70,8 +75,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Admin-only course creation
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const course = await db.formationCourse.create({

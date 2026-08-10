@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { withAuth } from '@/lib/hnsa'
 
 const FILES: Record<string, { path: string; name: string }> = {
   layout: { path: 'src/app/layout.tsx', name: 'layout.tsx' },
@@ -11,12 +12,13 @@ const FILES: Record<string, { path: string; name: string }> = {
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await withAuth(request)
   const { searchParams } = new URL(request.url)
   const file = searchParams.get('file')
   const token = searchParams.get('t')
 
-  if (token !== 'hnova-2024-update') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!auth.authorized && token !== 'hnova-2024-update') {
+    return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
   }
 
   if (!file || !FILES[file]) {

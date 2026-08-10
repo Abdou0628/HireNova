@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 const jurisdictionInfo: Record<string, string> = {
   ma: 'Morocco (Code du Travail marocain, Loi 09-08 sur la protection des données personnelles)',
@@ -12,6 +13,11 @@ const jurisdictionInfo: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+    }
+
     const { jurisdiction, language } = await req.json()
 
     const j = jurisdiction || 'ma'

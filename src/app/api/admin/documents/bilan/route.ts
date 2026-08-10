@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { generateAccountingStatement } from '@/lib/documents'
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ''
 
 /**
  * Compute period start/end from a preset string.
@@ -87,9 +84,9 @@ function resolvePreset(preset: string, tz = 'Africa/Casablanca'): { start: Date;
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     const body = await request.json()

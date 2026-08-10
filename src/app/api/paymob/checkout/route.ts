@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { withAuth } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 import { createPaymobCheckout, isPaymobConfigured, PAYMOB_PRICES, type PaymobPlan, type PaymobBillingData } from '@/lib/paymob'
 
@@ -16,9 +15,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Paymob is not configured' }, { status: 503 })
     }
 
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const body = await request.json()
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const planType = planTypeParam as PaymobPlan
-    const userId = session.user.id
+    const userId = auth.userId!
 
     const user = await db.user.findUnique({
       where: { id: userId },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,10 +31,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) return NextResponse.json({ success: false, error: { code: 401, message: 'Auth requis' } }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) return NextResponse.json({ success: false, error: { code: 401, message: 'Auth requis' } }, { status: auth.statusCode })
 
-    const user = await db.user.findUnique({ where: { email: session.user.email } })
+    const user = await db.user.findUnique({ where: { email: auth.email! } })
     if (!user || user.role !== 'employer') return NextResponse.json({ success: false, error: { code: 403, message: 'Compte employeur requis' } }, { status: 403 })
 
     const body = await request.json()

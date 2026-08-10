@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 const SEED_WORKSHOPS = [
   {
@@ -82,6 +83,9 @@ export async function GET() {
 // POST /api/campus/workshops — Create
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await req.json()
     const { title, description, speaker, date, duration, capacity, type, language, status } = body
     if (!title?.trim() || !date) {
@@ -100,6 +104,9 @@ export async function POST(req: NextRequest) {
 // PUT /api/campus/workshops?id=xxx — Update
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 })
@@ -133,6 +140,9 @@ export async function PUT(req: NextRequest) {
 // PATCH /api/campus/workshops?id=xxx — Register
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 })
@@ -161,6 +171,9 @@ export async function PATCH(req: NextRequest) {
 // DELETE /api/campus/workshops?id=xxx
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 })

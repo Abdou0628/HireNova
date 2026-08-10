@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 const SEED_UNIVERSITIES = [
   { name: 'Université Mohammed VI Polytechnique', country: 'Morocco', programs: '[["Engineering","AI & Data Science","Computer Science"]]', studentCount: 8500, status: 'active', contactEmail: 'partnerships@um6p.ma' },
@@ -39,6 +40,9 @@ export async function GET() {
 // POST /api/campus/universities — Create
 export async function POST(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const body = await req.json()
     const { name, country, programs, studentCount, status, contactEmail } = body
     if (!name?.trim()) {
@@ -58,6 +62,9 @@ export async function POST(req: NextRequest) {
 // PUT /api/campus/universities?id=xxx — Update
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 })
@@ -88,6 +95,9 @@ export async function PUT(req: NextRequest) {
 // DELETE /api/campus/universities?id=xxx
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await withAuth(req)
+    if (!auth.authorized) return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
     if (!id) return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 })

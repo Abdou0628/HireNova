@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
-import { getServerSession } from 'next-auth'
-import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
+import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 type Lang = 'fr' | 'en' | 'ar' | 'es'
 type Mode = 'advisor' | 'support' | 'products'
@@ -733,8 +732,8 @@ export async function POST(request: NextRequest) {
     }
 
     // --- HNSA AI Security Gateway (before LLM fallback) ---
-    const session = await getServerSession()
-    const userId = session?.user?.id || 'anonymous-chatbot'
+    const auth = await withAuth(request)
+    const userId = auth.userId || 'anonymous-chatbot'
     const aiCheck = checkAIAbuseLimit(userId)
     if (!aiCheck.allowed) {
       return NextResponse.json(
