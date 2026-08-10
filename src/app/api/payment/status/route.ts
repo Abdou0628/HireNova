@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { getPaymentStatus, getPaymentWithEvents, isEventProcessed } from '@/lib/payment/orchestrator';
 import { getPaymentTimeline } from '@/lib/payment/ledger';
 import { getAdapterOrNull } from '@/lib/payment/adapters';
 import type { PaymentProviderName, PaymentStatus } from '@/lib/payment/types';
+import { withAuth } from '@/lib/hnsa';
 
 export const runtime = 'nodejs';
 
@@ -18,15 +17,10 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    // ── Authentication ──
-    const session = await getServerSession(authOptions);
-    const apiKey = request.headers.get('x-api-key');
-
-    if (!session?.user?.id && apiKey !== process.env.INTERNAL_API_KEY) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    // ── Authentication via HNSA Zero Trust ──
+    const auth = await withAuth(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode });
     }
 
     // ── Parse query params ──

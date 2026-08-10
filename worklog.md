@@ -1,4 +1,28 @@
 ---
+Task ID: P0-1
+Agent: Auth Hardening Agent
+Task: Fix NEXTAUTH_SECRET, add role to JWT, replace brute-force with HNSA, add session revocation
+
+Work Log:
+- Added NEXTAUTH_SECRET (64-char hex) to .env
+- Added NEXTAUTH_URL=http://localhost:3000 to .env
+- Added role and sessionVersion to JWT token and session callback in auth.ts
+- Updated NextAuth type declarations: Session.user.role (string), User.role, User.sessionVersion, JWT.role, JWT.sessionVersion
+- Replaced legacy in-memory brute-force (Map-based isLockedOut/recordFailedAttempt/resetFailedAttempts) with HNSA recordFailedLogin/isAccountLocked/recordSuccessfulLogin
+- Removed ~50 lines of legacy brute-force code and export
+- Updated src/app/api/admin/unlock/route.ts to use HNSA unlockAccount instead of removed resetFailedAttempts
+- Added sessionVersion field (Int @default(0)) to User model in prisma/schema.prisma
+- Implemented session revocation in JWT callback: compares token.sessionVersion against DB, returns {} if mismatch (force re-login)
+- Ran bun run db:push — schema synced, Prisma Client regenerated
+- Lint: 0 new errors in src/ (12 pre-existing errors, 333 warnings all in bundled third-party code)
+
+Stage Summary:
+- JWT now contains role (no per-request DB lookup)
+- Brute-force protection is now persistent (database-backed, survives restarts)
+- Sessions can be revoked by incrementing sessionVersion
+- NEXTAUTH_SECRET properly configured for JWT signing
+- 0 new lint errors in src/
+---
 Task ID: 2-d
 Agent: HNSA Brute Force Agent
 Task: Create progressive account lockout brute force protection
@@ -264,3 +288,62 @@ Stage Summary:
 - HNSA fully implemented, committed, and pushed to GitHub
 - 13 files changed, 2599 insertions
 - 4 HNSA library modules, 4 admin API endpoints, 1 enhanced middleware
+
+---
+Task ID: P0-2
+Agent: AI Gateway Integration Agent
+Task: Integrate AI Gateway into AI routes, fix audit bug, create body scanner
+
+Work Log:
+- Fixed actorEmail bug in security-lockouts route: changed `actorEmail: admin.role` to `actorEmail: session.user.email` and added `email` to both admin select queries
+- Created src/lib/hnsa/body-scanner.ts with recursive scanRequestBody() that walks objects/arrays/string values scanning for SQL injection and XSS patterns
+- Updated src/lib/hnsa/index.ts with body-scanner export
+- Integrated AI Gateway into src/app/api/generate-cv/route.ts: checkAIAbuseLimit + secureAIInput after auth, validateAIOutput with PII warning logging after LLM response
+- Integrated AI Gateway into src/app/api/generate-cover-letter/route.ts: same pattern, userText combines fullName/companyName/jobTitle/keyStrengths/whyCompany/additionalNotes
+- Integrated AI Gateway into src/app/api/analyze-ats/route.ts: same pattern, userText combines targetJob + JSON.stringify(generatedCV)
+- Integrated AI Gateway into src/app/api/chatbot/route.ts: best-effort userId (session or 'anonymous-chatbot'), rate limit returns graceful fallback, blocked input returns fallback, validateAIOutput on LLM response
+- Integrated AI Gateway into src/app/api/linkedin/analyze/route.ts: best-effort userId (session or 'anonymous-linkedin'), rate limit + input scan before LLM call, validateAIOutput after response
+- Lint: 0 new errors in src/ (all errors pre-existing in bundled third-party code)
+
+Stage Summary:
+- All 5 AI routes now protected by HNSA AI Gateway (PII detection, prompt injection blocking, rate limiting)
+- Request body scanner available for all API routes via `scanRequestBody()` from `@/lib/hnsa`
+- Audit bug fixed (actorEmail now uses actual admin email instead of role string)
+- 0 new lint errors in src/
+
+---
+Task ID: P1-3
+Agent: CSP + Zero Trust Wiring Agent
+Task: Tighten CSP, create withAuth wrapper, wire into key routes
+
+Work Log:
+- Tightened CSP: removed unsafe-eval, added object-src none, frame-src self
+- Changed X-Frame-Options from ALLOWALL to SAMEORIGIN (kept frame-ancestors * for preview panel)
+- Created src/lib/hnsa/with-auth.ts helper wrapper
+- Wired withAuth into 6 key routes (user/profile, payment/history, payment/status, candidate/applications, documents/[id], admin/users)
+- Updated hnsa/index.ts with withAuth export
+- Removed stale auth code and ADMIN_EMAIL from routes now using withAuth
+
+Stage Summary:
+- CSP strengthened (eval blocked, objects/embeds blocked, iframes restricted to self)
+- 6 most sensitive routes now use HNSA Zero Trust via reusable withAuth() wrapper
+- Reusable withAuth() wrapper ready for easy adoption in remaining routes
+- 0 new lint errors in src/
+---
+Task ID: P1-4
+Agent: MFA Scaffold Agent
+Task: Implement TOTP-based MFA for admin accounts
+
+Work Log:
+- Added mfaEnabled (Boolean @default(false)) and mfaSecret (String?) fields to User model in prisma/schema.prisma (after sessionVersion)
+- Ran bun run db:push — schema synced, Prisma Client regenerated
+- Created src/lib/hnsa/totp.ts with self-contained TOTP implementation: generateTOTPSecret (160-bit base32), generateTOTP (6-digit, 30s step), verifyTOTP (±1 step clock drift), generateOTPAuthURI
+- Created src/app/api/auth/mfa/route.ts with action-based POST dispatch: handleSetup (generates secret, stores in DB, returns otpauth URI), handleVerify (validates 6-digit code, enables MFA, logs MFA_ENABLED audit), handleDisable (verifies code, disables MFA, clears secret, logs MFA_DISABLED audit)
+- Updated src/lib/hnsa/index.ts barrel export with TOTP function exports
+
+Stage Summary:
+- MFA scaffold complete — admin can enable TOTP via /api/auth/mfa
+- Self-contained TOTP implementation (no external deps, RFC 6238 compliant via HMAC-SHA1)
+- ±30 second clock drift tolerance (checks -1, 0, +1 time steps)
+- All MFA actions logged to SecurityAudit via HNSA audit trail
+- 0 new lint errors in src/ (12 pre-existing errors, 333 pre-existing warnings — all in bundled third-party code)

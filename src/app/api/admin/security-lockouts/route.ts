@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const admin = await db.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, role: true },
+      select: { id: true, role: true, email: true },
     })
 
     if (!admin || admin.role !== 'admin') {
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     const admin = await db.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, role: true },
+      select: { id: true, role: true, email: true },
     })
 
     if (!admin || admin.role !== 'admin') {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     if (unlocked) {
       await logAudit({
         actorId: admin.id,
-        actorEmail: admin.role,
+        actorEmail: session.user.email,
         actorRole: 'admin',
         action: AUDIT_ACTIONS.ADMIN.ADMIN_USER_UNLOCKED,
         resource: 'account_lockout',

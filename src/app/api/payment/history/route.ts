@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { getPaymentHistory } from '@/lib/payment/ledger';
 import type { PaymentStatus, PaymentProviderName } from '@/lib/payment/types';
+import { withAuth } from '@/lib/hnsa';
 
 export const runtime = 'nodejs';
 
@@ -13,20 +12,16 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    // ── Authentication ──
-    const session = await getServerSession(authOptions);
-    const apiKey = request.headers.get('x-api-key');
-
-    if (!session?.user?.id && apiKey !== process.env.INTERNAL_API_KEY) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    // ── Authentication via HNSA Zero Trust ──
+    const auth = await withAuth(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode });
     }
+    const userId = auth.userId!;
 
     // ── Parse query params ──
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId') || session?.user?.id;
+    const requestedUserId = searchParams.get('userId') || userId;
     const status = searchParams.get('status') as PaymentStatus | null;
     const provider = searchParams.get('provider') as PaymentProviderName | null;
     const page = parseInt(searchParams.get('page') || '1', 10);
@@ -34,15 +29,15 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    if (!userId) {
+    if (!requestedUserId) {
       return NextResponse.json(
         { success: false, error: 'userId is required' },
         { status: 400 }
       );
     }
 
-    // ── Authorization check: user can only view their own history (unless API key) ──
-    if (!apiKey && session?.user?.id !== userId) {
+    // ── Authorization check: user can only view their own history ──
+    if (requestedUserId !== userId) {
       return NextResponse.json(
         { success: false, error: 'You can only view your own payment history' },
         { status: 403 }
@@ -58,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Fetch history from ledger ──
-    const result = await getPaymentHistory(userId, {
+    const result = await getPaymentHistory(requestedUserId, {
       status: status || undefined,
       provider: provider || undefined,
       page,

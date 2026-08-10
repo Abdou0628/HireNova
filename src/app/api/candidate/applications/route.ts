@@ -1,13 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { withAuth } from '@/lib/hnsa'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    if (!session?.user?.email) return NextResponse.json({ success: false, error: { code: 401, message: 'Non authentifié' } }, { status: 401 })
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
+    }
+    const userId = auth.userId!
 
-    const user = await db.user.findUnique({ where: { email: session.user.email } })
+    const user = await db.user.findUnique({ where: { id: userId } })
     if (!user) return NextResponse.json({ success: false, error: { code: 401, message: 'Utilisateur non trouvé' } }, { status: 401 })
 
     const applications = await db.application.findMany({

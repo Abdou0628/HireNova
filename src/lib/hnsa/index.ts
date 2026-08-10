@@ -29,3 +29,6 @@ export type {
   IsAccountLockedResult,
   LockoutStatus,
 } from './brute-force';
+export { scanRequestBody } from './body-scanner';
+export { withAuth } from './with-auth';
+export { generateTOTPSecret, generateTOTP, verifyTOTP, generateOTPAuthURI } from './totp';

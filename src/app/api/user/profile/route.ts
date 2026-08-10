@@ -2,16 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { withAuth } from '@/lib/hnsa'
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: { code: 401, message: 'Authentification requise' } },
-        { status: 401 }
-      )
+    const auth = await withAuth(request)
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
+    const userId = auth.userId!
 
     const body = await request.json()
     const { name, companyName, industry, companyWebsite, image } = body as {
@@ -45,7 +44,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updated = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: updateData,
       select: {
         id: true,

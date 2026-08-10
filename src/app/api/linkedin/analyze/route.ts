@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import ZAI from 'z-ai-web-dev-sdk'
+import { getServerSession } from 'next-auth'
+import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 const zai = ZAI.create()
 
@@ -86,6 +88,25 @@ export async function POST(request: NextRequest) {
     const lang = ['fr', 'en', 'ar', 'es'].includes(language) ? language : 'fr'
     const systemPrompt = LANG_PROMPTS[lang] || LANG_PROMPTS['fr']
 
+    // --- HNSA AI Security Gateway ---
+    const session = await getServerSession()
+    const userId = session?.user?.id || 'anonymous-linkedin'
+    const aiCheck = checkAIAbuseLimit(userId)
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { success: false, error: { code: 429, message: 'AI rate limit exceeded. Please try again later.' } },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(aiCheck.retryAfterMs / 1000)) } }
+      )
+    }
+
+    const secured = secureAIInput(profileText, userId)
+    if (secured.blocked) {
+      return NextResponse.json(
+        { success: false, error: { code: 400, message: `Request blocked: ${secured.blockReason}` } },
+        { status: 400 }
+      )
+    }
+
     let analysisResult: Record<string, unknown> = {}
     let overallScore = 0
 
@@ -107,6 +128,20 @@ Analyse ce profil en détail selon les critères demandés.`
       })
 
       const content = res.choices?.[0]?.message?.content || ''
+
+      // --- HNSA AI Output Validation ---
+      const outputCheck = validateAIOutput(content, userId)
+      if (outputCheck.hasPII) {
+        logAIEvent({
+          userId,
+          eventType: 'PII_IN_OUTPUT',
+          input: profileText,
+          output: content,
+          blocked: false,
+          details: { piiTypes: outputCheck.piiTypes, path: '/api/linkedin/analyze' },
+        }).catch(() => {})
+      }
+
       const jsonMatch = content.match(/\{[\s\S]*\}/)
 
       if (jsonMatch) {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import { getServerSession } from 'next-auth'
+import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 type Lang = 'fr' | 'en' | 'ar' | 'es'
 type Mode = 'advisor' | 'support' | 'products'
@@ -730,6 +732,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, response: ruleAnswer, source: 'rules', lang })
     }
 
+    // --- HNSA AI Security Gateway (before LLM fallback) ---
+    const session = await getServerSession()
+    const userId = session?.user?.id || 'anonymous-chatbot'
+    const aiCheck = checkAIAbuseLimit(userId)
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { success: true, response: FALLBACK[lang], source: 'fallback', lang },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(aiCheck.retryAfterMs / 1000)) } }
+      )
+    }
+
+    const secured = secureAIInput(message, userId)
+    if (secured.blocked) {
+      return NextResponse.json(
+        { success: true, response: FALLBACK[lang], source: 'fallback', lang }
+      )
+    }
+
     // 2) Fallback to LLM via ZAI SDK
     try {
       const zai = await ZAI.create()
@@ -750,6 +770,18 @@ export async function POST(request: NextRequest) {
 
       const response = res.choices?.[0]?.message?.content?.trim()
       if (response) {
+        // --- HNSA AI Output Validation ---
+        const outputCheck = validateAIOutput(response, userId)
+        if (outputCheck.hasPII) {
+          logAIEvent({
+            userId,
+            eventType: 'PII_IN_OUTPUT',
+            input: message,
+            output: response,
+            blocked: false,
+            details: { piiTypes: outputCheck.piiTypes, path: '/api/chatbot' },
+          }).catch(() => {})
+        }
         return NextResponse.json({ success: true, response, source: 'llm', lang })
       }
     } catch (sdkErr) {

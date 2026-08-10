@@ -71,23 +71,26 @@ function applyHNSASecurityHeaders(
   )
 
   // --- Frame Protection ---
-  // Allow Preview Panel iframe (Caddy proxy). In production, restrict to specific origins.
-  response.headers.set('X-Frame-Options', 'ALLOWALL')
+  // SAMEORIGIN by default; frame-ancestors * in CSP kept for preview panel compatibility.
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
 
   // --- Content Security Policy (HNSA Pillar 3) ---
+  const cspParts = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' https:",
+    "connect-src 'self' https: wss:",
+    "frame-ancestors *",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "frame-src 'self'",
+  ];
   response.headers.set(
     'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' https:",
-      "connect-src 'self' https: wss:",
-      "frame-ancestors *",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join('; ')
+    cspParts.join('; ')
   )
 }
 

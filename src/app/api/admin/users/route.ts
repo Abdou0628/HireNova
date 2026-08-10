@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ''
+import { withAuth } from '@/lib/hnsa'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    const auth = await withAuth(request, { requiredRole: 'admin' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason, code: 'FORBIDDEN' }, { status: auth.statusCode })
     }
 
     const { searchParams } = new URL(request.url)

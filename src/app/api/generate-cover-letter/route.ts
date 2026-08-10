@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import type { GeneratedCoverLetter } from '@/store/cv-store'
 import { scanInput, logSecurityEvent } from '@/lib/security'
+import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 function getClientIP(request: Request): string {
   const headers = request.headers as Record<string, string | null>;
@@ -123,6 +124,26 @@ export async function POST(request: globalThis.Request) {
         { status: 401 }
       )
     }
+
+    // --- HNSA AI Security Gateway ---
+    const aiCheck = checkAIAbuseLimit(userId)
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { error: 'AI rate limit exceeded. Please try again later.', code: 'AI_RATE_LIMITED' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(aiCheck.retryAfterMs / 1000)) } }
+      )
+    }
+
+    // Combine user text inputs for scanning
+    const userText = [fullName, companyName, jobTitle, keyStrengths, whyCompany, additionalNotes].filter(Boolean).join(' ')
+    const secured = secureAIInput(userText, userId)
+    if (secured.blocked) {
+      return NextResponse.json(
+        { error: `Request blocked: ${secured.blockReason}`, code: 'AI_BLOCKED' },
+        { status: 400 }
+      )
+    }
+
     const clUsage = await checkCLLimit(userId)
     if (!clUsage.allowed) {
       return NextResponse.json(
@@ -270,6 +291,19 @@ ${generatedCVSummary ? '- UTILISE IMPÉRATIVEMENT les informations du CV fourni 
         { error: 'Erreur lors de la génération de la lettre' },
         { status: 500 }
       )
+    }
+
+    // --- HNSA AI Output Validation ---
+    const outputCheck = validateAIOutput(content, userId)
+    if (outputCheck.hasPII) {
+      logAIEvent({
+        userId,
+        eventType: 'PII_IN_OUTPUT',
+        input: userText,
+        output: content,
+        blocked: false,
+        details: { piiTypes: outputCheck.piiTypes, path: '/api/generate-cover-letter' },
+      }).catch(() => {})
     }
 
     // Extract JSON from response

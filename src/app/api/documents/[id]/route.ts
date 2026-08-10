@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ''
+import { withAuth } from '@/lib/hnsa'
 
 /**
  * GET /api/documents/[id]
@@ -16,24 +13,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const session = await getServerSession(authOptions)
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await withAuth(request, { resourceType: 'resume', resourceId: id, action: 'read:own' })
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.reason }, { status: auth.statusCode })
     }
 
     const doc = await db.document.findUnique({ where: { id } })
     if (!doc) {
       return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
     }
-
-    const isAdmin = session.user.email === ADMIN_EMAIL
-    const isOwner = doc.userId && session.user.id && doc.userId === session.user.id
-
-    if (!isAdmin && !isOwner) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
     if (!doc.pdfBase64) {
       return NextResponse.json({ error: 'PDF non généré' }, { status: 404 })
     }

@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import type { GeneratedCV } from '@/store/cv-store'
 import { scanInput, logSecurityEvent } from '@/lib/security'
+import { secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
 
 function getClientIP(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for')
@@ -95,6 +96,26 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // --- HNSA AI Security Gateway ---
+    const aiCheck = checkAIAbuseLimit(userId)
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { error: 'AI rate limit exceeded. Please try again later.', code: 'AI_RATE_LIMITED' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(aiCheck.retryAfterMs / 1000)) } }
+      )
+    }
+
+    // Combine user text inputs for scanning
+    const userText = [fullName, experience, education, skills, summary, targetJob].filter(Boolean).join(' ')
+    const secured = secureAIInput(userText, userId)
+    if (secured.blocked) {
+      return NextResponse.json(
+        { error: `Request blocked: ${secured.blockReason}`, code: 'AI_BLOCKED' },
+        { status: 400 }
+      )
+    }
+
     const usage = await checkUsageLimit(userId)
     if (!usage.allowed) {
       return NextResponse.json(
@@ -209,6 +230,19 @@ RÈGLES :
         { error: 'Erreur lors de la génération du CV' },
         { status: 500 }
       )
+    }
+
+    // --- HNSA AI Output Validation ---
+    const outputCheck = validateAIOutput(content, userId)
+    if (outputCheck.hasPII) {
+      logAIEvent({
+        userId,
+        eventType: 'PII_IN_OUTPUT',
+        input: userText,
+        output: content,
+        blocked: false,
+        details: { piiTypes: outputCheck.piiTypes, path: '/api/generate-cv' },
+      }).catch(() => {})
     }
 
     // Extract JSON from response (in case there's markdown wrapping)
