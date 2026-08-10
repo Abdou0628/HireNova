@@ -1,4 +1,81 @@
 ---
+Task ID: 2-d
+Agent: HNSA Brute Force Agent
+Task: Create progressive account lockout brute force protection
+
+Work Log:
+- Created src/lib/hnsa/brute-force.ts with recordFailedLogin(), recordSuccessfulLogin(), isAccountLocked(), unlockAccount(), getLockoutStatus()
+- 6 lock levels: none → 5min → 15min → 1h → 24h → permanent
+- In-memory cache with 1-min TTL for fast lock checks (Map<string, CacheEntry>)
+- Auto-unlock when lock period expires in isAccountLocked()
+- recordFailedLogin() upserts AccountLockout, increments failedAttempts, escalates lock level, logs BRUTE_FORCE_DETECTED + ACCOUNT_LOCKED to audit
+- recordSuccessfulLogin() resets all counters (failedAttempts=0, lockLevel=0, lockedUntil=null), logs LOGIN_SUCCESS
+- unlockAccount() admin-only manual unlock with ADMIN_USER_UNLOCKED audit event
+- getLockoutStatus() read-only for admin dashboards
+- Updated src/lib/hnsa/index.ts with brute-force function + type exports
+- Lint: 0 new errors (12 pre-existing errors, 333 pre-existing warnings — all in bundled third-party code)
+
+Stage Summary:
+- Progressive brute force protection ready
+- Escalating lockout from 5 minutes to permanent based on failed attempts
+- Admin unlock capability with audit logging
+- In-memory cache for sub-millisecond lock checks
+
+---
+Task ID: 2-c
+Agent: HNSA Zero Trust Agent
+Task: Create Zero Trust authorization library with RBAC and resource ownership verification
+
+Work Log:
+- Created src/lib/hnsa/zero-trust.ts with authorizeRequest(), verifyResourceOwnership(), checkPermission(), requireAuth()
+- RBAC matrix for candidate, employer, admin roles
+- Resource ownership check covering 18+ resource types
+- IDOR attempt logging to SecurityAudit
+- Updated src/lib/hnsa/index.ts with zero-trust exports
+
+Stage Summary:
+- Zero Trust authorization ready — API routes can call authorizeRequest() for full protection
+- RBAC with 3 roles and granular resource/action permissions
+- Lint: 0 new errors (12 pre-existing errors, 333 pre-existing warnings — all in bundled third-party code)
+
+---
+Task ID: 2-b
+Agent: HNSA AI Gateway Agent
+Task: Create AI Security Gateway with prompt injection detection, PII redaction, rate limiting
+
+Work Log:
+- Created src/lib/hnsa/ai-gateway.ts with secureAIInput(), validateAIOutput(), checkAIAbuseLimit(), logAIEvent()
+- Prompt injection detection: 14 patterns (ignore instructions, role-switching, system prompt, memory forget, pretend/roleplay, act-as, JSON injection, fenced code block, base64, XML tag, jailbreak, DAN variant, LLaMA-style injection)
+- PII detection: email, phone (international + Moroccan), credit card, IBAN, Moroccan CIN — all with regex
+- Input length limit: 10,000 chars enforced in secureAIInput()
+- AI rate limit: 20/min, 100/hour per user via in-memory sliding window with auto-pruning
+- Updated src/lib/hnsa/index.ts with AI gateway function + type exports
+- Non-blocking logAIEvent() writes to AISecurityEvent table via Prisma
+- hashInput() utility using Node.js crypto SHA-256 for input deduplication
+
+Stage Summary:
+- AI Security Gateway operational with PII redaction and prompt injection blocking
+- All AI calls should be wrapped through this gateway
+- Lint: 0 new errors (12 pre-existing errors, 333 pre-existing warnings — all in bundled third-party code)
+
+---
+Task ID: 2-a
+Agent: HNSA Schema + Audit Agent
+Task: Add SecurityAudit, AccountLockout, AISecurityEvent models + audit library
+
+Work Log:
+- Added SecurityAudit, AccountLockout, AISecurityEvent models to prisma/schema.prisma (after all existing models, before final closing)
+- Ran bun run db:push — schema synced, Prisma Client regenerated
+- Created src/lib/hnsa/audit.ts with logAudit() (non-blocking), getAuditTrail() (paginated with filters), AUDIT_ACTIONS const (AUTH/DATA/PAYMENT/ADMIN/SECURITY categories)
+- Created src/lib/hnsa/index.ts barrel export with all types re-exported
+
+Stage Summary:
+- 3 new Prisma models for immutable audit trail, brute force lockout, AI security events
+- Audit library with categorized action types (AUTH, DATA, PAYMENT, ADMIN, SECURITY)
+- Non-blocking audit logging (logAudit never throws)
+- 0 new lint errors (12 pre-existing errors, 333 pre-existing warnings — all in bundled third-party code)
+
+---
 Task ID: 4-api-routes
 Agent: Payment API Routes Agent
 Task: Create Payment API Routes and update webhook handler for Payment Orchestrator

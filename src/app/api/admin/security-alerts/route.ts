@@ -1,72 +1,165 @@
+/**
+ * HNSA — Security Alerts Dashboard API (Admin Only)
+ *
+ * GET /api/admin/security-alerts — Recent security events summary
+ * Returns: critical alerts, attack statistics, anomaly indicators
+ *
+ * HNSA Pillars: 8 (Monitoring & Incident Response), 1 (Identity)
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ''
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    // --- Auth + Admin check ---
+    const session = await getServerSession()
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      )
     }
 
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const severity = searchParams.get('severity') || ''
-    const type = searchParams.get('type') || ''
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, role: true },
+    })
 
-    const skip = (page - 1) * limit
-
-    const where: Record<string, unknown> = {}
-    if (severity) {
-      where.severity = severity
-    }
-    if (type) {
-      where.type = type
+    if (!user || user.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Forbidden — admin only', code: 'FORBIDDEN' },
+        { status: 403 }
+      )
     }
 
-    const [logs, total, highCriticalCount] = await Promise.all([
-      db.securityLog.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          type: true,
-          severity: true,
-          ip: true,
-          path: true,
-          method: true,
-          userAgent: true,
-          email: true,
-          details: true,
-          createdAt: true,
-        },
-      }),
-      db.securityLog.count({ where }),
-      db.securityLog.count({
-        where: {
-          severity: { in: ['high', 'critical'] },
-        },
-      }),
-    ])
+    const { searchParams } = request.nextUrl
+    const hours = Number(searchParams.get('hours')) || 24
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000)
+
+    // --- Security Events (SecurityLog) ---
+    const [securityEvents, eventByType, eventBySeverity, topIps] =
+      await Promise.all([
+        // Recent security events
+        db.securityLog.findMany({
+          where: { createdAt: { gte: since } },
+          orderBy: { createdAt: 'desc' },
+          take: 100,
+          select: {
+            id: true,
+            type: true,
+            severity: true,
+            ip: true,
+            path: true,
+            method: true,
+            email: true,
+            createdAt: true,
+          },
+        }),
+        // Count by type
+        db.securityLog.groupBy({
+          by: ['type'],
+          where: { createdAt: { gte: since } },
+          _count: { id: true },
+          _orderBy: { _count: { id: 'desc' } },
+        }),
+        // Count by severity
+        db.securityLog.groupBy({
+          by: ['severity'],
+          where: { createdAt: { gte: since } },
+          _count: { id: true },
+        }),
+        // Top attacker IPs
+        db.securityLog.groupBy({
+          by: ['ip'],
+          where: { createdAt: { gte: since } },
+          _count: { id: true },
+          _orderBy: { _count: { id: 'desc' } },
+          take: 10,
+        }),
+      ])
+
+    // --- Audit Events (SecurityAudit) ---
+    const auditSummary = await db.securityAudit.groupBy({
+      by: ['action'],
+      where: { createdAt: { gte: since } },
+      _count: { id: true },
+      _orderBy: { _count: { id: 'desc' } },
+      take: 20,
+    })
+
+    // --- Account Lockouts ---
+    const activeLockouts = await db.accountLockout.findMany({
+      where: {
+        OR: [
+          { lockLevel: { gt: 0 } },
+          { lockedUntil: { gt: new Date() } },
+        ],
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 20,
+      select: {
+        userId: true,
+        email: true,
+        failedAttempts: true,
+        lockLevel: true,
+        lockedUntil: true,
+        lastAttemptAt: true,
+      },
+    })
+
+    // --- AI Security Events ---
+    const aiEvents = await db.aISecurityEvent.findMany({
+      where: {
+        createdAt: { gte: since },
+        OR: [{ blocked: true }, { severity: 'critical' }],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        userId: true,
+        action: true,
+        severity: true,
+        blocked: true,
+        blockReason: true,
+        model: true,
+        createdAt: true,
+      },
+    })
+
+    const totalSecurityEvents = securityEvents.length
+    const criticalEvents = securityEvents.filter(
+      (e) => e.severity === 'critical'
+    ).length
+    const highEvents = securityEvents.filter(
+      (e) => e.severity === 'high'
+    ).length
 
     return NextResponse.json({
-      logs,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+      success: true,
+      period: { hours },
+      summary: {
+        totalSecurityEvents,
+        criticalEvents,
+        highEvents,
+        activeLockouts: activeLockouts.length,
+        blockedAIRequests: aiEvents.length,
       },
-      unresolvedHighCritical: highCriticalCount,
+      securityEvents,
+      eventByType,
+      eventBySeverity,
+      topIps,
+      auditSummary,
+      activeLockouts,
+      aiBlockedEvents: aiEvents,
     })
   } catch (error) {
-    console.error('Admin security alerts error:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    console.error('[HNSA] Security Alerts API error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error', code: 'INTERNAL_ERROR' },
+      { status: 500 }
+    )
   }
 }

@@ -1070,3 +1070,66 @@ model JobNotification {
   @@index([isRead])
   @@index([createdAt])
 }
+
+// ===== HNSA — Immutable Audit Log =====
+model SecurityAudit {
+  id          String   @id @default(cuid())
+  actorId     String?  // User ID who performed the action (null for system/anonymous)
+  actorEmail  String?
+  actorRole   String?  // candidate | employer | admin | system
+  action      String   // LOGIN_SUCCESS | LOGIN_FAILURE | CV_CREATED | CV_DELETED | PAYMENT_INITIATED | ADMIN_USER_MODIFIED | etc.
+  resource    String   // user | resume | cover_letter | payment | job_listing | subscription | admin_config | etc.
+  resourceId  String?  // ID of the affected resource
+  outcome     String   @default("success") // success | failure | denied | error
+  ip          String   @default("unknown")
+  userAgent   String?
+  path        String?
+  method      String?
+  statusCode  Int?
+  details     String?  // JSON blob with extra context
+  sessionId   String?  // For session correlation
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@index([actorEmail])
+}
+
+// ===== HNSA — Account Lockout (Brute Force Protection) =====
+model AccountLockout {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  email           String?
+  failedAttempts  Int      @default(0)
+  lockedUntil     DateTime?
+  lastAttemptAt   DateTime @default(now())
+  lockLevel       Int      @default(0) // 0=none, 1=5min, 2=15min, 3=1h, 4=24h, 5=permanent
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+}
+
+// ===== HNSA — AI Security Event =====
+model AISecurityEvent {
+  id              String   @id @default(cuid())
+  userId          String?
+  action          String   // ai_prompt_sent | ai_response_received | ai_abuse_blocked | ai_prompt_injection_detected | ai_data_leak_prevented
+  severity        String   @default("info") // info | warning | critical
+  inputHash       String?  // SHA-256 hash of input for deduplication (not storing raw prompts)
+  inputLength     Int?
+  outputLength    Int?
+  model           String?  // gpt-4, claude, etc.
+  tokensUsed      Int?
+  blocked         Boolean  @default(false)
+  blockReason     String?  // prompt_injection | pii_detected | rate_exceeded | content_policy
+  ip              String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([inputHash])
+}
