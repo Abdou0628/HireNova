@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Sparkles, Target, ArrowRight, ArrowLeft, Star,
   FileText, MessageSquare, Compass, Bot, BookOpen, Laptop, Plane,
@@ -555,10 +555,9 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
           ))}
         </motion.div>
 
-        {/* ── Phase: Idle (Start Button) ── */}
-        <AnimatePresence mode="wait">
-          {phase === 'idle' && (
-            <motion.div
+        {/* ── Phases ── */}
+        {phase === 'idle' && (
+          <motion.div
               key="idle"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -595,26 +594,23 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                 ))}
               </div>
 
-              <Button
-                size="lg"
-                onClick={startQuiz}
-                className="px-8 py-6 text-base font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+              <button
+                type="button"
+                onClick={() => { try { startQuiz() } catch(e) { console.error('[MarketingHub] startQuiz error:', e) } }}
+                className="inline-flex items-center gap-2 px-8 py-6 text-base font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 rounded-lg cursor-pointer"
               >
-                <Sparkles className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                <Sparkles className="w-5 h-5" />
                 {t('startQuiz', language)}
-                {!isRTL && <ArrowRight className="w-4 h-4 ml-2" />}
-                {isRTL && <ArrowLeft className="w-4 h-4 mr-2" />}
-              </Button>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </motion.div>
           )}
 
-          {/* ── Phase: Quiz ── */}
           {phase === 'quiz' && (
             <motion.div
               key={`quiz-${quizStep}`}
-              initial={{ opacity: 0, x: isRTL ? -30 : 30 }}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: isRTL ? 30 : -30 }}
               transition={{ duration: 0.4 }}
               className="max-w-3xl mx-auto"
             >
@@ -721,7 +717,6 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
               key="analyzing"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.5 }}
               className="text-center py-16"
             >
@@ -993,9 +988,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
-
-      </div>
+        </div>
     </section>
   )
 }
