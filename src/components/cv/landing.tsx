@@ -109,7 +109,16 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
 
 export default function Landing() {
   const { setStep, language, setLanguage, setSelectedPersona } = useCVStore()
+  const isRTL = language === 'ar'
   const liveStats = usePublicStats()
+
+  // Update html lang and dir attributes when language changes
+  useEffect(() => {
+    const html = document.documentElement
+    const langMap: Record<string, string> = { fr: 'fr', en: 'en', ar: 'ar', es: 'es' }
+    html.lang = langMap[language] || 'fr'
+    html.dir = isRTL ? 'rtl' : 'ltr'
+  }, [language, isRTL])
   const personasRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDivElement>(null)
   const ecosystemRef = useRef<HTMLDivElement>(null)
@@ -318,7 +327,7 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">

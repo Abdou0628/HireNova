@@ -498,7 +498,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
   const satisfactionPercent = publicStats.users > 0 ? Math.round((publicStats.satisfiedUsers / publicStats.users) * 100) : 95
 
   return (
-    <section ref={sectionRef} className={`py-16 sm:py-24 bg-gradient-to-b from-white via-emerald-50/30 to-white ${isRTL ? 'rtl' : 'ltr'}`}>
+    <section ref={sectionRef} dir={isRTL ? 'rtl' : 'ltr'} className="py-16 sm:py-24 bg-gradient-to-b from-white via-emerald-50/30 to-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
         {/* ── Section Header ── */}
@@ -646,7 +646,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => selectAnswer(currentStepData.field, opt.value)}
-                          className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all duration-200 cursor-pointer
+                          className={`flex items-center gap-3 p-4 rounded-xl border-2 ${isRTL ? 'text-right' : 'text-left'} transition-all duration-200 cursor-pointer
                             ${isSelected
                               ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 shadow-md'
                               : 'border-border hover:border-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30'
