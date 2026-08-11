@@ -124,11 +124,7 @@ const DESCRIPTIONS: Record<CVLanguage, Record<string, string>> = {
 
 // Static asset paths
 const getImageSrc = (slug: string) => `/showcase/images/${slug}.png`
-const getAudioSrc = (slug: string, lang: CVLanguage) => {
-  // Audio available for FR and EN, fallback to EN for AR/ES
-  const audioLang = lang === 'fr' || lang === 'en' ? lang : 'en'
-  return `/showcase/audio/${slug}-${audioLang}.mp3`
-}
+const getAudioSrc = (slug: string, lang: CVLanguage) => `/showcase/audio/${slug}-${lang}.mp3`
 
 // ─── UI Labels ─────────────────────────────────────────────────────────────
 
