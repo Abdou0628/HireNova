@@ -18,6 +18,7 @@ import { events } from '@/lib/analytics'
 import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import PricingSection from '@/components/pricing-section'
+import AIProductShowcase from '@/components/marketing/ai-product-showcase'
 import JobCopilotWidget from '@/components/copilot/job-copilot-widget'
 import { useSession } from 'next-auth/react'
 
@@ -694,6 +695,9 @@ export default function Landing() {
             <JobCopilotWidget />
           </div>
         </section>
+
+        {/* AI Product Showcase — Modern Marketing */}
+        <AIProductShowcase />
 
         {/* Pricing Section */}
         <div ref={pricingRef}>
