@@ -19,6 +19,7 @@ import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import PricingSection from '@/components/pricing-section'
 import AIProductShowcase from '@/components/marketing/ai-product-showcase'
+import AIAnimatedShowcase from '@/components/marketing/ai-animated-showcase'
 import AIMarketingHub from '@/components/marketing/ai-marketing-hub'
 import JobCopilotWidget from '@/components/copilot/job-copilot-widget'
 import { useSession } from 'next-auth/react'
@@ -696,6 +697,9 @@ export default function Landing() {
             <JobCopilotWidget />
           </div>
         </section>
+
+        {/* AI Animated Showcase — Voice + Image Product Presentation */}
+        <AIAnimatedShowcase />
 
         {/* AI Product Showcase — Modern Marketing */}
         <AIProductShowcase onTryProduct={requireAuthAndPlan} />
