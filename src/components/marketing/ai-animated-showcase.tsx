@@ -21,83 +21,45 @@ import {
   ChevronRight,
   Play,
   Pause,
-  Loader2,
   BrainCircuit,
 } from 'lucide-react'
 import { useCVStore, type CVLanguage } from '@/store/cv-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 // ─── Product definitions ───────────────────────────────────────────────────
 
 const PRODUCTS = [
-  { slug: 'cv', icon: FileText, color: 'emerald' },
-  { slug: 'cover-letter', icon: Mail, color: 'blue' },
-  { slug: 'interview', icon: MessageSquare, color: 'violet' },
-  { slug: 'linkedin', icon: Linkedin, color: 'sky' },
-  { slug: 'career', icon: Compass, color: 'amber' },
-  { slug: 'mobility', icon: Plane, color: 'rose' },
-] as const
+  { slug: 'cv', icon: FileText, color: 'emerald' as const },
+  { slug: 'cover-letter', icon: Mail, color: 'blue' as const },
+  { slug: 'interview', icon: MessageSquare, color: 'violet' as const },
+  { slug: 'linkedin', icon: Linkedin, color: 'sky' as const },
+  { slug: 'career', icon: Compass, color: 'amber' as const },
+  { slug: 'mobility', icon: Plane, color: 'rose' as const },
+]
 
 type ProductColor = 'emerald' | 'blue' | 'violet' | 'sky' | 'amber' | 'rose'
 
-const colorMap: Record<
-  ProductColor,
-  { bg: string; text: string; ring: string; glow: string }
-> = {
-  emerald: {
-    bg: 'bg-emerald-100',
-    text: 'text-emerald-600',
-    ring: 'ring-emerald-400',
-    glow: 'shadow-emerald-400/50',
-  },
-  blue: {
-    bg: 'bg-blue-100',
-    text: 'text-blue-600',
-    ring: 'ring-blue-400',
-    glow: 'shadow-blue-400/50',
-  },
-  violet: {
-    bg: 'bg-violet-100',
-    text: 'text-violet-600',
-    ring: 'ring-violet-400',
-    glow: 'shadow-violet-400/50',
-  },
-  sky: {
-    bg: 'bg-sky-100',
-    text: 'text-sky-600',
-    ring: 'ring-sky-400',
-    glow: 'shadow-sky-400/50',
-  },
-  amber: {
-    bg: 'bg-amber-100',
-    text: 'text-amber-600',
-    ring: 'ring-amber-400',
-    glow: 'shadow-amber-400/50',
-  },
-  rose: {
-    bg: 'bg-rose-100',
-    text: 'text-rose-600',
-    ring: 'ring-rose-400',
-    glow: 'shadow-rose-400/50',
-  },
+const colorMap: Record<ProductColor, { bg: string; text: string; ring: string; glow: string }> = {
+  emerald: { bg: 'bg-emerald-100', text: 'text-emerald-600', ring: 'ring-emerald-400', glow: 'shadow-emerald-400/50' },
+  blue:    { bg: 'bg-blue-100', text: 'text-blue-600', ring: 'ring-blue-400', glow: 'shadow-blue-400/50' },
+  violet:  { bg: 'bg-violet-100', text: 'text-violet-600', ring: 'ring-violet-400', glow: 'shadow-violet-400/50' },
+  sky:     { bg: 'bg-sky-100', text: 'text-sky-600', ring: 'ring-sky-400', glow: 'shadow-sky-400/50' },
+  amber:   { bg: 'bg-amber-100', text: 'text-amber-600', ring: 'ring-amber-400', glow: 'shadow-amber-400/50' },
+  rose:    { bg: 'bg-rose-100', text: 'text-rose-600', ring: 'ring-rose-400', glow: 'shadow-rose-400/50' },
 }
 
-// ─── i18n ──────────────────────────────────────────────────────────────────
+// ─── Static product data ────────────────────────────────────────────────────
 
-const PRODUCT_NAMES: Record<
-  CVLanguage,
-  Record<string, string>
-> = {
+const PRODUCT_NAMES: Record<CVLanguage, Record<string, string>> = {
   fr: {
     cv: 'CV IA Professionnel',
-    'cover-letter': "Lettre de Motivation IA",
+    'cover-letter': 'Lettre de Motivation IA',
     interview: 'Simulateur Entretien IA',
     linkedin: 'Optimiseur LinkedIn IA',
-    career: 'Plan de Carri\u00e8re IA',
-    mobility: 'Mobilit\u00e9 Internationale',
+    career: 'Plan de Carrière IA',
+    mobility: 'Mobilité Internationale',
   },
   en: {
     cv: 'Professional AI Resume',
@@ -108,16 +70,16 @@ const PRODUCT_NAMES: Record<
     mobility: 'International Mobility',
   },
   ar: {
-    cv: '\u0633\u064a\u0631\u0629 \u0630\u0627\u062a\u064a\u0629 \u0627\u062d\u062a\u0631\u0627\u0641\u064a\u0629 IA',
-    'cover-letter': '\u0631\u0633\u0627\u0644\u0629 \u062a\u062d\u0641\u064a\u0632\u064a\u0629 IA',
-    interview: '\u0645\u062d\u0627\u0643\u064a \u0645\u0642\u0627\u0628\u0644\u0629 IA',
-    linkedin: '\u0645\u062d\u0633\u0651\u0646 \u0644\u064a\u0646\u0643\u062f\u0625\u0646 IA',
-    career: '\u062e\u0637\u0629 \u0645\u0633\u0627\u0631 \u0645\u0647\u0646\u064a IA',
-    mobility: '\u0627\u0644\u062a\u0646\u0642\u0644 \u0627\u0644\u062f\u0648\u0644\u064a',
+    cv: 'سيرة ذاتية احترافية IA',
+    'cover-letter': 'رسالة تحفيزية IA',
+    interview: 'محاكي مقابلة IA',
+    linkedin: 'محسّن لينكدإن IA',
+    career: 'خطة مسار مهني IA',
+    mobility: 'التنقل الدولي',
   },
   es: {
     cv: 'CV Profesional IA',
-    'cover-letter': 'Carta de Presentaci\u00f3n IA',
+    'cover-letter': 'Carta de Presentación IA',
     interview: 'Simulador de Entrevista IA',
     linkedin: 'Optimizador LinkedIn IA',
     career: 'Plan de Carrera IA',
@@ -125,108 +87,117 @@ const PRODUCT_NAMES: Record<
   },
 }
 
+const DESCRIPTIONS: Record<CVLanguage, Record<string, string>> = {
+  fr: {
+    cv: 'Découvrez le CV IA Professionnel de HireNova. En quelques clics, notre intelligence artificielle crée pour vous un CV optimisé pour les ATS, moderne et percutant. Votre carrière mérite un CV qui sort du lot.',
+    'cover-letter': 'Découvrez la Lettre de Motivation IA de HireNova. Notre IA rédige pour vous des lettres de motivation personnalisées et percutantes, parfaitement adaptées à chaque offre. Marquez les recruteurs dès la première ligne.',
+    interview: 'Le Simulateur d\'Entretien IA de HireNova vous permet de pratiquer vos entretiens avec un coach intelligent. Recevez des retours en temps réel et améliorez vos réponses. Soyez prêt le jour J.',
+    linkedin: 'L\'Optimiseur LinkedIn IA de HireNova analyse et améliore votre profil pour attirer les recruteurs. Optimisez votre visibilité et décrochez plus d\'opportunités professionnelles.',
+    career: 'Le Plan de Carrière IA de HireNova vous trace une feuille de route personnalisée pour atteindre vos objectifs professionnels. Identifiez vos forces et construisez votre avenir.',
+    mobility: 'La Mobilité Internationale de HireNova ouvre les portes du monde. Trouvez des opportunités de carrière à l\'international et gérez votre parcours de mobilité simplement.',
+  },
+  en: {
+    cv: 'Discover HireNova Professional AI Resume. Our artificial intelligence creates an ATS-optimized, modern and impactful resume for you in just a few clicks. Your career deserves a resume that stands out.',
+    'cover-letter': 'Discover HireNova AI Cover Letter. Our AI writes personalized and compelling cover letters perfectly tailored to each job posting. Impress recruiters from the very first line.',
+    interview: 'HireNova AI Interview Simulator lets you practice interviews with an intelligent coach. Get real-time feedback and improve your answers. Be ready on the big day.',
+    linkedin: 'HireNova LinkedIn AI Optimizer analyzes and improves your profile to attract recruiters. Boost your visibility and unlock more professional opportunities.',
+    career: 'HireNova AI Career Roadmap creates a personalized plan to reach your professional goals. Identify your strengths and build your future with confidence.',
+    mobility: 'HireNova International Mobility opens doors to the world. Find global career opportunities and manage your mobility journey with ease.',
+  },
+  ar: {
+    cv: 'اكتشف السيرة الذاتية الاحترافية IA من HireNova. في نقرات قليلة، تخلق ذكاؤنا الاصطناعي سيرة ذاتية محسنة ومذهلة لمسيرتك المهنية.',
+    'cover-letter': 'اكتشف رسالة التحفيزية IA من HireNova. يكتب ذكاؤنا الاصطناعي رسائل تحفيزية مخصصة ومؤثرة لكل فرصة عمل.',
+    interview: 'يتيح لك محاكي المقابلات IA من HireNova التدرب مع مدرب ذكي وتلقي ملاحظات فورية لتحسين إجاباتك.',
+    linkedin: 'يحلل محسّن لينكدإن IA من HireNova ويحسن ملفك لجذب أصحاب العمل ويزيد من فرصك المهنية.',
+    career: 'يضع خطة المسار المهني IA من HireNova خطة مخصصة لتحقيق أهدافك المهنية وتحديد نقاط قوتك.',
+    mobility: 'تفتح التنقل الدولي من HireNova أبواب العالم. اعثر على فرص عمل دولية وأدر رحلتك بسهولة.',
+  },
+  es: {
+    cv: 'Descubre el CV Profesional IA de HireNova. Nuestra IA crea un currículum optimizado y moderno en pocos clics. Tu carrera merece un CV que destaque.',
+    'cover-letter': 'Descubre la Carta de Presentación IA de HireNova. Nuestra IA redacta cartas personalizadas y adaptadas a cada oferta. Impresiona desde la primera línea.',
+    interview: 'El Simulador de Entrevistas IA de HireNova te permite practicar con un coach inteligente. Recibe retroalimentación en tiempo real.',
+    linkedin: 'El Optimizador LinkedIn IA de HireNova analiza y mejora tu perfil para atraer reclutadores y desbloquear más oportunidades.',
+    career: 'El Plan de Carrera IA de HireNova crea una ruta personalizada para alcanzar tus objetivos profesionales con confianza.',
+    mobility: 'La Movilidad Internacional de HireNova abre las puertas del mundo. Encuentra oportunidades globales y gestiona tu trayectoria.',
+  },
+}
+
+// Static asset paths
+const getImageSrc = (slug: string) => `/showcase/images/${slug}.png`
+const getAudioSrc = (slug: string, lang: CVLanguage) => {
+  // Audio available for FR and EN, fallback to EN for AR/ES
+  const audioLang = lang === 'fr' || lang === 'en' ? lang : 'en'
+  return `/showcase/audio/${slug}-${audioLang}.mp3`
+}
+
+// ─── UI Labels ─────────────────────────────────────────────────────────────
+
 const LABELS: Record<CVLanguage, Record<string, string>> = {
   fr: {
-    title: "D\u00e9couvrez nos produits avec l'IA",
-    subtitle:
-      "L'intelligence artificielle vous pr\u00e9sente chaque outil en d\u00e9tail",
-    generating: "L'IA pr\u00e9pare la pr\u00e9sentation...",
-    generatingDesc: "G\u00e9n\u00e9ration de l'image et de la voix en cours",
-    playVoice: '\u00c9couter la pr\u00e9sentation',
-    stopVoice: 'Arr\u00eater',
+    title: 'Découvrez nos produits avec l\'IA',
+    subtitle: 'L\'intelligence artificielle vous présente chaque outil en détail',
+    playVoice: 'Écouter la présentation',
+    stopVoice: 'Arrêter',
     next: 'Suivant',
-    prev: 'Pr\u00e9c\u00e9dent',
+    prev: 'Précédent',
     autoPlay: 'Lecture auto',
-    tapToExplore: 'Cliquez sur un produit pour l\'explorer',
   },
   en: {
     title: 'Discover our products with AI',
     subtitle: 'Artificial intelligence presents each tool in detail',
-    generating: 'AI is preparing the presentation...',
-    generatingDesc: 'Generating image and voice',
     playVoice: 'Listen to presentation',
     stopVoice: 'Stop',
     next: 'Next',
     prev: 'Previous',
     autoPlay: 'Auto play',
-    tapToExplore: 'Click a product to explore it',
   },
   ar: {
-    title: '\u0627\u0643\u062a\u0634\u0641 \u0645\u0646\u062a\u062c\u0627\u062a\u0646\u0627 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a',
-    subtitle:
-      '\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \u064a\u0642\u062f\u0645 \u0643\u0644 \u0623\u062f\u0627\u0629 \u0628\u0627\u0644\u062a\u0641\u0635\u064a\u0644',
-    generating: '\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \u064a\u062d\u0636\u0631 \u0627\u0644\u0639\u0631\u0636...',
-    generatingDesc: '\u062c\u0627\u0631\u064d \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0635\u0648\u0631\u0629 \u0648\u0627\u0644\u0635\u0648\u062a',
-    playVoice: '\u0627\u0633\u062a\u0645\u0639 \u0644\u0644\u0639\u0631\u0636',
-    stopVoice: '\u0625\u064a\u0642\u0627\u0641',
-    next: '\u0627\u0644\u062a\u0627\u0644\u064a',
-    prev: '\u0627\u0644\u0633\u0627\u0628\u0642',
-    autoPlay: '\u062a\u0634\u063a\u064a\u0644 \u062a\u0644\u0642\u0627\u0626\u064a',
-    tapToExplore: '\u0627\u0646\u0642\u0631 \u0639\u0644\u0649 \u0645\u0646\u062a\u062c \u0644\u0627\u0633\u062a\u0643\u0634\u0627\u0641\u0647',
+    title: 'اكتشف منتجاتنا بالذكاء الاصطناعي',
+    subtitle: 'الذكاء الاصطناعي يقدم كل أداة بالتفصيل',
+    playVoice: 'استمع للعرض',
+    stopVoice: 'إيقاف',
+    next: 'التالي',
+    prev: 'السابق',
+    autoPlay: 'تشغيل تلقائي',
   },
   es: {
     title: 'Descubre nuestros productos con IA',
-    subtitle:
-      'La inteligencia artificial presenta cada herramienta en detalle',
-    generating: 'La IA est\u00e1 preparando la presentaci\u00f3n...',
-    generatingDesc: 'Generando imagen y voz',
-    playVoice: 'Escuchar presentaci\u00f3n',
+    subtitle: 'La inteligencia artificial presenta cada herramienta en detalle',
+    playVoice: 'Escuchar presentación',
     stopVoice: 'Detener',
     next: 'Siguiente',
     prev: 'Anterior',
-    autoPlay: 'Reproducci\u00f3n auto',
-    tapToExplore: 'Haz clic en un producto para explorarlo',
+    autoPlay: 'Reproducción auto',
   },
-}
-
-// ─── Types ─────────────────────────────────────────────────────────────────
-
-interface Presentation {
-  description: string
-  imageBase64: string
-  audioBase64: string
-  productName: string
-  cached: boolean
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default function AIAnimatedShowcase() {
-  const language = useCVStore((s) => s.language)
+  const { language } = useCVStore()
   const isRTL = language === 'ar'
+
   const labels = LABELS[language]
 
-  // State
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [presentation, setPresentation] = useState<Presentation | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [displayedText, setDisplayedText] = useState('')
   const [autoPlay, setAutoPlay] = useState(false)
-  const [audioProgress, setAudioProgress] = useState(0)
-  const [audioDuration, setAudioDuration] = useState(0)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [displayedText, setDisplayedText] = useState('')
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
 
-  // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const blobUrlRef = useRef<string | null>(null)
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const generationAbortRef = useRef<AbortController | null>(null)
 
   const activeProduct = PRODUCTS[activeIndex]
-  const colors = colorMap[activeProduct.color as ProductColor]
+  const colors = colorMap[activeProduct.color]
+  const description = DESCRIPTIONS[language][activeProduct.slug]
+  const audioSrc = getAudioSrc(activeProduct.slug, language)
+  const imageSrc = getImageSrc(activeProduct.slug)
 
-  // ─── Cleanup helpers ────────────────────────────────────────────────────
-
-  const stopAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-    }
-    setIsPlaying(false)
-    setAudioProgress(0)
-  }, [])
+  // ─── Typing effect ─────────────────────────────────────────────────────
 
   const clearTyping = useCallback(() => {
     if (typingIntervalRef.current) {
@@ -236,6 +207,49 @@ export default function AIAnimatedShowcase() {
     setDisplayedText('')
   }, [])
 
+  const startTyping = useCallback(
+    (text: string) => {
+      clearTyping()
+      let i = 0
+      typingIntervalRef.current = setInterval(() => {
+        i++
+        if (i <= text.length) {
+          setDisplayedText(text.slice(0, i))
+        } else {
+          if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
+          typingIntervalRef.current = null
+        }
+      }, 28)
+    },
+    [clearTyping]
+  )
+
+  // ─── Audio control ─────────────────────────────────────────────────────
+
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+    setIsPlaying(false)
+  }, [])
+
+  const playAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {})
+    }
+  }, [])
+
+  const toggleAudio = useCallback(() => {
+    if (isPlaying) {
+      stopAudio()
+    } else {
+      playAudio()
+    }
+  }, [isPlaying, stopAudio, playAudio])
+
+  // ─── Auto-play timer ──────────────────────────────────────────────────
+
   const clearAutoPlayTimer = useCallback(() => {
     if (autoPlayTimerRef.current) {
       clearTimeout(autoPlayTimerRef.current)
@@ -243,141 +257,18 @@ export default function AIAnimatedShowcase() {
     }
   }, [])
 
-  const revokeBlobUrl = useCallback(() => {
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-      blobUrlRef.current = null
-    }
-  }, [])
-
-  // ─── Typing effect ──────────────────────────────────────────────────────
-
-  const startTyping = useCallback(
-    (text: string) => {
-      clearTyping()
-      let idx = 0
-      typingIntervalRef.current = setInterval(() => {
-        idx++
-        setDisplayedText(text.slice(0, idx))
-        if (idx >= text.length) {
-          if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
-          typingIntervalRef.current = null
-        }
-      }, 30)
-    },
-    [clearTyping],
-  )
-
-  // ─── Audio setup ────────────────────────────────────────────────────────
-
-  const setupAudio = useCallback(
-    (audioBase64: string) => {
-      // Clean up previous
-      stopAudio()
-      revokeBlobUrl()
-
-      try {
-        const binaryStr = atob(audioBase64)
-        const bytes = Uint8Array.from(binaryStr, (c) => c.charCodeAt(0))
-        const blob = new Blob([bytes], { type: 'audio/mp3' })
-        const url = URL.createObjectURL(blob)
-        blobUrlRef.current = url
-
-        const audio = new Audio(url)
-        audioRef.current = audio
-
-        audio.addEventListener('loadedmetadata', () => {
-          setAudioDuration(audio.duration)
-        })
-
-        audio.addEventListener('timeupdate', () => {
-          if (audio.duration) {
-            setAudioProgress(audio.currentTime / audio.duration)
-          }
-        })
-
-        audio.addEventListener('ended', () => {
-          setIsPlaying(false)
-          setAudioProgress(0)
-        })
-      } catch {
-        // Audio creation failed, fail silently
-      }
-    },
-    [stopAudio, revokeBlobUrl],
-  )
-
-  const toggleAudio = useCallback(() => {
-    if (!audioRef.current) return
-    if (isPlaying) {
-      audioRef.current.pause()
-      setIsPlaying(false)
-    } else {
-      audioRef.current.play().catch(() => {
-        // Playback failed
-      })
-      setIsPlaying(true)
-    }
-  }, [isPlaying])
-
-  // ─── Fetch presentation ─────────────────────────────────────────────────
-
-  const fetchPresentation = useCallback(
-    async (index: number) => {
-      // Abort previous
-      if (generationAbortRef.current) {
-        generationAbortRef.current.abort()
-      }
-      const controller = new AbortController()
-      generationAbortRef.current = controller
-
-      stopAudio()
-      clearTyping()
-      clearAutoPlayTimer()
-      setImageLoaded(false)
-      setPresentation(null)
-      setIsGenerating(true)
-
-      const slug = PRODUCTS[index].slug
-      try {
-        const res = await fetch('/api/ai/product-presentation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productSlug: slug, language }),
-          signal: controller.signal,
-        })
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data: Presentation = await res.json()
-
-        if (controller.signal.aborted) return
-
-        setPresentation(data)
-        setIsGenerating(false)
-        setImageLoaded(false)
-        startTyping(data.description)
-
-        if (data.audioBase64) {
-          setupAudio(data.audioBase64)
-        }
-      } catch {
-        if (!controller.signal.aborted) {
-          setIsGenerating(false)
-        }
-      }
-    },
-    [language, stopAudio, clearTyping, clearAutoPlayTimer, startTyping, setupAudio],
-  )
-
-  // ─── Navigation ─────────────────────────────────────────────────────────
+  // ─── Navigation ────────────────────────────────────────────────────────
 
   const goTo = useCallback(
     (index: number) => {
       const clamped = ((index % PRODUCTS.length) + PRODUCTS.length) % PRODUCTS.length
       setActiveIndex(clamped)
-      fetchPresentation(clamped)
+      setImageLoaded(false)
+      stopAudio()
+      clearTyping()
       clearAutoPlayTimer()
     },
-    [fetchPresentation, clearAutoPlayTimer],
+    [stopAudio, clearTyping, clearAutoPlayTimer]
   )
 
   const goNext = useCallback(() => goTo(activeIndex + 1), [goTo, activeIndex])
@@ -385,68 +276,77 @@ export default function AIAnimatedShowcase() {
 
   const handleProductClick = useCallback(
     (index: number) => {
-      if (index === activeIndex && presentation) return
       goTo(index)
     },
-    [goTo, activeIndex, presentation],
+    [goTo]
   )
 
-  // ─── Auto-play: when audio ends, wait 2s then go next ──────────────────
+  // ─── When activeIndex changes, start typing the description ────────────
 
   useEffect(() => {
-    if (!autoPlay || isPlaying || isGenerating) return
-    if (!presentation) return
+    const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
+    startTyping(desc)
+  }, [activeIndex, language, startTyping])
+
+  // ─── Auto-play: advance after typing finishes + 2s delay ──────────────
+
+  useEffect(() => {
+    if (!autoPlay || isPlaying) return
+
+    const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
+    if (displayedText.length < desc.length) return // still typing
 
     clearAutoPlayTimer()
     autoPlayTimerRef.current = setTimeout(() => {
       goNext()
-    }, 2000)
+    }, 2500)
+
+    return clearAutoPlayTimer
+  }, [autoPlay, isPlaying, displayedText.length, activeIndex, language, goNext, clearAutoPlayTimer])
+
+  // ─── Audio events ──────────────────────────────────────────────────────
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
+    const onLoadedMetadata = () => setDuration(audio.duration)
+    const onEnded = () => setIsPlaying(false)
+
+    audio.addEventListener('timeupdate', onTimeUpdate)
+    audio.addEventListener('loadedmetadata', onLoadedMetadata)
+    audio.addEventListener('ended', onEnded)
 
     return () => {
-      clearAutoPlayTimer()
+      audio.removeEventListener('timeupdate', onTimeUpdate)
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata)
+      audio.removeEventListener('ended', onEnded)
     }
-  }, [autoPlay, isPlaying, isGenerating, presentation, goNext, clearAutoPlayTimer])
+  }, [activeIndex]) // re-bind when product changes
 
-  // ─── Auto-play audio when presentation is ready ─────────────────────────
-
-  useEffect(() => {
-    if (presentation?.audioBase64 && audioRef.current && !isPlaying) {
-      audioRef.current
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {
-          // auto-play may be blocked by browser
-        })
-    }
-    // Auto-play is intentionally triggered only by audioBase64 change
-  }, [presentation?.audioBase64])
-
-  // ─── Initial load ───────────────────────────────────────────────────────
-
-  useEffect(() => {
-    fetchPresentation(0)
-    // Initial load on mount + language change
-  }, [language])
-
-  // ─── Cleanup on unmount ─────────────────────────────────────────────────
+  // ─── Cleanup on unmount ────────────────────────────────────────────────
 
   useEffect(() => {
     return () => {
       stopAudio()
       clearTyping()
       clearAutoPlayTimer()
-      revokeBlobUrl()
-      if (generationAbortRef.current) {
-        generationAbortRef.current.abort()
-      }
     }
-  }, [stopAudio, clearTyping, clearAutoPlayTimer, revokeBlobUrl])
+  }, [stopAudio, clearTyping, clearAutoPlayTimer])
 
-  // ─── Waveform bars (decorative) ─────────────────────────────────────────
+  // ─── Waveform bars ─────────────────────────────────────────────────────
 
   const waveformBars = 24
 
-  // ─── Render ─────────────────────────────────────────────────────────────
+  const formatTime = (t: number) => {
+    if (!t || !isFinite(t)) return '0:00'
+    const m = Math.floor(t / 60)
+    const s = Math.floor(t % 60)
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  // ─── Render ────────────────────────────────────────────────────────────
 
   return (
     <section
@@ -457,389 +357,293 @@ export default function AIAnimatedShowcase() {
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8 sm:mb-12"
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8 sm:mb-10"
       >
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4">
-          <BrainCircuit className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-        </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="relative"
-        >
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-            {labels.title}
-          </h2>
-          <div className="absolute -top-2 -right-2 sm:top-0 sm:right-0">
-            <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 mb-3">
+          <div className="relative">
+            <BrainCircuit className="w-7 h-7 text-emerald-500" />
+            <motion.div
+              className="absolute -inset-1 rounded-full bg-emerald-400/30 blur-sm"
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </div>
-        </motion.div>
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+          <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-200 gap-1 px-3 py-1">
+            <Sparkles className="w-3 h-3" /> IA
+          </Badge>
+        </div>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+          {labels.title}
+        </h2>
+        <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
           {labels.subtitle}
         </p>
       </motion.header>
 
-      {/* ── Main Stage ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-        {/* ── Left: Product Carousel ─────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="lg:w-48 xl:w-56 flex-shrink-0"
-        >
+      {/* ── Main Content: Carousel + Presentation ──────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
+        {/* ── Left: Product Carousel ───────────────────────────────────── */}
+        <div className="lg:col-span-4">
           <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
             {PRODUCTS.map((product, idx) => {
-              const Icon = product.icon
-              const pColors = colorMap[product.color as ProductColor]
               const isActive = idx === activeIndex
+              const c = colorMap[product.color]
+              const Icon = product.icon
+
               return (
                 <motion.button
                   key={product.slug}
                   onClick={() => handleProductClick(idx)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   className={cn(
-                    'relative flex items-center gap-3 rounded-xl p-2.5 transition-colors min-w-[160px] lg:min-w-0',
-                    'text-start cursor-pointer border',
+                    'relative flex-shrink-0 flex items-center gap-3 p-3 sm:p-4 rounded-xl transition-all duration-300 cursor-pointer w-full min-w-[180px] lg:min-w-0',
                     isActive
-                      ? cn(
-                          pColors.bg,
-                          'border-current/10 shadow-lg',
-                          pColors.glow,
-                        )
-                      : 'bg-card border-transparent hover:bg-muted/50',
+                      ? cn('bg-white shadow-lg', c.glow, 'shadow-lg')
+                      : 'bg-white/50 hover:bg-white hover:shadow-md'
                   )}
+                  whileHover={{ scale: isActive ? 1 : 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
+                  {/* Active indicator ring */}
                   {isActive && (
                     <motion.div
-                      layoutId="activeProduct"
-                      className={cn(
-                        'absolute inset-0 rounded-xl ring-2',
-                        pColors.ring,
-                      )}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 300,
-                        damping: 30,
-                      }}
+                      layoutId="active-showcase-ring"
+                      className={cn('absolute inset-0 rounded-xl ring-2', c.ring)}
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}
+
                   <div
                     className={cn(
-                      'relative z-10 flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0',
-                      pColors.bg,
+                      'w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300',
+                      c.bg, c.text,
+                      isActive && 'scale-110'
                     )}
                   >
-                    <Icon
-                      className={cn('w-5 h-5', pColors.text)}
-                    />
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span
-                    className={cn(
-                      'relative z-10 text-xs font-medium leading-tight truncate',
-                      isActive ? pColors.text : 'text-foreground',
-                    )}
-                  >
+
+                  <span className={cn(
+                    'text-sm font-medium truncate',
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  )}>
                     {PRODUCT_NAMES[language][product.slug]}
                   </span>
+
                   {isActive && (
                     <motion.div
-                      className={cn(
-                        'absolute -top-1 -right-1 w-3 h-3 rounded-full',
-                        pColors.bg,
-                      )}
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
+                      className={cn('w-2 h-2 rounded-full shrink-0', c.bg.replace('100', '500'))}
+                      animate={{ scale: [1, 1.4, 1] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
                     />
                   )}
                 </motion.button>
               )
             })}
           </div>
-          <p className="hidden lg:block mt-4 text-[11px] text-muted-foreground text-center">
-            {labels.tapToExplore}
-          </p>
-        </motion.div>
-
-        {/* ── Right: Presentation Panel ───────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex-1 min-w-0"
-        >
-          <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card to-card/80">
-            <CardContent className="p-4 sm:p-6 space-y-5">
-              {/* Product badge */}
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    'text-xs font-semibold px-3 py-1',
-                    colors.bg,
-                    colors.text,
-                    'border-current/10',
-                  )}
-                >
-                  {PRODUCT_NAMES[language][activeProduct.slug]}
-                </Badge>
-                {presentation?.cached && (
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-                    cached
-                  </Badge>
-                )}
-              </div>
-
-              {/* Image area */}
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted/30">
-                {isGenerating ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                    <div className="relative">
-                      <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <BrainCircuit className="w-5 h-5 text-emerald-700" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {labels.generating}
-                    </p>
-                    <p className="text-xs text-muted-foreground/70">
-                      {labels.generatingDesc}
-                    </p>
-                    {/* Shimmer skeleton */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
-                        animate={{ x: ['-100%', '100%'] }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                        }}
-                      />
-                    </div>
-                  </div>
-                ) : presentation?.imageBase64 ? (
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={`${activeIndex}-${presentation.productName}`}
-                      src={`data:image/png;base64,${presentation.imageBase64}`}
-                      alt={presentation.productName}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.5 }}
-                      onLoad={() => setImageLoaded(true)}
-                      className={cn(
-                        'w-full h-full object-cover transition-opacity duration-300',
-                        imageLoaded ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    {!imageLoaded && (
-                      <div className="absolute inset-0 bg-muted/50 animate-pulse" />
-                    )}
-                  </AnimatePresence>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className={cn('w-16 h-16 rounded-full', colors.bg, 'flex items-center justify-center')}>
-                      {React.createElement(activeProduct.icon, { className: cn('w-8 h-8', colors.text) })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Description with typing effect */}
-              <div className="min-h-[80px] sm:min-h-[100px]">
-                {displayedText ? (
-                  <p className="text-sm sm:text-base text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                    {displayedText}
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{
-                        duration: 0.6,
-                        repeat: Infinity,
-                        repeatType: 'reverse',
-                      }}
-                      className="inline-block w-0.5 h-4 sm:h-5 bg-emerald-500 ml-0.5 align-middle"
-                    />
-                  </p>
-                ) : isGenerating ? (
-                  <div className="space-y-2">
-                    <div className="h-4 bg-muted rounded-md animate-pulse w-full" />
-                    <div className="h-4 bg-muted rounded-md animate-pulse w-5/6" />
-                    <div className="h-4 bg-muted rounded-md animate-pulse w-4/6" />
-                  </div>
-                ) : null}
-              </div>
-
-              {/* Audio player bar */}
-              {presentation?.audioBase64 && !isGenerating && (
-                <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleAudio}
-                    className={cn(
-                      'h-9 w-9 rounded-full flex-shrink-0',
-                      isPlaying
-                        ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
-                        : 'hover:bg-muted',
-                    )}
-                    aria-label={isPlaying ? labels.stopVoice : labels.playVoice}
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4 h-4" />
-                    ) : (
-                      <Play className="w-4 h-4 ms-0.5" />
-                    )}
-                  </Button>
-
-                  {/* Waveform visualizer */}
-                  <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
-                    {Array.from({ length: waveformBars }).map((_, i) => {
-                      const center = waveformBars / 2
-                      const dist = Math.abs(i - center) / center
-                      const baseHeight = Math.max(15, 100 - dist * 70)
-                      return (
-                        <motion.div
-                          key={i}
-                          className={cn(
-                            'flex-1 rounded-full min-w-[3px]',
-                            isPlaying ? 'bg-emerald-500' : 'bg-muted-foreground/20',
-                          )}
-                          animate={
-                            isPlaying
-                              ? {
-                                  height: [
-                                    `${baseHeight * 0.4}%`,
-                                    `${baseHeight * 1.1}%`,
-                                    `${baseHeight * 0.6}%`,
-                                    `${baseHeight * 0.9}%`,
-                                    `${baseHeight * 0.4}%`,
-                                  ],
-                                }
-                              : { height: `${baseHeight * 0.5}%` }
-                          }
-                          transition={
-                            isPlaying
-                              ? {
-                                  duration: 1.2 + i * 0.05,
-                                  repeat: Infinity,
-                                  ease: 'easeInOut',
-                                  delay: i * 0.03,
-                                }
-                              : { duration: 0.3 }
-                          }
-                        />
-                      )
-                    })}
-                  </div>
-
-                  {/* Volume icon indicator */}
-                  <div className="flex-shrink-0 hidden sm:flex">
-                    {isPlaying ? (
-                      <Volume2 className="w-4 h-4 text-emerald-500" />
-                    ) : (
-                      <VolumeX className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {/* Time / progress */}
-                  <span className="text-[10px] text-muted-foreground tabular-nums flex-shrink-0 w-10 text-end">
-                    {audioDuration > 0
-                      ? `${Math.floor(audioRef.current?.currentTime ?? 0)}s / ${Math.floor(audioDuration)}s`
-                      : '--:--'}
-                  </span>
-                </div>
-              )}
-
-              {/* Progress bar */}
-              {audioDuration > 0 && !isGenerating && (
-                <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-emerald-500 rounded-full"
-                    style={{ width: `${audioProgress * 100}%` }}
-                    transition={{ duration: 0.1 }}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <motion.nav
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="mt-6 flex items-center justify-center gap-3 sm:gap-4"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={goPrev}
-          disabled={isGenerating}
-          className="gap-1.5 rounded-full px-4"
-        >
-          <ChevronLeft className={cn('w-4 h-4', isRTL ? 'rotate-180' : '')} />
-          <span className="hidden sm:inline">{labels.prev}</span>
-        </Button>
-
-        {/* Dots indicator */}
-        <div className="flex items-center gap-1.5">
-          {PRODUCTS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goTo(idx)}
-              className={cn(
-                'rounded-full transition-all duration-300 cursor-pointer',
-                idx === activeIndex
-                  ? 'w-6 h-2 bg-emerald-500'
-                  : 'w-2 h-2 bg-muted-foreground/25 hover:bg-muted-foreground/50',
-              )}
-              aria-label={`Go to product ${idx + 1}`}
-            />
-          ))}
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={goNext}
-          disabled={isGenerating}
-          className="gap-1.5 rounded-full px-4"
-        >
-          <span className="hidden sm:inline">{labels.next}</span>
-          <ChevronRight className={cn('w-4 h-4', isRTL ? 'rotate-180' : '')} />
-        </Button>
+        {/* ── Right: Presentation Panel ─────────────────────────────────── */}
+        <div className="lg:col-span-8">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 flex flex-col gap-4">
 
-        <div className="w-px h-6 bg-border mx-1" />
+            {/* Product badge */}
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={cn('text-xs font-semibold px-3 py-1', colors.bg, colors.text, 'border-current/10')}
+              >
+                {PRODUCT_NAMES[language][activeProduct.slug]}
+              </Badge>
+              <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
+                AI Powered
+              </Badge>
+            </div>
 
-        <Button
-          variant={autoPlay ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setAutoPlay((v) => !v)}
-          className={cn(
-            'gap-1.5 rounded-full px-4 transition-colors',
-            autoPlay && 'bg-emerald-600 hover:bg-emerald-700 text-white',
-          )}
-        >
-          {autoPlay ? (
-            <Pause className="w-3.5 h-3.5" />
-          ) : (
-            <Play className="w-3.5 h-3.5" />
-          )}
-          <span className="hidden sm:inline">{labels.autoPlay}</span>
-        </Button>
-      </motion.nav>
+            {/* Image area */}
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted/30">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={`${activeIndex}-${imageSrc}`}
+                  src={imageSrc}
+                  alt={PRODUCT_NAMES[language][activeProduct.slug]}
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.5 }}
+                  onLoad={() => setImageLoaded(true)}
+                  className={cn(
+                    'w-full h-full object-cover transition-opacity duration-300',
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+              </AnimatePresence>
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-muted/50 animate-pulse flex items-center justify-center">
+                  {React.createElement(activeProduct.icon, {
+                    className: cn('w-10 h-10 animate-pulse', colors.text),
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Description with typing effect */}
+            <div className="min-h-[80px] sm:min-h-[100px]">
+              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                {displayedText}
+                {displayedText.length < description.length && (
+                  <motion.span
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
+                    className="inline-block w-0.5 h-4 sm:h-5 bg-emerald-500 ml-0.5 align-middle"
+                  />
+                )}
+              </p>
+            </div>
+
+            {/* Audio player bar */}
+            <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleAudio}
+                className={cn(
+                  'h-9 w-9 rounded-full flex-shrink-0',
+                  isPlaying
+                    ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
+                    : 'hover:bg-muted'
+                )}
+                aria-label={isPlaying ? labels.stopVoice : labels.playVoice}
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </Button>
+
+              {/* Waveform visualizer */}
+              <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
+                {Array.from({ length: waveformBars }).map((_, i) => {
+                  const progress = duration > 0 ? currentTime / duration : 0
+                  const barProgress = i / waveformBars
+                  const isActiveBar = barProgress <= progress
+                  return (
+                    <motion.div
+                      key={i}
+                      className={cn(
+                        'flex-1 rounded-full min-w-[2px]',
+                        isActiveBar
+                          ? 'bg-emerald-500'
+                          : 'bg-muted-foreground/20'
+                      )}
+                      animate={
+                        isPlaying
+                          ? {
+                              height: ['30%', `${30 + Math.random() * 70}%`],
+                            }
+                          : { height: '40%' }
+                      }
+                      transition={
+                        isPlaying
+                          ? {
+                              duration: 0.3 + (i % 3) * 0.1,
+                              repeat: Infinity,
+                              repeatType: 'reverse',
+                              ease: 'easeInOut',
+                            }
+                          : { duration: 0.3 }
+                      }
+                    />
+                  )
+                })}
+              </div>
+
+              {/* Time + volume icon */}
+              <div className="flex items-center gap-2 flex-shrink-0 text-xs text-muted-foreground">
+                {isPlaying ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                <span className="tabular-nums w-8 text-right">
+                  {formatTime(currentTime)}
+                </span>
+              </div>
+            </div>
+
+            {/* Hidden audio element */}
+            <audio
+              ref={audioRef}
+              src={audioSrc}
+              preload="auto"
+              onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
+              onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
+              onEnded={() => setIsPlaying(false)}
+            />
+
+          </div>
+
+          {/* ── Navigation bar ──────────────────────────────────────────── */}
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goPrev}
+              className="gap-1.5 cursor-pointer"
+            >
+              {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {labels.prev}
+            </Button>
+
+            {/* Dot indicators */}
+            <div className="flex items-center gap-2">
+              {PRODUCTS.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goTo(idx)}
+                  className={cn(
+                    'rounded-full transition-all duration-300 cursor-pointer',
+                    idx === activeIndex
+                      ? 'w-6 h-2 bg-emerald-500'
+                      : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  )}
+                />
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goNext}
+              className="gap-1.5 cursor-pointer"
+            >
+              {labels.next}
+              {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          {/* Auto-play toggle */}
+          <div className="flex justify-center mt-3">
+            <button
+              onClick={() => setAutoPlay(!autoPlay)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer',
+                autoPlay
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              )}
+            >
+              <motion.div
+                className={cn(
+                  'w-8 h-4 rounded-full relative transition-colors',
+                  autoPlay ? 'bg-emerald-500' : 'bg-muted-foreground/30'
+                )}
+              >
+                <motion.div
+                  className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
+                  animate={{ left: autoPlay ? '16px' : '2px' }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              </motion.div>
+              {labels.autoPlay}
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
