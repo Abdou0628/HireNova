@@ -1076,3 +1076,28 @@ Stage Summary:
   3. src/components/cv/landing.tsx (MODIFIED - added import + component)
   4. src/lib/analytics.ts (MODIFIED - added quiz events)
 - Note: GitHub PAT was shared in chat — advised user to revoke it immediately
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix "Essayer" button redirecting to landing page
+
+Work Log:
+- Searched for "Essayer" button location → found in ai-product-showcase.tsx (line 901)
+- Traced onClick handler: `handleTryProduct(step)` → `setStep(step)` in cv-store
+- Discovered root cause: CV Form component (form.tsx lines 106-111) has a useEffect guard that checks `session?.user` and `hasActivePlan` — if user is not authenticated or has no paid plan, it immediately calls `setStep('landing')` and shows a toast
+- Same auth+plan guard exists in other product components (cover-letter-form.tsx, etc.)
+- Found existing `requireAuthAndPlan(step)` function in landing.tsx (lines 148-161) that handles this correctly:
+  - Not logged in → opens Auth Modal (register mode) + saves pendingAction
+  - Logged in but no plan → shows toast + scrolls to pricing
+  - Both OK → navigates to the step
+- Also found `handleAuthSuccess()` (line 163) that executes pendingAction after auth
+
+Fix Applied:
+1. ai-product-showcase.tsx: Added `onTryProduct?: (step: AppStep) => void` prop, modified `handleTryProduct` to delegate to `onTryProduct` if provided, with fallback to direct setStep
+2. landing.tsx: Changed `<AIProductShowcase />` to `<AIProductShowcase onTryProduct={requireAuthAndPlan} />`
+3. ai-marketing-hub.tsx: Fixed missing `AnimatePresence` import (pre-existing lint error)
+
+Stage Summary:
+- Root cause: Essayer button bypassed auth checks, target component immediately redirected back
+- Fix: Wired the button to existing `requireAuthAndPlan` function that properly handles auth/plan gates
+- Committed locally as 96f4be0, needs push (previous PAT was revoked)
