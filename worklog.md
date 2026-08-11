@@ -1101,3 +1101,29 @@ Stage Summary:
 - Root cause: Essayer button bypassed auth checks, target component immediately redirected back
 - Fix: Wired the button to existing `requireAuthAndPlan` function that properly handles auth/plan gates
 - Committed locally as 96f4be0, needs push (previous PAT was revoked)
+---
+Task ID: 2
+Agent: frontend agent
+Task: Create animated AI product showcase component
+
+Work Log:
+- Created /home/z/my-project/src/components/marketing/ai-animated-showcase.tsx
+- Implemented product carousel with 6 products (CV, Cover Letter, Interview, LinkedIn, Career, Mobility)
+- Each product has unique color theming (emerald, blue, violet, sky, amber, rose)
+- Added Framer Motion animations: scale+glow on hover, pulse on active, slide transitions
+- Built typing animation effect (30ms per character) for AI-generated descriptions
+- Created waveform visualizer with 24 animated bars that bounce during audio playback
+- Implemented audio playback from base64 with Blob URL creation, play/pause, progress tracking
+- Added auto-play mode: auto-advances to next product 2s after audio ends
+- Full i18n support for FR/EN/AR/ES with RTL layout for Arabic
+- Responsive design: mobile-first with horizontal scroll carousel on mobile, vertical on desktop
+- Proper cleanup: revoke blob URLs, stop audio, clear intervals/timeouts on unmount
+- AbortController for cancelling in-flight API requests on product change
+- Used shadcn/ui Card, CardContent, Button, Badge components
+- Passed ESLint with zero warnings/errors
+
+Stage Summary:
+- Component with carousel, typing animation, audio player, image display, waveform visualizer
+- i18n support for FR/EN/AR/ES with RTL
+- Auto-play and manual navigation
+- Production-quality with proper TypeScript types and cleanup
