@@ -1,5 +1,13 @@
 import type { Metadata } from 'next'
+import { Noto_Sans_Arabic } from 'next/font/google'
 import './globals.css'
+
+const notoArabic = Noto_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-noto-arabic',
+  display: 'swap',
+})
 
 const SITE_URL = 'https://hirenova.com'
 const SITE_NAME = 'HireNova'
@@ -119,11 +127,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className={notoArabic.variable}>
       <head>
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
         {/* JSON-LD Structured Data — Organization */}
         <script
           type="application/ld+json"
@@ -222,7 +231,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased bg-background text-foreground">
+      <body className={`${notoArabic.className} antialiased bg-background text-foreground`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `if(window.trustedTypes&&!window.__trustedTypesPolicyCreated){window.__trustedTypesPolicyCreated=true;window.trustedTypes.createPolicy("default",{createHTML:function(s){return s},createScript:function(s){return s},createScriptURL:function(s){return s}})}`,

@@ -188,10 +188,12 @@ export default function AIAnimatedShowcase() {
   const [displayedText, setDisplayedText] = useState('')
   const [speechProgress, setSpeechProgress] = useState(0)
   const [speechSupported, setSpeechSupported] = useState(true)
+  const [voiceReady, setVoiceReady] = useState(false)
 
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([])
 
   const activeProduct = PRODUCTS[activeIndex]
   const colors = colorMap[activeProduct.color]
@@ -204,11 +206,21 @@ export default function AIAnimatedShowcase() {
       setSpeechSupported(false)
       return
     }
-    // Pre-load voices (they load async in some browsers)
-    window.speechSynthesis.getVoices()
-    window.speechSynthesis.addEventListener('voiceschanged', () => {
-      window.speechSynthesis.getVoices()
-    }, { once: true })
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices()
+      if (v.length > 0) {
+        voicesRef.current = v
+        setVoiceReady(true)
+      }
+    }
+    // Try immediately
+    loadVoices()
+    // Chrome loads voices async — listen for the event
+    const onVoicesChanged = () => loadVoices()
+    window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged)
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged)
+    }
   }, [])
 
   // ─── Typing effect ─────────────────────────────────────────────────────
@@ -224,18 +236,34 @@ export default function AIAnimatedShowcase() {
   const startTyping = useCallback(
     (text: string) => {
       clearTyping()
-      let i = 0
-      typingIntervalRef.current = setInterval(() => {
-        i++
-        if (i <= text.length) {
-          setDisplayedText(text.slice(0, i))
-        } else {
-          if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
-          typingIntervalRef.current = null
-        }
-      }, 25)
+      // For Arabic: type word-by-word to avoid broken glyph rendering
+      if (language === 'ar') {
+        const words = text.split(' ')
+        let wordIdx = 0
+        typingIntervalRef.current = setInterval(() => {
+          wordIdx++
+          if (wordIdx <= words.length) {
+            setDisplayedText(words.slice(0, wordIdx).join(' '))
+          } else {
+            if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
+            typingIntervalRef.current = null
+          }
+        }, 80)
+      } else {
+        // For LTR languages: character-by-character
+        let i = 0
+        typingIntervalRef.current = setInterval(() => {
+          i++
+          if (i <= text.length) {
+            setDisplayedText(text.slice(0, i))
+          } else {
+            if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
+            typingIntervalRef.current = null
+          }
+        }, 25)
+      }
     },
-    [clearTyping]
+    [clearTyping, language]
   )
 
   // ─── Speech control (Web Speech API) ────────────────────────────────────
@@ -256,19 +284,51 @@ export default function AIAnimatedShowcase() {
 
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = SPEECH_LANG[lang]
-      utterance.rate = 0.95
+      utterance.rate = lang === 'ar' ? 0.85 : 0.95
       utterance.pitch = 1.0
 
-      // Try to find a matching voice for the language
-      const voices = window.speechSynthesis.getVoices()
+      // Use cached voices (loaded via voiceschanged event)
+      const voices = voicesRef.current.length > 0
+        ? voicesRef.current
+        : window.speechSynthesis.getVoices()
+
+      // Build locale preference list per language
       const langCode = SPEECH_LANG[lang].split('-')[0]
-      const matchedVoice = voices.find(
-        (v) => v.lang.startsWith(langCode) && v.localService
-      ) || voices.find(
-        (v) => v.lang.startsWith(langCode)
-      )
+      const localeVariants: Record<string, string[]> = {
+        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar'],
+        fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
+        en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
+        es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
+      }
+      const variants = localeVariants[langCode] || [langCode]
+
+      let matchedVoice: SpeechSynthesisVoice | undefined
+      // First pass: exact locale match + local service
+      for (const variant of variants) {
+        matchedVoice = voices.find((v) => v.lang === variant && v.localService)
+        if (matchedVoice) break
+      }
+      // Second pass: prefix match + local service
+      if (!matchedVoice) {
+        matchedVoice = voices.find((v) => v.lang.startsWith(langCode) && v.localService)
+      }
+      // Third pass: any matching voice (including remote)
+      if (!matchedVoice) {
+        for (const variant of variants) {
+          matchedVoice = voices.find((v) => v.lang === variant)
+          if (matchedVoice) break
+        }
+      }
+      // Fourth pass: any prefix match
+      if (!matchedVoice) {
+        matchedVoice = voices.find((v) => v.lang.startsWith(langCode))
+      }
+
       if (matchedVoice) {
         utterance.voice = matchedVoice
+        console.log(`[Speech] Using voice: ${matchedVoice.name} (${matchedVoice.lang}) for ${SPEECH_LANG[lang]}`)
+      } else {
+        console.warn(`[Speech] No voice found for ${SPEECH_LANG[lang]}. Available:`, voices.map(v => v.lang))
       }
 
       utterance.onstart = () => setIsSpeaking(true)
