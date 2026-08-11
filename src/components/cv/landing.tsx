@@ -698,7 +698,7 @@ export default function Landing() {
         </section>
 
         {/* AI Product Showcase — Modern Marketing */}
-        <AIProductShowcase />
+        <AIProductShowcase onTryProduct={requireAuthAndPlan} />
 
         {/* Pricing Section */}
         <div ref={pricingRef}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles, Target, ArrowRight, ArrowLeft, Star,
   FileText, MessageSquare, Compass, Bot, BookOpen, Laptop, Plane,

@@ -504,8 +504,12 @@ const colorMap: Record<string, { bg: string; text: string; border: string; bgLig
 // Component
 // ──────────────────────────────────────────────
 
-export default function AIProductShowcase() {
-  const { language, setStep } = useCVStore()
+interface AIProductShowcaseProps {
+  onTryProduct?: (step: AppStep) => void
+}
+
+export default function AIProductShowcase({ onTryProduct }: AIProductShowcaseProps) {
+  const { language } = useCVStore()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [generatedCopy, setGeneratedCopy] = useState<Record<string, string>>({})
   const [isGenerating, setIsGenerating] = useState(false)
@@ -516,7 +520,13 @@ export default function AIProductShowcase() {
 
   const handleTryProduct = (step: AppStep | null) => {
     if (!step) return
-    setStep(step)
+    if (onTryProduct) {
+      onTryProduct(step)
+    } else {
+      // Fallback: direct navigation (should not happen if parent provides onTryProduct)
+      const { setStep } = useCVStore.getState()
+      setStep(step)
+    }
   }
 
   const handleGenerateCopy = async (product: Product) => {
