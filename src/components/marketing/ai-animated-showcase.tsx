@@ -105,26 +105,33 @@ const DESCRIPTIONS: Record<CVLanguage, Record<string, string>> = {
     mobility: 'HireNova International Mobility opens doors to the world. Find global career opportunities and manage your mobility journey with ease.',
   },
   ar: {
-    cv: 'اكتشف السيرة الذاتية الاحترافية IA من HireNova. في نقرات قليلة، تخلق ذكاؤنا الاصطناعي سيرة ذاتية محسنة ومذهلة لمسيرتك المهنية.',
-    'cover-letter': 'اكتشف رسالة التحفيزية IA من HireNova. يكتب ذكاؤنا الاصطناعي رسائل تحفيزية مخصصة ومؤثرة لكل فرصة عمل.',
-    interview: 'يتيح لك محاكي المقابلات IA من HireNova التدرب مع مدرب ذكي وتلقي ملاحظات فورية لتحسين إجاباتك.',
-    linkedin: 'يحلل محسّن لينكدإن IA من HireNova ويحسن ملفك لجذب أصحاب العمل ويزيد من فرصك المهنية.',
-    career: 'يضع خطة المسار المهني IA من HireNova خطة مخصصة لتحقيق أهدافك المهنية وتحديد نقاط قوتك.',
+    cv: 'اكتشف السيرة الذاتية الاحترافية من HireNova. في نقرات قليلة، تخلق ذكاؤنا الاصطناعي سيرة ذاتية محسنة ومذهلة لمسيرتك المهنية. مسيرتك المهنية تستحق سيرة ذاتية استثنائية.',
+    'cover-letter': 'اكتشف رسالة التحفيز من HireNova. يكتب ذكاؤنا الاصطناعي رسائل تحفيزية مخصصة ومؤثرة لكل فرصة عمل. أبهج مسؤولي التوظيف من السطر الأول.',
+    interview: 'يتيح لك محاكي المقابلات من HireNova التدرب مع مدرب ذكي وتلقي ملاحظات فورية لتحسين إجاباتك. كن مستعدا في اليوم المحدد.',
+    linkedin: 'يحلل محسن لينكدإن من HireNova ويحسن ملفك لجذب أصحاب العمل. عزز ظهورك واحصل على فرص مهنية أكثر.',
+    career: 'يضع خطة المسار المهني من HireNova خطة مخصصة لتحقيق أهدافك المهنية. حدد نقاط قوتك وابن مستقبلك بثقة.',
     mobility: 'تفتح التنقل الدولي من HireNova أبواب العالم. اعثر على فرص عمل دولية وأدر رحلتك بسهولة.',
   },
   es: {
     cv: 'Descubre el CV Profesional IA de HireNova. Nuestra IA crea un currículum optimizado y moderno en pocos clics. Tu carrera merece un CV que destaque.',
     'cover-letter': 'Descubre la Carta de Presentación IA de HireNova. Nuestra IA redacta cartas personalizadas y adaptadas a cada oferta. Impresiona desde la primera línea.',
-    interview: 'El Simulador de Entrevistas IA de HireNova te permite practicar con un coach inteligente. Recibe retroalimentación en tiempo real.',
-    linkedin: 'El Optimizador LinkedIn IA de HireNova analiza y mejora tu perfil para atraer reclutadores y desbloquear más oportunidades.',
+    interview: 'El Simulador de Entrevistas IA de HireNova te permite practicar con un coach inteligente. Recibe retroalimentación en tiempo real y mejora tus respuestas.',
+    linkedin: 'El Optimizador LinkedIn IA de HireNova analiza y mejora tu perfil para atraer reclutadores y desbloquear más oportunidades profesionales.',
     career: 'El Plan de Carrera IA de HireNova crea una ruta personalizada para alcanzar tus objetivos profesionales con confianza.',
-    mobility: 'La Movilidad Internacional de HireNova abre las puertas del mundo. Encuentra oportunidades globales y gestiona tu trayectoria.',
+    mobility: 'La Movilidad Internacional de HireNova abre las puertas del mundo. Encuentra oportunidades globales y gestiona tu trayectoria con facilidad.',
   },
 }
 
-// Static asset paths
+// Web Speech API language codes
+const SPEECH_LANG: Record<CVLanguage, string> = {
+  fr: 'fr-FR',
+  en: 'en-US',
+  ar: 'ar-SA',
+  es: 'es-ES',
+}
+
+// Static image paths
 const getImageSrc = (slug: string) => `/showcase/images/${slug}.png`
-const getAudioSrc = (slug: string, lang: CVLanguage) => `/showcase/audio/${slug}-${lang}.mp3`
 
 // ─── UI Labels ─────────────────────────────────────────────────────────────
 
@@ -172,26 +179,31 @@ const LABELS: Record<CVLanguage, Record<string, string>> = {
 export default function AIAnimatedShowcase() {
   const { language } = useCVStore()
   const isRTL = language === 'ar'
-
   const labels = LABELS[language]
 
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const [autoPlay, setAutoPlay] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [displayedText, setDisplayedText] = useState('')
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
+  const [speechProgress, setSpeechProgress] = useState(0)
+  const [speechSupported, setSpeechSupported] = useState(true)
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   const activeProduct = PRODUCTS[activeIndex]
   const colors = colorMap[activeProduct.color]
   const description = DESCRIPTIONS[language][activeProduct.slug]
-  const audioSrc = getAudioSrc(activeProduct.slug, language)
   const imageSrc = getImageSrc(activeProduct.slug)
+
+  // ─── Check speech support ───────────────────────────────────────────────
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      setSpeechSupported(false)
+    }
+  }, [])
 
   // ─── Typing effect ─────────────────────────────────────────────────────
 
@@ -215,34 +227,91 @@ export default function AIAnimatedShowcase() {
           if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
           typingIntervalRef.current = null
         }
-      }, 28)
+      }, 25)
     },
     [clearTyping]
   )
 
-  // ─── Audio control ─────────────────────────────────────────────────────
+  // ─── Speech control (Web Speech API) ────────────────────────────────────
 
-  const stopAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
+  const stopSpeech = useCallback(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel()
     }
-    setIsPlaying(false)
+    setIsSpeaking(false)
+    setSpeechProgress(0)
   }, [])
 
-  const playAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {})
-    }
-  }, [])
+  const speak = useCallback(
+    (text: string, lang: CVLanguage) => {
+      if (typeof window === 'undefined' || !window.speechSynthesis) return
 
-  const toggleAudio = useCallback(() => {
-    if (isPlaying) {
-      stopAudio()
+      stopSpeech()
+
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = SPEECH_LANG[lang]
+      utterance.rate = 0.95
+      utterance.pitch = 1.0
+
+      // Try to find a matching voice for the language
+      const voices = window.speechSynthesis.getVoices()
+      const langCode = SPEECH_LANG[lang].split('-')[0]
+      const matchedVoice = voices.find(
+        (v) => v.lang.startsWith(langCode) && v.localService
+      ) || voices.find(
+        (v) => v.lang.startsWith(langCode)
+      )
+      if (matchedVoice) {
+        utterance.voice = matchedVoice
+      }
+
+      utterance.onstart = () => setIsSpeaking(true)
+      utterance.onend = () => {
+        setIsSpeaking(false)
+        setSpeechProgress(100)
+      }
+      utterance.onerror = () => {
+        setIsSpeaking(false)
+        setSpeechProgress(0)
+      }
+
+      // Simulate progress during speech
+      const estimatedDuration = text.length * 60 // ~60ms per char
+      let progressInterval: ReturnType<typeof setInterval> | null = null
+      utterance.onstart = () => {
+        setIsSpeaking(true)
+        setSpeechProgress(0)
+        progressInterval = setInterval(() => {
+          setSpeechProgress((prev) => {
+            if (prev >= 95) return prev
+            return prev + 2
+          })
+        }, estimatedDuration / 50)
+      }
+      utterance.onend = () => {
+        setIsSpeaking(false)
+        setSpeechProgress(100)
+        if (progressInterval) clearInterval(progressInterval)
+      }
+      utterance.onerror = () => {
+        setIsSpeaking(false)
+        setSpeechProgress(0)
+        if (progressInterval) clearInterval(progressInterval)
+      }
+
+      utteranceRef.current = utterance
+      window.speechSynthesis.speak(utterance)
+    },
+    [stopSpeech]
+  )
+
+  const toggleSpeech = useCallback(() => {
+    if (isSpeaking) {
+      stopSpeech()
     } else {
-      playAudio()
+      speak(description, language)
     }
-  }, [isPlaying, stopAudio, playAudio])
+  }, [isSpeaking, stopSpeech, speak, description, language])
 
   // ─── Auto-play timer ──────────────────────────────────────────────────
 
@@ -260,37 +329,35 @@ export default function AIAnimatedShowcase() {
       const clamped = ((index % PRODUCTS.length) + PRODUCTS.length) % PRODUCTS.length
       setActiveIndex(clamped)
       setImageLoaded(false)
-      stopAudio()
+      stopSpeech()
       clearTyping()
       clearAutoPlayTimer()
     },
-    [stopAudio, clearTyping, clearAutoPlayTimer]
+    [stopSpeech, clearTyping, clearAutoPlayTimer]
   )
 
   const goNext = useCallback(() => goTo(activeIndex + 1), [goTo, activeIndex])
   const goPrev = useCallback(() => goTo(activeIndex - 1), [goTo, activeIndex])
 
   const handleProductClick = useCallback(
-    (index: number) => {
-      goTo(index)
-    },
+    (index: number) => goTo(index),
     [goTo]
   )
 
-  // ─── When activeIndex changes, start typing the description ────────────
+  // ─── When activeIndex changes, start typing ────────────────────────────
 
   useEffect(() => {
     const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
     startTyping(desc)
   }, [activeIndex, language, startTyping])
 
-  // ─── Auto-play: advance after typing finishes + 2s delay ──────────────
+  // ─── Auto-play: after typing finishes + 2s, go next ────────────────────
 
   useEffect(() => {
-    if (!autoPlay || isPlaying) return
+    if (!autoPlay || isSpeaking) return
 
     const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
-    if (displayedText.length < desc.length) return // still typing
+    if (displayedText.length < desc.length) return
 
     clearAutoPlayTimer()
     autoPlayTimerRef.current = setTimeout(() => {
@@ -298,51 +365,21 @@ export default function AIAnimatedShowcase() {
     }, 2500)
 
     return clearAutoPlayTimer
-  }, [autoPlay, isPlaying, displayedText.length, activeIndex, language, goNext, clearAutoPlayTimer])
-
-  // ─── Audio events ──────────────────────────────────────────────────────
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
-    const onLoadedMetadata = () => setDuration(audio.duration)
-    const onEnded = () => setIsPlaying(false)
-
-    audio.addEventListener('timeupdate', onTimeUpdate)
-    audio.addEventListener('loadedmetadata', onLoadedMetadata)
-    audio.addEventListener('ended', onEnded)
-
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate)
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata)
-      audio.removeEventListener('ended', onEnded)
-    }
-  }, [activeIndex]) // re-bind when product changes
+  }, [autoPlay, isSpeaking, displayedText.length, activeIndex, language, goNext, clearAutoPlayTimer])
 
   // ─── Cleanup on unmount ────────────────────────────────────────────────
 
   useEffect(() => {
     return () => {
-      stopAudio()
+      stopSpeech()
       clearTyping()
       clearAutoPlayTimer()
     }
-  }, [stopAudio, clearTyping, clearAutoPlayTimer])
-
-  // ─── Waveform bars ─────────────────────────────────────────────────────
-
-  const waveformBars = 24
-
-  const formatTime = (t: number) => {
-    if (!t || !isFinite(t)) return '0:00'
-    const m = Math.floor(t / 60)
-    const s = Math.floor(t % 60)
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
+  }, [stopSpeech, clearTyping, clearAutoPlayTimer])
 
   // ─── Render ────────────────────────────────────────────────────────────
+
+  const waveformBars = 24
 
   return (
     <section
@@ -377,7 +414,7 @@ export default function AIAnimatedShowcase() {
         </p>
       </motion.header>
 
-      {/* ── Main Content: Carousel + Presentation ──────────────────────── */}
+      {/* ── Main Content ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
         {/* ── Left: Product Carousel ───────────────────────────────────── */}
@@ -401,7 +438,6 @@ export default function AIAnimatedShowcase() {
                   whileHover={{ scale: isActive ? 1 : 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* Active indicator ring */}
                   {isActive && (
                     <motion.div
                       layoutId="active-showcase-ring"
@@ -498,78 +534,65 @@ export default function AIAnimatedShowcase() {
               </p>
             </div>
 
-            {/* Audio player bar */}
-            <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleAudio}
-                className={cn(
-                  'h-9 w-9 rounded-full flex-shrink-0',
-                  isPlaying
-                    ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
-                    : 'hover:bg-muted'
-                )}
-                aria-label={isPlaying ? labels.stopVoice : labels.playVoice}
-              >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
+            {/* Audio player bar — Web Speech API */}
+            {speechSupported && (
+              <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSpeech}
+                  className={cn(
+                    'h-9 w-9 rounded-full flex-shrink-0',
+                    isSpeaking
+                      ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
+                      : 'hover:bg-muted'
+                  )}
+                  aria-label={isSpeaking ? labels.stopVoice : labels.playVoice}
+                >
+                  {isSpeaking ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </Button>
 
-              {/* Waveform visualizer */}
-              <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
-                {Array.from({ length: waveformBars }).map((_, i) => {
-                  const progress = duration > 0 ? currentTime / duration : 0
-                  const barProgress = i / waveformBars
-                  const isActiveBar = barProgress <= progress
-                  return (
-                    <motion.div
-                      key={i}
-                      className={cn(
-                        'flex-1 rounded-full min-w-[2px]',
-                        isActiveBar
-                          ? 'bg-emerald-500'
-                          : 'bg-muted-foreground/20'
-                      )}
-                      animate={
-                        isPlaying
-                          ? {
-                              height: ['30%', `${30 + Math.random() * 70}%`],
-                            }
-                          : { height: '40%' }
-                      }
-                      transition={
-                        isPlaying
-                          ? {
-                              duration: 0.3 + (i % 3) * 0.1,
-                              repeat: Infinity,
-                              repeatType: 'reverse',
-                              ease: 'easeInOut',
-                            }
-                          : { duration: 0.3 }
-                      }
-                    />
-                  )
-                })}
+                {/* Waveform visualizer */}
+                <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
+                  {Array.from({ length: waveformBars }).map((_, i) => {
+                    const barProgress = i / waveformBars
+                    const isActiveBar = barProgress <= speechProgress / 100
+                    return (
+                      <motion.div
+                        key={i}
+                        className={cn(
+                          'flex-1 rounded-full min-w-[2px]',
+                          isActiveBar
+                            ? 'bg-emerald-500'
+                            : 'bg-muted-foreground/20'
+                        )}
+                        animate={
+                          isSpeaking
+                            ? { height: ['30%', `${30 + Math.random() * 70}%`] }
+                            : { height: '40%' }
+                        }
+                        transition={
+                          isSpeaking
+                            ? {
+                                duration: 0.3 + (i % 3) * 0.1,
+                                repeat: Infinity,
+                                repeatType: 'reverse',
+                                ease: 'easeInOut',
+                              }
+                            : { duration: 0.3 }
+                        }
+                      />
+                    )
+                  })}
+                </div>
+
+                {/* Volume icon */}
+                <div className="flex items-center gap-2 flex-shrink-0 text-xs text-muted-foreground">
+                  {isSpeaking ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                  <span className="tabular-nums">{Math.round(speechProgress)}%</span>
+                </div>
               </div>
-
-              {/* Time + volume icon */}
-              <div className="flex items-center gap-2 flex-shrink-0 text-xs text-muted-foreground">
-                {isPlaying ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                <span className="tabular-nums w-8 text-right">
-                  {formatTime(currentTime)}
-                </span>
-              </div>
-            </div>
-
-            {/* Hidden audio element */}
-            <audio
-              ref={audioRef}
-              src={audioSrc}
-              preload="auto"
-              onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
-              onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
-              onEnded={() => setIsPlaying(false)}
-            />
+            )}
 
           </div>
 
