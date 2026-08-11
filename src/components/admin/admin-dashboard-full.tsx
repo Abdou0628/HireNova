@@ -57,6 +57,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Progress } from '@/components/ui/progress'
 import { useCVStore } from '@/store/cv-store'
+import GrowthTab from '@/components/admin/growth-tab'
+import type { GrowthDashboardData } from '@/components/admin/growth-tab'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -1399,6 +1401,8 @@ export default function AdminDashboardFull() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [growthData, setGrowthData] = useState<GrowthDashboardData | null>(null)
+  const [growthLoading, setGrowthLoading] = useState(false)
 
   const fetchStats = useCallback(async () => {
     try {
@@ -1424,6 +1428,27 @@ export default function AdminDashboardFull() {
   useEffect(() => {
     fetchStats()
   }, [fetchStats])
+
+  // Fetch growth dashboard data when growth tab is active
+  const fetchGrowthData = useCallback(async () => {
+    try {
+      setGrowthLoading(true)
+      const res = await fetch('/api/admin/growth-dashboard')
+      if (!res.ok) throw new Error(`Erreur serveur (${res.status})`)
+      const data = await res.json()
+      setGrowthData(data)
+    } catch {
+      // Silent fail — growth tab shows error state
+    } finally {
+      setGrowthLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === 'growth') {
+      fetchGrowthData()
+    }
+  }, [activeTab, fetchGrowthData])
 
   // Auto-refresh every 60 seconds
   useEffect(() => {
@@ -1584,6 +1609,12 @@ export default function AdminDashboardFull() {
                 >
                   Sécurité
                 </TabsTrigger>
+                <TabsTrigger
+                  value="growth"
+                  className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
+                >
+                  🎯 Croissance
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
@@ -1615,6 +1646,23 @@ export default function AdminDashboardFull() {
               </TabsContent>
               <TabsContent value="security">
                 <SecurityTab stats={stats} />
+              </TabsContent>
+              <TabsContent value="growth">
+                {growthLoading && !growthData ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                  </div>
+                ) : growthData ? (
+                  <GrowthTab data={growthData} />
+                ) : (
+                  <Card>
+                    <CardContent className="py-12 text-center">
+                      <p className="text-muted-foreground">Chargement des données de croissance...</p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
             </Tabs>
           ) : null}
