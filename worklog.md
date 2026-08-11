@@ -1127,3 +1127,21 @@ Stage Summary:
 - i18n support for FR/EN/AR/ES with RTL
 - Auto-play and manual navigation
 - Production-quality with proper TypeScript types and cleanup
+---
+Task ID: 1
+Agent: Main
+Task: Fix Arabic language issue + provide clone instructions
+
+Work Log:
+- Fixed Chrome getVoices() async timing bug: added voiceschanged event listener with persistent ref storage
+- Added comprehensive Arabic voice fallback with 16 locale variants (ar-SA, ar-AE, ar-EG, ar-MA, etc.) and 4-pass matching
+- Changed Arabic typing from character-by-character to word-by-word to prevent broken glyph rendering
+- Added Noto Sans Arabic font via next/font/google for proper Arabic text rendering
+- Added RTL font-family CSS rule in globals.css
+- Attempted git push but GitHub token expired
+- Provided user with full clone instructions and token update steps
+
+Stage Summary:
+- 3 files modified: ai-animated-showcase.tsx, layout.tsx, globals.css
+- Commit created locally: 6a6232f
+- Push blocked by expired GitHub PAT - user needs to provide new token
