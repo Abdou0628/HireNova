@@ -1015,3 +1015,27 @@ Stage Summary:
 - Intégration : admin-dashboard-full.tsx modifié (import, état, fetch, onglet)
 - Métriques croisées : RevenueAtRisk, SecurityHealthScore, GrowthEfficiency, AIGrossMargin, TopConversionModule, MFAByPlan
 - L'API est protégée par withAuth (admin) + audit log HNSA (ADMIN_GROWTH_DASHBOARD_VIEWED)
+---
+Task ID: M1-M5
+Agent: Main Agent
+Task: AI Marketing Layer — Analyse vision + implémentation marketing IA moderne
+
+Work Log:
+- Analysé les 3 stratégies (Payment, Security HNSA, Pricing CTO) et identifié le manque de layer marketing
+- Créé API POST /api/ai/marketing-content avec LLM (deepseek-chat) pour générer du contenu marketing
+- 5 types de contenu: product_description, social_post, email_campaign, landing_hero, testimonials
+- 11 produits avec noms localisés FR/EN/AR/ES et prix
+- Créé composant AIProductShowcase (src/components/marketing/ai-product-showcase.tsx)
+- 11 product cards avec grille responsive + carousel mobile horizontal
+- AI Copy Panel: génération de description marketing au clic via l'API
+- Animations Framer Motion (stagger fade-in, hover, AnimatePresence)
+- Support RTL pour arabe, 4 langues complètes
+- Intégré dans la landing page entre Job Copilot et Pricing Section
+- Commit local: e3eaf96
+- Push GitHub échoué (credentials expirés dans cette session)
+
+Stage Summary:
+- 2 nouveaux fichiers: api/ai/marketing-content/route.ts, components/marketing/ai-product-showcase.tsx
+- 1 fichier modifié: components/cv/landing.tsx
+- 0 nouvelle erreur lint
+- Toute la couche marketing IA est prête et commitée localement
