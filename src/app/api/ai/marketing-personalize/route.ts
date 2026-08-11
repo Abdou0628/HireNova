@@ -1,5 +1,3 @@
-'use server'
-
 /**
  * HireNova — AI Marketing Personalization Engine
  *
@@ -151,7 +149,7 @@ function matchBundleRule(quiz: QuizProfile): { bundleId: string; reason: string 
   }
 
   // Interview prep + career development
-  if (goal === 'prepare_interview' || goal === 'career_change') {
+  if (goal === 'prepare_interview') {
     if (budget === 'premium') return { bundleId: 'hirenova_ai_power', reason: 'full_career_prep' }
     return { bundleId: 'hirenova_career', reason: 'interview_career' }
   }

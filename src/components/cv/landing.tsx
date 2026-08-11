@@ -19,6 +19,7 @@ import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import PricingSection from '@/components/pricing-section'
 import AIProductShowcase from '@/components/marketing/ai-product-showcase'
+import AIMarketingHub from '@/components/marketing/ai-marketing-hub'
 import JobCopilotWidget from '@/components/copilot/job-copilot-widget'
 import { useSession } from 'next-auth/react'
 
@@ -715,6 +716,10 @@ export default function Landing() {
           setPaymentSuccess={setPaymentSuccess}
         />
         </div>
+
+        {/* AI Marketing Hub — Personalized Product Discovery */}
+        <AIMarketingHub onScrollToPricing={scrollToPricing} />
+
         {/* HireNova Ecosystem — Future Products Roadmap */}
         <section ref={ecosystemRef} className="relative py-16 sm:py-24 bg-gradient-to-b from-teal-50/40 via-white to-emerald-50/30">
           <div className="absolute inset-0 -z-10">

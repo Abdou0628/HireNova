@@ -186,6 +186,11 @@ export const events = {
   personaSelected: (persona: string) => track('persona_selected', { persona }),
   languageChanged: (from: string, to: string) =>
     track('language_changed', { from, to }),
+
+  // AI Marketing Hub
+  quizStarted: () => track('marketing_quiz_started'),
+  quizCompleted: (data?: { bundle?: string; confidence?: number }) =>
+    track('marketing_quiz_completed', { bundle: data?.bundle, confidence: data?.confidence }),
 }
 
 // React provider is handled by AnalyticsBootstrap component
