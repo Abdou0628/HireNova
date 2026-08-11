@@ -198,11 +198,17 @@ export default function AIAnimatedShowcase() {
   const description = DESCRIPTIONS[language][activeProduct.slug]
   const imageSrc = getImageSrc(activeProduct.slug)
 
-  // ─── Check speech support ───────────────────────────────────────────────
+  // ─── Check speech support + preload voices ─────────────────────────────
   useEffect(() => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       setSpeechSupported(false)
+      return
     }
+    // Pre-load voices (they load async in some browsers)
+    window.speechSynthesis.getVoices()
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+      window.speechSynthesis.getVoices()
+    }, { once: true })
   }, [])
 
   // ─── Typing effect ─────────────────────────────────────────────────────
@@ -528,7 +534,10 @@ export default function AIAnimatedShowcase() {
                   <motion.span
                     animate={{ opacity: [1, 0] }}
                     transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
-                    className="inline-block w-0.5 h-4 sm:h-5 bg-emerald-500 ml-0.5 align-middle"
+                    className={cn(
+                      'inline-block w-0.5 h-4 sm:h-5 bg-emerald-500 align-middle',
+                      isRTL ? 'mr-0.5' : 'ml-0.5'
+                    )}
                   />
                 )}
               </p>
@@ -555,7 +564,8 @@ export default function AIAnimatedShowcase() {
                 {/* Waveform visualizer */}
                 <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
                   {Array.from({ length: waveformBars }).map((_, i) => {
-                    const barProgress = i / waveformBars
+                    const reversedI = isRTL ? waveformBars - 1 - i : i
+                    const barProgress = reversedI / waveformBars
                     const isActiveBar = barProgress <= speechProgress / 100
                     return (
                       <motion.div
@@ -654,7 +664,7 @@ export default function AIAnimatedShowcase() {
               >
                 <motion.div
                   className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
-                  animate={{ left: autoPlay ? '16px' : '2px' }}
+                  animate={{ [isRTL ? 'right' : 'left']: autoPlay ? '16px' : '2px' }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               </motion.div>
