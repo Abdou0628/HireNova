@@ -18,6 +18,7 @@ import { events } from '@/lib/analytics'
 import AdminDashboard from '@/components/admin/admin-dashboard'
 import ChatbotWidget from '@/components/chatbot/chatbot-widget'
 import PricingSection from '@/components/pricing-section'
+import JobCopilotWidget from '@/components/copilot/job-copilot-widget'
 import { useSession } from 'next-auth/react'
 
 const flagEmoji: Record<CVLanguage, string> = {
@@ -666,6 +667,31 @@ export default function Landing() {
                 </motion.div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Job Copilot Section */}
+        <section id="job-copilot" className="py-16 sm:py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
+                <Brain className="w-4 h-4" />
+                <span>IA Avancée</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-3">
+                {t(language, 'HireNova Job Copilot')}
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
+                {t(language, 'copilotDesc')}
+              </p>
+            </motion.div>
+            <JobCopilotWidget />
           </div>
         </section>
 

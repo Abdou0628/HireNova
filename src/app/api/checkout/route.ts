@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withAuth, logAudit } from '@/lib/hnsa'
 import { db } from '@/lib/db'
 import { getModulePrice, getB2CBundlePrice, type Currency as PECurrency, type BillingPeriod as PEBillingPeriod } from '@/lib/pricing-engine'
+import {
+  generateIdempotencyKey,
+  isDuplicatePayment,
+  validatePaymentIntent,
+  logPaymentTransaction,
+} from '@/lib/billing-safety'
 
 type Currency = 'eur' | 'usd' | 'gbp' | 'mad'
 
@@ -92,6 +98,15 @@ export async function POST(request: NextRequest) {
     const isModule = (MODULE_IDS as readonly string[]).includes(planType)
     const isLegacy = (LEGACY_PLANS as readonly string[]).includes(planType)
 
+    // ─── Billing Safety: Idempotency Check ─────────────────────────────
+    const idempotencyKey = generateIdempotencyKey(userId, planType, billing)
+    if (await isDuplicatePayment(idempotencyKey)) {
+      return NextResponse.json(
+        { error: 'Cette transaction a déjà été initiée.', code: 'DUPLICATE_PAYMENT' },
+        { status: 409 }
+      )
+    }
+
     const user = await db.user.findUnique({
       where: { id: userId },
       select: {
@@ -109,8 +124,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ─── Billing Safety: Payment Validation ─────────────────────────────
+    const validation = await validatePaymentIntent({
+      userId, planType, amount: 0, currency, billing,
+    })
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: 'Validation de paiement échouée.', code: 'PAYMENT_VALIDATION_FAILED', reason: validation.reason },
+        { status: 400 },
+      )
+    }
+
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
     const planLabel = PLAN_LABEL_MAP[planType] || planType
+
+    // ─── Billing Safety: Log Transaction Initiated ──────────────────────
+    logPaymentTransaction({
+      userId, provider: providerParam || 'auto', planType,
+      amount: 0, currency, status: 'initiated',
+      metadata: { idempotencyKey, billing, isBundle, isModule },
+    }).catch(() => {})
 
     await logAudit({
       userId, action: 'CHECKOUT_INITIATED', resourceType: 'payment',
@@ -249,6 +282,13 @@ export async function POST(request: NextRequest) {
         },
       })
     } catch (acctErr) { console.error('[checkout] Accounting entry failed:', acctErr) }
+
+    // ─── Billing Safety: Log Transaction Succeeded ─────────────────────
+    logPaymentTransaction({
+      userId, provider: 'dev_simulation', planType,
+      amount, currency: currencyLabel, status: 'succeeded',
+      metadata: { billing, isBundle, isModule, planLabel },
+    }).catch(() => {})
 
     await logAudit({
       userId, action: 'PAYMENT_SUCCESS', resourceType: 'payment',

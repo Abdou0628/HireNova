@@ -893,6 +893,12 @@ export type TranslationKey =
   | 'verifyEmailErrorTitle' | 'verifyEmailErrorDesc'
   // Password reset email template
   | 'resetCodeSubject' | 'resetCodeTitle' | 'resetCodeBody' | 'resetCodeExpires'
+  // Conversion Layer — Goal Selector & Value Calculator
+  | 'goalCreateCv' | 'goalFindJob' | 'goalPrepareInterview' | 'goalDevelopCareer' | 'goalFreelance'
+  | 'copilotDesc'
+  | 'recommendedForYou' | 'valueCalculatorTitle' | 'includesModules' | 'individualCost'
+  | 'bundleCost' | 'youSave' | 'vsIndividual' | 'monthlyEquiv' | 'selectYourGoal'
+  | 'goalQuestion' | 'valueCalcPrefix' | 'valueCalcSuffix'
 
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
@@ -2562,6 +2568,25 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     resetCodeTitle: 'Réinitialisez votre mot de passe',
     resetCodeBody: 'Vous avez demandé une réinitialisation de mot de passe. Utilisez le code ci-dessous pour définir un nouveau mot de passe.',
     resetCodeExpires: 'Ce code expire dans 15 minutes.',
+    // Conversion Layer
+    goalCreateCv: 'Créer mon CV',
+    goalFindJob: 'Trouver un emploi',
+    goalPrepareInterview: 'Préparer un entretien',
+    goalDevelopCareer: 'Développer ma carrière',
+    goalFreelance: 'Freelance',
+    copilotDesc: "Collez une offre d'emploi et laissez l'IA analyser votre compatibilité, optimiser votre CV et préparer votre candidature en un clic.",
+    recommendedForYou: 'RECOMMANDÉ POUR VOUS',
+    valueCalculatorTitle: 'Calculateur de valeur',
+    includesModules: 'modules inclus',
+    individualCost: 'Coût individuel',
+    bundleCost: 'Prix du bundle',
+    youSave: 'Vous économisez',
+    vsIndividual: 'vs modules individuels',
+    monthlyEquiv: 'Équivalent mensuel',
+    selectYourGoal: 'Sélectionnez votre objectif',
+    goalQuestion: 'Quel est votre objectif ?',
+    valueCalcPrefix: 'Pour',
+    valueCalcSuffix: 'inclut',
   },
   en: {
     siteTitle: 'HireNova',
@@ -4230,6 +4255,25 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     resetCodeTitle: 'Reset your password',
     resetCodeBody: 'You requested a password reset. Use the code below to set a new password.',
     resetCodeExpires: 'This code expires in 15 minutes.',
+    // Conversion Layer
+    goalCreateCv: 'Create my CV',
+    goalFindJob: 'Find a job',
+    goalPrepareInterview: 'Prepare for an interview',
+    goalDevelopCareer: 'Develop my career',
+    goalFreelance: 'Freelance',
+    copilotDesc: 'Paste a job listing and let AI analyze your compatibility, optimize your CV, and prepare your application in one click.',
+    recommendedForYou: 'RECOMMENDED FOR YOU',
+    valueCalculatorTitle: 'Value Calculator',
+    includesModules: 'modules included',
+    individualCost: 'Individual cost',
+    bundleCost: 'Bundle price',
+    youSave: 'You save',
+    vsIndividual: 'vs individual modules',
+    monthlyEquiv: 'Monthly equivalent',
+    selectYourGoal: 'Select your goal',
+    goalQuestion: 'What is your goal?',
+    valueCalcPrefix: 'For',
+    valueCalcSuffix: 'includes',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -5897,6 +5941,25 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     resetCodeTitle: 'أعد تعيين كلمة المرور',
     resetCodeBody: 'طلبت إعادة تعيين كلمة المرور. استخدم الرمز أدناه لتعيين كلمة مرور جديدة.',
     resetCodeExpires: 'ينتهي هذا الرمز خلال 15 دقيقة.',
+    // Conversion Layer
+    goalCreateCv: 'إنشاء سيرتي الذاتية',
+    goalFindJob: 'العثور على عمل',
+    goalPrepareInterview: 'التحضير لمقابلة',
+    goalDevelopCareer: 'تطوير مسيرتي المهنية',
+    goalFreelance: 'عمل حر',
+    copilotDesc: 'الصق إعلان وظيفة ودع الذكاء الاصطناعي يحلل توافقك ويحسن سيرتك الذاتية ويجهز طلبك بنقرة واحدة.',
+    recommendedForYou: 'موصى به لك',
+    valueCalculatorTitle: 'حاسبة القيمة',
+    includesModules: 'وحدات مضمنة',
+    individualCost: 'التكلفة الفردية',
+    bundleCost: 'سعر الباقة',
+    youSave: 'توفر',
+    vsIndividual: 'مقارنة بالوحدات الفردية',
+    monthlyEquiv: 'المعادل الشهري',
+    selectYourGoal: 'اختر هدفك',
+    goalQuestion: 'ما هو هدفك؟',
+    valueCalcPrefix: 'لـ',
+    valueCalcSuffix: 'يتضمن',
   },
   es: {
     siteTitle: 'HireNova',
@@ -7565,6 +7628,25 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     resetCodeTitle: 'Restablece tu contraseña',
     resetCodeBody: 'Solicitaste un restablecimiento de contraseña. Usa el código de abajo para establecer una nueva contraseña.',
     resetCodeExpires: 'Este código expira en 15 minutos.',
+    // Conversion Layer
+    goalCreateCv: 'Crear mi CV',
+    goalFindJob: 'Encontrar empleo',
+    goalPrepareInterview: 'Preparar una entrevista',
+    goalDevelopCareer: 'Desarrollar mi carrera',
+    goalFreelance: 'Freelance',
+    copilotDesc: 'Pega una oferta de empleo y deja que la IA analice tu compatibilidad, optimice tu CV y prepare tu candidatura en un clic.',
+    recommendedForYou: 'RECOMENDADO PARA TI',
+    valueCalculatorTitle: 'Calculadora de valor',
+    includesModules: 'módulos incluidos',
+    individualCost: 'Costo individual',
+    bundleCost: 'Precio del paquete',
+    youSave: 'Ahorras',
+    vsIndividual: 'vs módulos individuales',
+    monthlyEquiv: 'Equivalente mensual',
+    selectYourGoal: 'Selecciona tu objetivo',
+    goalQuestion: '¿Cuál es tu objetivo?',
+    valueCalcPrefix: 'Para',
+    valueCalcSuffix: 'incluye',
   }
 }
 

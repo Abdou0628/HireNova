@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   Check, FileText, Shield, Search, Globe, Plane, UserCheck,
   Linkedin, Compass, BookOpen, GraduationCap, Briefcase,
   Loader2, Rocket, Crown, Sparkles, Star, ArrowRight, Mail,
-  Building2, Code2, Store,
+  Building2, Code2, Store, MessageSquare, Laptop, Calculator, Target, TrendingDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,12 +20,48 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import type { CVLanguage } from '@/lib/i18n'
+import { t } from '@/lib/i18n'
 import type { AppStep } from '@/store/cv-store'
 import { events } from '@/lib/analytics'
 import { toast } from 'sonner'
 
 type Currency = 'eur' | 'usd' | 'gbp' | 'mad'
 type BillingPeriod = 'monthly' | 'annual'
+
+// ─── Goal Selector Types & Data ─────────────────────────────────────────────
+
+type UserGoal = 'create_cv' | 'find_job' | 'prepare_interview' | 'develop_career' | 'freelance'
+
+interface GoalCard {
+  id: UserGoal
+  icon: any
+  labelKey: 'goalCreateCv' | 'goalFindJob' | 'goalPrepareInterview' | 'goalDevelopCareer' | 'goalFreelance'
+  recommendedBundle: string
+}
+
+const GOALS: GoalCard[] = [
+  { id: 'create_cv', icon: FileText, labelKey: 'goalCreateCv', recommendedBundle: 'hirenova_start' },
+  { id: 'find_job', icon: Briefcase, labelKey: 'goalFindJob', recommendedBundle: 'hirenova_career' },
+  { id: 'prepare_interview', icon: MessageSquare, labelKey: 'goalPrepareInterview', recommendedBundle: 'hirenova_career' },
+  { id: 'develop_career', icon: GraduationCap, labelKey: 'goalDevelopCareer', recommendedBundle: 'hirenova_professional' },
+  { id: 'freelance', icon: Laptop, labelKey: 'goalFreelance', recommendedBundle: 'hirenova_professional' },
+]
+
+// Module individual prices (EUR) for value calculation
+const MODULE_PRICES: Record<string, number> = {
+  CV: 9.90, ATS: 7.90, JOBS: 9.90, GLOBAL: 9.90, MOBILITY: 12.90,
+  INTERVIEW: 9.90, LINKEDIN: 7.90, CAREER: 9.90, COACH: 9.90,
+  FORMATION: 12.90, FREELANCE: 9.90, Intelligence: 0,
+}
+
+// Goal-specific value props
+const GOAL_VALUE_PROPS: Record<UserGoal, { reason: string; savingsPercent: number }> = {
+  create_cv: { reason: 'CV professionnel + analyse ATS', savingsPercent: 38 },
+  find_job: { reason: '7 modules pour maximiser vos chances', savingsPercent: 60 },
+  prepare_interview: { reason: 'Simulation IA + coaching entretien', savingsPercent: 54 },
+  develop_career: { reason: '11 modules pour votre évolution', savingsPercent: 72 },
+  freelance: { reason: 'Marketplace + coaching + formation', savingsPercent: 62 },
+}
 
 interface PricingSectionProps {
   language: CVLanguage
@@ -320,9 +356,59 @@ export default function PricingSection({
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly')
   const [selectedModule, setSelectedModule] = useState<IndividualModule | null>(null)
   const [checkoutSuccessId, setCheckoutSuccessId] = useState<string | null>(null)
+  const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null)
+  const bundleCardsRef = useRef<HTMLDivElement>(null)
 
   const isAnnual = billingPeriod === 'annual'
   const isLoggedIn = !!session?.user
+
+  // Derive recommended bundle from selected goal
+  const recommendedBundleId = selectedGoal ? GOALS.find(g => g.id === selectedGoal)?.recommendedBundle ?? null : null
+
+  // Calculate value for the selected goal
+  function getGoalValueCalc() {
+    if (!selectedGoal) return null
+    const goal = GOALS.find(g => g.id === selectedGoal)
+    if (!goal) return null
+    const bundle = BUNDLES.find(b => b.id === goal.recommendedBundle)
+    if (!bundle) return null
+
+    const individualTotal = bundle.modules.reduce((sum, mod) => sum + (MODULE_PRICES[mod] ?? 0), 0)
+    const bundleCost = isAnnual ? bundle.monthlyEur * 10 : bundle.monthlyEur
+    const savings = individualTotal - bundleCost
+    const savingsPct = individualTotal > 0 ? Math.round((savings / individualTotal) * 100) : 0
+    const goalProps = GOAL_VALUE_PROPS[selectedGoal]
+
+    return {
+      bundleName: bundle.name,
+      moduleCount: bundle.modules.length,
+      individualTotal,
+      bundleCost,
+      savings: Math.max(0, savings),
+      savingsPct: Math.max(0, savingsPct),
+      reason: goalProps?.reason ?? '',
+      formattedIndividual: fmtPrice(individualTotal, currency),
+      formattedBundle: isAnnual ? fmtAnnual(bundle.monthlyEur, currency) : fmtPrice(bundle.monthlyEur, currency),
+      formattedSavings: fmtPrice(Math.max(0, savings), currency),
+    }
+  }
+
+  const valueCalc = getGoalValueCalc()
+
+  function handleGoalSelect(goal: UserGoal) {
+    if (selectedGoal === goal) {
+      setSelectedGoal(null)
+      return
+    }
+    setSelectedGoal(goal)
+    // Scroll to recommended bundle after a short delay
+    setTimeout(() => {
+      const el = document.getElementById(`bundle-${GOALS.find(g => g.id === goal)?.recommendedBundle}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
+  }
 
   async function handleCheckout(planId: string) {
     if (!isLoggedIn) {
@@ -426,14 +512,133 @@ export default function PricingSection({
           </div>
         </motion.div>
 
+        {/* ─── Goal Selector ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.4 }}
+          className="mb-8"
+        >
+          <div className="text-center mb-5">
+            <div className="inline-flex items-center gap-2 mb-2">
+              <Target className="w-5 h-5 text-emerald-600" />
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                {t(language, 'goalQuestion')}
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t(language, 'selectYourGoal')}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 max-w-4xl mx-auto">
+            {GOALS.map((goal, i) => {
+              const GoalIcon = goal.icon
+              const isSelected = selectedGoal === goal.id
+              const isRecommended = recommendedBundleId === goal.recommendedBundle && selectedGoal !== null
+              return (
+                <motion.button
+                  key={goal.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  onClick={() => handleGoalSelect(goal.id)}
+                  className={[
+                    'relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all cursor-pointer group',
+                    isSelected
+                      ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-500/10'
+                      : 'border-muted hover:border-emerald-300 hover:bg-emerald-50/50',
+                  ].join(' ')}
+                >
+                  <div className={[
+                    'w-10 h-10 rounded-lg flex items-center justify-center transition-colors',
+                    isSelected ? 'bg-emerald-100' : 'bg-muted group-hover:bg-emerald-100',
+                  ].join(' ')}>
+                    <GoalIcon className={[
+                      'w-5 h-5 transition-colors',
+                      isSelected ? 'text-emerald-600' : 'text-muted-foreground group-hover:text-emerald-600',
+                    ].join(' ')} />
+                  </div>
+                  <span className={[
+                    'text-xs font-semibold text-center leading-tight',
+                    isSelected ? 'text-emerald-700' : 'text-muted-foreground group-hover:text-foreground',
+                  ].join(' ')}>
+                    {t(language, goal.labelKey)}
+                  </span>
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center"
+                    >
+                      <Check className="w-3 h-3 text-white" />
+                    </motion.div>
+                  )}
+                </motion.button>
+              )
+            })}
+          </div>
+        </motion.div>
+
+        {/* ─── Value Calculator Summary ─── */}
+        {selectedGoal && valueCalc && (
+          <motion.div
+            initial={{ opacity: 0, y: 15, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-white overflow-hidden">
+              <CardContent className="p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                    <Calculator className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-bold text-foreground mb-1">
+                      {t(language, 'valueCalculatorTitle')}
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">{valueCalc.bundleName}</span>
+                      {' — '}{valueCalc.reason}
+                      {'. '}{valueCalc.moduleCount} {t(language, 'includesModules').toLowerCase()}
+                      {' — '}{t(language, 'bundleCost').toLowerCase()}
+                      {' '}
+                      <span className="font-bold text-emerald-600">{valueCalc.formattedBundle}</span>
+                      {' '}{isAnnual ? '/an' : '/mois'}
+                      {' au lieu de '}
+                      <span className="line-through text-muted-foreground">{valueCalc.formattedIndividual}</span>
+                      {' — '}
+                      <span className="font-bold text-emerald-600">{t(language, 'youSave').toLowerCase()} {valueCalc.savingsPct}%</span>
+                      {' ('}{valueCalc.formattedSavings}{')'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedGoal(null)}
+                    className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* ─── B2C Bundles ─── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 items-stretch max-w-6xl mx-auto mb-16">
           {BUNDLES.map((plan, i) => {
             const Icon = plan.icon
             const isPopular = plan.id === 'hirenova_career'
+            const isGoalRecommended = recommendedBundleId === plan.id
             return (
               <motion.div
                 key={plan.id}
+                id={`bundle-${plan.id}`}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
@@ -442,19 +647,30 @@ export default function PricingSection({
               >
                 <Card
                   className={[
-                    'relative h-full bg-white',
-                    plan.borderClass,
-                    isPopular ? 'shadow-lg shadow-sky-500/20' : '',
+                    'relative h-full bg-white transition-all duration-300',
+                    isGoalRecommended
+                      ? 'border-2 border-emerald-500 shadow-lg shadow-emerald-500/25 ring-2 ring-emerald-500/20'
+                      : plan.borderClass,
+                    isPopular && !isGoalRecommended ? 'shadow-lg shadow-sky-500/20' : '',
                   ].join(' ')}
                 >
-                  {plan.badge && (
+                  {/* Goal recommendation badge — shows above the normal badge */}
+                  {isGoalRecommended && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-emerald-600 text-white px-3 py-0.5 text-[10px] font-bold rounded-full shadow-sm flex items-center gap-1">
+                        <Star className="w-3 h-3" />
+                        {t(language, 'recommendedForYou')}
+                      </Badge>
+                    </div>
+                  )}
+                  {!isGoalRecommended && plan.badge && (
                     <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                       <Badge className={`${plan.badgeClass} px-3 py-0.5 text-[10px] font-semibold rounded-full shadow-sm`}>
                         {plan.badge}
                       </Badge>
                     </div>
                   )}
-                  <CardContent className={['p-5 sm:p-6 flex flex-col h-full', plan.badge ? 'pt-7' : ''].join(' ')}>
+                  <CardContent className={['p-5 sm:p-6 flex flex-col h-full', (isGoalRecommended || plan.badge) ? 'pt-7' : ''].join(' ')}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className={`w-9 h-9 rounded-lg ${plan.bgIcon} flex items-center justify-center`}>
                         <Icon className={`w-4 h-4 ${plan.iconColor}`} />

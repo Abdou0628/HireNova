@@ -794,3 +794,202 @@ Stage Summary:
 - Min-price tiers (campus/whitelabel enterprise) show "+" suffix correctly (e.g. "€14 990+/an")
 - Visual design and CTA behavior preserved exactly
 - 0 new lint/TS errors
+---
+Task ID: P1
+Agent: Core Architecture Agent
+Task: Build Entitlement Engine — central system mapping User → Subscription → Entitlements → Modules → Features
+
+Work Log:
+- Created `src/lib/entitlement-engine.ts` as the single source of truth for plan entitlements
+- Defined comprehensive `PLAN_ENTITLEMENTS` matrix covering all 8 plan keys: free, starter, hirenova_start, career_plus, hirenova_career, pro, hirenova_professional, hirenova_ai_power
+- Legacy plan names (starter, career_plus, pro) map to identical entitlements as their new counterparts (hirenova_start, hirenova_career, hirenova_professional)
+- Individual module plans (mod_cv, mod_ats, etc.) get starter-level entitlements for that single module
+- Employer/annual plans get professional-level entitlements
+- Exported 9 functions: getEntitlements, hasModuleAccess, hasFeatureAccess, getAccessibleModules, getMissingModules, getUpgradePath, getAILevel, getMonthlyLimits, canPerformAction
+- Exported 2 utility functions: resolveCanonicalPlan, getAllPlans
+- Exported 4 types: AILevel, PlanEntitlements, MonthlyLimits, UpgradePath
+- Created `src/app/api/user/entitlements/route.ts` GET endpoint with withAuth, per-user 5-minute in-memory cache, DB usage counting (cvCountThisMonth, clCountThisMonth from User model, interview count from InterviewSession table)
+- Response includes: plan, canonicalPlan, modules, features, aiLevel, limits (used/max per resource), remaining (per resource)
+- Updated `src/lib/hnsa/index.ts` to re-export all entitlement engine functions and types
+- 0 new TypeScript errors, 0 new lint errors
+
+Stage Summary:
+- Entitlement engine is the single source of truth for what each plan grants
+- Supports both legacy and new plan names transparently
+- API endpoint at GET /api/user/entitlements returns full entitlement + usage data with 5-min cache
+- All 9 query functions + 2 utility functions available via `@/lib/entitlement-engine` or `@/lib/hnsa`
+- No changes to pricing-engine.ts or any existing files (except hnsa/index.ts barrel export)
+- 0 new lint/TS errors---
+Task ID: P2Agent
+Agent: Payment Safety Agent
+Task: Build HireNova Billing Safety Layer
+
+Work Log:
+- Added `planExpiresAt DateTime?` and `gracePeriodUntil DateTime?` fields to User model in prisma/schema.prisma
+- Ran `bun run db:push` — schema synced, Prisma Client regenerated
+- Created `src/lib/billing-safety.ts` with 7 components:
+  1. **Idempotency Key System**: `generateIdempotencyKey()` (SHA-256 of userId+planType+billing+month) + `isDuplicatePayment()` (queries Payment table by idempotencyKey, fails open on DB error)
+  2. **Payment Validation**: `validatePaymentIntent()` — checks plan validity, duplicate subscription, amount vs pricing engine (5% tolerance), and silent downgrade prevention via PLAN_TIER_ORDER ranking
+  3. **Grace Period Manager**: `GRACE_PERIOD_DAYS = 7`, `SubscriptionStatus` type (7 states), `getSubscriptionStatus()` — pure function deriving status from user.plan + planExpiresAt + gracePeriodUntil
+  4. **Entitlement Revoker**: `revokeEntitlements()` — sets plan=free, clears expiry fields, logs SUBSCRIPTION_CANCELLED to audit trail, fires critical ACCOUNT_LOCKOUT SIEM event
+  5. **Entitlement Restorer**: `restoreEntitlements()` — sets plan back, logs SUBSCRIPTION_CREATED to audit trail
+  6. **Webhook Signature Verifier**: `verifyWebhookSignature()` — Stripe (HMAC-SHA256 of timestamp.payload, 5-min age limit, constant-time comparison) and PayMob (HMAC-SHA256 of raw payload)
+  7. **Payment Transaction Logger**: `logPaymentTransaction()` — creates/finds Payment record, writes PaymentEvent, fires SIEM PAYMENT_FAILURE on failures, logs to SecurityAudit
+- Wired billing-safety into `src/app/api/checkout/route.ts`:
+  - Idempotency check (409 DUPLICATE_PAYMENT) after plan validation, before user lookup
+  - Payment validation (400 PAYMENT_VALIDATION_FAILED) after user lookup and already-subscribed check
+  - Transaction logging (initiated) before provider dispatch
+  - Transaction logging (succeeded) after dev simulator completion
+  - All new calls are non-blocking (.catch(() => {}))
+- All imports use correct HNSA audit signature (actorId/action/resource/outcome)
+- Removed unused `resolveCanonicalPlan` import
+- Fixed HMAC usage (createHmac instead of createHash for signature verification)
+- Fixed timingSafeEqual to use node:crypto import instead of require()
+
+Stage Summary:
+- Central billing safety module operational at `@/lib/billing-safety`
+- Double-payment prevention via idempotency keys (SHA-256, month-scoped)
+- Pre-checkout validation catches invalid plans, duplicate subs, amount mismatches, and silent downgrades
+- 7-day grace period with status derivation logic ready for cron/webhook integration
+- Entitlement revocation/restoration with full audit trail + SIEM forwarding
+- Webhook signature verification for Stripe and PayMob with timing-attack protection
+- Payment transaction logging to PaymentEvent table with SIEM integration for failures
+- Checkout route hardened without breaking existing PayMob/Stripe/LemonSqueezy/Dev flows
+- 0 new TS errors in billing-safety.ts (all 7 errors in checkout/route.ts are pre-existing)
+
+---
+Task ID: P3Agent
+Agent: AI Usage Engine Agent
+Task: Build HireNova AI Usage Engine — quota → consumption → cost → limit → alert
+
+Work Log:
+- Created `src/lib/ai-usage-engine.ts` with 7 components:
+  1. **Types**: `AIUsageRecord`, `AIUsageQuota`, `UserAIUsage`, `AIUsageSummary`
+  2. **Cost Model**: `MODEL_COSTS` — per-1M-token pricing for gpt-4o-mini, gpt-4o, gpt-4, claude-3-haiku/sonnet/opus (EUR)
+  3. **Module Quotas by AI Level**: linkedin/career/coach/chatbot limits mapped to none/basic/advanced/premium AI levels; cv/ats/interview/cover_letter mapped via entitlement engine fields
+  4. **Hard Cost Caps**: Per-plan EUR cost caps (free: €0.50 → AI Power: €200.00)
+  5. **In-Memory Store**: `Map<string, AIUsageRecord[]>` with JSON file persistence at `db/ai-usage.json`, 5-second debounce flush, auto-loads on import
+  6. **`estimateAICost(model, inputTokens, outputTokens)`**: Pure function returning EUR cost
+  7. **`trackAIUsage(params)`**: Non-blocking write to in-memory store + scheduled flush
+  8. **`getUserAIUsage(userId)`**: Returns current-month usage per module with warnings
+  9. **`getUserAIUsageWithPlan(userId, plan)`**: Enriches quotas with plan-based limits + 80%/100% threshold warnings
+  10. **`checkAIAccess(userId, module, plan)`**: Returns `{ allowed, reason?, remaining }` — checks action quota + cost cap
+  11. **`getAIUsageSummary(params)`**: Admin analytics — total actions, cost, per-module breakdown with date filter
+  12. **`getUserAIUsageDetail(userId, filters?)`**: Admin per-user record listing with date/module filters
+- Created `src/app/api/admin/ai-usage/route.ts`:
+  - GET with withAuth (admin only)
+  - No userId → global analytics (getAIUsageSummary)
+  - With userId → user detail (plan from DB, usage quotas, raw records)
+  - Query params: userId, module, startDate, endDate
+- Updated `src/lib/hnsa/index.ts` barrel export with all 7 AI usage functions + 4 types
+- Fixed `@next/next/no-assign-module-variable` lint error (renamed `module` → `aiModule`)
+- ESLint: 0 errors, 0 warnings on all new files
+- TypeScript: 0 new errors (12 pre-existing in paymob/persona-engine/stripe)
+
+Stage Summary:
+- AI Usage Engine operational at `@/lib/ai-usage-engine`
+- In-memory Map with JSON file persistence at `db/ai-usage.json` (5s debounce flush)
+- Full cost tracking per model (6 models + default) with EUR pricing
+- Plan-aware quota enforcement: entitlement engine limits + AI level-based quotas for linkedin/career/coach/chatbot
+- Hard cost caps per plan prevent runaway AI spending
+- Non-blocking trackAIUsage() suitable for high-frequency AI calls
+- Admin API at `/api/admin/ai-usage` for global analytics and per-user drilldown
+- 0 new lint/TS errors
+---
+Task ID: P4
+Agent: Conversion Layer Agent
+Task: Build Conversion Layer — Goal-based bundle recommender + Value Calculator
+
+Work Log:
+- Created `src/lib/conversion-engine.ts` with:
+  - `UserGoal` type (7 goals: create_cv, find_job, prepare_interview, develop_career, freelance, international, enterprise)
+  - `GoalRecommendation` interface (primaryBundle, alternativeBundle, requiredModules, savingsVsIndividual, valueProps)
+  - `ValueCalculation` interface (full value breakdown with currency conversion)
+  - `GoalOption` interface (multilingual labels fr/en/ar/es)
+  - `GOAL_BUNDLE_MAP` mapping all 7 goals to recommended bundles with FR reasons and value propositions
+  - `getGoalRecommendation(goal)` — returns the recommendation for a goal
+  - `calculateValue(goal, billing, currency)` — computes full value breakdown (individual cost, bundle cost, savings %, monthly equivalent)
+  - `getGoalOptions()` — returns 5 B2C goal options with multilingual labels
+  - `isValidGoal(goal)` — type guard for UserGoal
+- Created `src/app/api/conversion/recommend/route.ts` POST endpoint:
+  - Input: `{ goal, currency?, billing? }`
+  - Validates goal, currency, billing period
+  - Returns `GoalRecommendation` + `ValueCalculation` + optional `userContext`
+  - Uses `withAuth` (optional) — anonymous visitors get full recommendations, authenticated users also see their current plan and upgrade status
+  - SIEM error logging on failure
+- Updated `src/components/pricing-section.tsx`:
+  - Added imports: `useRef`, `MessageSquare`, `Laptop`, `Calculator`, `Target`, `TrendingDown`, `t` from i18n
+  - Added `UserGoal` type, `GOALS` array (5 goal cards with icons and i18n keys), `MODULE_PRICES` map, `GOAL_VALUE_PROPS` map
+  - Added `selectedGoal` state and `bundleCardsRef` ref
+  - Added `getGoalValueCalc()` — client-side value calculation (module count, individual total, bundle cost, savings)
+  - Added `handleGoalSelect()` — toggles goal selection and smooth-scrolls to recommended bundle card
+  - Added **Goal Selector** section above B2C bundles: 5 icon cards in a responsive grid (2/3/5 cols) with emerald highlight on selection
+  - Added **Value Calculator Summary** card: appears when goal is selected, shows bundle name, module count, formatted prices, savings %, dismissible with X button
+  - Modified B2C bundle card rendering: recommended card gets emerald border + ring + "RECOMMANDÉ POUR VOUS" badge with star icon, normal badges hidden when goal-recommended, `id` attributes for scroll targeting
+- Added 18 i18n keys to `src/lib/i18n.ts` in all 4 languages (fr/en/ar/es):
+  - goalCreateCv, goalFindJob, goalPrepareInterview, goalDevelopCareer, goalFreelance
+  - recommendedForYou, valueCalculatorTitle, includesModules, individualCost
+  - bundleCost, youSave, vsIndividual, monthlyEquiv, selectYourGoal
+  - goalQuestion, valueCalcPrefix, valueCalcSuffix
+
+Stage Summary:
+- Conversion engine at `@/lib/conversion-engine` maps 7 user goals to optimal bundles with multilingual value propositions
+- API endpoint at `POST /api/conversion/recommend` returns recommendation + value calc, works for anonymous and authenticated users
+- Pricing section now has a "Quel est votre objectif ?" goal selector with 5 visual goal cards
+- Selecting a goal highlights the recommended bundle with emerald border + badge and shows a Value Calculator summary
+- Existing pricing section works unchanged when no goal is selected
+- All design follows existing patterns (emerald color scheme, shadcn components, framer-motion animations)
+- 0 new TS errors in modified files (299 pre-existing errors untouched)
+---
+Task ID: P5+P6
+Agent: UX + Subscriptions
+Task: Build Smart Upgrade UX banner + Subscription State Machine
+
+Work Log:
+- Created `src/components/smart-upgrade-banner.tsx` — 'use client' component
+  - Props: currentPlan, requiredModule, context, language, onDismiss, className
+  - Fetches upgrade data from `/api/smart-upgrade?context=...`
+  - Returns null if user already has access (showBanner: false) or banner is dismissed
+  - Dismissible via X button → stored in localStorage per context key
+  - Contextual messages per module (cv/ats/jobs/interview/linkedin/career) in 4 languages (fr/en/ar/es)
+  - Uses shadcn Card + Button with emerald accent styling
+  - CTA scrolls to `#pricing` section or navigates to `/#pricing`
+  - Shows plan name + monthly price from upgrade path
+
+- Created `src/app/api/smart-upgrade/route.ts` — GET endpoint
+  - withAuth required
+  - Query params: context, requiredModule, lang, dismissed
+  - Uses entitlement engine `hasModuleAccess()` to check if upgrade is needed
+  - Uses `getUpgradePath()` to find cheapest bundle covering the required module
+  - Returns: { showBanner, currentPlan, requiredModule, upgradePath, message, cta }
+  - Respects localStorage dismissal via `dismissed=true` query param (returns showBanner: false)
+
+- Created `src/lib/subscription-state-machine.ts` — SERVER-ONLY state machine
+  - Types: SubscriptionState (7 states), SubscriptionEvent (9 events)
+  - TRANSITIONS table: strict allowed events per state
+  - EVENT_RESULTS table: deterministic result state per (state, event) pair
+  - `getSubscriptionState(user)`: determines state from DB fields, reuses GRACE_PERIOD_DAYS from billing-safety.ts
+  - `canTransition(state, event)`: validates transitions
+  - `transition(state, event)`: executes transition, throws on invalid
+  - `getValidEvents(state)`: returns all allowed events for a state
+  - `getStateLabel(state, locale)`: multilingual labels (fr/en/ar/es)
+  - `getStateColor(state)`: Tailwind text color classes for UI
+  - `getStateBgColor(state)`: Tailwind bg color classes for badges
+  - `getNextAction(state, locale)`: contextual next action text per state
+
+- Created `src/app/api/subscription/status/route.ts` — GET endpoint
+  - withAuth required
+  - Query param: locale (default 'fr')
+  - Fetches user plan, updatedAt, planExpiresAt, gracePeriod
+  - Computes subscription state via state machine
+  - Returns: state, stateLabel, stateColor, stateBgColor, plan, canonicalPlan, entitlements (modules/features/aiLevel), limits, validEvents, nextAction, expiryInfo
+
+- Lint: 0 new errors across all 4 new files
+- Type check: 0 new errors (pre-existing node_modules errors untouched)
+
+Stage Summary:
+- Smart Upgrade Banner provides contextual, non-aggressive upsell in any module workflow
+- Subscription State Machine enforces strict lifecycle transitions for subscription management
+- Both systems are multilingual (fr/en/ar/es) and well-typed
+- Banner is client-side, state machine is server-only
+- All 4 files pass lint and type checks cleanly

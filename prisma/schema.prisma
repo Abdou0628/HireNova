@@ -37,6 +37,8 @@ model User {
   verificationToken      String?
   verificationTokenExpires DateTime?
   sessionVersion   Int      @default(0)
+  planExpiresAt    DateTime?
+  gracePeriodUntil DateTime?
   mfaEnabled       Boolean  @default(false)
   mfaSecret        String?  // TOTP secret (encrypted at rest in production)
   createdAt        DateTime @default(now())

@@ -54,3 +54,37 @@ export type {
   SIEMSeverity,
   CreateSIEMEventParams,
 } from './siem';
+export {
+  getEntitlements,
+  hasModuleAccess,
+  hasFeatureAccess,
+  getAccessibleModules,
+  getMissingModules,
+  getUpgradePath,
+  getAILevel,
+  getMonthlyLimits,
+  canPerformAction,
+  resolveCanonicalPlan,
+  getAllPlans,
+} from '../entitlement-engine';
+export type {
+  AILevel,
+  PlanEntitlements,
+  MonthlyLimits,
+  UpgradePath,
+} from '../entitlement-engine';
+export {
+  trackAIUsage,
+  getUserAIUsage,
+  getUserAIUsageWithPlan,
+  checkAIAccess,
+  getAIUsageSummary,
+  getUserAIUsageDetail,
+  estimateAICost,
+} from '../ai-usage-engine';
+export type {
+  AIUsageRecord,
+  AIUsageQuota,
+  UserAIUsage,
+  AIUsageSummary,
+} from '../ai-usage-engine';
