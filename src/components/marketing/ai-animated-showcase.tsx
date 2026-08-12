@@ -130,8 +130,8 @@ const SPEECH_LANG: Record<CVLanguage, string> = {
   es: 'es-ES',
 }
 
-// Static image paths
-const getImageSrc = (slug: string) => `/showcase/images/${slug}.png`
+// Language-specific image paths: /showcase/images/{lang}/{slug}.png
+const getImageSrc = (slug: string, lang: CVLanguage) => `/showcase/images/${lang}/${slug}.png`
 
 // ─── UI Labels ─────────────────────────────────────────────────────────────
 
@@ -198,7 +198,7 @@ export default function AIAnimatedShowcase() {
   const activeProduct = PRODUCTS[activeIndex]
   const colors = colorMap[activeProduct.color]
   const description = DESCRIPTIONS[language][activeProduct.slug]
-  const imageSrc = getImageSrc(activeProduct.slug)
+  const imageSrc = getImageSrc(activeProduct.slug, language)
 
   // ─── Check speech support + preload voices ─────────────────────────────
   useEffect(() => {
@@ -409,6 +409,11 @@ export default function AIAnimatedShowcase() {
     (index: number) => goTo(index),
     [goTo]
   )
+
+  // ─── When language changes, reset image loaded state ────────────────
+  useEffect(() => {
+    setImageLoaded(false)
+  }, [language])
 
   // ─── When activeIndex changes, start typing ────────────────────────────
 
