@@ -827,12 +827,12 @@ export default function Landing() {
                             : product.accent === 'violet' ? 'bg-violet-600'
                             : product.accent === 'red' ? 'bg-red-600'
                             : 'bg-emerald-600'
-                        }`}>ACTIF</Badge>
+                        }`}>{t(language, 'badgeActive')}</Badge>
                       </div>
                     )}
                     {!product.active && (
                       <div className="absolute top-3 right-3">
-                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">BIENTÔT</Badge>
+                        <Badge className="bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold rounded-full">{t(language, 'badgeComingSoon')}</Badge>
                       </div>
                     )}
                     <CardContent className="p-5">
@@ -861,7 +861,7 @@ export default function Landing() {
                       <p className="text-xs text-muted-foreground leading-relaxed">{product.desc}</p>
                       {isClickable && (
                         <div className="mt-3 flex items-center gap-1 text-xs font-medium text-emerald-600">
-                          <span>{product.step ? 'Ouvrir' : 'Bientôt disponible'}</span>
+                          <span>{product.step ? t(language, 'openLabel') : t(language, 'comingSoonLabel')}</span>
                           {product.step && <ArrowRight className="w-3 h-3" />}
                         </div>
                       )}
@@ -925,8 +925,8 @@ export default function Landing() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
               {([
                 { icon: Users, value: liveStats.satisfiedUsers > 0 ? String(liveStats.satisfiedUsers) : '—', label: t(language, 'trustStats'), color: 'emerald' },
-                { icon: ThumbsUp, value: liveStats.avgRating > 0 ? `${liveStats.avgRating}/5` : '—', label: { fr: 'Note moyenne', en: 'Average rating', ar: 'متوسط التقييم', es: 'Puntuación media' }[language], color: 'amber' },
-                { icon: Lock, value: '100%', label: { fr: 'Données sécurisées', en: 'Data secured', ar: 'بيانات آمنة', es: 'Datos seguros' }[language], color: 'teal' },
+                { icon: ThumbsUp, value: liveStats.avgRating > 0 ? `${liveStats.avgRating}/5` : '—', label: t(language, 'trustAvgRating'), color: 'amber' },
+                { icon: Lock, value: '100%', label: t(language, 'trustDataSecured'), color: 'teal' },
               ]).map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -964,21 +964,21 @@ export default function Landing() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
               <Badge className="mb-3 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Briefcase className="w-3 h-3 mr-1" /> Marketplace</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA Jobs</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">Connectez vos talents avec les meilleures opportunités</p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">{t(language, 'jobsTitle')}</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">{t(language, 'jobsSubtitle')}</p>
             </motion.div>
             <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
-              <div className="text-center"><p className="text-2xl font-bold text-emerald-600">0</p><p className="text-xs text-muted-foreground">Offres actives</p></div>
+              <div className="text-center"><p className="text-2xl font-bold text-emerald-600">0</p><p className="text-xs text-muted-foreground">{t(language, 'jobsActiveOffers')}</p></div>
               <div className="w-px h-8 bg-border" />
-              <div className="text-center"><p className="text-2xl font-bold text-teal-600">0</p><p className="text-xs text-muted-foreground">Entreprises</p></div>
+              <div className="text-center"><p className="text-2xl font-bold text-teal-600">0</p><p className="text-xs text-muted-foreground">{t(language, 'jobsCompanies')}</p></div>
               <div className="w-px h-8 bg-border" />
-              <div className="text-center"><p className="text-2xl font-bold text-amber-600">0</p><p className="text-xs text-muted-foreground">Candidatures</p></div>
+              <div className="text-center"><p className="text-2xl font-bold text-amber-600">0</p><p className="text-xs text-muted-foreground">{t(language, 'jobsApplications')}</p></div>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">Bientôt des offres d&apos;emploi... Revenez vérifier !</p>
+              <p className="text-sm text-muted-foreground mb-4">{t(language, 'jobsComingSoon')}</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button onClick={() => setStep('jobMarket')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Briefcase className="w-4 h-4 mr-2" /> Voir toutes les offres</Button>
-                <Button variant="outline" onClick={() => setStep('employerPostJob')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Publier une offre</Button>
+                <Button onClick={() => setStep('jobMarket')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Briefcase className="w-4 h-4 mr-2" /> {t(language, 'jobsViewAll')}</Button>
+                <Button variant="outline" onClick={() => setStep('employerPostJob')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> {t(language, 'jobsPostOffer')}</Button>
               </div>
             </div>
           </div>
@@ -988,16 +988,16 @@ export default function Landing() {
         <section className="py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-3 bg-amber-100 text-amber-700 hover:bg-amber-100"><Code2 className="w-3 h-3 mr-1" /> API B2B</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA API</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">Intégrez la génération de CV, lettres et analyse ATS dans votre plateforme</p>
+              <Badge className="mb-3 bg-amber-100 text-amber-700 hover:bg-amber-100"><Code2 className="w-3 h-3 mr-1" /> {t(language, 'apiB2BBadge')}</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">{t(language, 'apiTitle')}</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">{t(language, 'apiSubtitle')}</p>
             </motion.div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
               {[
-                { icon: FileText, title: 'Génération CV', desc: 'CV professionnels' },
-                { icon: PenLine, title: 'Lettre', desc: 'Lettres personnalisées' },
-                { icon: Shield, title: 'Analyse ATS', desc: 'Score compatibilité' },
-                { icon: BarChart3, title: 'Suivi', desc: 'Dashboard temps réel' }
+                { icon: FileText, title: t(language, 'apiGenCV'), desc: t(language, 'apiGenCVDesc') },
+                { icon: PenLine, title: t(language, 'apiCoverLetter'), desc: t(language, 'apiCoverLetterDesc') },
+                { icon: Shield, title: t(language, 'apiAtsAnalysis'), desc: t(language, 'apiAtsAnalysisDesc') },
+                { icon: BarChart3, title: t(language, 'apiTracking'), desc: t(language, 'apiTrackingDesc') }
               ].map((f, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Card className="text-center p-4 hover:shadow-md transition-shadow"><f.icon className="w-8 h-8 mx-auto text-emerald-600 mb-2" /><h3 className="text-sm font-semibold">{f.title}</h3><p className="text-xs text-muted-foreground mt-1">{f.desc}</p></Card>
@@ -1013,16 +1013,16 @@ export default function Landing() {
                 <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Card className={`text-center p-6 ${i === 1 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''}`}>
                     <h3 className="font-bold text-lg">{p.name}</h3>
-                    <div className="text-3xl font-bold text-emerald-600 my-2">{p.price}<span className="text-sm font-normal text-muted-foreground">/mois</span></div>
-                    <p className="text-sm text-muted-foreground">{p.credits === '∞' ? 'Illimité' : `${p.credits} crédits`}/mois</p>
+                    <div className="text-3xl font-bold text-emerald-600 my-2">{p.price}<span className="text-sm font-normal text-muted-foreground">{t(language, 'apiPerMonth')}</span></div>
+                    <p className="text-sm text-muted-foreground">{p.credits === '∞' ? t(language, 'apiUnlimited') : `${p.credits} ${t(language, 'apiCredits')}`}{t(language, 'apiPerMonth')}</p>
                   </Card>
                 </motion.div>
               ))}
             </div>
-            <p className="text-center text-xs text-muted-foreground mb-6">🎓 Écoles &bull; 🏛️ Universités &bull; 📚 Formations &bull; 🏢 Entreprises &bull; 🏦 Banques &bull; 🌍 Organisations</p>
+            <p className="text-center text-xs text-muted-foreground mb-6">{t(language, 'apiClientsLine')}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button onClick={() => setStep('apiDocs')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Code2 className="w-4 h-4 mr-2" /> Documentation API</Button>
-              <Button variant="outline" onClick={() => setStep('apiRegister')} className="cursor-pointer"><Rocket className="w-4 h-4 mr-2" /> Obtenir une clé API</Button>
+              <Button onClick={() => setStep('apiDocs')} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"><Code2 className="w-4 h-4 mr-2" /> {t(language, 'apiDocumentation')}</Button>
+              <Button variant="outline" onClick={() => setStep('apiRegister')} className="cursor-pointer"><Rocket className="w-4 h-4 mr-2" /> {t(language, 'apiGetKey')}</Button>
             </div>
           </div>
         </section>
@@ -1031,15 +1031,15 @@ export default function Landing() {
         <section className="py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
-              <Badge className="mb-3 bg-teal-100 text-teal-700 hover:bg-teal-100"><Globe className="w-3 h-3 mr-1" /> International</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA Global</h2>
-              <p className="text-muted-foreground mb-6 max-w-2xl">Recrutement international pour les entreprises qui recrutent à travers le monde. Visa sponsorship, relocation, multi-régions.</p>
+              <Badge className="mb-3 bg-teal-100 text-teal-700 hover:bg-teal-100"><Globe className="w-3 h-3 mr-1" /> {t(language, 'intlBadge')}</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">{t(language, 'intlTitle')}</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'intlSubtitle')}</p>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               {[
-                { icon: Globe, title: '40+ Pays', desc: 'Offres dans le monde entier' },
-                { icon: Shield, title: 'Visa Sponsorship', desc: 'Accompagnement pour les candidats internationaux' },
-                { icon: Plane, title: 'Relocation', desc: 'Packages de relocation intégrés' },
+                { icon: Globe, title: t(language, 'intlCountries'), desc: t(language, 'intlWorldOffers') },
+                { icon: Shield, title: t(language, 'intlVisaSponsorship'), desc: t(language, 'intlVisaDesc') },
+                { icon: Plane, title: t(language, 'intlRelocation'), desc: t(language, 'intlRelocationDesc') },
               ].map((f, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Card className="border-teal-100 hover:border-teal-200 transition-colors">
@@ -1053,8 +1053,8 @@ export default function Landing() {
               ))}
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <Button onClick={() => setStep('globalMarket')} className="bg-teal-600 hover:bg-teal-700 cursor-pointer"><Globe className="w-4 h-4 mr-2" /> Explorer les offres internationales</Button>
-              <Button variant="outline" onClick={() => setStep('globalEmployerDashboard')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> Dashboard Employeur</Button>
+              <Button onClick={() => setStep('globalMarket')} className="bg-teal-600 hover:bg-teal-700 cursor-pointer"><Globe className="w-4 h-4 mr-2" /> {t(language, 'intlExplore')}</Button>
+              <Button variant="outline" onClick={() => setStep('globalEmployerDashboard')} className="cursor-pointer"><PlusCircle className="w-4 h-4 mr-2" /> {t(language, 'intlEmployerDashboard')}</Button>
             </div>
           </div>
         </section>
@@ -1063,9 +1063,9 @@ export default function Landing() {
         <section className="py-16 sm:py-20 bg-gradient-to-b from-teal-50/30 to-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
-              <Badge className="mb-3 bg-purple-100 text-purple-700 hover:bg-purple-100"><Plane className="w-3 h-3 mr-1" /> Mobilité</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA MOBILITY</h2>
-              <p className="text-muted-foreground mb-6 max-w-2xl">OCR + IA : extrayez votre CV, analysez vos compétences, et reformatez vos documents selon les standards de chaque pays cible.</p>
+              <Badge className="mb-3 bg-purple-100 text-purple-700 hover:bg-purple-100"><Plane className="w-3 h-3 mr-1" /> {t(language, 'mobilityBadge')}</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">{t(language, 'mobilityTitle')}</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'mobilitySubtitle')}</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
@@ -1073,9 +1073,9 @@ export default function Landing() {
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Search className="w-5 h-5 text-purple-600" /></div>
-                      <h3 className="font-semibold">Étape 1 — OCR & Extraction</h3>
+                      <h3 className="font-semibold">{t(language, 'mobilityStep1')}</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground">Upload votre CV (PDF ou image). Notre OCR extrait automatiquement le texte brut, les informations personnelles, et les données structurées.</p>
+                    <p className="text-sm text-muted-foreground">{t(language, 'mobilityStep1Desc')}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -1084,20 +1084,20 @@ export default function Landing() {
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><Bot className="w-5 h-5 text-purple-600" /></div>
-                      <h3 className="font-semibold">Étape 2 — IA & Reformulation</h3>
+                      <h3 className="font-semibold">{t(language, 'mobilityStep2')}</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground">Notre LLM analyse le contenu, normalise les compétences, détecte les lacunes, et reformate votre CV et lettre de motivation selon les standards du pays cible.</p>
+                    <p className="text-sm text-muted-foreground">{t(language, 'mobilityStep2Desc')}</p>
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
             <div className="flex flex-wrap justify-center gap-2 mb-6">
-              {['🇫🇷 France', '🇬🇧 UK', '🇺🇸 USA', '🇨🇦 Canada', '🇩🇪 Allemagne', '🇦🇪 UAE', '🇨🇭 Suisse', '🇧🇪 Belgique', '🇪🇸 Espagne', '🇮🇹 Italie', '🇯🇵 Japon', '🇦🇺 Australie'].map(c => (
-                <Badge key={c} variant="outline" className="text-xs px-3 py-1.5">{c}</Badge>
+              {([['🇫🇷', 'mobilityCountryFr' as TranslationKey], ['🇬🇧', 'mobilityCountryUk' as TranslationKey], ['🇺🇸', 'mobilityCountryUs' as TranslationKey], ['🇨🇦', 'mobilityCountryCa' as TranslationKey], ['🇩🇪', 'mobilityCountryDe' as TranslationKey], ['🇦🇪', 'mobilityCountryAe' as TranslationKey], ['🇨🇭', 'mobilityCountryCh' as TranslationKey], ['🇧🇪', 'mobilityCountryBe' as TranslationKey], ['🇪🇸', 'mobilityCountryEs' as TranslationKey], ['🇮🇹', 'mobilityCountryIt' as TranslationKey], ['🇯🇵', 'mobilityCountryJp' as TranslationKey], ['🇦🇺', 'mobilityCountryAu' as TranslationKey]]).map(([flag, key]) => (
+                <Badge key={key} variant="outline" className="text-xs px-3 py-1.5">{flag} {t(language, key)}</Badge>
               ))}
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button onClick={() => setStep('mobilityHome')} className="bg-purple-600 hover:bg-purple-700 cursor-pointer"><Plane className="w-4 h-4 mr-2" /> Adapter mon CV pour l&apos;international</Button>
+              <Button onClick={() => setStep('mobilityHome')} className="bg-purple-600 hover:bg-purple-700 cursor-pointer"><Plane className="w-4 h-4 mr-2" /> {t(language, 'mobilityAdaptCv')}</Button>
             </div>
           </div>
         </section>
@@ -1106,8 +1106,8 @@ export default function Landing() {
         <section className="py-16 sm:py-20 bg-gradient-to-b from-sky-50/30 to-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}>
-              <Badge className="mb-3 bg-sky-100 text-sky-700 hover:bg-sky-100"><Linkedin className="w-3 h-3 mr-1" /> LinkedIn</Badge>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">HireNova IA LinkedIn</h2>
+              <Badge className="mb-3 bg-sky-100 text-sky-700 hover:bg-sky-100"><Linkedin className="w-3 h-3 mr-1" /> {t(language, 'linkedinBadge')}</Badge>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">{t(language, 'linkedinSectionTitle')}</h2>
               <p className="text-muted-foreground mb-6 max-w-2xl">{t(language, 'landingLinkedinDesc')}</p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1146,7 +1146,7 @@ export default function Landing() {
               </motion.div>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button onClick={() => setStep('linkedinHome')} className="bg-sky-600 hover:bg-sky-700 cursor-pointer"><Linkedin className="w-4 h-4 mr-2" /> Optimiser mon profil LinkedIn</Button>
+              <Button onClick={() => setStep('linkedinHome')} className="bg-sky-600 hover:bg-sky-700 cursor-pointer"><Linkedin className="w-4 h-4 mr-2" /> {t(language, 'linkedinOptimizeProfile')}</Button>
             </div>
           </div>
         </section>
@@ -1241,9 +1241,9 @@ export default function Landing() {
                 <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
                   <CheckCircle2 className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Paiement réussi</h3>
+                <h3 className="text-xl font-bold text-white">{t(language, 'paymentSuccess')}</h3>
                 <p className="text-emerald-100 text-sm mt-1">
-                  Plan {paymentSuccess.plan} activé — {paymentSuccess.amount.toFixed(2)} {paymentSuccess.currency}
+                  {t(language, 'paymentPlanActivated').replace('{plan}', paymentSuccess.plan).replace('{amount}', paymentSuccess.amount.toFixed(2)).replace('{currency}', paymentSuccess.currency)}
                 </p>
               </div>
 
@@ -1251,7 +1251,7 @@ export default function Landing() {
               <div className="p-6 space-y-4">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">
-                    Vos documents ont été générés automatiquement avec logo et signature électronique.
+                    {t(language, 'paymentAutoGenerated')}
                   </p>
                 </div>
 
@@ -1260,7 +1260,7 @@ export default function Landing() {
                   <div className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-emerald-600" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Facture</p>
+                      <p className="text-xs text-muted-foreground">{t(language, 'paymentInvoice')}</p>
                       <p className="text-sm font-semibold font-mono">{paymentSuccess.invoice.number}</p>
                     </div>
                   </div>
@@ -1280,7 +1280,7 @@ export default function Landing() {
                   <div className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-amber-600" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Reçu de paiement</p>
+                      <p className="text-xs text-muted-foreground">{t(language, 'paymentReceipt')}</p>
                       <p className="text-sm font-semibold font-mono">{paymentSuccess.receipt.number}</p>
                     </div>
                   </div>
@@ -1296,15 +1296,14 @@ export default function Landing() {
                 </div>
 
                 <div className="text-[10px] text-muted-foreground bg-slate-50 rounded-md p-2 border">
-                  Les documents portent le logo HireNova et une signature électronique SHA-256.
-                  Ils seront inclus dans votre prochain bilan comptable.
+                  {t(language, 'paymentLegal')}
                 </div>
 
                 <Button
                   className="w-full cursor-pointer bg-emerald-600 hover:bg-emerald-700"
                   onClick={() => setPaymentSuccess(null)}
                 >
-                  Continuer
+                  {t(language, 'paymentContinue')}
                 </Button>
               </div>
             </motion.div>
@@ -1322,23 +1321,23 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
           <div className="flex items-center flex-wrap justify-center gap-2 text-xs">
-            <span className="text-emerald-600 font-medium">Paiement sécurisé :</span>
+            <span className="text-emerald-600 font-medium">{t(language, 'footerSecuredBy')}</span>
             <span>🇫🇷 FR</span><span>🇧🇪 BE</span><span>🇨🇭 CH</span><span>🇱🇺 LU</span><span>🇲🇨 MC</span><span>🇪🇸 ES</span><span>🇬🇧 UK</span><span>🇺🇸 US</span><span>🇨🇦 CA</span><span>🇦🇺 AU</span><span>🇸🇦 SA</span><span>🇦🇪 AE</span><span>🇶🇦 QA</span><span>🇰🇼 KW</span><span>🇧🇭 BH</span><span>🇴🇲 OM</span>
           </div>
           <div className="flex items-center flex-wrap justify-center gap-4 text-xs">
-            <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+            <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-emerald-600 hover:underline cursor-pointer">{t(language, 'footerLegal')}</button>
             <button onClick={() => setStep('campus')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
               <GraduationCap className="w-3 h-3" />
-              HireNova IA CAMPUS SaaS
+              {t(language, 'footerCampus')}
             </button>
             <button onClick={() => setStep('referral')} className="text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
               <Gift className="w-3 h-3" />
-              Parrainage
+              {t(language, 'footerReferral')}
             </button>
             {isAdmin && (
               <button onClick={() => setStep('admin')} className="text-emerald-700 hover:underline cursor-pointer flex items-center gap-1 font-semibold">
                 <Shield className="w-3 h-3" />
-                Dashboard Admin
+                {t(language, 'footerAdmin')}
               </button>
             )}
           </div>

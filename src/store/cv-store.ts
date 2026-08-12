@@ -283,8 +283,8 @@ export const useCVStore = create<CVStore>()(
     }),
     {
       name: 'hirenova-step',
-      // Only persist the step + stepData so navigation survives chunk-retry reloads
-      partialize: (state) => ({ step: state.step, stepData: state.stepData }),
+      // Persist step, stepData, and language so navigation + language survive reloads
+      partialize: (state) => ({ step: state.step, stepData: state.stepData, language: state.language }),
     }
   )
 )
