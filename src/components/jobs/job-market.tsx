@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useCVStore } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
 
 interface Job {
   id: string; title: string; company: string; location: string; country: string
@@ -18,7 +19,7 @@ interface Job {
 }
 
 export default function JobMarketView() {
-  const { setStep } = useCVStore()
+  const { setStep, language } = useCVStore()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [keyword, setKeyword] = useState('')
@@ -46,6 +47,7 @@ export default function JobMarketView() {
   useEffect(() => { fetchJobs() }, [fetchJobs]) // eslint-disable-line react-hooks/set-state-in-effect
 
   const totalPages = Math.ceil(total / limit)
+  const isRTL = language === 'ar'
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-emerald-50/30">
@@ -53,13 +55,13 @@ export default function JobMarketView() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="sm" onClick={() => setStep('landing')} className="cursor-pointer">
-            <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+            <ArrowLeft className={`w-4 h-4 ${isRTL ? 'mr-0 ml-1' : 'mr-1'}`} /> {t(language, 'orchBack')}
           </Button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-              <Briefcase className="text-emerald-600" /> HireNova IA Jobs
+              <Briefcase className="text-emerald-600" /> {t(language, 'jobMarketTitle')}
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">Trouvez votre prochaine opportunité professionnelle</p>
+            <p className="text-muted-foreground text-sm mt-1">{t(language, 'jobMarketSubtitle')}</p>
           </div>
         </div>
 
@@ -67,29 +69,29 @@ export default function JobMarketView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Mot-clé..." value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1) }} className="pl-9" />
+            <Input placeholder={t(language, 'jobMarketKeyword')} value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1) }} className="pl-9" />
           </div>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Ville..." value={location} onChange={e => { setLocation(e.target.value); setPage(1) }} className="pl-9" />
+            <Input placeholder={t(language, 'jobMarketCity')} value={location} onChange={e => { setLocation(e.target.value); setPage(1) }} className="pl-9" />
           </div>
           <select
             value={type} onChange={e => { setType(e.target.value); setPage(1) }}
             className="h-9 rounded-md border bg-white px-3 text-sm"
           >
-            <option value="">Tous les types</option>
-            <option value="CDI">CDI</option>
-            <option value="CDD">CDD</option>
-            <option value="Freelance">Freelance</option>
-            <option value="Stage">Stage</option>
-            <option value="Alternance">Alternance</option>
+            <option value="">{t(language, 'jobMarketAllTypes')}</option>
+            <option value="CDI">{t(language, 'jobMarketTypeCDI')}</option>
+            <option value="CDD">{t(language, 'jobMarketTypeCDD')}</option>
+            <option value="Freelance">{t(language, 'jobMarketTypeFreelance')}</option>
+            <option value="Stage">{t(language, 'jobMarketTypeInternship')}</option>
+            <option value="Alternance">{t(language, 'jobMarketTypeAlternance')}</option>
           </select>
           <label className="flex items-center gap-2 h-9 cursor-pointer text-sm">
             <input type="checkbox" checked={remote} onChange={e => { setRemote(e.target.checked); setPage(1) }} className="rounded" />
-            <span className="text-muted-foreground">Télétravail</span>
+            <span className="text-muted-foreground">{t(language, 'jobMarketRemote')}</span>
           </label>
           <Button variant="outline" size="sm" onClick={() => { setKeyword(''); setLocation(''); setType(''); setRemote(false); setPage(1) }}>
-            <Filter className="w-4 h-4 mr-1" /> Réinitialiser
+            <Filter className={`w-4 h-4 ${isRTL ? 'mr-0 ml-1' : 'mr-1'}`} /> {t(language, 'jobMarketReset')}
           </Button>
         </div>
 
@@ -102,13 +104,13 @@ export default function JobMarketView() {
         {!loading && jobs.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
             <Briefcase className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">Aucune offre trouvée</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Revenez bientôt pour de nouvelles opportunités !</p>
+            <p className="text-lg font-medium text-muted-foreground">{t(language, 'jobMarketNoResults')}</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">{t(language, 'jobMarketNoResultsHint')}</p>
           </motion.div>
         )}
         {!loading && jobs.length > 0 && (
           <Fragment>
-            <p className="text-sm text-muted-foreground mb-4">{total} offre{total > 1 ? 's' : ''} trouvée{total > 1 ? 's' : ''}</p>
+            <p className="text-sm text-muted-foreground mb-4">{total} {t(language, total > 1 ? 'jobMarketResultsFound' : 'jobMarketResultFound')}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job, i) => (
                 <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -137,8 +139,8 @@ export default function JobMarketView() {
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                        <span className="text-xs text-muted-foreground">{job.applicationsCount} candidature{job.applicationsCount > 1 ? 's' : ''}</span>
-                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-xs cursor-pointer">Postuler</Button>
+                        <span className="text-xs text-muted-foreground">{job.applicationsCount} {t(language, job.applicationsCount > 1 ? 'jobMarketApplications' : 'jobMarketApplication')}</span>
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-xs cursor-pointer">{t(language, 'jobMarketApply')}</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -150,7 +152,7 @@ export default function JobMarketView() {
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <span className="text-sm text-muted-foreground">Page {page} / {totalPages}</span>
+                <span className="text-sm text-muted-foreground">{t(language, 'jobMarketPage')} {page} / {totalPages}</span>
                 <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
