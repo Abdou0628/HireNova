@@ -352,6 +352,10 @@ export type TranslationKey =
   | 'ecosystemDesc'
   | 'ecosystemCv'
   | 'ecosystemAts'
+  | 'ecosystemJobs'
+  | 'ecosystemGlobal'
+  | 'ecosystemMobility'
+  | 'ecosystemApi'
   | 'ecosystemInterview'
   | 'ecosystemLinkedin'
   | 'ecosystemRecruiter'
@@ -359,6 +363,8 @@ export type TranslationKey =
   | 'ecosystemCoach'
   | 'ecosystemFormation'
   | 'ecosystemFreelance'
+  | 'ecosystemChatbot'
+  | 'ecosystemCampus'
   | 'ecosystemMarketplace'
   | 'marketplaceSubtitle'
   | 'marketplaceWelcomeTitle' | 'marketplaceWelcomeDesc'
@@ -895,6 +901,7 @@ export type TranslationKey =
   | 'resetCodeSubject' | 'resetCodeTitle' | 'resetCodeBody' | 'resetCodeExpires'
   // Conversion Layer — Goal Selector & Value Calculator
   | 'goalCreateCv' | 'goalFindJob' | 'goalPrepareInterview' | 'goalDevelopCareer' | 'goalFreelance'
+  | 'copilotTitle'
   | 'copilotDesc'
   | 'recommendedForYou' | 'valueCalculatorTitle' | 'includesModules' | 'individualCost'
   | 'bundleCost' | 'youSave' | 'vsIndividual' | 'monthlyEquiv' | 'selectYourGoal'
@@ -2599,6 +2606,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     goalPrepareInterview: 'Préparer un entretien',
     goalDevelopCareer: 'Développer ma carrière',
     goalFreelance: 'Freelance',
+    copilotTitle: 'HireNova Job Copilot',
     copilotDesc: "Collez une offre d'emploi et laissez l'IA analyser votre compatibilité, optimiser votre CV et préparer votre candidature en un clic.",
     recommendedForYou: 'RECOMMANDÉ POUR VOUS',
     valueCalculatorTitle: 'Calculateur de valeur',
@@ -4364,6 +4372,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     goalPrepareInterview: 'Prepare for an interview',
     goalDevelopCareer: 'Develop my career',
     goalFreelance: 'Freelance',
+    copilotTitle: 'HireNova Job Copilot',
     copilotDesc: 'Paste a job listing and let AI analyze your compatibility, optimize your CV, and prepare your application in one click.',
     recommendedForYou: 'RECOMMENDED FOR YOU',
     valueCalculatorTitle: 'Value Calculator',
@@ -6128,6 +6137,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     goalPrepareInterview: 'التحضير لمقابلة',
     goalDevelopCareer: 'تطوير مسيرتي المهنية',
     goalFreelance: 'عمل حر',
+    copilotTitle: 'HireNova Job Copilot',
     copilotDesc: 'الصق إعلان وظيفة ودع الذكاء الاصطناعي يحلل توافقك ويحسن سيرتك الذاتية ويجهز طلبك بنقرة واحدة.',
     recommendedForYou: 'موصى به لك',
     valueCalculatorTitle: 'حاسبة القيمة',
@@ -7893,6 +7903,7 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
     goalPrepareInterview: 'Preparar una entrevista',
     goalDevelopCareer: 'Desarrollar mi carrera',
     goalFreelance: 'Freelance',
+    copilotTitle: 'HireNova Job Copilot',
     copilotDesc: 'Pega una oferta de empleo y deja que la IA analice tu compatibilidad, optimice tu CV y prepare tu candidatura en un clic.',
     recommendedForYou: 'RECOMENDADO PARA TI',
     valueCalculatorTitle: 'Calculadora de valor',

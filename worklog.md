@@ -1145,3 +1145,26 @@ Stage Summary:
 - 3 files modified: ai-animated-showcase.tsx, layout.tsx, globals.css
 - Commit created locally: 6a6232f
 - Push blocked by expired GitHub PAT - user needs to provide new token
+
+---
+Task ID: P1-fix-landing-regression
+Agent: Main Agent
+Task: Fix landing page language/audio/text animation regression + Arabic audio button position + ecosystem back buttons
+
+Work Log:
+- Diagnosed root cause: 7 i18n keys existed in translations but were MISSING from TranslationKey type union, causing TypeScript to reject t() calls at compile time
+- Missing keys: ecosystemJobs, ecosystemGlobal, ecosystemMobility, ecosystemApi, ecosystemChatbot, ecosystemCampus
+- Added all 7 keys to TranslationKey type in src/lib/i18n.ts
+- Fixed 'HireNova Job Copilot' literal string key → proper 'copilotTitle' key with translations in all 4 languages
+- Added copilotTitle to TranslationKey type and all 4 language sections (FR/EN/AR/ES)
+- Fixed Arabic audio button position: added dir="ltr" to audio player bar so Play button is always on LEFT
+- Removed RTL waveform reversal (reversedI) since audio bar is now always LTR
+- Fixed 3 freelance pages (home/browse/dashboard) hardcoded "Retour" → t(language, 'orchBack')
+- Fixed intelligence-home.tsx inline Arabic ternary → t(language, 'orchBack')
+- Verified no lint errors in source code
+
+Stage Summary:
+- Root cause: Missing TranslationKey types prevented Turbopack from compiling landing page correctly
+- All audio/text animation code was intact - the issue was the page never rendered due to type errors
+- Arabic audio button now always on LEFT side (dir="ltr" on audio bar)
+- Ecosystem back buttons now properly translated in all 4 languages

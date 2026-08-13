@@ -610,7 +610,7 @@ export default function AIAnimatedShowcase() {
 
             {/* Audio player bar — Web Speech API */}
             {speechSupported && (
-              <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+              <div dir="ltr" className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -629,8 +629,7 @@ export default function AIAnimatedShowcase() {
                 {/* Waveform visualizer */}
                 <div className="flex-1 flex items-center gap-[2px] h-8 overflow-hidden">
                   {Array.from({ length: waveformBars }).map((_, i) => {
-                    const reversedI = isRTL ? waveformBars - 1 - i : i
-                    const barProgress = reversedI / waveformBars
+                    const barProgress = i / waveformBars
                     const isActiveBar = barProgress <= speechProgress / 100
                     return (
                       <motion.div

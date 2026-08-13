@@ -63,7 +63,7 @@ export default function FreelanceHome() {
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="sm" onClick={() => setStep('landing')} className="cursor-pointer">
             <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
-            <span className="hidden sm:inline ml-1">Retour</span>
+            <span className="hidden sm:inline ml-1">{t(language, 'orchBack')}</span>
           </Button>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">

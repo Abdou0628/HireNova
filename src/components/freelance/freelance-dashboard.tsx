@@ -71,7 +71,7 @@ export default function FreelanceDashboard() {
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => setStep('freelanceHome' as AppStep)} className="cursor-pointer">
             <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
-            <span className="hidden sm:inline ml-1">Retour</span>
+            <span className="hidden sm:inline ml-1">{t(language, 'orchBack')}</span>
           </Button>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">

@@ -697,7 +697,7 @@ export default function Landing() {
                 <span>IA Avancée</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-3">
-                {t(language, 'HireNova Job Copilot')}
+                {t(language, 'copilotTitle')}
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
                 {t(language, 'copilotDesc')}
