@@ -209,13 +209,13 @@ export default function ATSAnalysis({ isOpen, onClose }: ATSAnalysisProps) {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Erreur lors de l\'analyse ATS')
+        throw new Error(data.error || t(language, 'cvErrorAtsAnalysis'))
       }
 
       setATSResult(data.result)
       events.atsAnalyzed(data.result?.score ?? 0)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de l\'analyse ATS'
+      const message = err instanceof Error ? err.message : t(language, 'cvErrorAtsAnalysis')
       setATSError(message)
       toast.error(message)
     } finally {
@@ -361,17 +361,17 @@ export default function ATSAnalysis({ isOpen, onClose }: ATSAnalysisProps) {
                       {atsResult.overallScore >= 80 ? (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          Excellent
+                          {t(language, 'atsScoreExcellent')}
                         </>
                       ) : atsResult.overallScore >= 60 ? (
                         <>
                           <TrendingUp className="w-3.5 h-3.5" />
-                          Bon
+                          {t(language, 'atsScoreGood')}
                         </>
                       ) : (
                         <>
                           <AlertTriangle className="w-3.5 h-3.5" />
-                          À améliorer
+                          {t(language, 'atsScoreImprove')}
                         </>
                       )}
                     </span>
@@ -382,7 +382,7 @@ export default function ATSAnalysis({ isOpen, onClose }: ATSAnalysisProps) {
                 <div className="space-y-3">
                   <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-emerald-600" />
-                    Détail par catégorie
+                    {t(language, 'atsCategoryDetail')}
                   </h3>
                   <div className="space-y-2">
                     {atsResult.categories.map((cat, index) => {

@@ -44,7 +44,7 @@ export default function JobApplicationPreview() {
           </div>
         </header>
         <main className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">No application data found.</p>
+          <p className="text-muted-foreground">{t(language, 'jaNoApplicationData')}</p>
         </main>
       </div>
     )
@@ -91,7 +91,7 @@ export default function JobApplicationPreview() {
 
   function handleDownloadWord() {
     if (!docRef.current) return
-    const filename = `Application_${formData.fullName.replace(/\s+/g, '_')}_${company.replace(/\s+/g, '_')}.doc`
+    const filename = `${t(language, 'jaApplicationPrefix')}${formData.fullName.replace(/\s+/g, '_')}_${company.replace(/\s+/g, '_')}.doc`
     const html = docRef.current.innerHTML
     const docHtml = `
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>

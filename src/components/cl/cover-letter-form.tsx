@@ -116,13 +116,13 @@ export default function CoverLetterForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Erreur lors de la génération')
+        throw new Error(data.error || t(language, 'clErrorGeneration'))
       }
 
       setGeneratedCL(data.letter)
       setStep('clPreview')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur inconnue'
+      const message = err instanceof Error ? err.message : t(language, 'clErrorUnknown')
       setCLError(message)
       setStep('clForm')
       toast.error(message)
@@ -157,7 +157,7 @@ export default function CoverLetterForm() {
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center">
               <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
-              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">{t(language, 'poweredByIa')}</span>
             </div>
             <span className="font-semibold text-foreground text-sm">{t(language, 'clTitle')}</span>
           </div>
@@ -229,25 +229,25 @@ export default function CoverLetterForm() {
                   {generatedCV.summary && (
                     <span className="inline-flex items-center gap-1 bg-white text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-medium border border-emerald-200">
                       <Sparkles className="w-3 h-3" />
-                      {language === 'fr' ? 'Résumé professionnel' : language === 'en' ? 'Professional summary' : language === 'es' ? 'Resumen profesional' : 'ملخص مهني'}
+                      {t(language, 'clCvSummaryLabel')}
                     </span>
                   )}
                   {generatedCV.experience.length > 0 && (
                     <span className="inline-flex items-center gap-1 bg-white text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-medium border border-emerald-200">
                       <Briefcase className="w-3 h-3" />
-                      {generatedCV.experience.length} {language === 'fr' ? 'expériences' : language === 'en' ? 'experiences' : language === 'es' ? 'experiencias' : 'خبرات'}
+                      {generatedCV.experience.length} {t(language, 'clCvExperiencesLabel')}
                     </span>
                   )}
                   {generatedCV.education.length > 0 && (
                     <span className="inline-flex items-center gap-1 bg-white text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-medium border border-emerald-200">
                       <GraduationCap className="w-3 h-3" />
-                      {generatedCV.education.length} {language === 'fr' ? 'formations' : language === 'en' ? 'degrees' : language === 'es' ? 'formaciones' : 'شهادات'}
+                      {generatedCV.education.length} {t(language, 'clCvDegreesLabel')}
                     </span>
                   )}
                   {generatedCV.skills.length > 0 && (
                     <span className="inline-flex items-center gap-1 bg-white text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-medium border border-emerald-200">
                       <Code2 className="w-3 h-3" />
-                      {generatedCV.skills.length} {language === 'fr' ? 'compétences' : language === 'en' ? 'skills' : language === 'es' ? 'habilidades' : 'مهارات'}
+                      {generatedCV.skills.length} {t(language, 'clCvSkillsLabel')}
                     </span>
                   )}
                 </div>
@@ -261,7 +261,7 @@ export default function CoverLetterForm() {
                     className="text-xs gap-1.5 cursor-pointer border-emerald-300 text-emerald-700 hover:bg-emerald-100"
                   >
                     <FileText className="w-3 h-3" />
-                    {language === 'fr' ? 'Voir le CV lié' : language === 'en' ? 'View linked CV' : language === 'es' ? 'Ver CV vinculado' : 'عرض السيرة الذاتية المربوطة'}
+                    {t(language, 'clViewLinkedCv')}
                   </Button>
                 </div>
               )}
@@ -314,7 +314,7 @@ export default function CoverLetterForm() {
                       {hasCV && (
                         <p className="text-sm text-emerald-600 flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          {language === 'fr' ? 'Pré-rempli automatiquement depuis votre CV' : language === 'en' ? 'Auto-filled from your CV' : language === 'es' ? 'Rellenado automáticamente desde tu CV' : 'مملوء تلقائياً من سيرتك الذاتية'}
+                          {t(language, 'clAutoFilled')}
                         </p>
                       )}
                     </div>
@@ -575,7 +575,7 @@ export default function CoverLetterForm() {
       <footer className="border-t py-6 px-4 sm:px-6 bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 mt-auto">
         <div className="max-w-3xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
-          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">{t(language, 'footerLegal')}</button>
         </div>
       </footer>
     </div>

@@ -79,7 +79,7 @@ export default function CoverLetterPreview() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `Lettre_${clFormData.fullName.replace(/\s+/g, '_')}.doc`
+    a.download = `${t(language, 'clDownloadClPrefix')}${clFormData.fullName.replace(/\s+/g, '_')}.doc`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -96,7 +96,7 @@ export default function CoverLetterPreview() {
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center">
               <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
-              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">{t(language, 'poweredByIa')}</span>
             </div>
             <div>
               <span className="font-semibold text-foreground text-sm">{t(language, 'clTitle')}</span>
@@ -202,7 +202,7 @@ export default function CoverLetterPreview() {
       <footer className="border-t py-6 px-4 sm:px-6 bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
-          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">{t(language, 'footerLegal')}</button>
         </div>
       </footer>
 

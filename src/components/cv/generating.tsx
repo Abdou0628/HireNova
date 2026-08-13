@@ -10,19 +10,9 @@ export default function Generating() {
   const { language, isCLGenerating } = useCVStore()
   const generatingBoth = isCLGenerating
 
-  const cvSteps = generatingBoth
-    ? [
-        { label: language === 'fr' ? 'Analyse du profil' : language === 'en' ? 'Analyzing profile' : language === 'es' ? 'Analizando perfil' : 'تحليل الملف الشخصي' },
-        { label: language === 'fr' ? 'Rédaction du CV' : language === 'en' ? 'Writing resume' : language === 'es' ? 'Redactando currículum' : 'كتابة السيرة الذاتية' },
-        { label: language === 'fr' ? 'Rédaction de la lettre de motivation' : language === 'en' ? 'Writing cover letter' : language === 'es' ? 'Redactando carta de motivación' : 'كتابة رسالة الدافع' },
-        { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : language === 'es' ? 'Formato final' : 'التنسيق النهائي' },
-      ]
-    : [
-        { label: language === 'fr' ? 'Analyse du profil' : language === 'en' ? 'Analyzing profile' : 'تحليل الملف الشخصي' },
-        { label: language === 'fr' ? 'Optimisation du contenu' : language === 'en' ? 'Optimizing content' : 'تحسين المحتوى' },
-        { label: language === 'fr' ? 'Rédaction des sections' : language === 'en' ? 'Writing sections' : 'كتابة الأقسام' },
-        { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : 'التنسيق النهائي' },
-      ]
+  const stepKeysBoth = ['cvGenStepAnalyzeProfile', 'cvGenStepWriteCv', 'cvGenStepWriteCl', 'cvGenStepFormatting'] as const
+  const stepKeysCvOnly = ['cvGenStepAnalyzeProfile', 'cvGenStepOptimizeContent', 'cvGenStepWriteSections', 'cvGenStepFormatting'] as const
+  const cvSteps = (generatingBoth ? stepKeysBoth : stepKeysCvOnly).map(key => ({ label: t(language, key) }))
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50/30 to-amber-50/20 px-4">
@@ -39,7 +29,7 @@ export default function Generating() {
       {/* Logo */}
       <div className="flex flex-col items-center mb-6">
         <Image src="/hirenova-logo.png" alt="HireNova" width={48} height={48} className="rounded-xl shadow-md" />
-        <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+        <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">{t(language, 'poweredByIa')}</span>
       </div>
 
       {/* Animated icon */}
@@ -81,7 +71,7 @@ export default function Generating() {
         <p className="text-muted-foreground mb-4">
           {generatingBoth ? t(language, 'generatingBothSubtitle') : t(language, 'generatingSubtitle')}
         </p>
-        <p className="text-emerald-600 text-sm italic max-w-sm mx-auto">{language === 'fr' ? '« Votre future carrière commence ici »' : language === 'en' ? '"Your future career starts here"' : language === 'es' ? '"Tu futura carrera comienza aquí"' : '"مستقبلك المهني يبدأ من هنا"'}</p>
+        <p className="text-emerald-600 text-sm italic max-w-sm mx-auto">{t(language, 'cvGenQuote')}</p>
 
         {/* Animated steps */}
         <div className="space-y-3 max-w-xs mx-auto text-left">

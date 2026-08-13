@@ -123,7 +123,7 @@ export default function CVForm() {
         body: formData,
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'import')
+      if (!res.ok) throw new Error(data.error || t(language, 'cvErrorImport'))
       // Auto-fill form fields from parsed CV
       if (data.fullName) updateFormData({ fullName: data.fullName })
       if (data.email) updateFormData({ email: data.email })
@@ -140,7 +140,7 @@ export default function CVForm() {
       if (data.website) updateFormData({ website: data.website })
       toast.success(t(language, 'importCvSuccess'))
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur inconnue'
+      const message = err instanceof Error ? err.message : t(language, 'cvErrorUnknown')
       toast.error(message)
     } finally {
       setIsImportingCv(false)
@@ -234,7 +234,7 @@ export default function CVForm() {
           toast.error(data.error, { duration: 6000 })
           return
         }
-        throw new Error(data.error || 'Erreur lors de la génération')
+        throw new Error(data.error || t(language, 'cvErrorGeneration'))
       }
 
       const generatedCV = data.cv
@@ -295,11 +295,11 @@ export default function CVForm() {
         setIsCLGenerating(false)
       }, 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+      setError(err instanceof Error ? err.message : t(language, 'cvErrorUnknown'))
       setIsGenerating(false)
       setIsCLGenerating(false)
       setStep('form')
-      toast.error(err instanceof Error ? err.message : 'Erreur inconnue')
+      toast.error(err instanceof Error ? err.message : t(language, 'cvErrorUnknown'))
     } finally {
       setIsSubmitting(false)
     }
@@ -318,7 +318,7 @@ export default function CVForm() {
           >
             <div className="flex flex-col items-center">
               <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
-              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">{t(language, 'poweredByIa')}</span>
             </div>
             <span className="font-semibold text-foreground hidden sm:inline">{t(language, 'siteTitle')}</span>
           </button>
@@ -488,7 +488,7 @@ export default function CVForm() {
                                 const file = e.target.files?.[0]
                                 if (!file) return
                                 if (file.size > 5 * 1024 * 1024) {
-                                  toast.error(language === 'fr' ? 'Image trop volumineuse (max 5 Mo)' : language === 'en' ? 'Image too large (max 5 MB)' : 'الصورة كبيرة جداً (الحد الأقصى 5 ميغابايت)')
+                                  toast.error(t(language, 'cvImageTooLarge'))
                                   return
                                 }
                                 const reader = new FileReader()
@@ -517,7 +517,7 @@ export default function CVForm() {
                           id="fullName"
                           value={formData.fullName}
                           onChange={(e) => updateFormData({ fullName: e.target.value })}
-                          placeholder={language === 'fr' ? 'Jean Dupont' : language === 'en' ? 'John Smith' : 'محمد أحمد'}
+                          placeholder={t(language, 'cvFullNamePh')}
                           className="mt-1.5"
                         />
                       </div>
@@ -528,7 +528,7 @@ export default function CVForm() {
                           type="email"
                           value={formData.email}
                           onChange={(e) => updateFormData({ email: e.target.value })}
-                          placeholder="jean@exemple.com"
+                          placeholder={t(language, 'cvEmailPh')}
                           className="mt-1.5"
                         />
                       </div>
@@ -552,7 +552,7 @@ export default function CVForm() {
                             type="tel"
                             value={getPhoneNumberOnly()}
                             onChange={(e) => handlePhoneNumberChange(e.target.value)}
-                            placeholder={language === 'fr' ? '600 000 000' : language === 'en' ? '600 000 000' : language === 'ar' ? '600 000 000' : '600 000 000'}
+                            placeholder={t(language, 'cvPhonePh')}
                             className="flex-1"
                           />
                         </div>
@@ -563,7 +563,7 @@ export default function CVForm() {
                           id="address"
                           value={formData.address}
                           onChange={(e) => updateFormData({ address: e.target.value })}
-                          placeholder={language === 'fr' ? '123 Rue Mohammed V' : language === 'en' ? '123 Main Street' : language === 'ar' ? 'شارع محمد الخامس 123' : 'Calle Ejemplo 123'}
+                          placeholder={t(language, 'cvAddressPh')}
                           className="mt-1.5"
                         />
                       </div>
@@ -573,7 +573,7 @@ export default function CVForm() {
                           id="location"
                           value={formData.location}
                           onChange={(e) => updateFormData({ location: e.target.value })}
-                          placeholder={language === 'fr' ? 'Casablanca, Maroc' : language === 'en' ? 'London, UK' : language === 'ar' ? 'الدار البيضاء، المغرب' : 'Madrid, España'}
+                          placeholder={t(language, 'cvLocationPh')}
                           className="mt-1.5"
                         />
                       </div>
@@ -622,7 +622,7 @@ export default function CVForm() {
                             id="birthPlace"
                             value={formData.birthPlace}
                             onChange={(e) => updateFormData({ birthPlace: e.target.value })}
-                            placeholder={language === 'fr' ? 'Casablanca' : language === 'en' ? 'Casablanca' : language === 'ar' ? 'الدار البيضاء' : 'Madrid'}
+                            placeholder={t(language, 'cvCityPh')}
                             className="mt-1.5"
                           />
                         </div>
@@ -659,7 +659,7 @@ export default function CVForm() {
                         id="targetJob"
                         value={formData.targetJob}
                         onChange={(e) => updateFormData({ targetJob: e.target.value })}
-                        placeholder={language === 'fr' ? 'Développeur Full-Stack' : language === 'en' ? 'Full-Stack Developer' : 'مطور Full-Stack'}
+                        placeholder={t(language, 'cvTargetJobPh')}
                         className="mt-1.5"
                       />
                     </div>
@@ -669,7 +669,7 @@ export default function CVForm() {
                         id="industry"
                         value={formData.industry}
                         onChange={(e) => updateFormData({ industry: e.target.value })}
-                        placeholder={language === 'fr' ? 'Technologie / IT' : language === 'en' ? 'Technology / IT' : 'التكنولوجيا / تكنولوجيا المعلومات'}
+                        placeholder={t(language, 'cvIndustryPh')}
                         className="mt-1.5"
                       />
                     </div>
@@ -770,7 +770,7 @@ export default function CVForm() {
                           {t(language, 'tabCoverLetter')}
                         </span>
                         <span className="text-xs text-muted-foreground bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                          {language === 'fr' ? 'Optionnel' : language === 'en' ? 'Optional' : language === 'es' ? 'Opcional' : 'اختياري'}
+                          {t(language, 'optional')}
                         </span>
                       </div>
 
@@ -787,13 +787,7 @@ export default function CVForm() {
                             className="mt-1.5"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
-                            {language === 'fr'
-                              ? "Renseignez le nom de l'entreprise pour générer automatiquement une lettre de motivation personnalisée en même temps que votre CV."
-                              : language === 'en'
-                                ? 'Enter the company name to automatically generate a personalized cover letter along with your resume.'
-                                : language === 'es'
-                                  ? 'Ingrese el nombre de la empresa para generar automáticamente una carta de motivación junto con su currículum.'
-                                  : 'أدخل اسم الشركة لإنشاء رسالة دافع مخصصة تلقائياً مع سيرتك الذاتية.'}
+                            {t(language, 'clCompanyNameHint')}
                           </p>
                         </div>
                         <div>
@@ -1050,7 +1044,7 @@ export default function CVForm() {
       <footer className="border-t py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-emerald-50/50 via-white to-amber-50/30 mt-auto">
         <div className="max-w-3xl mx-auto flex flex-col items-center gap-2 text-sm text-muted-foreground">
           <p>{t(language, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
-          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">{t(language, 'footerLegal')}</button>
         </div>
       </footer>
     </div>

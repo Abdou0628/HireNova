@@ -145,8 +145,8 @@ export default function Preview() {
   function handleDownloadWord(type: 'cv' | 'cl') {
     const ref = type === 'cv' ? cvRef : clRef
     const filename = type === 'cv'
-      ? `CV_${formData.fullName.replace(/\s+/g, '_')}.doc`
-      : `Lettre_${(clFormData.fullName || formData.fullName).replace(/\s+/g, '_')}.doc`
+      ? `${t(lang, 'cvDownloadCvPrefix')}${formData.fullName.replace(/\s+/g, '_')}.doc`
+      : `${t(lang, 'cvDownloadClPrefix')}${(clFormData.fullName || formData.fullName).replace(/\s+/g, '_')}.doc`
     if (type === 'cv') { events.cvDownloaded('word', language) } else { events.clDownloaded('word') }
 
     if (!ref.current) return
@@ -197,7 +197,7 @@ export default function Preview() {
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center">
               <Image src="/hirenova-logo.png" alt="HireNova" width={32} height={32} className="rounded-lg" />
-              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">POWERED BY IA</span>
+              <span className="text-[9px] font-semibold text-emerald-600 tracking-wide">{t(lang, 'poweredByIa')}</span>
             </div>
             <div>
               <span className="font-semibold text-foreground text-sm">{t(lang, 'siteTitle')}</span>
@@ -418,6 +418,7 @@ export default function Preview() {
                       formData={formData}
                       generatedCV={generatedCV}
                       template={template}
+                      lang={lang}
                     />
                   </div>
                 </motion.div>
@@ -534,7 +535,7 @@ export default function Preview() {
             <span className="text-xs font-medium text-emerald-700">{t(lang, 'previewEqualOpportunity')}</span>
           </div>
           <p>{t(lang, 'footerText')} &copy; 2026 HireNova — <span className="font-medium text-foreground">E-Society 2050</span></p>
-          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">Mentions Légales</button>
+          <button onClick={() => { document.dispatchEvent(new CustomEvent('open-legal')) }} className="text-xs text-emerald-600 hover:underline cursor-pointer">{t(lang, 'footerLegal')}</button>
         </div>
       </footer>
 

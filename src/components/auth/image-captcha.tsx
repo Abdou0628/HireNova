@@ -87,7 +87,8 @@ export default function ImageCaptcha({ lang, onVerified, onError }: ImageCaptcha
   }, [tiles])
 
   const correctCount = tiles.filter((t) => t.isCorrect).length
-  const categoryLabel = category?.label[lang as keyof typeof category.label] || category?.label.fr || 'images'
+  
+const categoryLabel = t(lang, ('captchaCat' + category?.id) as TranslationKey)
 
   function generateChallenge(): TileData[] {
     // Pick a random category as the target

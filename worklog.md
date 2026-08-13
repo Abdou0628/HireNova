@@ -1168,3 +1168,42 @@ Stage Summary:
 - All audio/text animation code was intact - the issue was the page never rendered due to type errors
 - Arabic audio button now always on LEFT side (dir="ltr" on audio bar)
 - Ecosystem back buttons now properly translated in all 4 languages
+---
+Task ID: LOT-2
+Agent: I18n LOT 2 Agent
+Task: LOT 2 — CV + Cover Letter i18n: replace all hardcoded strings with t() calls
+
+Work Log:
+- Read worklog.md and i18n.ts to understand project i18n pattern: `import { t } from '@/lib/i18n'` and `t(language, 'keyName')`
+- Read all 10 component files in src/components/cv/ and src/components/cl/ to identify hardcoded strings
+- Identified 48 new translation keys needed across all components
+- Added all 48 keys to the TranslationKey type union at the top of i18n.ts
+- Added translations in all 4 language sections (fr, en, ar, es) for all 48 keys
+- Replaced all inline ternary language chains (language === 'fr' ? ... : language === 'en' ? ...) with t() calls
+- Replaced all hardcoded error messages (Erreur lors de la génération, Erreur inconnue, etc.)
+- Replaced POWERED BY IA with t(language, 'poweredByIa') in 5 files
+- Replaced Mentions Légales with t(language, 'footerLegal') in 4 files
+- Replaced all placeholder strings (Jean Dupont, jean@exemple.com, etc.) with t() calls
+- Added `lang: CVLanguage` prop to CVDocumentProps interface in cv-document.tsx
+- Threaded `lang` prop through ModernTemplate, ClassicTemplate, CreativeTemplate, and CVDocument
+- Translated all CV document section headings (Skills, Experience, Education, Languages, etc.)
+- Replaced ATS score labels (Excellent, Bon, À améliorer) with t() calls
+- Replaced ATS category breakdown heading (Détail par catégorie) with t() call
+- Replaced generating step label arrays in cv/generating.tsx and cl/cover-letter-generating.tsx with .map() over key arrays
+- Translated download filename prefixes (CV_, Lettre_, Application_)
+- Replaced all hardcoded strings in job-application-form.tsx (error messages, placeholders)
+- Replaced all hardcoded strings in job-application-preview.tsx (no data message, filename prefix)
+- Replaced all hardcoded strings in cover-letter-form.tsx (error messages, CV tags, auto-filled hint)
+- Replaced all hardcoded strings in cover-letter-generating.tsx (step labels, POWERED BY IA)
+- Replaced all hardcoded strings in cover-letter-preview.tsx (download prefix, POWERED BY IA, Mentions Légales)
+- Fixed Classic and Creative template `formatDate(dateOfBirth, 'en')` → `formatDate(dateOfBirth, lang)` for proper locale-aware dates
+- Fixed variable naming conflict in cv-document.tsx where `lang` parameter shadowed `languages.map((lang) => ...)` → renamed to `lng`
+- Ran lint: 0 new errors in src/ (12 pre-existing errors all in public/ bundled files, 333 pre-existing warnings)
+
+Stage Summary:
+- 11 files modified: i18n.ts, cv/form.tsx, cv/generating.tsx, cv/preview.tsx, cv/ats-analysis.tsx, cv/cv-document.tsx, cv/job-application-form.tsx, cv/job-application-preview.tsx, cl/cover-letter-form.tsx, cl/cover-letter-generating.tsx, cl/cover-letter-preview.tsx
+- 49 new TranslationKeys added (48 original + 1 clCompanyNameHint discovered during final check)
+- All 4 languages (fr, en, ar, es) populated for every new key
+- Zero inline language ternary chains remain in the LOT 2 component files
+- All hardcoded French/English strings replaced with t() calls
+- CV document section headings now render in the user's selected language

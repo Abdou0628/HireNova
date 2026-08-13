@@ -13,6 +13,8 @@ import {
   CalendarDays,
   HeartHandshake,
 } from 'lucide-react'
+import { t } from '@/lib/i18n'
+import type { CVLanguage } from '@/lib/i18n'
 
 /* Format date from YYYY-MM-DD to a readable format */
 function formatDate(dateStr: string, lang: string): string {
@@ -62,6 +64,7 @@ interface CVDocumentProps {
     languages: Array<{ name: string; level: string }>
   }
   template: 'modern' | 'classic' | 'creative'
+  lang: CVLanguage
 }
 
 /* ────────────────────────────────────────────
@@ -93,11 +96,12 @@ function ContactItem({
 function ModernTemplate({
   formData,
   generatedCV,
+  lang,
 }: Omit<CVDocumentProps, 'template'>) {
   const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
-  const birthInfo = [formatDate(dateOfBirth, 'fr'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, lang), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   const photoAlignmentClasses = {
@@ -144,7 +148,7 @@ function ModernTemplate({
           <div className="mt-6">
             <h2 className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-emerald-200">
               <Code2 className="h-3.5 w-3.5" />
-              Skills
+              {t(lang, 'cvDocSkills')}
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {skills.map((skill) => (
@@ -164,7 +168,7 @@ function ModernTemplate({
           <div className="mt-6">
             <h2 className="mb-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-emerald-200">
               <HeartHandshake className="h-3.5 w-3.5" />
-              Soft Skills
+              {t(lang, 'cvDocSoftSkills')}
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {displaySoftSkills.map((skill) => (
@@ -186,7 +190,7 @@ function ModernTemplate({
         {summary && (
           <section className="mb-5">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-stone-500">
-              Professional Summary
+              {t(lang, 'cvDocProfessionalSummary')}
             </h2>
             <div className="h-px bg-stone-200" />
             <p className="mt-2 text-xs leading-relaxed text-stone-700">{summary}</p>
@@ -198,7 +202,7 @@ function ModernTemplate({
           <section className="mb-5">
             <h2 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500">
               <Briefcase className="h-3.5 w-3.5" />
-              Experience
+              {t(lang, 'cvDocExperience')}
             </h2>
             <div className="h-px bg-stone-200" />
             <div className="mt-3 space-y-4">
@@ -229,7 +233,7 @@ function ModernTemplate({
           <section className="mb-5">
             <h2 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500">
               <GraduationCap className="h-3.5 w-3.5" />
-              Education
+              {t(lang, 'cvDocEducation')}
             </h2>
             <div className="h-px bg-stone-200" />
             <div className="mt-3 space-y-4">
@@ -260,7 +264,7 @@ function ModernTemplate({
           <section>
             <h2 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500">
               <Languages className="h-3.5 w-3.5" />
-              Languages
+              {t(lang, 'cvDocLanguages')}
             </h2>
             <div className="h-px bg-stone-200" />
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
@@ -286,11 +290,12 @@ function ModernTemplate({
 function ClassicTemplate({
   formData,
   generatedCV,
+  lang,
 }: Omit<CVDocumentProps, 'template'>) {
   const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
-  const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, lang), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   const headerLayoutClasses = {
@@ -340,7 +345,7 @@ function ClassicTemplate({
       {summary && (
         <section className="mt-5">
           <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Professional Summary
+            {t(lang, 'cvDocProfessionalSummary')}
           </h2>
           <p className="text-xs leading-relaxed text-stone-600">{summary}</p>
         </section>
@@ -352,7 +357,7 @@ function ClassicTemplate({
       {experience.length > 0 && (
         <section>
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Professional Experience
+            {t(lang, 'cvDocProfessionalExperience')}
           </h2>
           <div className="space-y-4">
             {experience.map((exp, i) => (
@@ -381,7 +386,7 @@ function ClassicTemplate({
       {education.length > 0 && (
         <section>
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Education
+            {t(lang, 'cvDocEducation')}
           </h2>
           <div className="space-y-4">
             {education.map((edu, i) => (
@@ -410,7 +415,7 @@ function ClassicTemplate({
       {skills.length > 0 && (
         <section>
           <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Skills
+            {t(lang, 'cvDocSkills')}
           </h2>
           <p className="text-xs leading-relaxed text-stone-600">
             {skills.join('  •  ')}
@@ -424,7 +429,7 @@ function ClassicTemplate({
       {displaySoftSkills.length > 0 && (
         <section>
           <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Soft Skills
+            {t(lang, 'cvDocSoftSkills')}
           </h2>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600">
             {displaySoftSkills.map((skill) => (
@@ -443,14 +448,14 @@ function ClassicTemplate({
       {languages.length > 0 && (
         <section>
           <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-stone-800">
-            Languages
+            {t(lang, 'cvDocLanguages')}
           </h2>
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-stone-600">
-            {languages.map((lang) => (
-              <span key={lang.name}>
-                <span className="font-semibold text-stone-700">{lang.name}</span>
+            {languages.map((lng) => (
+              <span key={lng.name}>
+                <span className="font-semibold text-stone-700">{lng.name}</span>
                 {' — '}
-                {lang.level}
+                {lng.level}
               </span>
             ))}
           </div>
@@ -467,11 +472,12 @@ function ClassicTemplate({
 function CreativeTemplate({
   formData,
   generatedCV,
+  lang,
 }: Omit<CVDocumentProps, 'template'>) {
   const { fullName, email, phone, address, location, linkedin, website, targetJob, photo, photoPosition, dateOfBirth, birthPlace, birthCountry, softSkills } = formData
   const { summary, experience, education, skills, languages, softSkills: aiSoftSkills } = generatedCV
   const fullAddress = [address, location].filter(Boolean).join(', ')
-  const birthInfo = [formatDate(dateOfBirth, 'en'), birthPlace, birthCountry].filter(Boolean).join(', ')
+  const birthInfo = [formatDate(dateOfBirth, lang), birthPlace, birthCountry].filter(Boolean).join(', ')
   const displaySoftSkills = aiSoftSkills && aiSoftSkills.length > 0 ? aiSoftSkills : (softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : [])
 
   const headerLayoutClasses = {
@@ -515,7 +521,7 @@ function CreativeTemplate({
           {summary && (
             <section className="mb-5">
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                About Me
+                {t(lang, 'cvDocAboutMe')}
               </h2>
               <p className="mt-2 text-xs leading-relaxed text-stone-600">{summary}</p>
             </section>
@@ -525,7 +531,7 @@ function CreativeTemplate({
           {experience.length > 0 && (
             <section className="mb-5">
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                Experience
+                {t(lang, 'cvDocExperience')}
               </h2>
               <div className="mt-3 space-y-4">
                 {experience.map((exp, i) => (
@@ -556,7 +562,7 @@ function CreativeTemplate({
           {education.length > 0 && (
             <section>
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                Education
+                {t(lang, 'cvDocEducation')}
               </h2>
               <div className="mt-3 space-y-4">
                 {education.map((edu, i) => (
@@ -589,7 +595,7 @@ function CreativeTemplate({
           {/* Contact */}
           <section className="mb-6">
             <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-              Contact
+              {t(lang, 'cvDocContact')}
             </h2>
             <div className="mt-3 space-y-2 text-[11px] text-stone-600">
               <ContactItem icon={Mail} value={email} />
@@ -605,7 +611,7 @@ function CreativeTemplate({
           {skills.length > 0 && (
             <section className="mb-6">
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                Skills
+                {t(lang, 'cvDocSkills')}
               </h2>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {skills.map((skill) => (
@@ -624,7 +630,7 @@ function CreativeTemplate({
           {displaySoftSkills.length > 0 && (
             <section className="mb-6">
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                Soft Skills
+                {t(lang, 'cvDocSoftSkills')}
               </h2>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {displaySoftSkills.map((skill) => (
@@ -643,13 +649,13 @@ function CreativeTemplate({
           {languages.length > 0 && (
             <section>
               <h2 className="border-l-4 border-emerald-600 pl-3 text-xs font-bold uppercase tracking-widest text-stone-700">
-                Languages
+                {t(lang, 'cvDocLanguages')}
               </h2>
               <div className="mt-3 space-y-2">
-                {languages.map((lang) => (
-                  <div key={lang.name} className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-stone-700">{lang.name}</span>
-                    <span className="text-stone-400">{lang.level}</span>
+                {languages.map((lng) => (
+                  <div key={lng.name} className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-stone-700">{lng.name}</span>
+                    <span className="text-stone-400">{lng.level}</span>
                   </div>
                 ))}
               </div>
@@ -665,20 +671,20 @@ function CreativeTemplate({
    Main CVDocument Component
    ──────────────────────────────────────────── */
 
-export default function CVDocument({ formData, generatedCV, template }: CVDocumentProps) {
+export default function CVDocument({ formData, generatedCV, template, lang }: CVDocumentProps) {
   return (
     <div
       id="cv-document"
       className="mx-auto max-w-[210mm] bg-white text-stone-900"
     >
       {template === 'modern' && (
-        <ModernTemplate formData={formData} generatedCV={generatedCV} />
+        <ModernTemplate formData={formData} generatedCV={generatedCV} lang={lang} />
       )}
       {template === 'classic' && (
-        <ClassicTemplate formData={formData} generatedCV={generatedCV} />
+        <ClassicTemplate formData={formData} generatedCV={generatedCV} lang={lang} />
       )}
       {template === 'creative' && (
-        <CreativeTemplate formData={formData} generatedCV={generatedCV} />
+        <CreativeTemplate formData={formData} generatedCV={generatedCV} lang={lang} />
       )}
     </div>
   )

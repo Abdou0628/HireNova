@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { useCVStore } from '@/store/cv-store'
 import { useSession } from 'next-auth/react'
+import { t } from '@/lib/i18n'
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ interface AnswerResult {
   score: number
   feedback: string
   tips: string[]
-  followUp: string
+ followUp: string
   isLast: boolean
 }
 
@@ -42,7 +43,7 @@ interface FinalReport {
   averageScore: number
   strengths: string[]
   weaknesses: string[]
-  improvementPlan: string[]
+ improvementPlan: string[]
   recommendation: string
   totalQuestions: number
   jobTitle: string
@@ -52,38 +53,11 @@ interface FinalReport {
 
 type Screen = 'setup' | 'loading' | 'question' | 'evaluating' | 'feedback' | 'report'
 
-const INDUSTRIES = [
-  'Technologie / IT',
-  'Finance / Banque',
-  'Marketing / Communication',
-  'Ressources Humaines',
-  'Santé / Médical',
-  'Éducation / Formation',
-  'Ingénierie',
-  'Commerce / Vente',
-  'Juridique / Droit',
-  'Design / Créatif',
-  'Logistique / Supply Chain',
-  'Administration / Gestion',
-  'Autre',
-]
-
-const DIFFICULTIES = [
-  { value: 'beginner', label: 'Débutant', desc: 'Premier entretien, questions simples', icon: GraduationCap },
-  { value: 'intermediate', label: 'Intermédiaire', desc: 'Expérience professionnelle confirmée', icon: Briefcase },
-  { value: 'advanced', label: 'Avancé', desc: 'Poste senior / management', icon: Award },
-]
-
-const INTERVIEW_TYPES = [
-  { value: 'behavioral', label: 'Comportemental', desc: 'Situations, comportements, soft skills' },
-  { value: 'technical', label: 'Technique', desc: 'Compétences techniques du métier' },
-  { value: 'mixed', label: 'Mixte', desc: 'Combinaison comportemental + technique' },
-]
-
 // ─── Component ────────────────────────────────────────────
 
 export default function InterviewSimulator() {
   const { language } = useCVStore()
+  const lang = language
   const { data: session } = useSession()
 
   const [screen, setScreen] = useState<Screen>('setup')
@@ -106,13 +80,27 @@ export default function InterviewSimulator() {
   const paidPlans = ['starter', 'pro', 'career_plus', 'employer', 'annual', 'lifetime']
   const hasPlan = paidPlans.includes(userPlan)
 
+  const INDUSTRIES = Array.from({ length: 13 }, (_, i) => t(lang, `interviewInd${i}` as keyof typeof import('@/lib/i18n').translations))
+
+  const DIFFICULTIES = [
+    { value: 'beginner' as const, labelKey: 'interviewDiffBeginner' as const, descKey: 'interviewDiffBeginnerDesc' as const, icon: GraduationCap },
+    { value: 'intermediate' as const, labelKey: 'interviewDiffIntermediate' as const, descKey: 'interviewDiffIntermediateDesc' as const, icon: Briefcase },
+    { value: 'advanced' as const, labelKey: 'interviewDiffAdvanced' as const, descKey: 'interviewDiffAdvancedDesc' as const, icon: Award },
+  ]
+
+  const INTERVIEW_TYPES = [
+    { value: 'behavioral' as const, labelKey: 'interviewTypeBehavioral' as const, descKey: 'interviewTypeBehavioralDesc' as const },
+    { value: 'technical' as const, labelKey: 'interviewTypeTechnical' as const, descKey: 'interviewTypeTechnicalDesc' as const },
+    { value: 'mixed' as const, labelKey: 'interviewTypeMixed' as const, descKey: 'interviewTypeMixedDesc' as const },
+  ]
+
   const startInterview = useCallback(async () => {
     if (!setup.jobTitle.trim() || !setup.industry) {
-      toast.error('Veuillez remplir le titre du poste et le secteur')
+      toast.error(t(lang, 'interviewErrorFillFields'))
       return
     }
     if (!hasPlan) {
-      toast.warning('Abonnement requis pour le simulateur entretien IA', { duration: 4000 })
+      toast.warning(t(lang, 'interviewSubscriptionRequired'), { duration: 4000 })
       return
     }
 
@@ -126,7 +114,7 @@ export default function InterviewSimulator() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Erreur')
+        throw new Error(data.error || t(lang, 'interviewErrorGeneric'))
       }
 
       setSessionId(data.sessionId)
@@ -135,14 +123,14 @@ export default function InterviewSimulator() {
       setAnswer('')
       setScreen('question')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erreur de connexion')
+      toast.error(err instanceof Error ? err.message : t(lang, 'interviewErrorConnection'))
       setScreen('setup')
     }
-  }, [setup, hasPlan])
+  }, [setup, hasPlan, lang])
 
   const submitAnswer = useCallback(async () => {
     if (!answer.trim()) {
-      toast.error('Veuillez rédiger votre réponse')
+      toast.error(t(lang, 'interviewErrorAnswer'))
       return
     }
 
@@ -160,17 +148,17 @@ export default function InterviewSimulator() {
       })
       const data = await res.json()
 
-      if (!res.ok) throw new Error(data.error || 'Erreur')
+      if (!res.ok) throw new Error(data.error || t(lang, 'interviewErrorGeneric'))
 
       setResult(data)
       setScreen('feedback')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erreur')
+      toast.error(err instanceof Error ? err.message : t(lang, 'interviewErrorGeneric'))
       setScreen('question')
     } finally {
       setIsSubmitting(false)
     }
-  }, [answer, sessionId, questions, currentIndex])
+  }, [answer, sessionId, questions, currentIndex, lang])
 
   const nextQuestion = useCallback(() => {
     if (result?.isLast) {
@@ -193,15 +181,15 @@ export default function InterviewSimulator() {
       })
       const data = await res.json()
 
-      if (!res.ok) throw new Error(data.error || 'Erreur')
+      if (!res.ok) throw new Error(data.error || t(lang, 'interviewErrorGeneric'))
 
       setReport(data.report)
       setScreen('report')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erreur')
+      toast.error(err instanceof Error ? err.message : t(lang, 'interviewErrorGeneric'))
       setScreen('feedback')
     }
-  }, [sessionId])
+  }, [sessionId, lang])
 
   const restart = () => {
     setScreen('setup')
@@ -219,12 +207,6 @@ export default function InterviewSimulator() {
     return 'text-red-500'
   }
 
-  const getScoreBg = (score: number) => {
-    if (score >= 75) return 'bg-emerald-500'
-    if (score >= 50) return 'bg-amber-500'
-    return 'bg-red-500'
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/20 to-white">
       <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
@@ -240,23 +222,22 @@ export default function InterviewSimulator() {
             </div>
             <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-semibold">
               <Sparkles className="w-3 h-3 mr-1" />
-              IA
+              {t(lang, 'interviewAIBadge')}
             </Badge>
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Simulateur d&apos;Entretien IA
+            {t(lang, 'interviewTitle')}
           </h1>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-            Pratiquez vos entretiens avec une IA experte. Recevez un feedback instantané
-            et un plan d&apos;amélioration personnalisé.
+            {t(lang, 'interviewSubtitle')}
           </p>
         </div>
 
-        {/* Progress bar during interview */}
+        {/* Progress bar during interview */
         {['question', 'evaluating', 'feedback'].includes(screen) && questions.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-              <span>Question {currentIndex + 1} sur {questions.length}</span>
+              <span>{t(lang, 'interviewQuestionN')} {currentIndex + 1} / {questions.length}</span>
               <span>{Math.round(((currentIndex + (screen === 'feedback' ? 1 : 0)) / questions.length) * 100)}%</span>
             </div>
             <Progress
@@ -279,20 +260,20 @@ export default function InterviewSimulator() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Target className="w-5 h-5 text-emerald-600" />
-                    Configurer votre entretien
+                    {t(lang, 'interviewSetupTitle')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   {/* Job Title */}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">
-                      Titre du poste *
+                      {t(lang, 'interviewJobTitle')}
                     </label>
                     <input
                       type="text"
                       value={setup.jobTitle}
                       onChange={(e) => setSetup({ ...setup, jobTitle: e.target.value })}
-                      placeholder="ex: Développeur Frontend, Chef de projet, Analyste marketing..."
+                      placeholder={t(lang, 'interviewJobTitlePh')}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                   </div>
@@ -300,14 +281,14 @@ export default function InterviewSimulator() {
                   {/* Industry */}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">
-                      Secteur d&apos;activité *
+                      {t(lang, 'interviewIndustry')}
                     </label>
                     <select
                       value={setup.industry}
                       onChange={(e) => setSetup({ ...setup, industry: e.target.value })}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     >
-                      <option value="">Sélectionner un secteur...</option>
+                      <option value="">{t(lang, 'interviewIndustryPh')}</option>
                       {INDUSTRIES.map((ind) => (
                         <option key={ind} value={ind}>{ind}</option>
                       ))}
@@ -317,7 +298,7 @@ export default function InterviewSimulator() {
                   {/* Difficulty */}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
-                      Niveau de difficulté
+                      {t(lang, 'interviewDifficulty')}
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {DIFFICULTIES.map((d) => (
@@ -331,8 +312,8 @@ export default function InterviewSimulator() {
                           }`}
                         >
                           <d.icon className={`w-5 h-5 mx-auto mb-1 ${setup.difficulty === d.value ? 'text-emerald-600' : 'text-muted-foreground'}`} />
-                          <p className="text-xs font-semibold">{d.label}</p>
-                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{d.desc}</p>
+                          <p className="text-xs font-semibold">{t(lang, d.labelKey)}</p>
+                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{t(lang, d.descKey)}</p>
                         </button>
                       ))}
                     </div>
@@ -341,21 +322,21 @@ export default function InterviewSimulator() {
                   {/* Interview Type */}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
-                      Type d&apos;entretien
+                      {t(lang, 'interviewType')}
                     </label>
                     <div className="grid grid-cols-3 gap-2">
-                      {INTERVIEW_TYPES.map((t) => (
+                      {INTERVIEW_TYPES.map((tp) => (
                         <button
-                          key={t.value}
-                          onClick={() => setSetup({ ...setup, interviewType: t.value as InterviewSetup['interviewType'] })}
+                          key={tp.value}
+                          onClick={() => setSetup({ ...setup, interviewType: tp.value as InterviewSetup['interviewType'] })}
                           className={`p-3 rounded-lg border-2 text-center transition-all cursor-pointer ${
-                            setup.interviewType === t.value
+                            setup.interviewType === tp.value
                               ? 'border-emerald-600 bg-emerald-50 shadow-sm'
                               : 'border-muted hover:border-emerald-300'
                           }`}
                         >
-                          <p className="text-xs font-semibold">{t.label}</p>
-                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{t.desc}</p>
+                          <p className="text-xs font-semibold">{t(lang, tp.labelKey)}</p>
+                          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{t(lang, tp.descKey)}</p>
                         </button>
                       ))}
                     </div>
@@ -364,7 +345,7 @@ export default function InterviewSimulator() {
                   {!hasPlan && (
                     <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 shrink-0" />
-                      <span>Abonnement requis pour le simulateur entretien IA. <button onClick={() => {}} className="underline font-semibold cursor-pointer">Voir les tarifs</button></span>
+                      <span>{t(lang, 'interviewSubscriptionRequired')} <button onClick={() => {}} className="underline font-semibold cursor-pointer">{t(lang, 'interviewSeePricing')}</button></span>
                     </div>
                   )}
 
@@ -374,7 +355,7 @@ export default function InterviewSimulator() {
                     disabled={!setup.jobTitle.trim() || !setup.industry || !hasPlan}
                   >
                     <Mic className="mr-2 w-4 h-4" />
-                    Commencer l&apos;entretien
+                    {t(lang, 'interviewStartBtn')}
                     <ChevronRight className="ml-2 w-4 h-4" />
                   </Button>
                 </CardContent>
@@ -395,9 +376,9 @@ export default function InterviewSimulator() {
                 <Brain className="w-8 h-8 text-emerald-600" />
               </div>
               <p className="text-sm text-muted-foreground font-medium">
-                {report ? 'Génération du rapport final...' : "L'IA prépare vos questions..."}
+                {report ? t(lang, 'interviewLoadingReport') : t(lang, 'interviewLoadingQuestions')}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Cela peut prendre quelques secondes</p>
+              <p className="text-xs text-muted-foreground mt-1">{t(lang, 'interviewLoadingSubtext')}</p>
             </motion.div>
           )}
 
@@ -414,10 +395,10 @@ export default function InterviewSimulator() {
                   {/* Question number badge */}
                   <div className="flex items-center gap-2 mb-4">
                     <Badge className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1">
-                      Question {currentIndex + 1}
+                      {t(lang, 'interviewQuestionN')} {currentIndex + 1}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      {setup.difficulty === 'beginner' ? 'Débutant' : setup.difficulty === 'advanced' ? 'Avancé' : 'Intermédiaire'}
+                      {setup.difficulty === 'beginner' ? t(lang, 'interviewBeginner') : setup.difficulty === 'advanced' ? t(lang, 'interviewAdvanced') : t(lang, 'interviewIntermediate')}
                     </Badge>
                   </div>
 
@@ -426,20 +407,20 @@ export default function InterviewSimulator() {
                     {questions[currentIndex].question}
                   </h2>
                   <p className="text-xs text-muted-foreground mb-6">
-                    Poste : {setup.jobTitle} • {setup.industry}
+                    {t(lang, 'interviewPosition')} {setup.jobTitle} • {setup.industry}
                   </p>
 
                   {/* Answer textarea */}
                   <Textarea
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="Rédigez votre réponse comme si vous étiez en entretien réel..."
+                    placeholder={t(lang, 'interviewWriteAnswer')}
                     className="min-h-[160px] text-sm resize-y rounded-lg border-input focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
 
                   <div className="flex items-center justify-between mt-4">
                     <p className="text-xs text-muted-foreground">
-                      {answer.length} caractères
+                      {answer.length} {t(lang, 'interviewCharacters')}
                     </p>
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer shadow-md shadow-emerald-600/20"
@@ -451,7 +432,7 @@ export default function InterviewSimulator() {
                       ) : (
                         <CheckCircle2 className="w-4 h-4 mr-2" />
                       )}
-                      Valider ma réponse
+                      {t(lang, 'interviewValidateAnswer')}
                     </Button>
                   </div>
                 </CardContent>
@@ -472,7 +453,7 @@ export default function InterviewSimulator() {
                 <TrendingUp className="w-8 h-8 text-emerald-600" />
               </div>
               <p className="text-sm text-muted-foreground font-medium">
-                L&apos;IA évalue votre réponse...
+                {t(lang, 'interviewEvaluating')}
               </p>
             </motion.div>
           )}
@@ -490,7 +471,7 @@ export default function InterviewSimulator() {
                 <div className="p-6 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-emerald-100 mb-1">Score obtenu</p>
+                      <p className="text-sm text-emerald-100 mb-1">{t(lang, 'interviewScoreObtained')}</p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-extrabold">{result.score}</span>
                         <span className="text-emerald-200">/100</span>
@@ -513,7 +494,7 @@ export default function InterviewSimulator() {
                   <div>
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                       <FileText className="w-4 h-4 text-emerald-600" />
-                      Feedback
+                      {t(lang, 'interviewFeedback')}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{result.feedback}</p>
                   </div>
@@ -523,7 +504,7 @@ export default function InterviewSimulator() {
                     <div>
                       <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                         <Sparkles className="w-4 h-4 text-amber-600" />
-                        Conseils d&apos;amélioration
+                        {t(lang, 'interviewImprovementTips')}
                       </h3>
                       <ul className="space-y-1.5">
                         {result.tips.map((tip, i) => (
@@ -536,18 +517,18 @@ export default function InterviewSimulator() {
                     </div>
                   )}
 
-                  {/* Follow-up */}
+                  {/* Follow-up */
                   {result.followUp && (
                     <div className="p-3 rounded-lg bg-slate-50 border">
                       <p className="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
                         <ChevronRight className="w-3 h-3" />
-                        Pour aller plus loin
+                        {t(lang, 'interviewGoFurther')}
                       </p>
                       <p className="text-sm text-slate-600">{result.followUp}</p>
                     </div>
                   )}
 
-                  {/* Next button */}
+                  {/* Next button */
                   <Button
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-sm font-semibold cursor-pointer"
                     onClick={nextQuestion}
@@ -555,11 +536,11 @@ export default function InterviewSimulator() {
                     {result.isLast ? (
                       <>
                         <BarChart3 className="mr-2 w-4 h-4" />
-                        Voir le rapport final
+                        {t(lang, 'interviewSeeReport')}
                       </>
                     ) : (
                       <>
-                        Question suivante
+                        {t(lang, 'interviewNextQuestion')}
                         <ChevronRight className="ml-2 w-4 h-4" />
                       </>
                     )}
@@ -581,9 +562,9 @@ export default function InterviewSimulator() {
                 {/* Report header */}
                 <div className="p-6 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white text-center">
                   <Award className="w-10 h-10 mx-auto mb-2 text-yellow-300" />
-                  <h2 className="text-xl font-bold">Rapport d&apos;Évaluation</h2>
+                  <h2 className="text-xl font-bold">{t(lang, 'interviewReportTitle')}</h2>
                   <p className="text-emerald-100 text-sm mt-1">
-                    {report.jobTitle} • {report.industry} • {report.totalQuestions} questions
+                    {report.jobTitle} • {report.industry} • {report.totalQuestions} {t(lang, 'interviewQuestions')}
                   </p>
                   <div className="mt-4 inline-flex items-center gap-3">
                     <div className="w-20 h-20 rounded-full border-4 border-white/30 flex items-center justify-center bg-white/10">
@@ -592,7 +573,7 @@ export default function InterviewSimulator() {
                     <div className="text-left">
                       <p className="text-2xl font-bold">{report.averageScore}/100</p>
                       <p className="text-emerald-100 text-xs">
-                        {report.averageScore >= 75 ? 'Excellent !' : report.averageScore >= 50 ? 'Bon potentiel' : 'Besoin de travail'}
+                        {report.averageScore >= 75 ? t(lang, 'interviewExcellent') : report.averageScore >= 50 ? t(lang, 'interviewGoodPotential') : t(lang, 'interviewNeedsWork')}
                       </p>
                     </div>
                   </div>
@@ -601,7 +582,7 @@ export default function InterviewSimulator() {
                 <CardContent className="p-6 space-y-5">
                   {/* Recommendation */}
                   <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200">
-                    <p className="text-sm font-semibold text-emerald-800 mb-1">Recommandation</p>
+                    <p className="text-sm font-semibold text-emerald-800 mb-1">{t(lang, 'interviewRecommendation')}</p>
                     <p className="text-sm text-emerald-700">{report.recommendation}</p>
                   </div>
 
@@ -609,7 +590,7 @@ export default function InterviewSimulator() {
                   <div>
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                       <Star className="w-4 h-4 text-emerald-600" />
-                      Points forts
+                      {t(lang, 'interviewStrengths')}
                     </h3>
                     <div className="space-y-1.5">
                       {report.strengths.map((s, i) => (
@@ -625,7 +606,7 @@ export default function InterviewSimulator() {
                   <div>
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                       <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      Axes d&apos;amélioration
+                      {t(lang, 'interviewImprovementAreas')}
                     </h3>
                     <div className="space-y-1.5">
                       {report.weaknesses.map((w, i) => (
@@ -641,7 +622,7 @@ export default function InterviewSimulator() {
                   <div>
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                       <Target className="w-4 h-4 text-teal-600" />
-                      Plan d&apos;action
+                      {t(lang, 'interviewActionPlan')}
                     </h3>
                     <div className="space-y-1.5">
                       {report.improvementPlan.map((p, i) => (
@@ -663,16 +644,14 @@ export default function InterviewSimulator() {
                       onClick={restart}
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
-                      Nouvel entretien
+                      {t(lang, 'interviewNewInterview')}
                     </Button>
                     <Button
                       className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 text-sm font-semibold cursor-pointer"
-                      onClick={() => {
-                        toast.success('Rapport sauvegardé !')
-                      }}
+                      onClick={() => { toast.success(t(lang, 'interviewReportSaved')) }}
                     >
                       <FileText className="w-4 h-4 mr-2" />
-                      Télécharger PDF
+                      {t(lang, 'interviewDownloadPdf')}
                     </Button>
                   </div>
                 </CardContent>

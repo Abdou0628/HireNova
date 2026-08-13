@@ -91,14 +91,14 @@ export default function ProfileButton() {
 
   // Plan display config: label + badge color
   const planConfig: Record<string, { label: string; badgeClass: string }> = {
-    free: { label: 'Free', badgeClass: '' },
-    starter: { label: 'Starter', badgeClass: 'bg-emerald-500 text-white' },
-    pro: { label: 'Pro', badgeClass: 'bg-emerald-600 text-white' },
-    career_plus: { label: 'Career+', badgeClass: 'bg-purple-600 text-white' },
-    employer: { label: 'Employeur', badgeClass: 'bg-amber-500 text-white' },
-    enterprise: { label: 'Enterprise', badgeClass: 'bg-slate-700 text-white' },
-    annual: { label: 'Annuel', badgeClass: 'bg-teal-600 text-white' },
-    api: { label: 'API', badgeClass: 'bg-sky-600 text-white' },
+    free: { labelKey: 'dashPlanFree', badgeClass: '' },
+    starter: { labelKey: 'dashPlanStarter', badgeClass: 'bg-emerald-500 text-white' },
+    pro: { labelKey: 'dashPlanPro', badgeClass: 'bg-emerald-600 text-white' },
+    career_plus: { labelKey: 'dashPlanCareerPlus', badgeClass: 'bg-purple-600 text-white' },
+    employer: { labelKey: 'dashPlanEmployer', badgeClass: 'bg-amber-500 text-white' },
+    enterprise: { labelKey: 'dashPlanEnterprise', badgeClass: 'bg-slate-700 text-white' },
+    annual: { labelKey: 'dashPlanAnnual', badgeClass: 'bg-teal-600 text-white' },
+    api: { labelKey: 'dashPlanApi', badgeClass: 'bg-sky-600 text-white' },
   }
   const planInfo = planConfig[plan] ?? planConfig.free
 
@@ -108,7 +108,7 @@ export default function ProfileButton() {
         <DropdownMenuTrigger asChild>
           <button
             className="flex items-center gap-2 rounded-full p-0.5 hover:bg-muted transition-colors cursor-pointer group"
-            aria-label="Menu du profil"
+            aria-label={t(lang, 'profileMenuAria')}
           >
             <div className="relative">
               {/* Gradient ring for visibility */}
@@ -130,7 +130,7 @@ export default function ProfileButton() {
               </div>
               {/* Admin shield badge */}
               {isAdmin && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center" title="Administrateur">
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center" title={t(lang, 'profileAdminAria")}>
                   <Shield className="w-2.5 h-2.5 text-white" />
                 </div>
               )}
@@ -173,12 +173,12 @@ export default function ProfileButton() {
                     className={`text-xs ${planInfo.badgeClass}`}
                   >
                     {(plan === 'pro' || plan === 'career_plus') && <Crown className="w-3 h-3 mr-1" />}
-                    {planInfo.label}
+                    {t(lang, planInfo.labelKey)}
                   </Badge>
                   {isAdmin && (
                     <Badge className="text-xs bg-amber-500 text-white">
                       <Shield className="w-3 h-3 mr-1" />
-                      Admin
+                      {t(lang, 'profileAdmin")}
                     </Badge>
                   )}
                 </div>
@@ -232,42 +232,42 @@ export default function ProfileButton() {
             onSelect={(e) => { e.preventDefault(); setStep('apiDocs') }}
           >
             <Code2 className="w-4 h-4 mr-2 text-emerald-600" />
-            HireNova IA API
+            {t(lang, 'profileApiDocs")}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
             onSelect={(e) => { e.preventDefault(); setStep('jobMarket') }}
           >
             <Briefcase className="w-4 h-4 mr-2 text-teal-600" />
-            Offres d'emploi
+            {t(lang, 'profileJobOffers')}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
             onSelect={(e) => { e.preventDefault(); setStep('candidateApplications') }}
           >
             <FileText className="w-4 h-4 mr-2 text-amber-600" />
-            Mes candidatures
+            {t(lang, 'profileMyApplications')}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
             onSelect={(e) => { e.preventDefault(); setStep('referral') }}
           >
             <Gift className="w-4 h-4 mr-2 text-emerald-600" />
-            Programme Parrainage
+            {t(lang, 'profileReferralProgram')}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
             onSelect={(e) => { e.preventDefault(); setStep('interview') }}
           >
             <Brain className="w-4 h-4 mr-2 text-purple-600" />
-            Simulateur Entretien IA
+            {t(lang, 'profileInterviewSim')}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
             onSelect={(e) => { e.preventDefault(); setStep('campus') }}
           >
             <GraduationCap className="w-4 h-4 mr-2 text-emerald-600" />
-            HireNova IA CAMPUS SaaS
+            {t(lang, 'profileCampus')}
           </DropdownMenuItem>
 
           {isAdmin && (
@@ -281,7 +281,7 @@ export default function ProfileButton() {
                 }}
               >
                 <Shield className="w-4 h-4 mr-2" />
-                Dashboard Admin
+                {t(lang, 'profileDashboardAdmin")}
               </DropdownMenuItem>
             </>
           )}

@@ -9,12 +9,7 @@ import { PenLine, Sparkles } from 'lucide-react'
 export default function CoverLetterGenerating() {
   const { language } = useCVStore()
 
-  const steps = [
-    { label: language === 'fr' ? 'Analyse du poste' : language === 'en' ? 'Analyzing the position' : language === 'es' ? 'Analizando el puesto' : 'تحليل المنصب' },
-    { label: language === 'fr' ? 'Rédaction personnalisée' : language === 'en' ? 'Personalized writing' : language === 'es' ? 'Redacción personalizada' : 'كتابة مخصصة' },
-    { label: language === 'fr' ? 'Adaptation du ton' : language === 'en' ? 'Tone adjustment' : language === 'es' ? 'Ajuste del tono' : 'تعديل النبرة' },
-    { label: language === 'fr' ? 'Mise en forme finale' : language === 'en' ? 'Final formatting' : language === 'es' ? 'Formato final' : 'التنسيق النهائي' },
-  ]
+  const steps = ['clGenStepPosition', 'clGenStepWriting', 'clGenStepTone', 'clGenStepFormatting'].map(key => ({ label: t(language, key) }))
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50/30 via-white to-emerald-50/30 px-4">
@@ -27,7 +22,7 @@ export default function CoverLetterGenerating() {
       {/* Logo */}
       <div className="flex flex-col items-center mb-6">
         <Image src="/hirenova-logo.png" alt="HireNova" width={48} height={48} className="rounded-xl shadow-md" />
-        <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">POWERED BY IA</span>
+        <span className="text-[10px] font-semibold text-emerald-600 tracking-widest mt-1">{t(language, 'poweredByIa')}</span>
       </div>
 
       {/* Animated icon */}

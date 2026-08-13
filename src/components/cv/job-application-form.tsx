@@ -116,7 +116,7 @@ export default function JobApplicationForm() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || 'Error generating application')
+        toast.error(data.error || t(language, 'jaErrorGenerate'))
         return
       }
 
@@ -126,7 +126,7 @@ export default function JobApplicationForm() {
         position,
       })
     } catch {
-      toast.error('Network error. Please try again.')
+      toast.error(t(language, 'jaNetworkError'))
     } finally {
       setIsGenerating(false)
     }
@@ -258,7 +258,7 @@ export default function JobApplicationForm() {
             <div className="bg-white rounded-xl border shadow-sm p-4 sm:p-5 space-y-4">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <UserCircle className="w-4 h-4 text-emerald-600" />
-                {personaConfig.emoji} {personaConfig.id.charAt(0).toUpperCase() + personaConfig.id.slice(1)} Profile
+                {personaConfig.emoji} {personaConfig.id.charAt(0).toUpperCase() + personaConfig.id.slice(1)} {t(language, 'jaProfile')}
               </h3>
 
               {personaConfig.applicationFields.map((field) => (
@@ -327,7 +327,7 @@ export default function JobApplicationForm() {
                 <Input
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  placeholder={language === 'fr' ? 'Ex: Google, Renault...' : 'E.g.: Google, Renault...'}
+                  placeholder={t(language, 'jaCompanyPh')}
                 />
               </div>
 
@@ -339,7 +339,7 @@ export default function JobApplicationForm() {
                 <Input
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
-                  placeholder={language === 'fr' ? 'Ex: Développeur Full-Stack' : 'E.g.: Full-Stack Developer'}
+                  placeholder={t(language, 'jaPositionPh')}
                 />
               </div>
 
@@ -351,7 +351,7 @@ export default function JobApplicationForm() {
                 <Input
                   value={hiringManager}
                   onChange={(e) => setHiringManager(e.target.value)}
-                  placeholder={language === 'fr' ? 'Ex: M. Dupont (optionnel)' : 'E.g.: Mr. Smith (optional)'}
+                  placeholder={t(language, 'jaHiringManagerPh')}
                 />
               </div>
 
@@ -366,7 +366,7 @@ export default function JobApplicationForm() {
                     type="text"
                     value={availability}
                     onChange={(e) => setAvailability(e.target.value)}
-                    placeholder={language === 'fr' ? 'Ex: Immédiat, Dans 1 mois...' : 'E.g.: Immediate, In 1 month...'}
+                    placeholder={t(language, 'jaAvailabilityPh')}
                   />
                 </div>
               )}
@@ -382,7 +382,7 @@ export default function JobApplicationForm() {
                     type="text"
                     value={salary}
                     onChange={(e) => setSalary(e.target.value)}
-                    placeholder={language === 'fr' ? 'Ex: 25 000 MAD / mois (optionnel)' : 'E.g.: $5,000 / month (optional)'}
+                    placeholder={t(language, 'jaSalaryPh')}
                   />
                 </div>
               )}
@@ -396,9 +396,7 @@ export default function JobApplicationForm() {
                 <Textarea
                   value={additionalInfo}
                   onChange={(e) => setAdditionalInfo(e.target.value)}
-                  placeholder={language === 'fr'
-                    ? 'Toute information supplémentaire que vous souhaitez inclure...'
-                    : 'Any additional information you want to include...'}
+                  placeholder={t(language, 'jaAdditionalInfoPh')}
                   className="min-h-[80px] resize-y"
                 />
               </div>
