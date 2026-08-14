@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCVStore } from '@/store/cv-store'
 import { events } from '@/lib/analytics'
+import { t } from '@/lib/i18n'
 
 interface ReferralData {
   referralCode: string
@@ -66,14 +67,14 @@ function maskEmail(email: string): string {
   return `${local[0]}${'*'.repeat(Math.min(local.length - 2, 5))}${local[local.length - 1]}@${domain}`
 }
 
-function statusBadge(status: string) {
+function statusBadge(status: string, language: string) {
   switch (status) {
     case 'PENDING':
-      return <Badge variant="outline" className="border-amber-400 text-amber-700 bg-amber-50"><Clock className="w-3 h-3 mr-1" />En attente</Badge>
+      return <Badge variant="outline" className="border-amber-400 text-amber-700 bg-amber-50"><Clock className="w-3 h-3 mr-1" />{t(language, 'refStatusPending')}</Badge>
     case 'COMPLETED':
-      return <Badge variant="outline" className="border-blue-400 text-blue-700 bg-blue-50"><CheckCircle2 className="w-3 h-3 mr-1" />Complété</Badge>
+      return <Badge variant="outline" className="border-blue-400 text-blue-700 bg-blue-50"><CheckCircle2 className="w-3 h-3 mr-1" />{t(language, 'refStatusCompleted')}</Badge>
     case 'REWARDED':
-      return <Badge className="bg-emerald-600 text-white"><Gift className="w-3 h-3 mr-1" />Récompensé</Badge>
+      return <Badge className="bg-emerald-600 text-white"><Gift className="w-3 h-3 mr-1" />{t(language, 'refStatusRewarded')}</Badge>
     default:
       return <Badge variant="secondary">{status}</Badge>
   }
@@ -88,7 +89,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function ReferralDashboard() {
-  const { setStep } = useCVStore()
+  const { setStep, language } = useCVStore()
   const { data: session, status } = useSession()
   const [referralData, setReferralData] = useState<ReferralData | null>(null)
   const [stats, setStats] = useState<ReferralStats | null>(null)
@@ -107,11 +108,11 @@ export default function ReferralDashboard() {
         setReferralData(json.data)
       }
     } catch {
-      toast.error('Erreur lors du chargement du code de parrainage')
+      toast.error(t(language, 'refLoadError'))
     } finally {
       setGenerating(false)
     }
-  }, [status])
+  }, [status, language])
 
   const loadStats = useCallback(async () => {
     if (status !== 'authenticated') return
@@ -137,7 +138,7 @@ export default function ReferralDashboard() {
     if (!referralData?.referralCode) return
     await navigator.clipboard.writeText(referralData.referralCode)
     setCopied(true)
-    toast.success('Code copié !')
+    toast.success(t(language, 'refCodeCopied'))
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -146,7 +147,7 @@ export default function ReferralDashboard() {
     await navigator.clipboard.writeText(referralData.shareUrl)
     setShareUrlCopied(true)
     events.referralShared('copy_link')
-    toast.success('Lien copié !')
+    toast.success(t(language, 'refLinkCopied'))
     setTimeout(() => setShareUrlCopied(false), 2000)
   }
 
@@ -157,28 +158,28 @@ export default function ReferralDashboard() {
 
   const statCards = [
     {
-      label: 'Total invitations',
+      label: t(language, 'refStatTotal'),
       value: stats?.totalReferrals ?? 0,
       icon: Send,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
     },
     {
-      label: 'Inscriptions complétées',
+      label: t(language, 'refStatCompleted'),
       value: stats?.completedReferrals ?? 0,
       icon: CheckCircle2,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
     },
     {
-      label: 'Récompenses obtenues',
+      label: t(language, 'refStatRewarded'),
       value: stats?.rewardedReferrals ?? 0,
       icon: Gift,
       color: 'text-amber-600',
       bg: 'bg-amber-50',
     },
     {
-      label: 'Mois gratuits gagnés',
+      label: t(language, 'refStatFreeMonths'),
       value: stats?.freeMonthsEarned ?? 0,
       icon: Sparkles,
       color: 'text-purple-600',
@@ -192,12 +193,12 @@ export default function ReferralDashboard() {
         <Card className="w-full max-w-md mx-4">
           <CardContent className="pt-6 text-center">
             <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Connexion requise</h2>
+            <h2 className="text-lg font-semibold mb-2">{t(language, 'refLoginRequired')}</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Connectez-vous pour accéder au Programme Parrainage.
+              {t(language, 'refLoginRequiredDesc')}
             </p>
             <Button onClick={() => setStep('landing')} className="bg-emerald-600 hover:bg-emerald-700">
-              Retour à l'accueil
+              {t(language, 'refBackHome')}
             </Button>
           </CardContent>
         </Card>
@@ -217,11 +218,11 @@ export default function ReferralDashboard() {
             className="-ml-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-1.5" />
-            Retour
+            {t(language, 'refBack')}
           </Button>
           <div className="flex items-center gap-2">
             <Gift className="w-5 h-5 text-emerald-600" />
-            <h1 className="text-base font-semibold">Programme Parrainage</h1>
+            <h1 className="text-base font-semibold">{t(language, 'refProgramTitle')}</h1>
           </div>
         </div>
       </header>
@@ -233,11 +234,10 @@ export default function ReferralDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-bold">
-                  Parrainez, gagnez 1 mois gratuit !
+                  {t(language, 'refHeroTitle')}
                 </h2>
                 <p className="text-emerald-100 text-sm sm:text-base max-w-lg">
-                  Invitez vos amis à rejoindre HireNova Pro. Pour chaque ami qui s'inscrit,
-                  vous recevez 1 mois d'abonnement Pro offert.
+                  {t(language, 'refHeroDesc')}
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -252,10 +252,10 @@ export default function ReferralDashboard() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-emerald-600" />
-              Votre code de parrainage
+              {t(language, 'refCodeTitle')}
             </CardTitle>
             <CardDescription>
-              Partagez ce code avec vos amis pour qu'ils bénéficient d'HireNova
+              {t(language, 'refCodeDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -300,7 +300,7 @@ export default function ReferralDashboard() {
 
                 {/* Share Buttons */}
                 <div className="pt-2">
-                  <p className="text-sm font-medium text-muted-foreground mb-3">Partager via</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-3">{t(language, 'refShareVia')}</p>
                   <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
@@ -345,14 +345,14 @@ export default function ReferralDashboard() {
                       className="gap-2 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                     >
                       <Copy className="w-4 h-4 text-emerald-600" />
-                      <span className="hidden sm:inline">Copier le lien</span>
+                      <span className="hidden sm:inline">{t(language, 'refCopyLink')}</span>
                     </Button>
                   </div>
                 </div>
               </>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Impossible de charger le code de parrainage
+                {t(language, 'refCodeLoadError')}
               </p>
             )}
           </CardContent>
@@ -379,9 +379,9 @@ export default function ReferralDashboard() {
         {/* Tabs: How it works + Recent Referrals */}
         <Tabs defaultValue="how-it-works" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="how-it-works" className="text-sm">Comment ça marche</TabsTrigger>
+            <TabsTrigger value="how-it-works" className="text-sm">{t(language, 'refTabHowItWorks')}</TabsTrigger>
             <TabsTrigger value="history" className="text-sm">
-              Mes parrainages
+              {t(language, 'refTabMyReferrals')}
               {stats && stats.totalReferrals > 0 && (
                 <Badge variant="secondary" className="ml-2 text-xs">{stats.totalReferrals}</Badge>
               )}
@@ -398,9 +398,9 @@ export default function ReferralDashboard() {
                       <span className="text-emerald-700 font-bold text-sm">1</span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm">Partagez votre code</h3>
+                      <h3 className="font-semibold text-sm">{t(language, 'refStep1Title')}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Envoyez votre code de parrainage ou lien personnalisé à vos amis via WhatsApp, LinkedIn, email ou tout autre canal.
+                        {t(language, 'refStep1Desc')}
                       </p>
                     </div>
                   </div>
@@ -411,9 +411,9 @@ export default function ReferralDashboard() {
                       <span className="text-blue-700 font-bold text-sm">2</span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm">Votre ami s'inscrit</h3>
+                      <h3 className="font-semibold text-sm">{t(language, 'refStep2Title')}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Votre ami crée un compte sur HireNova et effectue son premier paiement Pro. L'inscription est automatiquement associée à votre code.
+                        {t(language, 'refStep2Desc')}
                       </p>
                     </div>
                   </div>
@@ -424,9 +424,9 @@ export default function ReferralDashboard() {
                       <span className="text-amber-700 font-bold text-sm">3</span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm">Vous gagnez 1 mois gratuit</h3>
+                      <h3 className="font-semibold text-sm">{t(language, 'refStep3Title')}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Dès que le parrainage est validé, vous recevez 1 mois d'abonnement Pro offert. Pas de limite ! Parrainez autant d'amis que vous voulez.
+                        {t(language, 'refStep3Desc')}
                       </p>
                     </div>
                   </div>
@@ -436,10 +436,9 @@ export default function ReferralDashboard() {
                   <div className="flex items-start gap-3">
                     <Gift className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-emerald-800">Récompense illimitée</p>
+                      <p className="text-sm font-medium text-emerald-800">{t(language, 'refUnlimitedReward')}</p>
                       <p className="text-xs text-emerald-700 mt-1">
-                        Il n'y a pas de limite au nombre de mois gratuits que vous pouvez gagner.
-                        Chaque ami qui complète son inscription = 1 mois Pro offert.
+                        {t(language, 'refUnlimitedRewardDesc')}
                       </p>
                     </div>
                   </div>
@@ -451,7 +450,7 @@ export default function ReferralDashboard() {
           <TabsContent value="history">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Historique des parrainages</CardTitle>
+                <CardTitle className="text-base">{t(language, 'refHistoryTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {loading ? (
@@ -461,9 +460,9 @@ export default function ReferralDashboard() {
                 ) : !stats?.recentReferrals?.length ? (
                   <div className="text-center py-8">
                     <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Aucun parrainage pour le moment</p>
+                    <p className="text-sm text-muted-foreground">{t(language, 'refNoReferrals')}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Partagez votre code pour commencer à gagner des récompenses !
+                      {t(language, 'refNoReferralsDesc')}
                     </p>
                   </div>
                 ) : (
@@ -478,7 +477,7 @@ export default function ReferralDashboard() {
                           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(ref.createdAt)}</p>
                         </div>
                         <div className="ml-3 flex-shrink-0">
-                          {statusBadge(ref.status)}
+                          {statusBadge(ref.status, language)}
                         </div>
                       </div>
                     ))}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, X, Send, Loader2, Bug, HelpCircle } from 'lucide-react'
+import { MessageCircle, Send, Loader2, Bug, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,15 +14,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-
-const subjects = [
-  { key: 'bug', label: 'Bug / Erreur technique', icon: Bug, color: 'text-red-500' },
-  { key: 'payment', label: 'Problème de paiement', icon: MessageCircle, color: 'text-amber-500' },
-  { key: 'question', label: 'Question générale', icon: HelpCircle, color: 'text-sky-500' },
-  { key: 'other', label: 'Autre', icon: MessageCircle, color: 'text-muted-foreground' },
-]
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
 
 export default function SupportButton() {
+  const { language } = useCVStore()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedSubject, setSelectedSubject] = useState('')
@@ -31,15 +27,23 @@ export default function SupportButton() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
+  const getSubjectLabel = (key: string): string => {
+    if (key === 'bug') return t(language, 'supSubjectBug')
+    if (key === 'payment') return t(language, 'supSubjectPayment')
+    if (key === 'question') return t(language, 'supSubjectQuestion')
+    if (key === 'other') return t(language, 'supSubjectOther')
+    return key
+  }
+
   const handleSubmit = async () => {
-    const subject = selectedSubject === 'other' ? customSubject : subjects.find((s) => s.key === selectedSubject)?.label
+    const subject = selectedSubject === 'other' ? customSubject : getSubjectLabel(selectedSubject)
     if (!name.trim() || !subject || !message.trim()) {
-      toast.error('Veuillez remplir tous les champs')
+      toast.error(t(language, 'supFillFields'))
       return
     }
 
     if (email.trim() && !email.trim().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      toast.error('Email invalide')
+      toast.error(t(language, 'supInvalidEmail'))
       return
     }
 
@@ -56,7 +60,7 @@ export default function SupportButton() {
         }),
       })
       if (res.ok) {
-        toast.success('Réclamation envoyée ! Nous vous répondrons rapidement.')
+        toast.success(t(language, 'supSuccess'))
         setOpen(false)
         setSelectedSubject('')
         setCustomSubject('')
@@ -65,14 +69,21 @@ export default function SupportButton() {
         setEmail('')
       } else {
         const data = await res.json()
-        toast.error(data.error || 'Erreur')
+        toast.error(data.error || t(language, 'supError'))
       }
     } catch {
-      toast.error('Erreur de connexion')
+      toast.error(t(language, 'supConnectionError'))
     } finally {
       setLoading(false)
     }
   }
+
+  const subjectButtons: Array<{ key: string; label: string; Icon: React.ElementType; color: string }> = [
+    { key: 'bug', label: t(language, 'supSubjectBug'), Icon: Bug, color: 'text-red-500' },
+    { key: 'payment', label: t(language, 'supSubjectPayment'), Icon: MessageCircle, color: 'text-amber-500' },
+    { key: 'question', label: t(language, 'supSubjectQuestion'), Icon: HelpCircle, color: 'text-sky-500' },
+    { key: 'other', label: t(language, 'supSubjectOther'), Icon: MessageCircle, color: 'text-muted-foreground' },
+  ]
 
   return (
     <>
@@ -80,7 +91,7 @@ export default function SupportButton() {
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
-        aria-label="Contacter le support"
+        aria-label={t(language, 'supAriaLabel')}
       >
         <MessageCircle className="w-6 h-6" />
       </button>
@@ -93,19 +104,19 @@ export default function SupportButton() {
               <div className="p-2 rounded-xl bg-emerald-100">
                 <MessageCircle className="w-5 h-5 text-emerald-600" />
               </div>
-              Contacter le support
+              {t(language, 'supTitle')}
             </DialogTitle>
             <DialogDescription>
-              Décrivez votre problème, nous vous répondrons rapidement.
+              {t(language, 'supDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             {/* Name */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Nom *</Label>
+              <Label className="text-sm font-medium">{t(language, 'supNameLabel')}</Label>
               <Input
-                placeholder="Votre nom"
+                placeholder={t(language, 'supNamePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -113,7 +124,7 @@ export default function SupportButton() {
 
             {/* Email */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Email (optionnel)</Label>
+              <Label className="text-sm font-medium">{t(language, 'supEmailLabel')}</Label>
               <Input
                 placeholder="votre@email.com"
                 type="email"
@@ -124,9 +135,9 @@ export default function SupportButton() {
 
             {/* Subject Selection */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Sujet</Label>
+              <Label className="text-sm font-medium">{t(language, 'supSubjectLabel')}</Label>
               <div className="grid grid-cols-2 gap-2">
-                {subjects.map((s) => (
+                {subjectButtons.map((s) => (
                   <button
                     key={s.key}
                     onClick={() => setSelectedSubject(s.key)}
@@ -136,7 +147,7 @@ export default function SupportButton() {
                         : 'border-border hover:border-emerald-300 hover:bg-emerald-50/50'
                     }`}
                   >
-                    <s.icon className={`w-4 h-4 shrink-0 ${selectedSubject === s.key ? 'text-emerald-600' : s.color}`} />
+                    <s.Icon className={`w-4 h-4 shrink-0 ${selectedSubject === s.key ? 'text-emerald-600' : s.color}`} />
                     <span className="text-xs font-medium">{s.label}</span>
                   </button>
                 ))}
@@ -146,9 +157,9 @@ export default function SupportButton() {
             {/* Custom subject for 'other' */}
             {selectedSubject === 'other' && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Précisez le sujet</Label>
+                <Label className="text-sm font-medium">{t(language, 'supSpecifySubject')}</Label>
                 <Input
-                  placeholder="Ex: Demande de remboursement..."
+                  placeholder={t(language, 'supSpecifySubjectPlaceholder')}
                   value={customSubject}
                   onChange={(e) => setCustomSubject(e.target.value)}
                 />
@@ -157,9 +168,9 @@ export default function SupportButton() {
 
             {/* Message */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Message</Label>
+              <Label className="text-sm font-medium">{t(language, 'supMessageLabel')}</Label>
               <Textarea
-                placeholder="Décrivez votre problème en détail..."
+                placeholder={t(language, 'supMessagePlaceholder')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
@@ -173,7 +184,7 @@ export default function SupportButton() {
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
             >
               {loading ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Send className="mr-2 w-4 h-4" />}
-              Envoyer
+              {t(language, 'supSend')}
             </Button>
           </div>
         </DialogContent>

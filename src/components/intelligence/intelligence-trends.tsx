@@ -143,7 +143,7 @@ export default function IntelligenceTrends() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="w-4 h-4 text-violet-600" />
-                  <span className="font-semibold text-sm text-violet-900">AI Analysis</span>
+                  <span className="font-semibold text-sm text-violet-900">{t(language, 'intelAiAnalysisLabel')}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">{aiAnalysis.summary}</p>
                 {aiAnalysis.growing && <p className="text-xs text-emerald-700 mb-1"><ArrowUpRight className="inline w-3 h-3 mr-1" />{aiAnalysis.growing}</p>}

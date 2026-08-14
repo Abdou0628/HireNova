@@ -165,7 +165,7 @@ export default function ChatbotWidget() {
               size="lg"
               className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 hover:shadow-xl cursor-pointer"
               onClick={() => setIsOpen(true)}
-              aria-label="Open HireNova AI Assistant"
+              aria-label={t(lang, 'chatbotOpenAria')}
             >
               <MessageCircle className="w-6 h-6 text-white" />
             </Button>
@@ -194,21 +194,21 @@ export default function ChatbotWidget() {
                     <Bot className="w-4 h-4" aria-hidden="true" />
                   </div>
                   <div>
-                    <span className="font-semibold text-sm block leading-tight">HireNova AI</span>
+                    <span className="font-semibold text-sm block leading-tight">{t(lang, 'chatbotHireNovaAI')}</span>
                     <span className="text-emerald-100 text-[10px]">{t(lang, MODE_TABS.find(t2 => t2.mode === mode)!.labelKey)}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="hover:bg-white/20 rounded-lg p-1.5 cursor-pointer transition-colors"
-                  aria-label="Close chatbot"
+                  aria-label={t(lang, 'chatbotCloseAria')}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Mode Toggle — 3 large buttons */}
-              <div className="flex gap-2 p-3 bg-muted/30 border-b" role="tablist" aria-label="Chatbot mode">
+              <div className="flex gap-2 p-3 bg-muted/30 border-b" role="tablist" aria-label={t(lang, 'chatbotModeAria')}>
                 {MODE_TABS.map((tab) => {
                   const IconComp = tab.IconComp
                   const isActive = mode === tab.mode
@@ -307,14 +307,14 @@ export default function ChatbotWidget() {
                     placeholder={placeholderText[lang]}
                     className="flex-1 text-sm rounded-full"
                     disabled={isLoading}
-                    aria-label="Chat message input"
+                    aria-label={t(lang, 'chatbotMsgInputAria')}
                   />
                   <Button
                     type="submit"
                     size="sm"
                     className="rounded-full bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
                     disabled={!input.trim() || isLoading}
-                    aria-label="Send message"
+                    aria-label={t(lang, 'chatbotSendAria')}
                   >
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>

@@ -142,7 +142,7 @@ export default function LegalTemplates() {
         {loading && (
           <div className="text-center py-20">
             <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-muted-foreground">Loading templates...</p>
+            <p className="text-muted-foreground">{t(language, 'legalLoadingTemplates')}</p>
           </div>
         )}
 
@@ -200,7 +200,7 @@ export default function LegalTemplates() {
         {!loading && filtered.length === 0 && (
           <div className="text-center py-20">
             <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground">No templates found</p>
+            <p className="text-muted-foreground">{t(language, 'legalNoTemplatesFound')}</p>
           </div>
         )}
 
@@ -228,7 +228,7 @@ export default function LegalTemplates() {
                       <Download className="w-4 h-4 mr-1" />
                       {t(language, 'legalDownloadTemplate')}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setPreviewId(null)}>Close</Button>
+                    <Button size="sm" variant="outline" onClick={() => setPreviewId(null)}>{t(language, 'legalCloseBtn')}</Button>
                   </div>
                 </div>
                 <div className="p-6 overflow-y-auto max-h-[60vh]">

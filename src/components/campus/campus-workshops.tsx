@@ -50,6 +50,13 @@ const typeKeyMap: Record<string, string> = {
   bootcamp: 'campusWsTypeBootcamp',
 }
 
+const statusKeyMap: Record<string, string> = {
+  upcoming: 'campusUpcoming',
+  ongoing: 'campusWsOngoing',
+  completed: 'campusPast',
+  cancelled: 'campusWsCancelled',
+}
+
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -120,14 +127,14 @@ export default function CampusWorkshops() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(editingId ? 'Updated' : 'Created')
+        toast.success(editingId ? t(language, 'campusWsUpdated') : t(language, 'campusWsCreated'))
         setDialogOpen(false)
         fetchWorkshops()
       } else {
-        toast.error(json.error || 'Error')
+        toast.error(json.error || t(language, 'campusError'))
       }
     } catch {
-      toast.error('Network error')
+      toast.error(t(language, 'campusNetworkError'))
     } finally { setSaving(false) }
   }
 
@@ -140,13 +147,13 @@ export default function CampusWorkshops() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('Registered!')
+        toast.success(t(language, 'campusWsRegisteredSuccess'))
         fetchWorkshops()
       } else {
-        toast.error(json.error || 'Error')
+        toast.error(json.error || t(language, 'campusError'))
       }
     } catch {
-      toast.error('Network error')
+      toast.error(t(language, 'campusNetworkError'))
     }
   }
 
@@ -180,7 +187,7 @@ export default function CampusWorkshops() {
       {loading ? (
         <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-emerald-600" /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground text-sm">No workshops found</div>
+        <div className="text-center py-16 text-muted-foreground text-sm">{t(language, 'campusNoWorkshops')}</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((ws, i) => {
@@ -198,7 +205,7 @@ export default function CampusWorkshops() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h4 className="font-semibold text-sm leading-tight">{ws.title}</h4>
-                          <Badge variant="outline" className={`shrink-0 text-[10px] ${statusColorMap[ws.status] || ''}`}>{ws.status}</Badge>
+                          <Badge variant="outline" className={`shrink-0 text-[10px] ${statusColorMap[ws.status] || ''}`}>{t(language, (statusKeyMap[ws.status] || 'campusUpcoming') as 'campusUpcoming')}</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{ws.description}</p>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
@@ -273,7 +280,7 @@ export default function CampusWorkshops() {
               </div>
               <div>
                 <Label>{t(language, 'campusWsLanguage')}</Label>
-                <Input value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} placeholder="FR, EN, AR" className="mt-1" />
+                <Input value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} placeholder={t(language, 'campusWsLanguagePlaceholder')} className="mt-1" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -291,9 +298,9 @@ export default function CampusWorkshops() {
                 <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
                   className="mt-1 w-full text-sm border rounded-md px-3 py-2 bg-background">
                   <option value="upcoming">{t(language, 'campusUpcoming')}</option>
-                  <option value="ongoing">Ongoing</option>
+                  <option value="ongoing">{t(language, 'campusWsOngoing')}</option>
                   <option value="completed">{t(language, 'campusPast')}</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="cancelled">{t(language, 'campusWsCancelled')}</option>
                 </select>
               </div>
             </div>

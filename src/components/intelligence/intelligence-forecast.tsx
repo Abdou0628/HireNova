@@ -23,9 +23,9 @@ const INDUSTRIES = ['', 'Tech', 'Finance', 'Design', 'Marketing', 'Santé', 'Én
 const REGIONS = ['', 'Europe', 'Amériques', 'MENA', 'Asie']
 
 function getOutlookColor(outlook: string) {
-  if (outlook === 'bullish') return { bg: 'bg-emerald-100', text: 'text-emerald-700', label: isRTL ? 'إيجابي' : 'Bullish' }
-  if (outlook === 'bearish') return { bg: 'bg-red-100', text: 'text-red-700', label: isRTL ? 'سلبي' : 'Bearish' }
-  return { bg: 'bg-amber-100', text: 'text-amber-700', label: isRTL ? 'معتدل' : 'Moderate' }
+  if (outlook === 'bullish') return { bg: 'bg-emerald-100', text: 'text-emerald-700', key: 'intelOutlookBullish' }
+  if (outlook === 'bearish') return { bg: 'bg-red-100', text: 'text-red-700', key: 'intelOutlookBearish' }
+  return { bg: 'bg-amber-100', text: 'text-amber-700', key: 'intelOutlookModerate' }
 }
 
 const isRTL = false
@@ -156,7 +156,7 @@ export default function IntelligenceForecast() {
                     <h3 className="font-semibold text-sm text-foreground">{t(language, 'intelligenceOutlook')}</h3>
                   </div>
                   {outlookInfo && (
-                    <Badge className={`${outlookInfo.bg} ${outlookInfo.text} text-sm font-bold px-3 py-1`}>{outlookInfo.label}</Badge>
+                    <Badge className={`${outlookInfo.bg} ${outlookInfo.text} text-sm font-bold px-3 py-1`}>{t(language, outlookInfo.key as 'intelOutlookBullish')}</Badge>
                   )}
                   {forecast.salaryTrend && <p className="text-xs text-muted-foreground mt-3">{forecast.salaryTrend}</p>}
                 </CardContent>
@@ -224,7 +224,7 @@ export default function IntelligenceForecast() {
                 </ul>
                 {forecast.recommendation && (
                   <div className="mt-4 p-3 rounded-lg bg-violet-50 border border-violet-200">
-                    <p className="text-xs font-semibold text-violet-900 mb-1">Recommendation</p>
+                    <p className="text-xs font-semibold text-violet-900 mb-1">{t(language, 'intelRecommendationLabel')}</p>
                     <p className="text-sm text-violet-800">{forecast.recommendation}</p>
                   </div>
                 )}

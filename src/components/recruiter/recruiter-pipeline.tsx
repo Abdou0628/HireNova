@@ -126,7 +126,7 @@ export default function RecruiterPipeline() {
         toast.success(`${stageLabel(fromStage)} → ${stageLabel(toStage)}`)
       }
     } catch {
-      toast.error('Error moving candidate')
+      toast.error(t(lang, 'recruiterErrorMoving'))
     } finally {
       setMovingId(null)
       dragItem.current = null
@@ -150,10 +150,10 @@ export default function RecruiterPipeline() {
         setNewJobDept('')
         setNewJobLoc('')
         fetchJobs()
-        toast.success(lang === 'fr' ? 'Offre créée !' : lang === 'ar' ? 'تم إنشاء الوظيفة!' : lang === 'es' ? 'Oferta creada!' : 'Job created!')
+        toast.success(t(lang, 'recruiterJobCreated'))
       }
     } catch {
-      toast.error('Error creating job')
+      toast.error(t(lang, 'recruiterErrorCreatingJob'))
     } finally {
       setCreating(false)
     }

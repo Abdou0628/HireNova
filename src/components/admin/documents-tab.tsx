@@ -52,6 +52,10 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
+import type { CVLanguage } from '@/lib/i18n'
+
 
 type DocType = 'invoice' | 'quote' | 'agreement' | 'receipt' | 'credit_note' | 'accounting_statement'
 type DocStatus = 'draft' | 'sent' | 'paid' | 'accepted' | 'rejected' | 'cancelled' | 'expired' | 'finalized'
@@ -101,24 +105,24 @@ interface InquiryRow {
   createdAt: string
 }
 
-const TYPE_META: Record<string, { label: string; icon: typeof FileText; color: string; badge: string }> = {
-  invoice:               { label: 'Facture',  icon: FileText,     color: 'text-emerald-600',     badge: 'bg-emerald-100 text-emerald-700' },
-  quote:                 { label: 'Devis',    icon: FilePlus,     color: 'text-sky-600',          badge: 'bg-sky-100 text-sky-700' },
-  agreement:             { label: 'Contrat',  icon: FileCheck,    color: 'text-purple-600',       badge: 'bg-purple-100 text-purple-700' },
-  receipt:               { label: 'Reçu',     icon: Receipt,      color: 'text-amber-600',        badge: 'bg-amber-100 text-amber-700' },
-  credit_note:           { label: 'Avoir',    icon: FileX,        color: 'text-rose-600',         badge: 'bg-rose-100 text-rose-700' },
-  accounting_statement:  { label: 'Bilan',    icon: Calculator,   color: 'text-slate-700',        badge: 'bg-slate-800 text-white' },
+const TYPE_META: Record<string, { key: string; icon: typeof FileText; color: string; badge: string }> = {
+  invoice:               { key: 'adminDoc.typeInvoice',     icon: FileText,     color: 'text-emerald-600',     badge: 'bg-emerald-100 text-emerald-700' },
+  quote:                 { key: 'adminDoc.typeQuote',       icon: FilePlus,     color: 'text-sky-600',          badge: 'bg-sky-100 text-sky-700' },
+  agreement:             { key: 'adminDoc.typeAgreement',   icon: FileCheck,    color: 'text-purple-600',       badge: 'bg-purple-100 text-purple-700' },
+  receipt:               { key: 'adminDoc.typeReceipt',     icon: Receipt,      color: 'text-amber-600',        badge: 'bg-amber-100 text-amber-700' },
+  credit_note:           { key: 'adminDoc.typeCreditNote',  icon: FileX,        color: 'text-rose-600',         badge: 'bg-rose-100 text-rose-700' },
+  accounting_statement:  { key: 'adminDoc.typeBilan',       icon: Calculator,   color: 'text-slate-700',        badge: 'bg-slate-800 text-white' },
 }
 
-const STATUS_META: Record<string, { label: string; badge: string }> = {
-  draft:      { label: 'Brouillon',  badge: 'bg-slate-100 text-slate-700' },
-  sent:       { label: 'Envoyé',     badge: 'bg-blue-100 text-blue-700' },
-  paid:       { label: 'Payé',       badge: 'bg-emerald-100 text-emerald-700' },
-  accepted:   { label: 'Accepté',    badge: 'bg-emerald-100 text-emerald-700' },
-  rejected:   { label: 'Refusé',     badge: 'bg-rose-100 text-rose-700' },
-  cancelled:  { label: 'Annulé',     badge: 'bg-slate-100 text-slate-500' },
-  expired:    { label: 'Expiré',     badge: 'bg-amber-100 text-amber-700' },
-  finalized:  { label: 'Finalisé',   badge: 'bg-slate-800 text-white' },
+const STATUS_META: Record<string, { key: string; badge: string }> = {
+  draft:      { key: 'adminDoc.statusDraft',     badge: 'bg-slate-100 text-slate-700' },
+  sent:       { key: 'adminDoc.statusSent',      badge: 'bg-blue-100 text-blue-700' },
+  paid:       { key: 'adminDoc.statusPaid',      badge: 'bg-emerald-100 text-emerald-700' },
+  accepted:   { key: 'adminDoc.statusAccepted',   badge: 'bg-emerald-100 text-emerald-700' },
+  rejected:   { key: 'adminDoc.statusRejected',  badge: 'bg-rose-100 text-rose-700' },
+  cancelled:  { key: 'adminDoc.statusCancelled', badge: 'bg-slate-100 text-slate-500' },
+  expired:    { key: 'adminDoc.statusExpired',   badge: 'bg-amber-100 text-amber-700' },
+  finalized:  { key: 'adminDoc.statusFinalized', badge: 'bg-slate-800 text-white' },
 }
 
 function formatMoney(amount: number, currency: string): string {
@@ -133,6 +137,7 @@ function formatDate(date: string | undefined): string {
 }
 
 export default function DocumentsTab() {
+  const { language } = useCVStore()
   const [documents, setDocuments] = useState<DocumentRow[]>([])
   const [inquiries, setInquiries] = useState<InquiryRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -197,9 +202,9 @@ export default function DocumentsTab() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      toast.success('PDF téléchargé')
+      toast.success(t(language, 'adminDoc.toastPdfDownloaded'))
     } catch (err) {
-      toast.error('Erreur lors du téléchargement')
+      toast.error(t(language, 'adminDoc.toastDownloadError'))
     } finally {
       setActionLoading(null)
     }
@@ -215,13 +220,13 @@ export default function DocumentsTab() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(`Document envoyé à ${doc.recipientEmail}`)
+        toast.success(`${t(language, 'adminDoc.toastDocSent')} ${doc.recipientEmail}`)
         fetchDocuments()
       } else {
         throw new Error(json.error)
       }
     } catch (err) {
-      toast.error('Erreur lors de l\'envoi')
+      toast.error(t(language, 'adminDoc.toastSendError'))
     } finally {
       setActionLoading(null)
     }
@@ -241,7 +246,7 @@ export default function DocumentsTab() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(`Devis ${json.data.number} généré`)
+        toast.success(`${t(language, 'adminDoc.typeQuote')} ${json.data.number} ${t(language, 'adminDoc.generated')}`)
         fetchDocuments()
         fetchInquiries()
         setGenerateModal({ open: false })
@@ -249,7 +254,7 @@ export default function DocumentsTab() {
         throw new Error(json.error)
       }
     } catch (err) {
-      toast.error('Erreur lors de la génération')
+      toast.error(t(language, 'adminDoc.toastGenerationError'))
     } finally {
       setActionLoading(null)
     }
@@ -270,13 +275,13 @@ export default function DocumentsTab() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(`Contrat ${json.data.number} généré`)
+        toast.success(`${t(language, 'adminDoc.typeAgreement')} ${json.data.number} ${t(language, 'adminDoc.generated')}`)
         fetchDocuments()
       } else {
         throw new Error(json.error)
       }
     } catch (err) {
-      toast.error('Erreur lors de la génération du contrat')
+      toast.error(t(language, 'adminDoc.toastContractGenError'))
     } finally {
       setActionLoading(null)
     }
@@ -291,11 +296,11 @@ export default function DocumentsTab() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('Statut mis à jour')
+        toast.success(t(language, 'adminDoc.toastStatusUpdated'))
         fetchDocuments()
       }
     } catch (err) {
-      toast.error('Erreur')
+      toast.error(t(language, 'adminDoc.toastError'))
     }
   }
 
@@ -308,11 +313,11 @@ export default function DocumentsTab() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('Demande mise à jour')
+        toast.success(t(language, 'adminDoc.toastInquiryUpdated'))
         fetchInquiries()
       }
     } catch (err) {
-      toast.error('Erreur')
+      toast.error(t(language, 'adminDoc.toastError'))
     }
   }
 
@@ -334,13 +339,13 @@ export default function DocumentsTab() {
           totalCollected: d.totalCollected,
           netProfit: d.netProfit,
         })
-        toast.success(`Bilan ${d.number} généré — ${d.invoiceCount} facture(s), bénéfice net ${formatMoney(d.netProfit, 'EUR')}`)
+        toast.success(`${t(language, 'adminDoc.typeBilan')} ${d.number} ${t(language, 'adminDoc.generated')} — ${d.invoiceCount} ${t(language, 'adminDoc.invoicesCount')}, ${t(language, 'adminDoc.netProfit')} ${formatMoney(d.netProfit, 'EUR')}`)
         fetchDocuments()
       } else {
         throw new Error(json.error)
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Erreur lors de la génération du bilan')
+      toast.error(err instanceof Error ? err.message : t(language, 'adminDoc.toastBilanGenError'))
     } finally {
       setBilanLoading(false)
     }
@@ -357,7 +362,7 @@ export default function DocumentsTab() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <FileText className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs text-muted-foreground">Factures</span>
+              <span className="text-xs text-muted-foreground">{t(language, 'adminDoc.invoices')}</span>
             </div>
             <p className="text-2xl font-bold">{stats.invoice?.count || 0}</p>
             <p className="text-xs text-emerald-600 font-medium">{formatMoney(stats.invoice?.total || 0, 'EUR')}</p>
@@ -367,7 +372,7 @@ export default function DocumentsTab() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <FilePlus className="w-4 h-4 text-sky-600" />
-              <span className="text-xs text-muted-foreground">Devis</span>
+              <span className="text-xs text-muted-foreground">{t(language, 'adminDoc.typeQuote')}</span>
             </div>
             <p className="text-2xl font-bold">{stats.quote?.count || 0}</p>
             <p className="text-xs text-sky-600 font-medium">{formatMoney(stats.quote?.total || 0, 'EUR')}</p>
@@ -377,7 +382,7 @@ export default function DocumentsTab() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <FileCheck className="w-4 h-4 text-purple-600" />
-              <span className="text-xs text-muted-foreground">Contrats</span>
+              <span className="text-xs text-muted-foreground">{t(language, 'adminDoc.contracts')}</span>
             </div>
             <p className="text-2xl font-bold">{stats.agreement?.count || 0}</p>
             <p className="text-xs text-purple-600 font-medium">{formatMoney(stats.agreement?.total || 0, 'EUR')}</p>
@@ -387,7 +392,7 @@ export default function DocumentsTab() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <Receipt className="w-4 h-4 text-amber-600" />
-              <span className="text-xs text-muted-foreground">Reçus</span>
+              <span className="text-xs text-muted-foreground">{t(language, 'adminDoc.receipts')}</span>
             </div>
             <p className="text-2xl font-bold">{stats.receipt?.count || 0}</p>
             <p className="text-xs text-amber-600 font-medium">{formatMoney(stats.receipt?.total || 0, 'EUR')}</p>
@@ -397,10 +402,10 @@ export default function DocumentsTab() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <Euro className="w-4 h-4 text-emerald-700" />
-              <span className="text-xs text-muted-foreground">Revenu total</span>
+              <span className="text-xs text-muted-foreground">{t(language, 'adminDoc.totalRevenue')}</span>
             </div>
             <p className="text-2xl font-bold text-emerald-700">{formatMoney(totalRevenue, 'EUR')}</p>
-            <p className="text-xs text-muted-foreground">{totalDocs} documents</p>
+            <p className="text-xs text-muted-foreground">{totalDocs} {t(language, 'adminDoc.documents')}</p>
           </CardContent>
         </Card>
       </div>
@@ -415,11 +420,11 @@ export default function DocumentsTab() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                  Bilan Comptable
-                  <Badge className="text-[10px] bg-slate-800 text-white">Fiscal & Bénéfices</Badge>
+                  {t(language, 'adminDoc.bilanTitle')}
+                  <Badge className="text-[10px] bg-slate-800 text-white">{t(language, 'adminDoc.bilanBadge')}</Badge>
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Génère un bilan liant toutes les factures payées — TVA, charges, bénéfice net, signature électronique.
+                  {t(language, 'adminDoc.bilanDesc')}
                 </p>
               </div>
             </div>
@@ -429,7 +434,7 @@ export default function DocumentsTab() {
               className="cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shrink-0"
             >
               <Calculator className="w-4 h-4 mr-2" />
-              Générer un Bilan
+              {t(language, 'adminDoc.bilanGenerate')}
             </Button>
           </div>
         </CardContent>
@@ -442,7 +447,7 @@ export default function DocumentsTab() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-slate-700" />
-                Demandes Enterprise ({inquiries.length})
+                {t(language, 'adminDoc.enterpriseInquiries')} ({inquiries.length})
               </CardTitle>
               <Button
                 variant="outline"
@@ -451,7 +456,7 @@ export default function DocumentsTab() {
                 className="cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3 mr-1" />
-                Actualiser
+                {t(language, 'adminDoc.refresh')}
               </Button>
             </div>
           </CardHeader>
@@ -492,7 +497,7 @@ export default function DocumentsTab() {
                           ) : (
                             <FilePlus className="w-3 h-3 mr-1" />
                           )}
-                          Devis
+                          {t(language, 'adminDoc.typeQuote')}
                         </Button>
                         <Button
                           size="sm"
@@ -502,7 +507,7 @@ export default function DocumentsTab() {
                           disabled={actionLoading === `ctr-${inq.id}`}
                         >
                           <FileCheck className="w-3 h-3 mr-1" />
-                          Contrat
+                          {t(language, 'adminDoc.typeAgreement')}
                         </Button>
                       </div>
                     </div>
@@ -520,13 +525,13 @@ export default function DocumentsTab() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Documents générés ({documents.length})
+              {t(language, 'adminDoc.generatedDocuments')} ({documents.length})
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher..."
+                  placeholder={t(language, 'adminDoc.searchPlaceholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-8 h-8 text-xs w-40"
@@ -537,12 +542,12 @@ export default function DocumentsTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all" className="text-xs">Tous types</SelectItem>
-                  <SelectItem value="invoice" className="text-xs">Factures</SelectItem>
-                  <SelectItem value="quote" className="text-xs">Devis</SelectItem>
-                  <SelectItem value="agreement" className="text-xs">Contrats</SelectItem>
-                  <SelectItem value="receipt" className="text-xs">Reçus</SelectItem>
-                  <SelectItem value="accounting_statement" className="text-xs">Bilans</SelectItem>
+                  <SelectItem value="all" className="text-xs">{t(language, 'adminDoc.allTypes')}</SelectItem>
+                  <SelectItem value="invoice" className="text-xs">{t(language, 'adminDoc.invoices')}</SelectItem>
+                  <SelectItem value="quote" className="text-xs">{t(language, 'adminDoc.typeQuote')}</SelectItem>
+                  <SelectItem value="agreement" className="text-xs">{t(language, 'adminDoc.contracts')}</SelectItem>
+                  <SelectItem value="receipt" className="text-xs">{t(language, 'adminDoc.receipts')}</SelectItem>
+                  <SelectItem value="accounting_statement" className="text-xs">{t(language, 'adminDoc.bilans')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -550,12 +555,12 @@ export default function DocumentsTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all" className="text-xs">Tous statuts</SelectItem>
-                  <SelectItem value="draft" className="text-xs">Brouillon</SelectItem>
-                  <SelectItem value="sent" className="text-xs">Envoyé</SelectItem>
-                  <SelectItem value="paid" className="text-xs">Payé</SelectItem>
-                  <SelectItem value="accepted" className="text-xs">Accepté</SelectItem>
-                  <SelectItem value="finalized" className="text-xs">Finalisé</SelectItem>
+                  <SelectItem value="all" className="text-xs">{t(language, 'adminDoc.allStatuses')}</SelectItem>
+                  <SelectItem value="draft" className="text-xs">{t(language, 'adminDoc.statusDraft')}</SelectItem>
+                  <SelectItem value="sent" className="text-xs">{t(language, 'adminDoc.statusSent')}</SelectItem>
+                  <SelectItem value="paid" className="text-xs">{t(language, 'adminDoc.statusPaid')}</SelectItem>
+                  <SelectItem value="accepted" className="text-xs">{t(language, 'adminDoc.statusAccepted')}</SelectItem>
+                  <SelectItem value="finalized" className="text-xs">{t(language, 'adminDoc.statusFinalized')}</SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -573,28 +578,28 @@ export default function DocumentsTab() {
           {loading ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-              Chargement...
+              {t(language, 'adminDoc.loading')}
             </div>
           ) : documents.length === 0 ? (
             <div className="p-8 text-center">
               <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">Aucun document généré pour le moment</p>
+              <p className="text-sm text-muted-foreground">{t(language, 'adminDoc.emptyState')}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Les factures, devis et contrats apparaîtront ici automatiquement.
+                {t(language, 'adminDoc.emptyStateSub')}
               </p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-xs">N°</TableHead>
-                  <TableHead className="text-xs">Type</TableHead>
-                  <TableHead className="text-xs">Destinataire</TableHead>
-                  <TableHead className="text-xs">Objet</TableHead>
-                  <TableHead className="text-xs text-right">Montant</TableHead>
-                  <TableHead className="text-xs">Statut</TableHead>
-                  <TableHead className="text-xs">Date</TableHead>
-                  <TableHead className="text-xs text-right">Actions</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colNumber')}</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colType')}</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colRecipient')}</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colSubject')}</TableHead>
+                  <TableHead className="text-xs text-right">{t(language, 'adminDoc.colAmount')}</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colStatus')}</TableHead>
+                  <TableHead className="text-xs">{t(language, 'adminDoc.colDate')}</TableHead>
+                  <TableHead className="text-xs text-right">{t(language, 'adminDoc.colActions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -608,7 +613,7 @@ export default function DocumentsTab() {
                         <div className="flex items-center gap-1.5">
                           {doc.number}
                           {doc.signatureSerial && (
-                            <span title={`Signé électroniquement — ${doc.signatureSerial} — Hash: ${doc.signatureHash?.slice(0, 16)}…`}>
+                            <span title={`${t(language, 'adminDoc.signed')} — ${doc.signatureSerial} — Hash: ${doc.signatureHash?.slice(0, 16)}…`}>
                               <ShieldCheck className="w-3 h-3 text-emerald-600" />
                             </span>
                           )}
@@ -617,7 +622,7 @@ export default function DocumentsTab() {
                       <TableCell>
                         <Badge className={`text-[10px] ${meta.badge}`}>
                           <Icon className="w-2.5 h-2.5 mr-1" />
-                          {meta.label}
+                          {t(language, meta.key)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs">
@@ -634,7 +639,7 @@ export default function DocumentsTab() {
                           <div>
                             <div className="text-slate-500 line-through text-[10px]">{formatMoney(doc.totalCollected, doc.currency)}</div>
                             <div className="text-emerald-700">{formatMoney(doc.netProfit || 0, doc.currency)}</div>
-                            <div className="text-[9px] text-muted-foreground">bénéfice net</div>
+                            <div className="text-[9px] text-muted-foreground">{t(language, 'adminDoc.netProfit')}</div>
                           </div>
                         ) : (
                           formatMoney(doc.total, doc.currency)
@@ -642,7 +647,7 @@ export default function DocumentsTab() {
                       </TableCell>
                       <TableCell>
                         <Badge className={`text-[10px] ${statusMeta.badge}`}>
-                          {statusMeta.label}
+                          {t(language, statusMeta.key)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs">{formatDate(doc.issueDate)}</TableCell>
@@ -654,7 +659,7 @@ export default function DocumentsTab() {
                             className="cursor-pointer h-7 w-7 p-0"
                             onClick={() => handleDownload(doc)}
                             disabled={actionLoading === `dl-${doc.id}`}
-                            title="Télécharger PDF"
+                            title={t(language, 'adminDoc.downloadPdf')}
                           >
                             {actionLoading === `dl-${doc.id}` ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -668,7 +673,7 @@ export default function DocumentsTab() {
                             className="cursor-pointer h-7 w-7 p-0"
                             onClick={() => handleSend(doc)}
                             disabled={actionLoading === `send-${doc.id}`}
-                            title="Envoyer par email"
+                            title={t(language, 'adminDoc.sendEmail')}
                           >
                             {actionLoading === `send-${doc.id}` ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -682,7 +687,7 @@ export default function DocumentsTab() {
                               variant="ghost"
                               className="cursor-pointer h-7 text-xs px-2 text-emerald-600"
                               onClick={() => handleUpdateStatus(doc.id, 'accepted')}
-                              title="Marquer accepté"
+                              title={t(language, 'adminDoc.markAccepted')}
                             >
                               <FileCheck className="w-3.5 h-3.5" />
                             </Button>
@@ -693,7 +698,7 @@ export default function DocumentsTab() {
                               variant="ghost"
                               className="cursor-pointer h-7 text-xs px-2 text-emerald-600"
                               onClick={() => handleUpdateStatus(doc.id, 'paid')}
-                              title="Marquer payé"
+                              title={t(language, 'adminDoc.markPaid')}
                             >
                               ✓
                             </Button>
@@ -715,12 +720,10 @@ export default function DocumentsTab() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calculator className="w-5 h-5 text-slate-700" />
-              Générer un Bilan Comptable
+              {t(language, 'adminDoc.bilanDialogTitle')}
             </DialogTitle>
             <DialogDescription>
-              Le bilan agrège toutes les factures payées sur la période choisie.
-              Il calcule la TVA, les charges plateforme, les redevances et le bénéfice net —
-              le tout signé électroniquement et lié aux factures source.
+              {t(language, 'adminDoc.bilanDialogDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -728,12 +731,12 @@ export default function DocumentsTab() {
             <div className="py-4 text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
               <div>
-                <p className="font-semibold text-sm">Bilan {bilanResult.number} généré</p>
+                <p className="font-semibold text-sm">{t(language, 'adminDoc.typeBilan')} {bilanResult.number} {t(language, 'adminDoc.generated')}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {bilanResult.invoiceCount} facture(s) agrégée(s) · Encaissé {formatMoney(bilanResult.totalCollected, 'EUR')}
+                  {bilanResult.invoiceCount} {t(language, 'adminDoc.invoicesAggregated')} · {t(language, 'adminDoc.collected')} {formatMoney(bilanResult.totalCollected, 'EUR')}
                 </p>
                 <p className="text-sm font-bold text-emerald-700 mt-2">
-                  Bénéfice net : {formatMoney(bilanResult.netProfit, 'EUR')}
+                  {t(language, 'adminDoc.netProfitLabel')} {formatMoney(bilanResult.netProfit, 'EUR')}
                 </p>
               </div>
               <div className="flex gap-2 justify-center pt-2">
@@ -746,13 +749,13 @@ export default function DocumentsTab() {
                   }}
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Télécharger PDF
+                  {t(language, 'adminDoc.downloadPdf')}
                 </Button>
                 <Button
                   className="cursor-pointer bg-slate-800 hover:bg-slate-900 text-white"
                   onClick={() => { setBilanResult(null); setBilanOpen(false) }}
                 >
-                  Fermer
+                  {t(language, 'adminDoc.close')}
                 </Button>
               </div>
             </div>
@@ -760,7 +763,7 @@ export default function DocumentsTab() {
             <div className="py-2 space-y-3">
               <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
-                Choisir une période
+                {t(language, 'adminDoc.choosePeriod')}
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -769,8 +772,8 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('this_month')}
                 >
-                  <span className="text-xs font-semibold">Ce mois-ci</span>
-                  <span className="text-[10px] text-muted-foreground">Bilan mensuel courant</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.thisMonth')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.thisMonthDesc')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -778,8 +781,8 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('last_month')}
                 >
-                  <span className="text-xs font-semibold">Mois dernier</span>
-                  <span className="text-[10px] text-muted-foreground">Bilan mensuel précédent</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.lastMonth')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.lastMonthDesc')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -787,8 +790,8 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('this_quarter')}
                 >
-                  <span className="text-xs font-semibold">Ce trimestre</span>
-                  <span className="text-[10px] text-muted-foreground">Bilan trimestriel courant</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.thisQuarter')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.thisQuarterDesc')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -796,8 +799,8 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('last_quarter')}
                 >
-                  <span className="text-xs font-semibold">Trimestre dernier</span>
-                  <span className="text-[10px] text-muted-foreground">Bilan trimestriel précédent</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.lastQuarter')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.lastQuarterDesc')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -805,8 +808,8 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('ytd')}
                 >
-                  <span className="text-xs font-semibold">Année en cours</span>
-                  <span className="text-[10px] text-muted-foreground">Depuis le 1er janvier</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.yearToDate')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.yearToDateDesc')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -814,25 +817,25 @@ export default function DocumentsTab() {
                   disabled={bilanLoading}
                   onClick={() => handleGenerateBilan('last_year')}
                 >
-                  <span className="text-xs font-semibold">Année dernière</span>
-                  <span className="text-[10px] text-muted-foreground">Bilan annuel complet</span>
+                  <span className="text-xs font-semibold">{t(language, 'adminDoc.lastYear')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(language, 'adminDoc.lastYearDesc')}</span>
                 </Button>
               </div>
 
               {bilanLoading && (
                 <div className="flex items-center justify-center py-3 gap-2 text-sm text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Génération du bilan en cours...
+                  {t(language, 'adminDoc.bilanGenerating')}
                 </div>
               )}
 
               <div className="text-[10px] text-muted-foreground bg-slate-50 rounded-md p-2.5 border border-slate-200 space-y-1">
-                <p className="font-semibold text-slate-600">Ce que contient le bilan :</p>
-                <p>• Synthèse : Total HT, TVA, TTC encaissé, charges, bénéfice net</p>
-                <p>• Détail de toutes les factures payées sur la période</p>
-                <p>• Section fiscale : CA HT, TVA à déclarer, bénéfice imposable</p>
-                <p>• Logo HireNova + signature électronique (SHA-256, N° SIG-2026-000001)</p>
-                <p>• Liaison aux factures source (audit complet pour le fisc)</p>
+                <p className="font-semibold text-slate-600">{t(language, 'adminDoc.bilanContentsTitle')}</p>
+                <p>{t(language, 'adminDoc.bilanContentSummary')}</p>
+                <p>{t(language, 'adminDoc.bilanContentDetail')}</p>
+                <p>{t(language, 'adminDoc.bilanContentFiscal')}</p>
+                <p>{t(language, 'adminDoc.bilanContentSignature')}</p>
+                <p>{t(language, 'adminDoc.bilanContentAudit')}</p>
               </div>
             </div>
           )}

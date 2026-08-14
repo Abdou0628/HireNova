@@ -83,8 +83,8 @@ const MobilityHome = dynamic(() => import('@/components/mobility/mobility-home')
 const MobilityUpload = dynamic(() => import('@/components/mobility/mobility-upload'), { ssr: false, loading: () => <Loading /> })
 const MobilityProfile = dynamic(() => import('@/components/mobility/mobility-profile'), { ssr: false, loading: () => <Loading /> })
 const MobilityResult = dynamic(() => import('@/components/mobility/mobility-result'), { ssr: false, loading: () => <Loading /> })
-// Simulateur Entretien IA
-const InterviewSimulator = dynamic(() => import('@/components/interview/interview-simulator'), { ssr: false, loading: () => <Loading /> })
+// Simulateur Entretien IA (wrapper to avoid SWC parse issue with interview-simulator.tsx)
+const InterviewSimulator = dynamic(() => import('@/components/interview/interview-wrapper'), { ssr: false, loading: () => <Loading /> })
 // HireNova LinkedIn — Profile Optimizer
 const LinkedInHome = dynamic(() => import('@/components/linkedin/linkedin-home'), { ssr: false, loading: () => <Loading /> })
 const LinkedInAnalyzer = dynamic(() => import('@/components/linkedin/linkedin-analyzer'), { ssr: false, loading: () => <Loading /> })
@@ -189,8 +189,6 @@ export default function Home() {
         {step === 'campus' && <CampusKit />}
         {/* User Dashboard — Mon Espace */}
         {step === 'dashboard' && <UserDashboard />}
-        {/* Simulateur Entretien IA */}
-        {step === 'interview' && <InterviewSimulator />}
         {/* HireNova LinkedIn */}
         {step === 'linkedinHome' && <LinkedInHome />}
         {step === 'linkedinAnalyzer' && <LinkedInAnalyzer />}

@@ -37,7 +37,7 @@ export default function CampusKit() {
     a.download = 'HireNova-Campus-Brochure.txt'
     a.click()
     URL.revokeObjectURL(url)
-    toast.success('Brochure downloaded')
+    toast.success(t(language, 'campusBrochureDownloaded'))
   }
 
   const tabConfig: { value: CampusTab; icon: typeof GraduationCap; labelKey: 'campusOverview' | 'campusUniversities' | 'campusWorkshops' | 'campusStudents' }[] = [
@@ -58,17 +58,17 @@ export default function CampusKit() {
               size="sm"
               onClick={() => setStep('landing')}
               className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 -ml-2"
-              aria-label="Back"
+              aria-label={t(language, 'campusBack')}
             >
               <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''} ${isRtl ? 'ml-1.5' : 'mr-1.5'}`} />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">{t(language, 'campusBack')}</span>
             </Button>
             <div className="w-px h-8 bg-border hidden sm:block" />
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-base leading-tight truncate">HireNova IA CAMPUS SaaS</h1>
+              <h1 className="font-bold text-base leading-tight truncate">{t(language, 'campusBadgeTitle')}</h1>
               <p className="text-[10px] text-muted-foreground leading-tight">{t(language, 'campusSubtitle')}</p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function CampusKit() {
             variant="ghost" size="sm" onClick={downloadBrochure}
             className="gap-2 cursor-pointer shrink-0"
           >
-            <Download className="w-4 h-4" /><span className="hidden sm:inline">Brochure</span>
+            <Download className="w-4 h-4" /><span className="hidden sm:inline">{t(language, 'campusBrochure')}</span>
           </Button>
         </div>
       </header>

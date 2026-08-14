@@ -1,0 +1,296 @@
+{
+  "careerSkillsAnalyzed": {
+    "fr": "Analyse des compétences terminée !",
+    "en": "Skills analysis complete!",
+    "ar": "تم تحليل المهارات بنجاح!",
+    "es": "¡Análisis de competencias completado!"
+  },
+  "careerSkillsError": {
+    "fr": "Erreur lors de l'analyse des compétences",
+    "en": "Error analyzing skills",
+    "ar": "خطأ في تحليل المهارات",
+    "es": "Error al analizar competencias"
+  },
+  "careerRoadmapGenerated": {
+    "fr": "Feuille de route générée !",
+    "en": "Roadmap generated!",
+    "ar": "تم إنشاء خارطة الطريق!",
+    "es": "¡Hoja de ruta generada!"
+  },
+  "careerRoadmapError": {
+    "fr": "Erreur lors de la génération de la feuille de route",
+    "en": "Error generating roadmap",
+    "ar": "خطأ في إنشاء خارطة الطريق",
+    "es": "Error al generar la hoja de ruta"
+  },
+  "careerAssessmentSaved": {
+    "fr": "Évaluation enregistrée !",
+    "en": "Assessment saved!",
+    "ar": "تم حفظ التقييم!",
+    "es": "¡Evaluación guardada!"
+  },
+  "careerAssessmentError": {
+    "fr": "Erreur lors de l'enregistrement de l'évaluation",
+    "en": "Error saving assessment",
+    "ar": "خطأ في حفظ التقييم",
+    "es": "Error al guardar la evaluación"
+  },
+  "careerQuestionAriaLabel": {
+    "fr": "Question {n}",
+    "en": "Question {n}",
+    "ar": "سؤال {n}",
+    "es": "Pregunta {n}"
+  },
+  "legalLoadingTemplates": {
+    "fr": "Chargement des modèles...",
+    "en": "Loading templates...",
+    "ar": "جارٍ تحميل القوالب...",
+    "es": "Cargando plantillas..."
+  },
+  "legalNoTemplatesFound": {
+    "fr": "Aucun modèle trouvé",
+    "en": "No templates found",
+    "ar": "لم يتم العثور على قوالب",
+    "es": "No se encontraron plantillas"
+  },
+  "legalCloseBtn": {
+    "fr": "Fermer",
+    "en": "Close",
+    "ar": "إغلاق",
+    "es": "Cerrar"
+  },
+  "legalFailedComplianceCheck": {
+    "fr": "Échec de la vérification de conformité",
+    "en": "Failed to run compliance check",
+    "ar": "فشل في إجراء فحص الامتثال",
+    "es": "Error al ejecutar la verificación de cumplimiento"
+  },
+  "legalExcellentCompliance": {
+    "fr": "Excellente conformité",
+    "en": "Excellent compliance",
+    "ar": "امتثال ممتاز",
+    "es": "Cumplimiento excelente"
+  },
+  "legalNeedsImprovement": {
+    "fr": "Améliorations nécessaires",
+    "en": "Needs improvement",
+    "ar": "تحتاج إلى تحسين",
+    "es": "Necesita mejora"
+  },
+  "legalCriticalIssues": {
+    "fr": "Problèmes critiques détectés",
+    "en": "Critical issues detected",
+    "ar": "تم اكتشاف مشاكل حرجة",
+    "es": "Problemas críticos detectados"
+  },
+  "legalRequiredBadge": {
+    "fr": "Requis",
+    "en": "Required",
+    "ar": "مطلوب",
+    "es": "Obligatorio"
+  },
+  "legalNoRecommendations": {
+    "fr": "Aucune recommandation",
+    "en": "No recommendations",
+    "ar": "لا توجد توصيات",
+    "es": "Sin recomendaciones"
+  },
+  "legalPleaseFillNames": {
+    "fr": "Veuillez saisir les noms de l'employeur et de l'employé",
+    "en": "Please fill in employer and employee names",
+    "ar": "يرجى إدخال أسماء صاحب العمل والموظف",
+    "es": "Complete los nombres del empleador y el empleado"
+  },
+  "legalFailedGenContract": {
+    "fr": "Échec de la génération du contrat",
+    "en": "Failed to generate contract",
+    "ar": "فشل في إنشاء العقد",
+    "es": "Error al generar el contrato"
+  },
+  "chatbotOpenAria": {
+    "fr": "Ouvrir l'assistant IA HireNova",
+    "en": "Open HireNova AI Assistant",
+    "ar": "فتح مساعد HireNova الذكي",
+    "es": "Abrir asistente IA HireNova"
+  },
+  "chatbotCloseAria": {
+    "fr": "Fermer le chatbot",
+    "en": "Close chatbot",
+    "ar": "إغلاق روبوت الدردشة",
+    "es": "Cerrar chatbot"
+  },
+  "chatbotModeAria": {
+    "fr": "Mode du chatbot",
+    "en": "Chatbot mode",
+    "ar": "وضع روبوت الدردشة",
+    "es": "Modo del chatbot"
+  },
+  "chatbotMsgInputAria": {
+    "fr": "Saisie du message",
+    "en": "Chat message input",
+    "ar": "إدخال الرسالة",
+    "es": "Entrada del mensaje"
+  },
+  "chatbotSendAria": {
+    "fr": "Envoyer le message",
+    "en": "Send message",
+    "ar": "إرسال الرسالة",
+    "es": "Enviar mensaje"
+  },
+  "chatbotHireNovaAI": {
+    "fr": "HireNova IA",
+    "en": "HireNova AI",
+    "ar": "HireNova الذكاء الاصطناعي",
+    "es": "HireNova IA"
+  },
+  "freelanceHomeH1": {
+    "fr": "HireNova IA Freelance",
+    "en": "HireNova AI Freelance",
+    "ar": "هيرينوفا الحرة",
+    "es": "HireNova IA Freelance"
+  },
+  "freelanceHowWorks": {
+    "fr": "Comment ça marche",
+    "en": "How it works",
+    "ar": "كيف يعمل",
+    "es": "Cómo funciona"
+  },
+  "freelanceMissionNotFound": {
+    "fr": "Mission non trouvée",
+    "en": "Mission not found",
+    "ar": "لم يتم العثور على المهمة",
+    "es": "Misión no encontrada"
+  },
+  "freelanceCancelBtn": {
+    "fr": "Annuler",
+    "en": "Cancel",
+    "ar": "إلغاء",
+    "es": "Cancelar"
+  },
+  "recruiterErrorMoving": {
+    "fr": "Erreur lors du déplacement du candidat",
+    "en": "Error moving candidate",
+    "ar": "خطأ في نقل المرشح",
+    "es": "Error al mover el candidato"
+  },
+  "recruiterJobCreated": {
+    "fr": "Offre créée !",
+    "en": "Job created!",
+    "ar": "تم إنشاء الوظيفة!",
+    "es": "¡Oferta creada!"
+  },
+  "recruiterErrorCreatingJob": {
+    "fr": "Erreur lors de la création de l'offre",
+    "en": "Error creating job",
+    "ar": "خطأ في إنشاء الوظيفة",
+    "es": "Error al crear la oferta"
+  },
+  "intelAiAnalysisLabel": {
+    "fr": "Analyse IA",
+    "en": "AI Analysis",
+    "ar": "تحليل الذكاء الاصطناعي",
+    "es": "Análisis IA"
+  },
+  "intelRecommendationLabel": {
+    "fr": "Recommandation",
+    "en": "Recommendation",
+    "ar": "توصية",
+    "es": "Recomendación"
+  },
+  "intelOutlookBullish": {
+    "fr": "Hausier",
+    "en": "Bullish",
+    "ar": "إيجابي",
+    "es": "Alcista"
+  },
+  "intelOutlookBearish": {
+    "fr": "Baissier",
+    "en": "Bearish",
+    "ar": "سلبي",
+    "es": "Bajista"
+  },
+  "intelOutlookModerate": {
+    "fr": "Modéré",
+    "en": "Moderate",
+    "ar": "معتدل",
+    "es": "Moderado"
+  },
+  "orchBadgeAgents": {
+    "fr": "19 Agents",
+    "en": "19 Agents",
+    "ar": "19 وكلاء",
+    "es": "19 Agentes"
+  },
+  "orchConnexionError": {
+    "fr": "Erreur de connexion",
+    "en": "Connection error",
+    "ar": "خطأ في الاتصال",
+    "es": "Error de conexión"
+  },
+  "mpHomeH1": {
+    "fr": "HireNova IA Communauté et Marketplace",
+    "en": "HireNova AI Community & Marketplace",
+    "ar": "مجتمع وسوق HireNova",
+    "es": "Comunidad y Marketplace de HireNova IA"
+  },
+  "mpAnonymous": {
+    "fr": "Anonyme",
+    "en": "Anonymous",
+    "ar": "مجهول",
+    "es": "Anónimo"
+  },
+  "mpUtilisateur": {
+    "fr": "Utilisateur",
+    "en": "User",
+    "ar": "مستخدم",
+    "es": "Usuario"
+  },
+  "mpRepExpert": {
+    "fr": "Expert",
+    "en": "Expert",
+    "ar": "خبير",
+    "es": "Experto"
+  },
+  "mpRepAdvanced": {
+    "fr": "Avancé",
+    "en": "Advanced",
+    "ar": "متقدم",
+    "es": "Avanzado"
+  },
+  "mpRepIntermediate": {
+    "fr": "Intermédiaire",
+    "en": "Intermediate",
+    "ar": "متوسط",
+    "es": "Intermedio"
+  },
+  "mpRepBeginner": {
+    "fr": "Débutant",
+    "en": "Beginner",
+    "ar": "مبتدئ",
+    "es": "Principiante"
+  },
+  "wlCompanyNameRequired": {
+    "fr": "Veuillez entrer un nom de société",
+    "en": "Please enter a company name",
+    "ar": "يرجى إدخال اسم الشركة",
+    "es": "Ingresa el nombre de la empresa"
+  },
+  "wlPlatformLaunched": {
+    "fr": "Plateforme lancée avec succès !",
+    "en": "Platform launched successfully!",
+    "ar": "تم إطلاق المنصة بنجاح!",
+    "es": "¡Plataforma lanzada con éxito!"
+  },
+  "wlErrorTenant": {
+    "fr": "Erreur lors de la création du tenant",
+    "en": "Error creating tenant",
+    "ar": "خطأ في إنشاء المستأجر",
+    "es": "Error al crear el tenant"
+  },
+  "captchaWrongSelection": {
+    "fr": "Mauvaise sélection, réessayez",
+    "en": "Wrong selection, try again",
+    "ar": "اختيار خاطئ، حاول مرة أخرى",
+    "es": "Selección incorrecta, inténtalo de nuevo"
+  }
+}

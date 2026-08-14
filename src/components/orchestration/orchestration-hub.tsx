@@ -275,7 +275,7 @@ export default function OrchestrationHub() {
           </div>
           <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 shrink-0">
             <Shield className="w-3 h-3 mr-1" />
-            19 Agents
+            {t(lang, 'orchBadgeAgents')}
           </Badge>
         </div>
       </header>
@@ -353,7 +353,7 @@ function OrchestrationDispatch({ language }: { language: string }) {
         setResult(data)
       }
     } catch (err) {
-      setError('Erreur de connexion')
+      setError(t(storeLang, 'orchConnexionError'))
     } finally {
       setIsDispatching(false)
     }

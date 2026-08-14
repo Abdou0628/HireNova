@@ -110,7 +110,7 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
     a.download = 'HireNova-Campus-Brochure.txt'
     a.click()
     URL.revokeObjectURL(url)
-    toast.success('Brochure downloaded')
+    toast.success(t(language, 'campusBrochureDownloaded'))
   }
 
   const colorMap: Record<string, string> = {
@@ -133,7 +133,7 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 mb-4 gap-1">
           <Sparkles className="w-3 h-3" />
-          HireNova IA CAMPUS SaaS
+          {t(language, 'campusBadgeTitle')}
         </Badge>
         <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 leading-tight">
           {t(language, 'campusHeroTitle')}
@@ -144,7 +144,7 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
         <div className={`mt-6 flex flex-wrap justify-center gap-3 ${isRtl ? 'flex-row-reverse' : ''}`}>
           <Button onClick={downloadBrochure} className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer gap-2">
             <Download className="w-4 h-4" />
-            Brochure
+            {t(language, 'campusBrochure')}
           </Button>
           <Button variant="outline" onClick={() => onSetTab('universities')} className="cursor-pointer gap-2">
             {t(language, 'campusExploreUnis')}
@@ -246,9 +246,9 @@ export default function CampusOverview({ onSetTab }: OverviewProps) {
               ))}
             </div>
             <div className={`flex flex-wrap gap-2 mt-5 ${isRtl ? 'justify-end' : ''}`}>
-              <Badge variant="outline" className="gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" />ROI</Badge>
-              <Badge variant="outline" className="gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" />0€</Badge>
-              <Badge variant="outline" className="gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />Live</Badge>
+              <Badge variant="outline" className="gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" />{t(language, 'campusBadgeRoi')}</Badge>
+              <Badge variant="outline" className="gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" />{t(language, 'campusBadgeFree')}</Badge>
+              <Badge variant="outline" className="gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />{t(language, 'campusBadgeLive')}</Badge>
             </div>
           </CardContent>
         </Card>

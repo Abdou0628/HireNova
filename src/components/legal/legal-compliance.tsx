@@ -56,7 +56,7 @@ export default function LegalCompliance() {
         setRecommendations(Array.isArray(data.recommendations) ? data.recommendations : [])
       }
     } catch {
-      setError('Failed to run compliance check')
+      setError(t(language, 'legalFailedComplianceCheck'))
     } finally {
       setAnalyzing(false)
     }
@@ -180,7 +180,7 @@ export default function LegalCompliance() {
                 <div className="text-center sm:text-start">
                   <h3 className={`text-2xl font-bold ${getScoreColor(score)}`}>{t(language, 'legalScoreLabel')}</h3>
                   <p className="text-muted-foreground mt-1">
-                    {score >= 80 ? 'Excellent compliance' : score >= 50 ? 'Needs improvement' : 'Critical issues detected'}
+                    {t(language, score >= 80 ? 'legalExcellentCompliance' : score >= 50 ? 'legalNeedsImprovement' : 'legalCriticalIssues')}
                   </p>
                 </div>
               </CardContent>
@@ -205,7 +205,7 @@ export default function LegalCompliance() {
                         <div>
                           <p className="text-sm font-medium text-foreground">{item.item}</p>
                           {item.required && (
-                            <Badge className="mt-1 text-[10px] bg-red-100 text-red-700">Required</Badge>
+                            <Badge className="mt-1 text-[10px] bg-red-100 text-red-700">{t(language, 'legalRequiredBadge')}</Badge>
                           )}
                         </div>
                       </div>
@@ -231,7 +231,7 @@ export default function LegalCompliance() {
                       </div>
                     ))}
                     {recommendations.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-8">No recommendations</p>
+                      <p className="text-sm text-muted-foreground text-center py-8">{t(language, 'legalNoRecommendations')}</p>
                     )}
                   </div>
                 </CardContent>

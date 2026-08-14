@@ -130,7 +130,7 @@ export default function ProfileButton() {
               </div>
               {/* Admin shield badge */}
               {isAdmin && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center" title={t(lang, 'profileAdminAria")}>
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white flex items-center justify-center" title={t(lang, 'profileAdminAria')}>
                   <Shield className="w-2.5 h-2.5 text-white" />
                 </div>
               )}

@@ -32,6 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
+import type { CVLanguage } from '@/lib/i18n'
 
 interface SecurityAlertsProps {
   isOpen: boolean
@@ -78,33 +81,34 @@ function severityColor(severity: string): string {
   }
 }
 
-function typeLabel(type: string): string {
+function typeLabelKey(type: string): string {
   const labels: Record<string, string> = {
-    rate_limit: 'Rate Limit',
-    brute_force: 'Brute Force',
-    suspicious_input: 'Suspicious Input',
-    sql_injection_attempt: 'SQL Injection',
-    xss_attempt: 'XSS Attempt',
-    invalid_auth: 'Invalid Auth',
-    forbidden_access: 'Forbidden Access',
+    rate_limit: 'adminSec.rateLimit',
+    brute_force: 'adminSec.bruteForce',
+    suspicious_input: 'adminSec.suspiciousInput',
+    sql_injection_attempt: 'adminSec.sqlInjection',
+    xss_attempt: 'adminSec.xssAttempt',
+    invalid_auth: 'adminSec.invalidAuth',
+    forbidden_access: 'adminSec.forbiddenAccess',
   }
   return labels[type] || type
 }
 
-function formatTime(dateStr: string): string {
+function formatTime(dateStr: string, language: CVLanguage): string {
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMin = Math.floor(diffMs / 60000)
   const diffHour = Math.floor(diffMs / 3600000)
 
-  if (diffMin < 1) return 'Just now'
-  if (diffMin < 60) return `${diffMin}m ago`
-  if (diffHour < 24) return `${diffHour}h ago`
+  if (diffMin < 1) return t(language, 'adminSec.justNow)
+  if (diffMin < 60) return `${diffMin}${t(language, 'adminSec.minutesAgo)}`
+  if (diffHour < 24) return `${diffHour}${t(language, 'adminSec.hoursAgo)}`
   return date.toLocaleDateString()
 }
 
 export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAlertsProps) {
+  const { language } = useCVStore()
   const [logs, setLogs] = useState<SecurityLog[]>([])
   const [loading, setLoading] = useState(true)
   const [unresolvedCount, setUnresolvedCount] = useState(0)
@@ -160,11 +164,11 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
             <div className="flex items-center gap-3">
               <DialogTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Security Alerts
+                {t(language, 'adminSec.title')}
               </DialogTitle>
               {unresolvedCount > 0 && (
                 <Badge variant="destructive" className="text-xs px-2 py-0.5">
-                  {unresolvedCount} unresolved
+                  {unresolvedCount} {t(language, 'adminSec.unresolved')}
                 </Badge>
               )}
             </div>
@@ -185,29 +189,29 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
         <div className="flex items-center gap-3 px-6 py-3 border-b">
           <Select value={severityFilter} onValueChange={setSeverityFilter}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
-              <SelectValue placeholder="Severity" />
+              <SelectValue placeholder={t(language, 'adminSec.severityPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="critical">Critical</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="all">{t(language, 'adminSec.all')}</SelectItem>
+              <SelectItem value="critical">{t(language, 'adminSec.critical')}</SelectItem>
+              <SelectItem value="high">{t(language, 'adminSec.high')}</SelectItem>
+              <SelectItem value="medium">{t(language, 'adminSec.medium')}</SelectItem>
+              <SelectItem value="low">{t(language, 'adminSec.low')}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
-              <SelectValue placeholder="Type" />
+              <SelectValue placeholder={t(language, 'adminSec.typePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="rate_limit">Rate Limit</SelectItem>
-              <SelectItem value="brute_force">Brute Force</SelectItem>
-              <SelectItem value="invalid_auth">Invalid Auth</SelectItem>
-              <SelectItem value="sql_injection_attempt">SQL Injection</SelectItem>
-              <SelectItem value="xss_attempt">XSS Attempt</SelectItem>
-              <SelectItem value="forbidden_access">Forbidden Access</SelectItem>
+              <SelectItem value="all">{t(language, 'adminSec.allTypes')}</SelectItem>
+              <SelectItem value="rate_limit">{t(language, 'adminSec.rateLimit')}</SelectItem>
+              <SelectItem value="brute_force">{t(language, 'adminSec.bruteForce')}</SelectItem>
+              <SelectItem value="invalid_auth">{t(language, 'adminSec.invalidAuth')}</SelectItem>
+              <SelectItem value="sql_injection_attempt">{t(language, 'adminSec.sqlInjection')}</SelectItem>
+              <SelectItem value="xss_attempt">{t(language, 'adminSec.xssAttempt')}</SelectItem>
+              <SelectItem value="forbidden_access">{t(language, 'adminSec.forbiddenAccess')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -222,7 +226,7 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
               }}
             >
               <X className="h-3 w-3 mr-1" />
-              Clear
+              {t(language, 'adminSec.clear')}
             </Button>
           )}
         </div>
@@ -237,7 +241,7 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
             ) : logs.length === 0 ? (
               <Card className="p-6 text-center text-muted-foreground">
                 <Shield className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No security alerts found</p>
+                <p className="text-sm">{t(language, 'adminSec.emptyState')}</p>
               </Card>
             ) : (
               logs.map((log) => (
@@ -256,7 +260,7 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
                             {log.severity.toUpperCase()}
                           </Badge>
                           <Badge variant="secondary" className="text-xs">
-                            {typeLabel(log.type)}
+                            {t(language, typeLabelKey(log.type))}
                           </Badge>
                           <Badge variant="outline" className="text-xs font-mono">
                             {log.method}
@@ -278,7 +282,7 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
                           )}
                           <span className="flex items-center gap-1 shrink-0">
                             <Clock className="h-3 w-3 shrink-0" />
-                            {formatTime(log.createdAt)}
+                            {formatTime(log.createdAt, language)}
                           </span>
                         </div>
                       </div>
@@ -302,7 +306,7 @@ export default function SecurityAlerts({ isOpen, onClose, isAdmin }: SecurityAle
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-xs text-muted-foreground">
-              Page {page} / {totalPages}
+              {t(language, 'adminSec.page')} {page} / {totalPages}
             </span>
             <Button
               variant="outline"

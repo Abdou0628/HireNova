@@ -7,15 +7,33 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCVStore } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
+
+const regionKeyMap: Record<string, string> = {
+  'Monde': 'gMarketRegionMonde', 'Europe': 'gMarketRegionEurope', 'Asie': 'gMarketRegionAsie',
+  'Afrique': 'gMarketRegionAfrique', 'Amériques': 'gMarketRegionAmeriques', 'MENA': 'gMarketRegionMENA',
+}
+const countryKeyMap: Record<string, string> = {
+  'France': 'gMarketCountryFrance', 'Germany': 'gMarketCountryGermany', 'UK': 'gMarketCountryUK',
+  'USA': 'gMarketCountryUSA', 'Canada': 'gMarketCountryCanada', 'UAE': 'gMarketCountryUAE',
+  'Switzerland': 'gMarketCountrySwitzerland', 'Belgium': 'gMarketCountryBelgium', 'Spain': 'gMarketCountrySpain',
+  'Italy': 'gMarketCountryItaly', 'Japan': 'gMarketCountryJapan', 'Australia': 'gMarketCountryAustralia',
+  'Morocco': 'gMarketCountryMorocco', 'Tunisia': 'gMarketCountryTunisia', 'Algeria': 'gMarketCountryAlgeria',
+  'Senegal': 'gMarketCountrySenegal', 'Nigeria': 'gMarketCountryNigeria', 'Kenya': 'gMarketCountryKenya',
+  'China': 'gMarketCountryChina', 'India': 'gMarketCountryIndia', 'Singapore': 'gMarketCountrySingapore',
+  'Brazil': 'gMarketCountryBrazil', 'Mexico': 'gMarketCountryMexico', 'Saudi': 'gMarketCountrySaudi',
+}
 
 interface Stats { totalJobs: number; totalApplications: number; totalViews: number; avgMatchScore: number }
 interface EmployerJob { id: string; title: string; location: string; country: string; region: string; applicationsCount: number; viewsCount: number; status: string }
 
 export default function GlobalEmployerDashboardView() {
-  const { setStep } = useCVStore()
+  const { setStep, language } = useCVStore()
   const [stats, setStats] = useState<Stats>({ totalJobs: 0, totalApplications: 0, totalViews: 0, avgMatchScore: 0 })
   const [jobs, setJobs] = useState<EmployerJob[]>([])
   const [loading, setLoading] = useState(true)
+  const tr = (name: string) => t(language, regionKeyMap[name] || name)
+  const tc = (name: string) => t(language, countryKeyMap[name] || name)
 
   useEffect(() => {
     fetch('/api/global-jobs/employer?employerId=demo')
@@ -26,10 +44,10 @@ export default function GlobalEmployerDashboardView() {
   }, [])
 
   const statCards = [
-    { icon: Briefcase, label: 'Offres publiées', value: stats.totalJobs, color: 'text-teal-600' },
-    { icon: Users, label: 'Candidatures', value: stats.totalApplications, color: 'text-emerald-600' },
-    { icon: Eye, label: 'Vues totales', value: stats.totalViews, color: 'text-blue-600' },
-    { icon: TrendingUp, label: 'Score moyen', value: `${stats.avgMatchScore}%`, color: 'text-purple-600' },
+    { icon: Briefcase, label: t(language, 'gEmployerStatPublished), value: stats.totalJobs, color: 'text-teal-600' },
+    { icon: Users, label: t(language, 'gEmployerStatApplications), value: stats.totalApplications, color: 'text-emerald-600' },
+    { icon: Eye, label: t(language, 'gEmployerStatViews), value: stats.totalViews, color: 'text-blue-600' },
+    { icon: TrendingUp, label: t(language, 'gEmployerStatAvgScore), value: `${stats.avgMatchScore}%`, color: 'text-purple-600' },
   ]
 
   return (
@@ -38,17 +56,17 @@ export default function GlobalEmployerDashboardView() {
         <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setStep('landing')} className="cursor-pointer">
-              <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+              <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gEmployerBack)}
             </Button>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Globe className="text-teal-600" /> Dashboard Global
+                <Globe className="text-teal-600" /> {t(language, 'gEmployerDashboardTitle)}
               </h1>
-              <p className="text-sm text-muted-foreground">Vue d&apos;ensemble de vos offres internationales</p>
+              <p className="text-sm text-muted-foreground">{t(language, 'gEmployerDashboardSubtitle)}</p>
             </div>
           </div>
           <Button className="bg-teal-600 hover:bg-teal-700 cursor-pointer" onClick={() => setStep('globalPostJob')}>
-            <PlusCircle className="w-4 h-4 mr-2" /> Nouvelle offre
+            <PlusCircle className="w-4 h-4 mr-2" /> {t(language, 'gEmployerNewJob)}
           </Button>
         </div>
 
@@ -69,9 +87,9 @@ export default function GlobalEmployerDashboardView() {
         ) : jobs.length === 0 ? (
           <Card className="p-8 text-center">
             <Briefcase className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="font-medium text-muted-foreground">Aucune offre publiée</p>
+            <p className="font-medium text-muted-foreground">{t(language, 'gEmployerNoJobs)}</p>
             <Button className="mt-4 bg-teal-600 hover:bg-teal-700 cursor-pointer" onClick={() => setStep('globalPostJob')}>
-              Publier votre première offre
+              {t(language, 'gEmployerPublishFirst)}
             </Button>
           </Card>
         ) : (
@@ -81,12 +99,12 @@ export default function GlobalEmployerDashboardView() {
                 <table className="w-full text-sm">
                   <thead className="border-b bg-muted/50">
                     <tr>
-                      <th className="text-left p-3 font-medium">Poste</th>
-                      <th className="text-left p-3 font-medium hidden sm:table-cell">Localisation</th>
-                      <th className="text-left p-3 font-medium hidden md:table-cell">Région</th>
-                      <th className="text-center p-3 font-medium">Candidatures</th>
-                      <th className="text-center p-3 font-medium">Vues</th>
-                      <th className="text-center p-3 font-medium">Statut</th>
+                      <th className="text-left p-3 font-medium">{t(language, 'gEmployerTablePosition)}</th>
+                      <th className="text-left p-3 font-medium hidden sm:table-cell">{t(language, 'gEmployerTableLocation)}</th>
+                      <th className="text-left p-3 font-medium hidden md:table-cell">{t(language, 'gEmployerTableRegion)}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableApplications)}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableViews)}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableStatus)}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -94,14 +112,14 @@ export default function GlobalEmployerDashboardView() {
                       <tr key={j.id} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer" onClick={() => setStep('globalJobDetail', { jobId: j.id })}>
                         <td className="p-3 font-medium">{j.title}</td>
                         <td className="p-3 text-muted-foreground hidden sm:table-cell">
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {j.location}, {j.country}</span>
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {j.location}, {tc(j.country)}</span>
                         </td>
-                        <td className="p-3 hidden md:table-cell"><Badge variant="outline" className="text-xs">{j.region}</Badge></td>
+                        <td className="p-3 hidden md:table-cell"><Badge variant="outline" className="text-xs">{tr(j.region)}</Badge></td>
                         <td className="p-3 text-center">{j.applicationsCount}</td>
                         <td className="p-3 text-center">{j.viewsCount}</td>
                         <td className="p-3 text-center">
                           <Badge className={`text-xs ${j.status === 'active' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-100'}`}>
-                            {j.status === 'active' ? 'Active' : j.status}
+                            {j.status === 'active' ? t(language, 'gEmployerStatusActive) : j.status}
                           </Badge>
                         </td>
                       </tr>

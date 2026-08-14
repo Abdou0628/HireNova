@@ -46,7 +46,7 @@ export default function WhiteLabelSetup() {
 
   const handleLaunch = async () => {
     if (!companyName.trim()) {
-      toast.error(isRTL ? 'يرجى إدخال اسم الشركة' : language === 'es' ? 'Ingresa el nombre de la empresa' : language === 'en' ? 'Please enter a company name' : 'Veuillez entrer un nom de société')
+      toast.error(t(language, 'wlCompanyNameRequired'))
       return
     }
     setLoading(true)
@@ -63,10 +63,10 @@ export default function WhiteLabelSetup() {
           plan,
         }),
       })
-      toast.success(isRTL ? 'تم إطلاق المنصة بنجاح!' : language === 'es' ? '¡Plataforma lanzada con éxito!' : language === 'en' ? 'Platform launched successfully!' : 'Plateforme lancée avec succès !')
+      toast.success(t(language, 'wlPlatformLaunched'))
       setStep('whiteLabelDashboard')
     } catch {
-      toast.error('Error creating tenant')
+      toast.error(t(language, 'wlErrorTenant'))
     } finally {
       setLoading(false)
     }

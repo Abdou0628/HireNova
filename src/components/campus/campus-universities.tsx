@@ -110,14 +110,14 @@ export default function CampusUniversities() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(editingId ? 'Updated' : 'Created')
+        toast.success(editingId ? t(language, 'campusWsUpdated') : t(language, 'campusWsCreated'))
         setDialogOpen(false)
         fetchUnis()
       } else {
-        toast.error(json.error || 'Error')
+        toast.error(json.error || t(language, 'campusError'))
       }
     } catch {
-      toast.error('Network error')
+      toast.error(t(language, 'campusNetworkError'))
     } finally { setSaving(false) }
   }
 
@@ -156,7 +156,7 @@ export default function CampusUniversities() {
       {loading ? (
         <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-emerald-600" /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground text-sm">No universities found</div>
+        <div className="text-center py-16 text-muted-foreground text-sm">{t(language, 'campusNoUniversities')}</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((uni, i) => {
@@ -180,7 +180,7 @@ export default function CampusUniversities() {
                           <MapPin className="w-3 h-3" /><span>{uni.country}</span>
                         </div>
                         <div className={`flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 ${isRtl ? 'flex-row-reverse' : ''}`}>
-                          <Users className="w-3 h-3" /><span>{uni.studentCount} students</span>
+                          <Users className="w-3 h-3" /><span>{uni.studentCount} {t(language, 'campusUniStudentCount')}</span>
                         </div>
                         {uni.contactEmail && (
                           <div className={`flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 ${isRtl ? 'flex-row-reverse' : ''}`}>
@@ -239,7 +239,7 @@ export default function CampusUniversities() {
             <div>
               <Label>{t(language, 'campusUniPrograms')}</Label>
               <Input value={form.programs} onChange={(e) => setForm({ ...form, programs: e.target.value })}
-                placeholder='["Engineering", "Business"]' className="mt-1" />
+                placeholder={t(language, 'campusUniProgramsPlaceholder')} className="mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

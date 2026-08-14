@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { RefreshCw, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react'
+import { t, type TranslationKey } from '@/lib/i18n'
 
 // Category definitions with emojis and labels
 const CATEGORIES = [
@@ -186,19 +187,13 @@ const categoryLabel = t(lang, ('captchaCat' + category?.id) as TranslationKey)
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-foreground flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          {lang === 'ar'
-            ? `اختر جميع صور ${categoryLabel}`
-            : lang === 'en'
-              ? `Select all images with ${categoryLabel}`
-              : lang === 'es'
-                ? `Selecciona todas las imágenes de ${categoryLabel}`
-                : `Sélectionnez toutes les images avec des ${categoryLabel}`}
+          {t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaSelectImages')} {categoryLabel}
         </label>
         <button
           type="button"
           onClick={handleRefresh}
           className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
-          aria-label="Refresh CAPTCHA"
+          aria-label={t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaRefreshAriaLabel')}
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -206,13 +201,7 @@ const categoryLabel = t(lang, ('captchaCat' + category?.id) as TranslationKey)
 
       {/* Selection count */}
       <p className="text-xs text-muted-foreground">
-        {lang === 'ar'
-          ? `${selected.size} من ${correctCount} محدد`
-          : lang === 'en'
-            ? `${selected.size} of ${correctCount} selected`
-            : lang === 'es'
-              ? `${selected.size} de ${correctCount} seleccionados`
-              : `${selected.size} sur ${correctCount} sélectionnés`}
+        {selected.size} {t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaXofYSelected')} {correctCount} {lang === 'ar' ? 'محدد' : lang === 'es' ? 'seleccionados' : lang === 'en' ? 'selected' : 'sélectionnés'}
       </p>
 
       {/* 3x3 Image grid */}
@@ -292,13 +281,7 @@ const categoryLabel = t(lang, ('captchaCat' + category?.id) as TranslationKey)
               : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.98]')
           }
         >
-          {lang === 'ar'
-            ? 'تحقق'
-            : lang === 'en'
-              ? 'Verify'
-              : lang === 'es'
-                ? 'Verificar'
-                : 'Vérifier'}
+          {t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaVerifyBtn')}
         </button>
       )}
 
@@ -306,25 +289,13 @@ const categoryLabel = t(lang, ('captchaCat' + category?.id) as TranslationKey)
       {verified && (
         <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-medium">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
-          {lang === 'ar'
-            ? 'تم التحقق بنجاح'
-            : lang === 'en'
-              ? 'Verified successfully'
-              : lang === 'es'
-                ? 'Verificado con éxito'
-                : 'Vérifié avec succès'}
+          {t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaVerifiedSuccess')}
         </div>
       )}
       {error && (
         <div className="flex items-center gap-2 p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
           <XCircle className="w-4 h-4 shrink-0" />
-          {lang === 'ar'
-            ? 'اختيار خاطئ، حاول مرة أخرى'
-            : lang === 'en'
-              ? 'Wrong selection, try again'
-              : lang === 'es'
-                ? 'Selección incorrecta, inténtalo de nuevo'
-                : 'Mauvaise sélection, réessayez'}
+          {t(lang as 'fr' | 'en' | 'ar' | 'es', 'captchaWrongSelection')}
         </div>
       )}
     </div>

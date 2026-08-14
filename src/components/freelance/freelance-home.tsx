@@ -70,7 +70,7 @@ export default function FreelanceHome() {
               <Laptop className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">HireNova IA Freelance</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t(language, 'freelanceHomeH1')}</h1>
               <p className="text-sm text-muted-foreground">{t(language, 'freelanceSubtitle')}</p>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function FreelanceHome() {
 
         {/* How it works */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Comment ça marche</h2>
+          <h2 className="text-lg font-semibold mb-4">{t(language, 'freelanceHowWorks')}</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               { step: '1', title: t(language, 'freelanceStep1Title'), desc: t(language, 'freelanceStep1Desc') },

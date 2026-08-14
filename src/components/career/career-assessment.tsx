@@ -65,10 +65,10 @@ export default function CareerAssessment() {
       })
       if (!res.ok) throw new Error('Failed')
       const data = await res.json()
-      toast.success('Assessment saved!')
+      toast.success(t(language, 'careerAssessmentSaved'))
       setStep('careerRoadmap', { assessmentId: data.assessment.id })
     } catch {
-      toast.error('Error saving assessment')
+      toast.error(t(language, 'careerAssessmentError'))
     } finally {
       setSubmitting(false)
     }
@@ -121,7 +121,7 @@ export default function CareerAssessment() {
                       ? 'bg-rose-300'
                       : 'bg-muted-foreground/20'
                 }`}
-                aria-label={`Question ${i + 1}`}
+                aria-label={t(language, 'careerQuestion').replace('{n}', String(i + 1))}
               />
             ))}
           </div>

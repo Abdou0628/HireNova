@@ -165,11 +165,11 @@ function RadarChart({ skills, isRTL }: { skills: SkillItem[]; isRTL: boolean }) 
       <div className={`flex gap-6 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-emerald-500" />
-          <span className="text-xs text-muted-foreground">{t('fr' as 'fr', 'careerCurrentSkills' as 'careerCurrentSkills')}</span>
+          <span className="text-xs text-muted-foreground">{t(language, 'careerCurrentSkills')}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-rose-500/40 border border-dashed border-rose-500" />
-          <span className="text-xs text-muted-foreground">{t('fr' as 'fr', 'careerTargetSkills' as 'careerTargetSkills')}</span>
+          <span className="text-xs text-muted-foreground">{t(language, 'careerTargetSkills')}</span>
         </div>
       </div>
     </div>
@@ -221,9 +221,9 @@ export default function CareerSkills() {
       if (!res.ok) throw new Error('Failed')
       const data = await res.json()
       setSkillsData(data.skillsAnalysis)
-      toast.success('Skills analysis complete!')
+      toast.success(t(language, 'careerSkillsAnalyzed'))
     } catch {
-      toast.error('Error analyzing skills')
+      toast.error(t(language, 'careerSkillsError'))
     } finally {
       setAnalyzing(false)
     }

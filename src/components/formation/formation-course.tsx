@@ -143,10 +143,10 @@ export default function FormationCourse() {
       if (res.ok) {
         const data = await res.json()
         setEnrollment(data.enrollment)
-        toast.success(language === 'fr' ? 'Inscription réussie !' : language === 'ar' ? 'تم التسجيل بنجاح!' : language === 'es' ? '¡Inscripción exitosa!' : 'Enrolled successfully!')
+        toast.success(t(language, 'formationEnrolledSuccess'))
       }
     } catch {
-      toast.error('Failed to enroll')
+      toast.error(t(language, 'formationFailedEnroll'))
     } finally {
       setEnrolling(false)
     }
@@ -222,7 +222,7 @@ export default function FormationCourse() {
     return (
       <div className={`min-h-screen bg-white ${isRTL ? 'rtl' : 'ltr'}`}>
         <div className="max-w-5xl mx-auto px-4 py-6 text-center">
-        <p className="text-muted-foreground">Course not found</p>
+        <p className="text-muted-foreground">{t(language, 'formationCourseNotFound')}</p>
           <Button className="mt-4" onClick={() => navigateTo('formationCatalog')}>{t(language, 'formationBackToCatalog')}</Button>
         </div>
       </div>
@@ -260,8 +260,8 @@ export default function FormationCourse() {
                 </div>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-3 flex-wrap">
-                    <Badge>{course.category}</Badge>
-                    <Badge variant="outline">{course.level}</Badge>
+                    <Badge>{t(language, `formationCategory${course.category.charAt(0).toUpperCase() + course.category.slice(1).replace('-', '')}` as Parameters<typeof t>[1]) || course.category}</Badge>
+                    <Badge variant="outline">{t(language, `formationLevel${course.level.charAt(0).toUpperCase() + course.level.slice(1)}` as Parameters<typeof t>[1]) || course.level}</Badge>
                     <Badge variant="outline">{course.duration}h</Badge>
                     {course.rating > 0 && <Badge variant="outline">★ {course.rating}</Badge>}
                   </div>
@@ -316,7 +316,7 @@ export default function FormationCourse() {
                         <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
                           <Play className="w-8 h-8 text-white ml-1" />
                         </div>
-                        <p className="text-white/60 text-sm">Video placeholder</p>
+                        <p className="text-white/60 text-sm">{t(language, 'formationVideoPlaceholder')}</p>
                       </div>
                     )}
 
@@ -333,7 +333,7 @@ export default function FormationCourse() {
                           <span className="font-medium text-amber-800">{t(language, 'formationModuleQuiz')}</span>
                         </div>
                         <p className="text-sm text-amber-700">{currentModule.content}</p>
-                        <p className="text-xs text-amber-600 mt-2">{language === 'fr' ? 'Les quiz interactifs sont disponibles dans l\'examen de certification final.' : 'Interactive quizzes are available in the final certification exam.'}</p>
+                        <p className="text-xs text-amber-600 mt-2">{t(language, 'formationQuizNote')}</p>
                       </div>
                     )}
 

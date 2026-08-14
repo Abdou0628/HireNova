@@ -64,7 +64,7 @@ export default function FormationCert() {
 
   // Which course to take exam for
   const examCourseId = (stepData?.courseId as string) || ''
-  const examCourseTitle = (stepData?.courseTitle as string) || (language === 'fr' ? 'Connaissances générales' : 'General Knowledge')
+  const examCourseTitle = (stepData?.courseTitle as string) || t(language, 'formationGeneralKnowledge')
 
   function navigateTo(step: 'formationHome' | 'formationCourse', data?: Record<string, unknown>) {
     if (data) setStepData(data)
@@ -105,7 +105,7 @@ export default function FormationCert() {
         setExamActive(true)
       }
     } catch {
-      toast.error('Failed to generate exam')
+      toast.error(t(language, 'formationFailedGenerateExam'))
     } finally {
       setExamLoading(false)
     }
@@ -137,7 +137,7 @@ export default function FormationCert() {
         }
       }
     } catch {
-      toast.error('Failed to submit exam')
+      toast.error(t(language, 'formationFailedSubmitExam'))
     } finally {
       setSubmitting(false)
     }
@@ -168,10 +168,10 @@ export default function FormationCert() {
     <div class="logo">HireNova</div>
     <div class="subtitle">E-Society 2050</div>
     <div class="divider"></div>
-    <div class="title">${language === 'fr' ? 'Certificat de Réussite' : language === 'ar' ? 'شهادة إتمام' : language === 'es' ? 'Certificado de Aprobación' : 'Certificate of Achievement'}</div>
+    <div class="title">${t(language, 'formationCertOfAchievement')}</div>
     <div class="course">${cert.courseTitle}</div>
     <div class="divider"></div>
-    <div class="name">${session?.user?.name || 'Learner'}</div>
+    <div class="name">${session?.user?.name || t(language, 'formationLearner')}</div>
     <div class="score">${cert.score}/100</div>
     <div class="date">${dateStr}</div>
     <div class="cert-id">${cert.certId}</div>
@@ -343,7 +343,7 @@ export default function FormationCert() {
                         {t(language, 'formationYourScore')}: {examResult.score}%
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {examResult.correct}/{examResult.total} {language === 'fr' ? 'bonnes réponses' : language === 'ar' ? 'إجابات صحيحة' : language === 'es' ? 'respuestas correctas' : 'correct answers'}
+                        {examResult.correct}/{examResult.total} {t(language, 'formationCorrectAnswers')}
                       </p>
                     </div>
 

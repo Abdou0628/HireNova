@@ -97,7 +97,7 @@ export default function CampusStudents() {
           <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRtl ? 'right-3' : 'left-3'}`} />
           <Input
             value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search students..."
+            placeholder={t(language, 'campusStSearchPlaceholder')}
             className={`${isRtl ? 'pr-9 text-right' : 'pl-9'}`}
           />
         </div>
@@ -119,7 +119,7 @@ export default function CampusStudents() {
                       <GraduationCap className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-sm truncate">{st.user?.name || 'Campus Student'}</h4>
+                      <h4 className="font-semibold text-sm truncate">{st.user?.name || t(language, 'campusStDefaultName')}</h4>
                       {st.user?.email && <p className="text-xs text-muted-foreground truncate">{st.user.email}</p>}
                       {st.university?.name && (
                         <Badge variant="secondary" className="text-[10px] mt-1">{st.university.name}</Badge>
@@ -151,7 +151,7 @@ export default function CampusStudents() {
                       {/* ATS Progress Bar */}
                       <div className="mt-3">
                         <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                          <span>ATS Score</span><span>{Math.round(st.atsAvgScore)}%</span>
+                          <span>{t(language, 'campusStAtsScore')}</span><span>{Math.round(st.atsAvgScore)}%</span>
                         </div>
                         <Progress value={st.atsAvgScore} className="h-2" />
                       </div>

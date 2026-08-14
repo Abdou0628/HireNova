@@ -187,7 +187,7 @@ function formatDate(iso: string, lang: string) {
   return new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function formatMoney(amount: number, currency: string, lang: string, lang) {
+function formatMoney(amount: number, currency: string, lang: string) {
   const locale = lang === 'ar' ? 'ar-MA' : lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-FR'
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currency || 'EUR' }).format(amount)
 }

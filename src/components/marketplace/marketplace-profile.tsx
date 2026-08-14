@@ -83,7 +83,8 @@ export default function MarketplaceProfile() {
   })()
 
   const repLevel = profile ? Math.min(100, Math.floor(profile.reputation / 2)) : 0
-  const repLabel = repLevel >= 80 ? 'Expert' : repLevel >= 50 ? 'Avancé' : repLevel >= 20 ? 'Intermédiaire' : 'Débutant'
+  const repLevelKey = repLevel >= 80 ? 'mpRepExpert' : repLevel >= 50 ? 'mpRepAdvanced' : repLevel >= 20 ? 'mpRepIntermediate' : 'mpRepBeginner'
+  const repLabel = t(language, repLevelKey)
 
   if (loading) {
     return (
@@ -135,7 +136,7 @@ export default function MarketplaceProfile() {
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
                     {profile?.user?.name?.charAt(0)?.toUpperCase() || '?'}
                   </div>
-                  <h2 className="text-lg font-bold">{profile?.user?.name || 'Utilisateur'}</h2>
+                  <h2 className="text-lg font-bold">{profile?.user?.name || t(language, 'mpUtilisateur')}</h2>
                   <p className="text-sm text-muted-foreground">{profile?.user?.email || ''}</p>
 
                   {/* Reputation */}

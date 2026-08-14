@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
 
 // ─── Types (mirrors server types for client use) ─────────────────────────────
 
@@ -91,16 +93,17 @@ const STEP_ICONS: Record<CopilotStep, React.ElementType> = {
   track_application: ClipboardList,
 }
 
-const STEP_LABELS: Record<CopilotStep, string> = {
-  analyze_offer: 'Analyse de l\'offre',
-  match_score: 'HireNova Match Score™',
-  optimize_cv: 'CV optimisé ATS',
-  generate_cover_letter: 'Lettre de motivation',
-  identify_skill_gaps: 'Compétences manquantes',
-  prepare_interview: 'Préparation entretien',
-  optimize_linkedin: 'Optimisation LinkedIn',
-  career_roadmap: 'Feuille de route carrière',
-  track_application: 'Suivi de candidature',
+function getStepLabel(step: CopilotStep, language: string): string {
+  if (step === 'analyze_offer') return t(language, 'copStepAnalyzeOffer')
+  if (step === 'match_score') return t(language, 'copStepMatchScore')
+  if (step === 'optimize_cv') return t(language, 'copStepOptimizeCv')
+  if (step === 'generate_cover_letter') return t(language, 'copStepCoverLetter')
+  if (step === 'identify_skill_gaps') return t(language, 'copStepSkillGaps')
+  if (step === 'prepare_interview') return t(language, 'copStepInterview')
+  if (step === 'optimize_linkedin') return t(language, 'copStepLinkedin')
+  if (step === 'career_roadmap') return t(language, 'copStepCareerRoadmap')
+  if (step === 'track_application') return t(language, 'copStepTrackApp')
+  return step
 }
 
 const GRADE_COLORS: Record<string, string> = {
@@ -187,6 +190,7 @@ function PipelineStepRow({
   onExecute,
   upgradePlan,
   upgradePrice,
+  language,
 }: {
   step: CopilotStep
   status: StepStatus
@@ -195,6 +199,7 @@ function PipelineStepRow({
   onExecute?: () => void
   upgradePlan?: string
   upgradePrice?: number
+  language: string
 }) {
   const Icon = STEP_ICONS[step]
   const isBlocked = status === 'blocked'
@@ -253,7 +258,7 @@ function PipelineStepRow({
           <div className="flex items-center gap-2 mt-2">
             <Crown className="w-3.5 h-3.5 text-amber-500" />
             <span className="text-xs text-amber-600 font-medium">
-              Disponible dans {upgradePlan} — {upgradePrice.toFixed(2)}€/mois
+              {t(language, 'copAvailableIn')} {upgradePlan} — {upgradePrice.toFixed(2)}{t(language, 'copPerMonth')}
             </span>
           </div>
         )}
@@ -268,7 +273,7 @@ function PipelineStepRow({
             className="text-xs h-8 px-3 border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 cursor-pointer"
             onClick={onExecute}
           >
-            Exécuter
+            {t(language, 'copExecute')}
           </Button>
         )}
         {isBlocked && (
@@ -277,15 +282,15 @@ function PipelineStepRow({
             variant="outline"
             className="text-xs h-8 px-3 border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700 cursor-pointer"
             onClick={() => {
-              toast.info('Mise à niveau requise pour accéder à cette fonctionnalité.')
+              toast.info(t(language, 'copUpgradeRequired'))
             }}
           >
             <Crown className="w-3 h-3 mr-1" />
-            Upgrade
+            {t(language, 'copUpgrade')}
           </Button>
         )}
         {isCompleted && (
-          <span className="text-xs text-emerald-600 font-medium">✅ Terminé</span>
+          <span className="text-xs text-emerald-600 font-medium">✅ {t(language, 'copDone')}</span>
         )}
       </div>
     </motion.div>
@@ -295,6 +300,7 @@ function PipelineStepRow({
 // ─── Main Widget ─────────────────────────────────────────────────────────────
 
 export default function JobCopilotWidget() {
+  const { language } = useCVStore()
   const { data: session, status: authStatus } = useSession()
   const [jobDescription, setJobDescription] = useState('')
   const [jobTitle, setJobTitle] = useState('')
@@ -325,11 +331,11 @@ export default function JobCopilotWidget() {
 
   const handleAnalyze = useCallback(async () => {
     if (!jobDescription.trim()) {
-      toast.error('Veuillez coller une offre d\'emploi.')
+      toast.error(t(language, 'copPasteJob'))
       return
     }
     if (!session) {
-      toast.error('Connectez-vous pour utiliser le Job Copilot.')
+      toast.error(t(language, 'copLoginRequired'))
       return
     }
 
@@ -343,7 +349,7 @@ export default function JobCopilotWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jobDescription: jobDescription.trim(),
-          jobTitle: jobTitle.trim() || 'Non spécifié',
+          jobTitle: jobTitle.trim() || '',
           company: company.trim(),
         }),
       })
@@ -351,9 +357,9 @@ export default function JobCopilotWidget() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Erreur lors de l\'analyse.')
+        setError(data.error || t(language, 'copAnalysisError'))
         if (data.code === 'AUTH_REQUIRED') {
-          toast.error('Connectez-vous pour continuer.')
+          toast.error(t(language, 'copLoginToContinue'))
         }
         return
       }
@@ -361,15 +367,15 @@ export default function JobCopilotWidget() {
       setResult(data)
       setShowPipeline(true)
     } catch {
-      setError('Erreur réseau. Vérifiez votre connexion.')
+      setError(t(language, 'copNetworkError'))
     } finally {
       setIsAnalyzing(false)
     }
-  }, [jobDescription, jobTitle, company, session])
+  }, [jobDescription, jobTitle, company, session, language])
 
   const handleStepExecute = useCallback((step: CopilotStep) => {
-    toast.info(`Étape « ${STEP_LABELS[step]} » en cours de développement.`)
-  }, [])
+    toast.info(t(language, 'copStepInProgress'))
+  }, [language])
 
   const planName = (result?.upgradeInfo?.targetPlan || '').replace('hirenova_', 'HireNova ').replace(/_/g, ' ')
   const bundlePrice = result?.cheapestBundle?.price
@@ -391,8 +397,8 @@ export default function JobCopilotWidget() {
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">HireNova Job Copilot</h3>
-                <p className="text-emerald-100 text-xs">Collez une offre d\'emploi et obtenez une analyse complète en un clic</p>
+                <h3 className="text-lg font-bold text-white">{t(language, 'copTitle')}</h3>
+                <p className="text-emerald-100 text-xs">{t(language, 'copSubtitle')}</p>
               </div>
             </div>
           </div>
@@ -401,18 +407,18 @@ export default function JobCopilotWidget() {
             {/* Input Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Titre du poste</label>
+                <label className="text-xs font-medium text-muted-foreground">{t(language, 'copJobTitle')}</label>
                 <Input
-                  placeholder="ex: Développeur Full-Stack Senior"
+                  placeholder={t(language, 'copJobTitlePlaceholder')}
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   className="h-9 text-sm"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Entreprise</label>
+                <label className="text-xs font-medium text-muted-foreground">{t(language, 'copCompany')}</label>
                 <Input
-                  placeholder="ex: HireNova"
+                  placeholder={t(language, 'copCompanyPlaceholder')}
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   className="h-9 text-sm"
@@ -421,9 +427,9 @@ export default function JobCopilotWidget() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Offre d\'emploi <span className="text-red-400">*</span></label>
+              <label className="text-xs font-medium text-muted-foreground">{t(language, 'copJobDescription')} <span className="text-red-400">*</span></label>
               <Textarea
-                placeholder={"Collez ici la description complète de l'offre d'emploi...\n\nExemple:\nNous recherchons un Développeur Full-Stack Senior (H/F) pour rejoindre notre équipe tech.\nCompétences requises : React, Node.js, TypeScript, PostgreSQL..."}
+                placeholder={t(language, 'copJobDescriptionPlaceholder')}
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 className="min-h-[140px] text-sm resize-none"
@@ -439,12 +445,12 @@ export default function JobCopilotWidget() {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyse en cours...
+                  {t(language, 'copAnalyzing')}
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Analyser avec HireNova
+                  {t(language, 'copAnalyze')}
                 </>
               )}
             </Button>
@@ -479,9 +485,9 @@ export default function JobCopilotWidget() {
                       />
                       <div className="flex-1 space-y-3">
                         <div>
-                          <h4 className="text-sm font-bold text-foreground">HireNova Match Score™</h4>
+                          <h4 className="text-sm font-bold text-foreground">{t(language, 'copMatchScoreTitle')}</h4>
                           <p className="text-xs text-muted-foreground">
-                            Score de compatibilité basé sur l\'analyse de vos compétences
+                            {t(language, 'copMatchScoreDesc')}
                           </p>
                         </div>
 
@@ -513,11 +519,11 @@ export default function JobCopilotWidget() {
                           <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Check className="w-3 h-3 text-emerald-500" />
-                              {result.keywordMatch.matchedCount} mots-clés correspondants
+                              {result.keywordMatch.matchedCount} {t(language, 'copKeywordsMatch')}
                             </span>
                             <span className="flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3 text-amber-500" />
-                              {result.keywordMatch.missingCount} mots-clés manquants
+                              {result.keywordMatch.missingCount} {t(language, 'copKeywordsMissing')}
                             </span>
                           </div>
                         )}
@@ -527,9 +533,9 @@ export default function JobCopilotWidget() {
                     <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
                       <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium text-amber-800">CV requis pour le Match Score</p>
+                        <p className="text-sm font-medium text-amber-800">{t(language, 'copCvRequired')}</p>
                         <p className="text-xs text-amber-600 mt-0.5">
-                          Créez d\'abord un CV pour obtenir votre score de compatibilité personnalisé.
+                          {t(language, 'copCvRequiredDesc')}
                         </p>
                       </div>
                     </div>
@@ -538,15 +544,16 @@ export default function JobCopilotWidget() {
                   {/* ── Pipeline Stepper ── */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-bold text-foreground">Pipeline d\'analyse</h4>
+                      <h4 className="text-sm font-bold text-foreground">{t(language, 'copPipelineTitle')}</h4>
                       <Badge variant="outline" className="text-[10px] border-emerald-200 text-emerald-600">
-                        {result.pipeline.steps.filter((s) => s.status === 'pending' || s.status === 'completed').length} étapes accessibles
+                        {result.pipeline.steps.filter((s) => s.status === 'pending' || s.status === 'completed').length} {t(language, 'copStepsAccessible')}
                       </Badge>
                     </div>
 
                     <div className="space-y-2">
                       {result.pipeline.steps.map((step, idx) => {
-                        const def = result.stepDefinitions.find((d) => d.step === step.step)
+                        const label = getStepLabel(step.step, language)
+                        const description = ''
                         return (
                           <motion.div
                             key={step.step}
@@ -557,11 +564,12 @@ export default function JobCopilotWidget() {
                             <PipelineStepRow
                               step={step.step}
                               status={step.status}
-                              label={def?.label || step.step}
-                              description={def?.description || ''}
+                              label={label}
+                              description={description}
                               onExecute={step.status === 'pending' ? () => handleStepExecute(step.step) : undefined}
                               upgradePlan={bundleName}
                               upgradePrice={bundlePrice ?? undefined}
+                              language={language}
                             />
                           </motion.div>
                         )
@@ -584,10 +592,10 @@ export default function JobCopilotWidget() {
                         </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-bold text-amber-800">
-                            Débloquez {result.blockedSteps.length} étapes supplémentaires
+                            {t(language, 'copUnlockSteps').replace('{count}', String(result.blockedSteps.length))}
                           </h4>
                           <p className="text-xs text-amber-600 mt-0.5">
-                            Passez à <span className="font-semibold">{bundleName}</span> ({bundlePrice.toFixed(2)}€/mois) pour accéder à toutes les fonctionnalités du Job Copilot.
+                            {t(language, 'copUpgradeDesc').replace('{plan}', bundleName).replace('{price}', bundlePrice.toFixed(2))}
                           </p>
                         </div>
                         <Button
@@ -598,7 +606,7 @@ export default function JobCopilotWidget() {
                             document.dispatchEvent(event)
                           }}
                         >
-                          Voir les offres
+                          {t(language, 'copSeeOffers')}
                           <ArrowRight className="w-3.5 h-3.5 ml-1" />
                         </Button>
                       </div>

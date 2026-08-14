@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft, Download, FileText, Mail, Sparkles, CheckCircle2,
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCVStore } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
 
 const countryFlags: Record<string, string> = {
   France: '🇫🇷', Canada: '🇨🇦', 'Royaume-Uni': '🇬🇧', 'États-Unis': '🇺🇸',
@@ -17,19 +18,27 @@ const countryFlags: Record<string, string> = {
   Australie: '🇦🇺', Belgique: '🇧🇪', Espagne: '🇪🇸', Italie: '🇮🇹', Japon: '🇯🇵',
 }
 
-const adaptationsMap: Record<string, string[]> = {
-  France: ['Photo ajoutée (standard français)', 'Sections réordonnées : Formation → Expérience → Compétences', 'Langue traduite en français', 'Format classique appliqué'],
-  Canada: ['Photo supprimée (standard nord-américain)', 'Résumé professionnel ajouté', 'Bullet points orientés action', 'Langue traduite en anglais'],
-  'Royaume-Uni': ['Photo supprimée (standard UK)', 'Personal Profile ajouté en en-tête', 'Sections réordonnées', 'Langue traduite en anglais britannique'],
-  'États-Unis': ['Photo supprimée (standard US)', 'Résumé concis en haut de page', 'Bullet points commençant par des verbes d\'action', 'Format 1 page optimisé'],
-  Allemagne: ['Photo ajoutée (bienséant Lebenslauf)', 'Détails personnels étendus inclus', 'Sections Hobbys/Specialités ajoutées', 'Langue traduite en allemand'],
-  'Émirats Arabes Unis': ['Photo d\'identité incluse', 'Informations personnelles complètes', 'Format international appliqué', 'Langue traduite en anglais'],
-  Suisse: ['Photo obligatoire ajoutée', 'Références professionnelles incluses', 'Format structuré suisse', 'Langue traduite'],
-  Australie: ['Photo supprimée (standard australien)', 'Key Skills section ajoutée', 'Selection Criteria intégré', 'Langue traduite en anglais'],
-  Belgique: ['Photo optionnelle conservée', 'Format Europass appliqué', 'Sections multilingues', 'Langue traduite'],
-  Espagne: ['Photo incluse (standard espagnol)', 'Curriculum Europass format', 'Compétences détaillées', 'Langue traduite en espagnol'],
-  Italie: ['Photo incluse', 'Curriculum Europass format', 'Sections standardisées', 'Langue traduite en italien'],
-  Japon: ['Photo obligatoire ajoutée', 'Format Rirekisho appliqué', 'Structure très codifiée', 'Langue traduite en japonais'],
+const countryIdToNameKey: Record<string, string> = {
+  France: 'mobShared.france', Canada: 'mobShared.canada', 'Royaume-Uni': 'mobShared.uk', 'États-Unis': 'mobShared.usa',
+  Allemagne: 'mobShared.germany', 'Émirats Arabes Unis': 'mobShared.uae', Suisse: 'mobShared.switzerland',
+  Australie: 'mobShared.australia', Belgique: 'mobShared.belgium', Espagne: 'mobShared.spain', Italie: 'mobShared.italy', Japon: 'mobShared.japan',
+}
+
+function buildAdaptationsMap(language: Parameters<typeof t>[0]): Record<string, string[]> {
+  return {
+    France: [t(language, 'mobResult.adaptFrance1'), t(language, 'mobResult.adaptFrance2'), t(language, 'mobResult.adaptFrance3'), t(language, 'mobResult.adaptFrance4')],
+    Canada: [t(language, 'mobResult.adaptCanada1'), t(language, 'mobResult.adaptCanada2'), t(language, 'mobResult.adaptCanada3'), t(language, 'mobResult.adaptCanada4')],
+    'Royaume-Uni': [t(language, 'mobResult.adaptUk1'), t(language, 'mobResult.adaptUk2'), t(language, 'mobResult.adaptUk3'), t(language, 'mobResult.adaptUk4')],
+    'États-Unis': [t(language, 'mobResult.adaptUsa1'), t(language, 'mobResult.adaptUsa2'), t(language, 'mobResult.adaptUsa3'), t(language, 'mobResult.adaptUsa4')],
+    Allemagne: [t(language, 'mobResult.adaptGermany1'), t(language, 'mobResult.adaptGermany2'), t(language, 'mobResult.adaptGermany3'), t(language, 'mobResult.adaptGermany4')],
+    'Émirats Arabes Unis': [t(language, 'mobResult.adaptUae1'), t(language, 'mobResult.adaptUae2'), t(language, 'mobResult.adaptUae3'), t(language, 'mobResult.adaptUae4')],
+    Suisse: [t(language, 'mobResult.adaptSwitzerland1'), t(language, 'mobResult.adaptSwitzerland2'), t(language, 'mobResult.adaptSwitzerland3'), t(language, 'mobResult.adaptSwitzerland4')],
+    Australie: [t(language, 'mobResult.adaptAustralia1'), t(language, 'mobResult.adaptAustralia2'), t(language, 'mobResult.adaptAustralia3'), t(language, 'mobResult.adaptAustralia4')],
+    Belgique: [t(language, 'mobResult.adaptBelgium1'), t(language, 'mobResult.adaptBelgium2'), t(language, 'mobResult.adaptBelgium3'), t(language, 'mobResult.adaptBelgium4')],
+    Espagne: [t(language, 'mobResult.adaptSpain1'), t(language, 'mobResult.adaptSpain2'), t(language, 'mobResult.adaptSpain3'), t(language, 'mobResult.adaptSpain4')],
+    Italie: [t(language, 'mobResult.adaptItaly1'), t(language, 'mobResult.adaptItaly2'), t(language, 'mobResult.adaptItaly3'), t(language, 'mobResult.adaptItaly4')],
+    Japon: [t(language, 'mobResult.adaptJapan1'), t(language, 'mobResult.adaptJapan2'), t(language, 'mobResult.adaptJapan3'), t(language, 'mobResult.adaptJapan4')],
+  }
 }
 
 function getScoreVariant(score: number): 'default' | 'secondary' | 'destructive' | 'outline' {
@@ -39,12 +48,14 @@ function getScoreVariant(score: number): 'default' | 'secondary' | 'destructive'
 }
 
 export default function MobilityResult() {
-  const { stepData, mobilityResult, setStep, reset } = useCVStore()
+  const { stepData, mobilityResult, setStep, reset, language } = useCVStore()
   const targetCountry = (stepData.targetCountry as string) || 'France'
 
   const formattedCV = mobilityResult?.formattedCV
   const formattedCL = mobilityResult?.formattedCL
   const score = mobilityResult?.compatibilityScore ?? 72
+
+  const adaptationsMap = useMemo(() => buildAdaptationsMap(language), [language])
   const adaptations = adaptationsMap[targetCountry] ?? adaptationsMap['France']
 
   useEffect(() => {
@@ -55,15 +66,16 @@ export default function MobilityResult() {
   }, [mobilityResult, formattedCV, targetCountry, setStep])
 
   const handleDownload = (type: 'cv' | 'cl') => {
+    const countryName = t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')
     const content = type === 'cv'
-      ? `CV Adapté pour ${targetCountry}\n\n${formattedCV?.summary ?? ''}\n\nExpériences:\n${formattedCV?.experience.map(e => `- ${e.title} chez ${e.company} (${e.period})`).join('\n')}\n\nFormation:\n${formattedCV?.education.map(e => `- ${e.degree} - ${e.school} (${e.period})`).join('\n')}\n\nCompétences: ${formattedCV?.skills.join(', ')}`
-      : `Lettre de Motivation Adaptée pour ${targetCountry}\n\n${formattedCL?.subject ?? ''}\n\n${formattedCL?.greeting ?? ''}\n\n${formattedCL?.paragraphs.join('\n\n') ?? ''}\n\n${formattedCL?.signOff ?? ''}`
+      ? `${t(language, 'mobResult.cvAdaptedFor')} ${countryName}\n\n${formattedCV?.summary ?? ''}\n\n${t(language, 'mobResult.experiencesLabel')}\n${formattedCV?.experience.map(e => `- ${e.title} ${t(language, 'mobResult.at')} ${e.company} (${e.period})`).join('\n')}\n\n${t(language, 'mobResult.educationLabel')}\n${formattedCV?.education.map(e => `- ${e.degree} - ${e.school} (${e.period})`).join('\n')}\n\n${t(language, 'mobResult.skillsLabel')} ${formattedCV?.skills.join(', ')}`
+      : `${t(language, 'mobResult.clAdaptedFor')} ${countryName}\n\n${formattedCL?.subject ?? ''}\n\n${formattedCL?.greeting ?? ''}\n\n${formattedCL?.paragraphs.join('\n\n') ?? ''}\n\n${formattedCL?.signOff ?? ''}`
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = type === 'cv' ? `CV_Adapte_${targetCountry}.txt` : `Lettre_Motivation_${targetCountry}.txt`
+    a.download = type === 'cv' ? `${t(language, 'mobResult.cvFileName')}${countryName}.txt` : `${t(language, 'mobResult.clFileName')}${countryName}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -87,13 +99,13 @@ export default function MobilityResult() {
           </Button>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{countryFlags[targetCountry] ?? '🌍'}</span>
-            <h1 className="text-lg font-semibold text-emerald-900">Documents Adaptés</h1>
+            <h1 className="text-lg font-semibold text-emerald-900">{t(language, 'mobResult.title')}</h1>
           </div>
           <Badge
             variant={getScoreVariant(score)}
             className="ml-auto text-sm px-3 py-1"
           >
-            {score}% compatible
+            {score}% {t(language, 'mobResult.compatible')}
           </Badge>
         </div>
       </motion.header>
@@ -110,10 +122,10 @@ export default function MobilityResult() {
             <PartyPopper className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-emerald-900">
-            Vos documents sont prêts !
+            {t(language, 'mobResult.documentsReady')}
           </h2>
           <p className="mt-1 text-gray-500">
-            CV et lettre de motivation adaptés pour {targetCountry}
+            {t(language, 'mobResult.documentsReadySub')} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}
           </p>
         </motion.div>
 
@@ -132,8 +144,8 @@ export default function MobilityResult() {
                     <FileText className="h-5 w-5 text-emerald-700" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">CV Adapté</h3>
-                    <p className="text-xs text-gray-400">{countryFlags[targetCountry]} {targetCountry}</p>
+                    <h3 className="font-semibold text-gray-900">{t(language, 'mobResult.cvAdapted')}</h3>
+                    <p className="text-xs text-gray-400">{countryFlags[targetCountry]} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}</p>
                   </div>
                 </div>
 
@@ -143,7 +155,7 @@ export default function MobilityResult() {
                   )}
 
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-600">Expérience</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-600">{t(language, 'mobResult.experience')}</p>
                     {formattedCV?.experience.map((exp, i) => (
                       <div key={i} className="mb-2 border-l-2 border-emerald-200 pl-3">
                         <p className="text-sm font-medium text-gray-800">{exp.title}</p>
@@ -153,7 +165,7 @@ export default function MobilityResult() {
                   </div>
 
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-teal-600">Formation</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-teal-600">{t(language, 'mobResult.education')}</p>
                     {formattedCV?.education.map((edu, i) => (
                       <div key={i} className="mb-1.5 border-l-2 border-teal-200 pl-3">
                         <p className="text-sm font-medium text-gray-800">{edu.degree}</p>
@@ -178,7 +190,7 @@ export default function MobilityResult() {
                   className="mt-4 w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700"
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Télécharger le CV
+                  {t(language, 'mobResult.downloadCv')}
                 </Button>
               </CardContent>
             </Card>
@@ -197,15 +209,15 @@ export default function MobilityResult() {
                     <Mail className="h-5 w-5 text-teal-700" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Lettre de Motivation Adaptée</h3>
-                    <p className="text-xs text-gray-400">{countryFlags[targetCountry]} {targetCountry}</p>
+                    <h3 className="font-semibold text-gray-900">{t(language, 'mobResult.clAdapted')}</h3>
+                    <p className="text-xs text-gray-400">{countryFlags[targetCountry]} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}</p>
                   </div>
                 </div>
 
                 <div className="flex-1 space-y-3 overflow-y-auto max-h-72 pr-1">
                   {formattedCL?.subject && (
                     <div className="rounded-lg bg-gray-50 p-3">
-                      <p className="text-xs text-gray-400">Objet</p>
+                      <p className="text-xs text-gray-400">{t(language, 'mobResult.subject')}</p>
                       <p className="text-sm font-medium text-gray-800">{formattedCL.subject}</p>
                     </div>
                   )}
@@ -230,7 +242,7 @@ export default function MobilityResult() {
                   className="mt-4 w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:from-teal-700 hover:to-cyan-700"
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Télécharger la Lettre
+                  {t(language, 'mobResult.downloadCl')}
                 </Button>
               </CardContent>
             </Card>
@@ -247,7 +259,7 @@ export default function MobilityResult() {
             <CardContent className="p-6">
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
                 <Sparkles className="mr-2 inline h-5 w-5 text-emerald-600" />
-                Points d&apos;adaptation
+                {t(language, 'mobResult.adaptationPoints')}
               </h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 {adaptations.map((item, i) => (
@@ -285,11 +297,11 @@ export default function MobilityResult() {
               </span>
             </div>
             <div>
-              <p className="font-semibold text-gray-800">Score de compatibilité</p>
+              <p className="font-semibold text-gray-800">{t(language, 'mobResult.compatibilityScore')}</p>
               <p className="text-sm text-gray-500">
-                {score >= 80 ? 'Excellent — votre profil est très bien adapté !' :
-                 score >= 60 ? 'Bon — quelques ajustements mineurs possibles.' :
-                 'Moyen — des améliorations sont recommandées.'}
+                {score >= 80 ? t(language, 'mobResult.scoreExcellent') :
+                 score >= 60 ? t(language, 'mobResult.scoreGood') :
+                 t(language, 'mobResult.scoreFair')}
               </p>
             </div>
           </div>
@@ -308,7 +320,7 @@ export default function MobilityResult() {
             className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700"
           >
             <Download className="mr-2 h-4 w-4" />
-            Télécharger CV
+            {t(language, 'mobResult.downloadCvBtn')}
           </Button>
           <Button
             size="lg"
@@ -316,7 +328,7 @@ export default function MobilityResult() {
             className="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 text-white shadow-lg hover:from-teal-700 hover:to-cyan-700"
           >
             <Download className="mr-2 h-4 w-4" />
-            Télécharger Lettre
+            {t(language, 'mobResult.downloadClBtn')}
           </Button>
           <Button
             variant="outline"
@@ -325,7 +337,7 @@ export default function MobilityResult() {
             className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
-            Retour à l&apos;accueil
+            {t(language, 'mobResult.backHome')}
           </Button>
         </motion.div>
       </main>

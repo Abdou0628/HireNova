@@ -13,6 +13,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
 
 interface SatisfactionPromptProps {
   open: boolean
@@ -22,17 +24,18 @@ interface SatisfactionPromptProps {
 }
 
 export default function SatisfactionPrompt({ open, onClose, type, itemId }: SatisfactionPromptProps) {
+  const { language } = useCVStore()
   const [rating, setRating] = useState(0)
   const [hovered, setHovered] = useState(0)
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const title = type === 'cv' ? 'CV' : 'Lettre de motivation'
+  const title = type === 'cv' ? t(language, 'satTitleCv') : t(language, 'satTitleCoverLetter')
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      toast.error('Veuillez donner une note')
+      toast.error(t(language, 'satPleaseRate'))
       return
     }
 
@@ -58,11 +61,20 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
         }, 2000)
       }
     } catch {
-      toast.error('Erreur')
+      toast.error(t(language, 'satError'))
     } finally {
       setLoading(false)
     }
   }
+
+  const ratingLabels = [
+    '',
+    t(language, 'satVeryDissatisfied'),
+    t(language, 'satDissatisfied'),
+    t(language, 'satNeutral'),
+    t(language, 'satSatisfied'),
+    t(language, 'satVerySatisfied'),
+  ]
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -72,8 +84,8 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
             <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
               <ThumbsUp className="w-8 h-8 text-emerald-600" />
             </div>
-            <h3 className="text-lg font-bold mb-2">Merci pour votre retour !</h3>
-            <p className="text-sm text-muted-foreground">Votre avis nous aide à améliorer HireNova.</p>
+            <h3 className="text-lg font-bold mb-2">{t(language, 'satThankYou')}</h3>
+            <p className="text-sm text-muted-foreground">{t(language, 'satHelpImprove')}</p>
           </div>
         ) : (
           <>
@@ -82,10 +94,10 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
                 <div className="p-2 rounded-xl bg-amber-100">
                   <Star className="w-5 h-5 text-amber-600" />
                 </div>
-                Comment trouvez-vous votre {title} ?
+                {type === 'cv' ? t(language, 'satHowRateCv') : t(language, 'satHowRateCoverLetter')}
               </DialogTitle>
               <DialogDescription>
-                Votre avis est précieux pour améliorer notre service.
+                {t(language, 'satFeedbackValuable')}
               </DialogDescription>
             </DialogHeader>
 
@@ -113,18 +125,16 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
 
               {rating > 0 && (
                 <p className="text-center text-sm text-muted-foreground">
-                  {
-                    ['', 'Très insatisfait', 'Insatisfait', 'Neutre', 'Satisfait', 'Très satisfait'][rating]
-                  }
+                  {ratingLabels[rating]}
                 </p>
               )}
 
               {/* Optional Comment */}
               {rating > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Commentaire (optionnel)</Label>
+                  <Label className="text-sm font-medium">{t(language, 'satCommentLabel')}</Label>
                   <Textarea
-                    placeholder="Partagez votre expérience..."
+                    placeholder={t(language, 'satCommentPlaceholder')}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={3}
@@ -139,7 +149,7 @@ export default function SatisfactionPrompt({ open, onClose, type, itemId }: Sati
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
               >
                 {loading ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <Send className="mr-2 w-4 h-4" />}
-                Envoyer mon avis
+                {t(language, 'satSubmit')}
               </Button>
             </div>
           </>

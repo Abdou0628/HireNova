@@ -81,9 +81,9 @@ export default function CareerRoadmap() {
       if (!res.ok) throw new Error('Failed')
       const data = await res.json()
       setRoadmap(data.roadmap)
-      toast.success('Roadmap generated!')
+      toast.success(t(language, 'careerRoadmapGenerated'))
     } catch {
-      toast.error('Error generating roadmap')
+      toast.error(t(language, 'careerRoadmapError'))
     } finally {
       setGenerating(false)
     }

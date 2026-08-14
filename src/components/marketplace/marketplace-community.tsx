@@ -300,7 +300,7 @@ export default function MarketplaceCommunity() {
                             {getCategoryLabel(post.category)}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {post.user?.name || 'Anonyme'}
+                            {post.user?.name || t(language, 'mpAnonymous')}
                           </span>
                         </div>
                         <h3 className="font-semibold text-sm mb-1">{post.title}</h3>
@@ -328,7 +328,7 @@ export default function MarketplaceCommunity() {
                                 {post.replies.map(reply => (
                                   <div key={reply.id} className="bg-gray-50 rounded-lg p-3">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <span className="text-xs font-medium">{reply.user?.name || 'Anonyme'}</span>
+                                      <span className="text-xs font-medium">{reply.user?.name || t(language, 'mpAnonymous')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">{reply.body}</p>
                                   </div>

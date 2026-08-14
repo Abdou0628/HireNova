@@ -47,6 +47,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import DocumentsTab from '@/components/admin/documents-tab'
+import { t } from '@/lib/i18n'
+import { useCVStore } from '@/store/cv-store'
 
 interface AdminDashboardProps {
   isOpen: boolean
@@ -215,6 +217,8 @@ function formatShortDate(dateStr: string) {
 }
 
 export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
+  const { language } = useCVStore()
+
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [totalUsers, setTotalUsers] = useState(0)
@@ -320,8 +324,8 @@ const [satData, setSatData] = useState<SatData | null>(null)
               <Shield className="w-5 h-5 text-emerald-700" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold">Dashboard Admin</DialogTitle>
-              <p className="text-xs text-muted-foreground">HireNova — E-Society 2050</p>
+              <DialogTitle className="text-lg font-bold">{t(language, 'adminDashTitle')}</DialogTitle>
+              <p className="text-xs text-muted-foreground">{t(language, 'adminDashSubtitle')}</p>
             </div>
           </div>
           <Button
@@ -331,7 +335,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
             className="gap-2 text-sm"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
+            {t(language, 'adminDashRefresh')}
           </Button>
         </DialogHeader>
 
@@ -350,31 +354,31 @@ const [satData, setSatData] = useState<SatData | null>(null)
               <TabsList className="w-full justify-start bg-muted/50 rounded-lg">
                 <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm">
                   <TrendingUp className="w-3.5 h-3.5" />
-                  Vue d&apos;ensemble
+                  {t(language, 'adminDashTabOverview')}
                 </TabsTrigger>
                 <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm">
                   <Users className="w-3.5 h-3.5" />
-                  Utilisateurs
+                  {t(language, 'adminDashTabUsers')}
                 </TabsTrigger>
                 <TabsTrigger value="activity" className="gap-1.5 text-xs sm:text-sm">
                   <Calendar className="w-3.5 h-3.5" />
-                  Activité récente
+                  {t(language, 'adminDashTabActivity')}
                 </TabsTrigger>
                 <TabsTrigger value="revenue" className="gap-1.5 text-xs sm:text-sm">
                   <DollarSign className="w-3.5 h-3.5" />
-                  Revenus
+                  {t(language, 'adminDashTabRevenue')}
                 </TabsTrigger>
                 <TabsTrigger value="support" className="gap-1.5 text-xs sm:text-sm">
                   <MessageSquare className="w-3.5 h-3.5" />
-                  Support
+                  {t(language, 'adminDashTabSupport')}
                 </TabsTrigger>
                 <TabsTrigger value="satisfaction" className="gap-1.5 text-xs sm:text-sm">
                   <Star className="w-3.5 h-3.5" />
-                  Satisfaction
+                  {t(language, 'adminDashTabSatisfaction')}
                 </TabsTrigger>
                 <TabsTrigger value="documents" className="gap-1.5 text-xs sm:text-sm">
                   <Receipt className="w-3.5 h-3.5" />
-                  Documents
+                  {t(language, 'adminDashTabDocuments')}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -387,31 +391,31 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard
                       icon={Users}
-                      label="Utilisateurs"
+                      label={t(language, 'adminDashStatUsers')}
                       value={stats.overview.totalUsers}
                       sub={`${stats.overview.proUsers} Pro · ${stats.overview.lifetimeUsers} Lifetime`}
-                      trend={stats.last30days.newUsers > 0 ? `+${stats.last30days.newUsers} ce mois` : undefined}
+                      trend={stats.last30days.newUsers > 0 ? `+${stats.last30days.newUsers} ${t(language, 'adminDashThisMonth')}` : undefined}
                       color="emerald"
                     />
                     <StatCard
                       icon={FileText}
-                      label="CVs générés"
+                      label={t(language, 'adminDashStatCVs')}
                       value={stats.overview.totalCVs}
-                      sub={stats.last30days.newCVs > 0 ? `+${stats.last30days.newCVs} ce mois` : undefined}
+                      sub={stats.last30days.newCVs > 0 ? `+${stats.last30days.newCVs} ${t(language, 'adminDashThisMonth')}` : undefined}
                       color="blue"
                     />
                     <StatCard
                       icon={PenLine}
-                      label="Lettres de motivation"
+                      label={t(language, 'adminDashStatCoverLetters')}
                       value={stats.overview.totalCLs}
-                      sub={stats.last30days.newCLs > 0 ? `+${stats.last30days.newCLs} ce mois` : undefined}
+                      sub={stats.last30days.newCLs > 0 ? `+${stats.last30days.newCLs} ${t(language, 'adminDashThisMonth')}` : undefined}
                       color="amber"
                     />
                     <StatCard
                       icon={DollarSign}
-                      label="Revenus estimés/mois"
+                      label={t(language, 'adminDashStatRevenueMonth')}
                       value={`${stats.overview.estimatedMonthlyRevenue.toFixed(2)} €`}
-                      sub={`Lifetime total: ${stats.overview.totalRevenueLifetime.toFixed(2)} €`}
+                      sub={`${t(language, 'adminDashLifetimeTotal')} ${stats.overview.totalRevenueLifetime.toFixed(2)} €`}
                       color="emerald"
                     />
                   </div>
@@ -421,11 +425,11 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     {/* Plan Distribution */}
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-semibold">Répartition des plans</CardTitle>
+                        <CardTitle className="text-sm font-semibold">{t(language, 'adminDashPlanDistribution')}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {stats.overview.totalUsers === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">Aucun utilisateur inscrit</p>
+                          <p className="text-sm text-muted-foreground text-center py-4">{t(language, 'adminDashNoUsers')}</p>
                         ) : (
                           <>
                             {/* Free */}
@@ -433,7 +437,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   <Badge variant="secondary">Free</Badge>
-                                  <span className="text-muted-foreground">{stats.planDistribution.free} utilisateurs</span>
+                                  <span className="text-muted-foreground">{stats.planDistribution.free} {t(language, 'adminDashUsersCount')}</span>
                                 </div>
                                 <span className="font-medium">
                                   {stats.overview.totalUsers > 0
@@ -456,7 +460,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   <Badge className="bg-emerald-600 text-white border-0">Pro</Badge>
-                                  <span className="text-muted-foreground">{stats.planDistribution.pro} utilisateurs</span>
+                                  <span className="text-muted-foreground">{stats.planDistribution.pro} {t(language, 'adminDashUsersCount')}</span>
                                 </div>
                                 <span className="font-medium">
                                   {stats.overview.totalUsers > 0
@@ -479,7 +483,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   <Badge className="bg-amber-500 text-white border-0">Lifetime</Badge>
-                                  <span className="text-muted-foreground">{stats.planDistribution.lifetime} utilisateurs</span>
+                                  <span className="text-muted-foreground">{stats.planDistribution.lifetime} {t(language, 'adminDashUsersCount')}</span>
                                 </div>
                                 <span className="font-medium">
                                   {stats.overview.totalUsers > 0
@@ -504,11 +508,11 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     {/* Daily Signups Chart (Simple) */}
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-semibold">Inscriptions (14 derniers jours)</CardTitle>
+                        <CardTitle className="text-sm font-semibold">{t(language, 'adminDashSignupsTitle')}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {Object.keys(stats.dailySignups).length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">Aucune inscription récente</p>
+                          <p className="text-sm text-muted-foreground text-center py-4">{t(language, 'adminDashNoRecentSignups')}</p>
                         ) : (
                           <div className="flex items-end gap-1 h-32">
                             {Object.entries(stats.dailySignups)
@@ -543,22 +547,22 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   {/* Last 30 Days Summary */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-semibold">Derniers 30 jours</CardTitle>
-                      <CardDescription>Résumé de l&apos;activité récente</CardDescription>
+                      <CardTitle className="text-sm font-semibold">{t(language, 'adminDashLast30Title')}</CardTitle>
+                      <CardDescription>{t(language, 'adminDashLast30Desc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-center p-3 rounded-xl bg-emerald-50">
                           <p className="text-2xl font-bold text-emerald-700">{stats.last30days.newUsers}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Nouveaux utilisateurs</p>
+                          <p className="text-xs text-muted-foreground mt-1">{t(language, 'adminDashNewUsers')}</p>
                         </div>
                         <div className="text-center p-3 rounded-xl bg-sky-50">
                           <p className="text-2xl font-bold text-sky-700">{stats.last30days.newCVs}</p>
-                          <p className="text-xs text-muted-foreground mt-1">CVs générés</p>
+                          <p className="text-xs text-muted-foreground mt-1">{t(language, 'adminDashNewCVs')}</p>
                         </div>
                         <div className="text-center p-3 rounded-xl bg-amber-50">
                           <p className="text-2xl font-bold text-amber-700">{stats.last30days.newCLs}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Lettres générées</p>
+                          <p className="text-xs text-muted-foreground mt-1">{t(language, 'adminDashNewCLs')}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -572,14 +576,14 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
-                        placeholder="Rechercher par nom ou email..."
+                        placeholder={t(language, 'adminDashSearchPlaceholder')}
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                         className="pl-9"
                       />
                     </div>
                     <div className="flex gap-2">
-                      {[{ key: '', label: 'Tous' }, { key: 'free', label: 'Free' }, { key: 'pro', label: 'Pro' }, { key: 'lifetime', label: 'Lifetime' }].map(
+                      {[{ key: '', label: t(language, 'adminDashFilterAll') }, { key: 'free', label: 'Free' }, { key: 'pro', label: 'Pro' }, { key: 'lifetime', label: 'Lifetime' }].map(
                         (f) => (
                           <Button
                             key={f.key}
@@ -601,12 +605,12 @@ const [satData, setSatData] = useState<SatData | null>(null)
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="text-xs font-semibold">Utilisateur</TableHead>
-                            <TableHead className="text-xs font-semibold">Plan</TableHead>
-                            <TableHead className="text-xs font-semibold text-center">CVs</TableHead>
-                            <TableHead className="text-xs font-semibold text-center">LM</TableHead>
-                            <TableHead className="text-xs font-semibold">Inscription</TableHead>
-                            <TableHead className="text-xs font-semibold">Statut LS</TableHead>
+                            <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableUser')}</TableHead>
+                            <TableHead className="text-xs font-semibold">{t(language, 'adminDashTablePlan')}</TableHead>
+                            <TableHead className="text-xs font-semibold text-center">{t(language, 'adminDashTableCVs')}</TableHead>
+                            <TableHead className="text-xs font-semibold text-center">{t(language, 'adminDashTableCL')}</TableHead>
+                            <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableSignup')}</TableHead>
+                            <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableLSStatus')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -624,7 +628,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                             <TableRow>
                               <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                 <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                                <p className="text-sm">Aucun utilisateur trouvé</p>
+                                <p className="text-sm">{t(language, 'adminDashNoUserFound')}</p>
                               </TableCell>
                             </TableRow>
                           ) : (
@@ -645,7 +649,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                                 <TableCell>
                                   {user.lsCustomerId ? (
                                     <Badge variant="outline" className="text-emerald-600 border-emerald-300 text-xs">
-                                      Actif
+                                      {t(language, 'adminDashStatusActive')}
                                     </Badge>
                                   ) : (
                                     <span className="text-xs text-muted-foreground">—</span>
@@ -662,7 +666,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between px-4 py-3 border-t">
                         <p className="text-xs text-muted-foreground">
-                          {totalUsers} utilisateur{totalUsers > 1 ? 's' : ''} · Page {page}/{totalPages}
+                          {totalUsers} {t(language, 'adminDashUsersCount')} · {t(language, 'adminDashPage')} {page}/{totalPages}
                         </p>
                         <div className="flex gap-1">
                           <Button
@@ -696,22 +700,22 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <FileText className="w-4 h-4 text-sky-600" />
-                        Derniers CVs générés
+                        {t(language, 'adminDashRecentCVsTitle')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       {stats.recentCVs.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">Aucun CV généré pour le moment</p>
+                        <p className="text-sm text-muted-foreground text-center py-4">{t(language, 'adminDashNoCVsYet')}</p>
                       ) : (
                         <ScrollArea className="max-h-[250px]">
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-muted/50">
-                                <TableHead className="text-xs font-semibold">Nom</TableHead>
-                                <TableHead className="text-xs font-semibold">Poste visé</TableHead>
-                                <TableHead className="text-xs font-semibold">Langue</TableHead>
-                                <TableHead className="text-xs font-semibold">Template</TableHead>
-                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableName')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableTargetJob')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableLanguage')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableTemplate')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableDate')}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -741,22 +745,22 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <PenLine className="w-4 h-4 text-amber-600" />
-                        Dernières lettres de motivation
+                        {t(language, 'adminDashRecentCLsTitle')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       {stats.recentCLs.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">Aucune lettre générée pour le moment</p>
+                        <p className="text-sm text-muted-foreground text-center py-4">{t(language, 'adminDashNoCLsYet')}</p>
                       ) : (
                         <ScrollArea className="max-h-[250px]">
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-muted/50">
-                                <TableHead className="text-xs font-semibold">Nom</TableHead>
-                                <TableHead className="text-xs font-semibold">Poste</TableHead>
-                                <TableHead className="text-xs font-semibold">Entreprise</TableHead>
-                                <TableHead className="text-xs font-semibold">Langue</TableHead>
-                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableName')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableJob')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableCompany')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableLanguage')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableDate')}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -786,21 +790,21 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <Users className="w-4 h-4 text-emerald-600" />
-                        Dernières inscriptions
+                        {t(language, 'adminDashRecentSignupsTitle')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       {stats.recentUsers.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">Aucun utilisateur inscrit</p>
+                        <p className="text-sm text-muted-foreground text-center py-4">{t(language, 'adminDashNoUsers')}</p>
                       ) : (
                         <ScrollArea className="max-h-[250px]">
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-muted/50">
-                                <TableHead className="text-xs font-semibold">Nom</TableHead>
-                                <TableHead className="text-xs font-semibold">Email</TableHead>
-                                <TableHead className="text-xs font-semibold">Plan</TableHead>
-                                <TableHead className="text-xs font-semibold">Date</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableName')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableEmail')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTablePlan')}</TableHead>
+                                <TableHead className="text-xs font-semibold">{t(language, 'adminDashTableDate')}</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -831,7 +835,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                             <Crown className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground font-medium">Revenus mensuels (Pro)</p>
+                            <p className="text-xs text-muted-foreground font-medium">{t(language, 'adminDashRevenueProTitle')}</p>
                             <p className="text-3xl font-bold text-emerald-700">
                               {stats.overview.monthlyRevenuePro.toFixed(2)} €
                             </p>
@@ -840,16 +844,16 @@ const [satData, setSatData] = useState<SatData | null>(null)
                         <Separator className="my-3" />
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Abonnés Pro</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashProSubscribers')}</span>
                             <span className="font-medium">{stats.overview.proUsers}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Prix/unité</span>
-                            <span className="font-medium">6.99 €/mois</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashPricePerUnit')}</span>
+                            <span className="font-medium">{t(language, 'adminDashProPriceEur')}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Prix/unité (USD)</span>
-                            <span className="font-medium">$7.99/mois</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashPricePerUnitUSD')}</span>
+                            <span className="font-medium">{t(language, 'adminDashProPriceUsd')}</span>
                           </div>
                         </div>
                       </CardContent>
@@ -862,7 +866,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                             <Zap className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground font-medium">Revenus Lifetime</p>
+                            <p className="text-xs text-muted-foreground font-medium">{t(language, 'adminDashLifetimeRevenueTitle')}</p>
                             <p className="text-3xl font-bold text-amber-700">
                               {stats.overview.totalRevenueLifetime.toFixed(2)} €
                             </p>
@@ -871,16 +875,16 @@ const [satData, setSatData] = useState<SatData | null>(null)
                         <Separator className="my-3" />
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Acheteurs Lifetime</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashLifetimeBuyers')}</span>
                             <span className="font-medium">{stats.overview.lifetimeUsers}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Prix/unité</span>
-                            <span className="font-medium">29.99 €</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashPricePerUnit')}</span>
+                            <span className="font-medium">{t(language, 'adminDashLifetimePriceEur')}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Prix/unité (USD)</span>
-                            <span className="font-medium">$34.99</span>
+                            <span className="text-muted-foreground">{t(language, 'adminDashPricePerUnitUSD')}</span>
+                            <span className="font-medium">{t(language, 'adminDashLifetimePriceUsd')}</span>
                           </div>
                         </div>
                       </CardContent>
@@ -890,21 +894,21 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   {/* Revenue Summary */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-semibold">Résumé financier</CardTitle>
+                      <CardTitle className="text-sm font-semibold">{t(language, 'adminDashFinancialSummary')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                          <span className="text-sm font-medium">Revenus mensuels estimés (abonnements Pro)</span>
+                          <span className="text-sm font-medium">{t(language, 'adminDashMonthlyRevPro')}</span>
                           <span className="text-lg font-bold text-emerald-700">{stats.overview.monthlyRevenuePro.toFixed(2)} €</span>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                          <span className="text-sm font-medium">Total Lifetime (ventes ponctuelles)</span>
+                          <span className="text-sm font-medium">{t(language, 'adminDashTotalLifetimeSales')}</span>
                           <span className="text-lg font-bold text-amber-700">{stats.overview.totalRevenueLifetime.toFixed(2)} €</span>
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                          <span className="text-sm font-semibold">Total estimé (mensuel + lifetime)</span>
+                          <span className="text-sm font-semibold">{t(language, 'adminDashEstimatedTotal')}</span>
                           <span className="text-xl font-bold text-emerald-700">
                             {(stats.overview.monthlyRevenuePro + stats.overview.totalRevenueLifetime).toFixed(2)} €
                           </span>
@@ -913,9 +917,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
 
                       <div className="mt-6 p-4 rounded-xl bg-muted/30 border">
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          <strong className="text-foreground">Note :</strong> Ces chiffres sont des estimations basées sur les plans actifs dans la base de données.
-                          Pour les chiffres réels de revenus, frais et paiements, consultez votre dashboard LemonSqueezy.
-                          Les revenus LemonSqueezy sont disponibles après déduction de leurs frais (~5% + frais de paiement).
+                          <strong className="text-foreground">{t(language, 'adminDashNote')}</strong> {t(language, 'adminDashRevenueDisclaimer')}
                         </p>
                       </div>
                     </CardContent>
@@ -924,28 +926,28 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   {/* Payment Structure Info */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-semibold">Structure de prix</CardTitle>
+                      <CardTitle className="text-sm font-semibold">{t(language, 'adminDashPricingStructure')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <h4 className="text-sm font-medium flex items-center gap-2">
                             <Crown className="w-4 h-4 text-emerald-600" />
-                            Plan Pro (Mensuel)
+                            {t(language, 'adminDashPlanProMonthly')}
                           </h4>
                           <div className="text-sm text-muted-foreground space-y-1 ml-6">
-                            <p>EUR: 6.99 €/mois</p>
-                            <p>USD: $7.99/mois</p>
+                            <p>EUR: {t(language, 'adminDashProPriceEur')}</p>
+                            <p>USD: {t(language, 'adminDashProPriceUsd')}</p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <h4 className="text-sm font-medium flex items-center gap-2">
                             <Zap className="w-4 h-4 text-amber-500" />
-                            Plan Lifetime (Unique)
+                            {t(language, 'adminDashPlanLifetimeOneTime')}
                           </h4>
                           <div className="text-sm text-muted-foreground space-y-1 ml-6">
-                            <p>EUR: 29.99 €</p>
-                            <p>USD: $34.99</p>
+                            <p>EUR: {t(language, 'adminDashLifetimePriceEur')}</p>
+                            <p>USD: {t(language, 'adminDashLifetimePriceUsd')}</p>
                           </div>
                         </div>
                       </div>
@@ -959,34 +961,34 @@ const [satData, setSatData] = useState<SatData | null>(null)
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 text-emerald-600" />
-                        Tickets de support ({tickets.length})
+                        {t(language, 'adminDashSupportTickets')} ({tickets.length})
                       </CardTitle>
-                      <CardDescription>Réclamations et demandes des utilisateurs</CardDescription>
+                      <CardDescription>{t(language, 'adminDashSupportDesc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       {tickets.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-8">Aucun ticket de support pour le moment</p>
+                        <p className="text-sm text-muted-foreground text-center py-8">{t(language, 'adminDashNoTickets')}</p>
                       ) : (
                         <ScrollArea className="max-h-[400px]">
                           <div className="space-y-3">
-                            {tickets.map((t: any) => (
-                              <div key={t.id} className="p-3 rounded-xl border space-y-2">
+                            {tickets.map((ticket: any) => (
+                              <div key={ticket.id} className="p-3 rounded-xl border space-y-2">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium">{t.name}</span>
+                                    <span className="text-sm font-medium">{ticket.name}</span>
                                     <Badge
-                              variant={t.status === 'open' ? 'destructive' : t.status === 'resolved' ? 'default' : 'secondary'}
+                              variant={ticket.status === 'open' ? 'destructive' : ticket.status === 'resolved' ? 'default' : 'secondary'}
                               className="text-xs gap-1"
                             >
-                              {t.status === 'open' ? <Clock className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                              {t.status === 'open' ? 'Ouvert' : t.status === 'resolved' ? 'Résolu' : 'Fermé'}
+                              {ticket.status === 'open' ? <Clock className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                              {ticket.status === 'open' ? t(language, 'adminDashTicketOpen') : ticket.status === 'resolved' ? t(language, 'adminDashTicketResolved') : t(language, 'adminDashTicketClosed')}
                             </Badge>
                                   </div>
-                                  <span className="text-xs text-muted-foreground">{formatDate(t.createdAt)}</span>
+                                  <span className="text-xs text-muted-foreground">{formatDate(ticket.createdAt)}</span>
                                 </div>
-                                <p className="text-sm font-medium">{t.subject}</p>
-                                <p className="text-xs text-muted-foreground">{t.email}</p>
-                                <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-lg">{t.message}</p>
+                                <p className="text-sm font-medium">{ticket.subject}</p>
+                                <p className="text-xs text-muted-foreground">{ticket.email}</p>
+                                <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-lg">{ticket.message}</p>
                               </div>
                             ))}
                           </div>
@@ -1001,15 +1003,15 @@ const [satData, setSatData] = useState<SatData | null>(null)
                   {satData ? (
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <StatCard icon={Star} label="Note moyenne" value={`${satData.avgRating}/5`} color="amber" />
-                        <StatCard icon={Users} label="Total avis" value={satData.totalRatings as number} color="emerald" />
-                        <StatCard icon={Calendar} label="Avis (30j)" value={satData.recentCount as number} sub={`Moy: ${satData.recentAvg}/5`} color="blue" />
-                        <StatCard icon={FileText} label="Avis CVs" value={satData.cvCount as number} sub={`Lettres: ${satData.clCount}`} color="emerald" />
+                        <StatCard icon={Star} label={t(language, 'adminDashAvgRating')} value={`${satData.avgRating}/5`} color="amber" />
+                        <StatCard icon={Users} label={t(language, 'adminDashTotalReviews')} value={satData.totalRatings as number} color="emerald" />
+                        <StatCard icon={Calendar} label={t(language, 'adminDashReviews30d')} value={satData.recentCount as number} sub={`${t(language, 'adminDashAvg')} ${satData.recentAvg}/5`} color="blue" />
+                        <StatCard icon={FileText} label={t(language, 'adminDashCVReviews')} value={satData.cvCount as number} sub={`${t(language, 'adminDashCLsLabel')} ${satData.clCount}`} color="emerald" />
                       </div>
 
                       <Card>
                         <CardHeader className="pb-3">
-                          <CardTitle className="text-sm font-semibold">Distribution des notes</CardTitle>
+                          <CardTitle className="text-sm font-semibold">{t(language, 'adminDashRatingDistribution')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
@@ -1040,7 +1042,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                       {satData.ratings.length > 0 && (
                         <Card>
                           <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold">Derniers avis</CardTitle>
+                            <CardTitle className="text-sm font-semibold">{t(language, 'adminDashRecentReviews')}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <ScrollArea className="max-h-[250px]">
@@ -1053,7 +1055,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                                           <Star key={i} className={`w-3 h-3 ${i < r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} />
                                         ))}
                                       </div>
-                                      <Badge variant="outline" className="text-xs">{r.type === 'cv' ? 'CV' : 'Lettre'}</Badge>
+                                      <Badge variant="outline" className="text-xs">{r.type === 'cv' ? t(language, 'adminDashReviewCV') : t(language, 'adminDashReviewCL')}</Badge>
                                     </div>
                                     <div className="text-right">
                                       {r.comment && <p className="text-xs text-muted-foreground max-w-[200px] truncate">{r.comment}</p>}
@@ -1068,7 +1070,7 @@ const [satData, setSatData] = useState<SatData | null>(null)
                       )}
                     </>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">Aucun avis pour le moment</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">{t(language, 'adminDashNoReviews')}</p>
                   )}
                 </TabsContent>
 

@@ -60,12 +60,12 @@ export default function JobApplyView() {
       const data = await res.json()
       if (data.success) {
         setResult({ success: true, matchScore: data.data?.matchScore })
-        toast.success('Candidature envoyée !')
+        toast.success(t(lang, 'jobApplySent'))
       } else {
-        toast.error(data.error?.message || 'Erreur')
+        toast.error(data.error?.message || t(lang, 'jobApplyError'))
       }
     } catch {
-      toast.error('Erreur de connexion')
+      toast.error(t(lang, 'jobApplyConnectionError'))
     } finally {
       setLoading(false)
     }
@@ -86,14 +86,14 @@ export default function JobApplyView() {
                 <div className='w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center'>
                   <CheckCircle2 className='w-8 h-8 text-emerald-600' />
                 </div>
-                <h2 className='text-xl font-bold'>Candidature envoyée !</h2>
+                <h2 className='text-xl font-bold'>{t(lang, 'jobApplySuccess')}</h2>
                 {result.matchScore !== undefined && (
                   <div className='text-center'>
                     <div className='text-3xl font-bold text-emerald-600'>{result.matchScore}%</div>
-                    <p className='text-sm text-muted-foreground'>Score de compatibilité</p>
+                    <p className='text-sm text-muted-foreground'>{t(lang, 'jobApplyMatchScore')}</p>
                   </div>
                 )}
-                <Button onClick={() => setStep('jobMarket')} className='mt-4'>Voir les offres</Button>
+                <Button onClick={() => setStep('jobMarket')} className='mt-4'>{t(lang, 'jobApplySeeJobs')}</Button>
               </CardContent>
             </Card>
           ) : (
@@ -105,10 +105,10 @@ export default function JobApplyView() {
                     {selectedPersona && personaConfig && (
                       <div className='flex items-center gap-2'>
                         <span className='text-2xl'>{personaEmoji[selectedPersona]}</span>
-                        <Badge variant='secondary' className='text-xs'>{t(lang, personaNameKeys[selectedPersona] as any)}</Badge>
+                        <Badge variant='secondary' className='text-xs'>{t(lang, personaNameKeys[selectedPersona] as 'personaStudent')}</Badge>
                       </div>
                     )}
-                    <h1 className='text-xl font-bold'>Candidature</h1>
+                    <h1 className='text-xl font-bold'>{t(lang, 'jobApplyTitle')}</h1>
                   </div>
                   {personaConfig && (
                     <p className='text-sm text-muted-foreground'>{personaConfig.applicationIntro[lang as 'fr' | 'en' | 'ar' | 'es'] ?? personaConfig.applicationIntro.fr}</p>
@@ -119,16 +119,16 @@ export default function JobApplyView() {
                   {/* Standard fields */}
                   <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <div className='space-y-2'>
-                      <label className='text-sm font-medium'>Nom complet *</label>
+                      <label className='text-sm font-medium'>{t(lang, 'jobApplyFullName')}</label>
                       <Input
                         value={fields.name || session?.user?.name || ''}
                         onChange={e => updateField('name', e.target.value)}
-                        placeholder='Votre nom'
+                        placeholder={t(lang, 'jobApplyFullNamePlaceholder')}
                         required
                       />
                     </div>
                     <div className='space-y-2'>
-                      <label className='text-sm font-medium'>Email *</label>
+                      <label className='text-sm font-medium'>{t(lang, 'jobApplyEmail')}</label>
                       <Input
                         type='email'
                         value={fields.email || session?.user?.email || ''}
@@ -144,20 +144,20 @@ export default function JobApplyView() {
                     <div className='border-t pt-4 mt-4'>
                       <h3 className='text-sm font-semibold mb-3 flex items-center gap-2'>
                         <FileText className='w-4 h-4 text-emerald-600' />
-                        Informations spécifiques
+                        {t(lang, 'jobApplySpecificInfo')}
                       </h3>
                       <div className='space-y-4'>
                         {personaFields.map(field => (
                           <div key={field.key} className='space-y-2'>
                             <label className='text-sm font-medium'>
-                              {t(lang, field.labelKey as any)}
+                              {t(lang, field.labelKey as 'personaStudent')}
                               {field.required && <span className='text-red-500'>*</span>}
                             </label>
                             {field.type === 'textarea' ? (
                               <Textarea
                                 value={fields[field.key] || ''}
                                 onChange={e => updateField(field.key, e.target.value)}
-                                placeholder={t(lang, field.placeholderKey as any)}
+                                placeholder={t(lang, field.placeholderKey as 'personaStudent')}
                                 rows={3}
                                 required={field.required}
                               />
@@ -170,7 +170,7 @@ export default function JobApplyView() {
                               >
                                 <option value=''>--</option>
                                 {field.options.map(opt => (
-                                  <option key={opt.value} value={opt.value}>{t(lang, opt.labelKey as any)}</option>
+                                  <option key={opt.value} value={opt.value}>{t(lang, opt.labelKey as 'personaStudent')}</option>
                                 ))}
                               </select>
                             ) : (
@@ -178,7 +178,7 @@ export default function JobApplyView() {
                                 type={field.type === 'date' ? 'date' : 'text'}
                                 value={fields[field.key] || ''}
                                 onChange={e => updateField(field.key, e.target.value)}
-                                placeholder={t(lang, field.placeholderKey as any)}
+                                placeholder={t(lang, field.placeholderKey as 'personaStudent')}
                                 required={field.required}
                               />
                             )}
@@ -191,8 +191,8 @@ export default function JobApplyView() {
                   {/* Submit */}
                   <Button type='submit' disabled={loading} className='w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 rounded-xl cursor-pointer'>
                     {loading
-                      ? <><Loader2 className='w-4 h-4 mr-2 animate-spin' />Envoi en cours...</>
-                      : <><Send className='w-4 h-4 mr-2' />Envoyer ma candidature</>}
+                      ? <><Loader2 className='w-4 h-4 mr-2 animate-spin' />{t(lang, 'jobApplySending')}</>
+                      : <><Send className='w-4 h-4 mr-2' />{t(lang, 'jobApplySubmit')}</>}
                   </Button>
                 </form>
               </CardContent>

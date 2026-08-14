@@ -322,7 +322,7 @@ export default function FormationHome() {
         setRecommendations(data.recommendations || [])
       }
     } catch {
-      toast.error('Failed to get recommendation')
+      toast.error(t(language, 'formationFailedRecommendation'))
     } finally {
       setLoadingRec(false)
     }
@@ -344,7 +344,7 @@ export default function FormationHome() {
             <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             {t(language, 'previous')}
           </button>
-          <h1 className="text-lg font-semibold text-teal-700">HireNova IA Formation</h1>
+          <h1 className="text-lg font-semibold text-teal-700">{t(language, 'formationHeaderTitle')}</h1>
           <div className="w-20" />
         </div>
       </div>
@@ -451,7 +451,7 @@ export default function FormationHome() {
                     >
                       <CardContent className="p-4">
                         <Badge className={`mb-2 text-xs ${CATEGORY_COLORS[rec.category] || CATEGORY_COLORS.general}`}>
-                          {rec.category}
+                          {t(language, `formationCategory${rec.category.charAt(0).toUpperCase() + rec.category.slice(1).replace('-', '')}` as Parameters<typeof t>[1]) || rec.category}
                         </Badge>
                         <h4 className="font-medium text-sm text-gray-900">{rec.title}</h4>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{rec.reason}</p>
@@ -495,7 +495,7 @@ export default function FormationHome() {
                         <Badge className={`text-xs ${CATEGORY_COLORS[course.category] || CATEGORY_COLORS.general}`}>
                           {t(language, `formationCategory${course.category.charAt(0).toUpperCase() + course.category.slice(1).replace('-', '')}` as Parameters<typeof t>[1]) || course.category}
                         </Badge>
-                        <Badge variant="outline" className="text-xs">{course.level}</Badge>
+                        <Badge variant="outline" className="text-xs">{t(language, `formationLevel${course.level.charAt(0).toUpperCase() + course.level.slice(1)}` as Parameters<typeof t>[1]) || course.level}</Badge>
                       </div>
                       <h4 className="font-medium text-sm text-gray-900 line-clamp-2">{course.title}</h4>
                       <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">

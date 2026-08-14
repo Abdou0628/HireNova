@@ -57,6 +57,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Progress } from '@/components/ui/progress'
 import { useCVStore } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
+import type { CVLanguage } from '@/lib/i18n'
 import GrowthTab from '@/components/admin/growth-tab'
 import type { GrowthDashboardData } from '@/components/admin/growth-tab'
 
@@ -227,14 +229,14 @@ const severityColor = (severity: string) => {
   }
 }
 
-const revenueTypeLabel = (type: string) => {
+const revenueTypeLabel = (type: string, lang: CVLanguage) => {
   switch (type) {
     case 'recurring':
-      return 'Récurrent'
+      return t(lang, 'adminFull.revenueTypeRecurring')
     case 'annual':
-      return 'Annuel'
+      return t(lang, 'adminFull.revenueTypeAnnual')
     case 'one-time':
-      return 'Ponctuel'
+      return t(lang, 'adminFull.revenueTypeOneTime')
     default:
       return type
   }
@@ -324,6 +326,8 @@ function ErrorState({
   message: string
   onRetry: () => void
 }) {
+  const { language } = useCVStore()
+
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <div className="p-4 rounded-full bg-rose-100">
@@ -338,7 +342,7 @@ function ErrorState({
         className="gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
       >
         <RefreshCw className="w-4 h-4" />
-        Réessayer
+        {t(language, 'adminFull.retry')}
       </Button>
     </div>
   )
@@ -348,6 +352,7 @@ function ErrorState({
 
 function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
   const { overview, last30days, dailySignups } = stats
+  const { language } = useCVStore()
 
   const today = new Date()
   const barData = Array.from({ length: 14 }).map((_, i) => {
@@ -367,30 +372,30 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Users}
-          label="Utilisateurs totaux"
+          label={t(language, 'adminFull.totalUsers')}
           value={fmt(overview.totalUsers)}
-          sub={`${fmt(overview.proUsers)} Pro · ${fmt(overview.annualUsers)} Annuel`}
+          sub={`${fmt(overview.proUsers)} ${t(language, 'adminFull.planPro')} · ${fmt(overview.annualUsers)} ${t(language, 'adminFull.planAnnual')}`}
           color="emerald"
         />
         <StatCard
           icon={FileText}
-          label="CVs créés"
+          label={t(language, 'adminFull.cvCreated')}
           value={fmt(overview.totalResumes)}
-          sub={`${fmt(overview.totalCoverLetters)} lettres de motivation`}
+          sub={`${fmt(overview.totalCoverLetters)} ${t(language, 'adminFull.coverLetters')}`}
           color="amber"
         />
         <StatCard
           icon={FileCheck2}
-          label="Documents totaux"
+          label={t(language, 'adminFull.totalDocuments')}
           value={fmt(overview.totalDocuments)}
-          sub={`${fmt(overview.totalAtsAnalyses)} analyses ATS`}
+          sub={`${fmt(overview.totalAtsAnalyses)} ${t(language, 'adminFull.atsAnalyses')}`}
           color="sky"
         />
         <StatCard
           icon={DollarSign}
-          label="Revenu mensuel"
+          label={t(language, 'adminFull.monthlyRevenue')}
           value={fmtEur(stats.financial.totalMonthlyRevenue)}
-          sub={`${fmt(overview.totalUsers)} utilisateurs`}
+          sub={`${fmt(overview.totalUsers)} ${t(language, 'adminFull.users')}`}
           color="emerald"
         />
       </div>
@@ -399,30 +404,30 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Crown}
-          label="Utilisateurs Pro"
+          label={t(language, 'adminFull.proUsers')}
           value={fmt(overview.proUsers)}
-          sub={`${((overview.proUsers / Math.max(overview.totalUsers, 1)) * 100).toFixed(1)}% du total`}
+          sub={`${((overview.proUsers / Math.max(overview.totalUsers, 1)) * 100).toFixed(1)}% ${t(language, 'adminFull.ofTotal')}`}
           color="amber"
         />
         <StatCard
           icon={Zap}
-          label="Abonnés annuels"
+          label={t(language, 'adminFull.annualSubs')}
           value={fmt(overview.annualUsers)}
-          sub={`${((overview.annualUsers / Math.max(overview.totalUsers, 1)) * 100).toFixed(1)}% du total`}
+          sub={`${((overview.annualUsers / Math.max(overview.totalUsers, 1)) * 100).toFixed(1)}% ${t(language, 'adminFull.ofTotal')}`}
           color="emerald"
         />
         <StatCard
           icon={BarChart3}
-          label="Analyses ATS"
+          label={t(language, 'adminFull.atsAnalysesLabel')}
           value={fmt(overview.totalAtsAnalyses)}
-          sub="Analyses de CV effectuées"
+          sub={t(language, 'adminFull.atsAnalysesSub')}
           color="sky"
         />
         <StatCard
           icon={Star}
-          label="Note moyenne"
+          label={t(language, 'adminFull.avgRating')}
           value={overview.avgRating.toFixed(1)}
-          sub="Sur l'ensemble de la plateforme"
+          sub={t(language, 'adminFull.avgRatingSub')}
           color="amber"
         />
       </div>
@@ -433,20 +438,20 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-emerald-700 flex items-center gap-2">
               <Activity className="w-4 h-4" />
-              Derniers 30 jours
+              {t(language, 'adminFull.last30days')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Nouveaux utilisateurs</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.newUsers')}</span>
               <span className="font-semibold">{fmt(last30days.newUsers)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Nouveaux CVs</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.newCvs')}</span>
               <span className="font-semibold">{fmt(last30days.newResumes)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Nouvelles lettres</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.newLetters')}</span>
               <span className="font-semibold">{fmt(last30days.newCoverLetters)}</span>
             </div>
           </CardContent>
@@ -456,7 +461,7 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-emerald-700 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
-              Inscriptions quotidiennes (14 jours)
+              {t(language, 'adminFull.dailySignups14')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -475,8 +480,7 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
                       height: `${Math.max((bar.count / maxBar) * 100, 2)}%`,
                       opacity: bar.count > 0 ? 1 : 0.15,
                     }}
-                  />
-                  <span className="text-[9px] text-muted-foreground leading-tight text-center">
+                  />\n                  <span className="text-[9px] text-muted-foreground leading-tight text-center">
                     {bar.date}
                   </span>
                 </div>
@@ -491,6 +495,7 @@ function OverviewTab({ stats }: { stats: ComprehensiveStats }) {
 
 function UsersTab({ stats }: { stats: ComprehensiveStats }) {
   const { overview, planDistribution, recent } = stats
+  const { language } = useCVStore()
   const totalUsers = Math.max(overview.totalUsers, 1)
 
   return (
@@ -499,16 +504,16 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Users className="w-5 h-5 text-emerald-600" />
-            Répartition des plans
+            {t(language, 'adminFull.planDistribution')}
           </CardTitle>
-          <CardDescription>Distribution des utilisateurs par type d'abonnement</CardDescription>
+          <CardDescription>{t(language, 'adminFull.planDistributionDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-gray-400" />
-                Gratuit
+                {t(language, 'adminFull.planFree')}
               </span>
               <span className="font-medium">
                 {fmt(planDistribution.free)} ({((planDistribution.free / totalUsers) * 100).toFixed(1)}%)
@@ -523,7 +528,7 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
             <div className="flex justify-between text-sm">
               <span className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                Pro
+                {t(language, 'adminFull.planPro')}
               </span>
               <span className="font-medium">
                 {fmt(planDistribution.pro)} ({((planDistribution.pro / totalUsers) * 100).toFixed(1)}%)
@@ -538,7 +543,7 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
             <div className="flex justify-between text-sm">
               <span className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-amber-500" />
-                Annuel
+                {t(language, 'adminFull.planAnnual')}
               </span>
               <span className="font-medium">
                 {fmt(planDistribution.annual)} ({((planDistribution.annual / totalUsers) * 100).toFixed(1)}%)
@@ -553,17 +558,17 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
       </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Users} label="Total utilisateurs" value={fmt(overview.totalUsers)} color="emerald" />
-        <StatCard icon={Crown} label="Utilisateurs Pro" value={fmt(overview.proUsers)} color="amber" />
-        <StatCard icon={Zap} label="Abonnés annuels" value={fmt(overview.annualUsers)} color="emerald" />
-        <StatCard icon={Building2} label="Employeurs" value={fmt(overview.employerUsers)} color="sky" />
+        <StatCard icon={Users} label={t(language, 'adminFull.totalUsersLabel')} value={fmt(overview.totalUsers)} color="emerald" />
+        <StatCard icon={Crown} label={t(language, 'adminFull.proUsers')} value={fmt(overview.proUsers)} color="amber" />
+        <StatCard icon={Zap} label={t(language, 'adminFull.annualSubs')} value={fmt(overview.annualUsers)} color="emerald" />
+        <StatCard icon={Building2} label={t(language, 'adminFull.employers')} value={fmt(overview.employerUsers)} color="sky" />
       </div>
 
       <Card className="border border-emerald-200">
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-emerald-600" />
-            Utilisateurs récents
+            {t(language, 'adminFull.recentUsers')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -571,18 +576,18 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Rôle</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>{t(language, 'adminFull.thName')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thEmail')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thPlan')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thRole')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thDate')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recent.users.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                      Aucun utilisateur récent
+                      {t(language, 'adminFull.noRecentUsers')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -612,36 +617,37 @@ function UsersTab({ stats }: { stats: ComprehensiveStats }) {
 
 function FinancesTab({ stats }: { stats: ComprehensiveStats }) {
   const { financial } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={CircleDollarSign}
-          label="Revenu mensuel récurrent"
+          label={t(language, 'adminFull.monthlyRecurringRevenue')}
           value={fmtEur(financial.totalMonthlyRevenue)}
-          sub="MRR (Monthly Recurring Revenue)"
+          sub={t(language, 'adminFull.mrrSub')}
           color="emerald"
         />
         <StatCard
           icon={Receipt}
-          label="Revenu annuel"
+          label={t(language, 'adminFull.annualRevenue')}
           value={fmtEur(financial.totalAnnualRevenue)}
-          sub="Projections annuelles"
+          sub={t(language, 'adminFull.annualProjections')}
           color="amber"
         />
         <StatCard
           icon={KeyRound}
-          label="Revenu API"
+          label={t(language, 'adminFull.apiRevenue')}
           value={fmtEur(financial.apiRevenue)}
-          sub="Abonnements API"
+          sub={t(language, 'adminFull.apiSubscriptions')}
           color="sky"
         />
         <StatCard
           icon={TrendingUp}
-          label="Valeur vie totale estimée"
+          label={t(language, 'adminFull.estimatedLifetimeValue')}
           value={fmtEur(financial.estimatedLifetimeValue)}
-          sub="Lifetime Value (LTV)"
+          sub={t(language, 'adminFull.ltvSub')}
           color="emerald"
         />
       </div>
@@ -650,43 +656,43 @@ function FinancesTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-emerald-600" />
-            Résumé financier
+            {t(language, 'adminFull.financialSummary')}
           </CardTitle>
-          <CardDescription>Synthèse des mouvements financiers de la plateforme</CardDescription>
+          <CardDescription>{t(language, 'adminFull.financialSummaryDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
-                Revenu mensuel total
+                {t(language, 'adminFull.totalMonthlyRevenue')}
               </p>
               <p className="text-2xl font-bold text-emerald-700">
                 {fmtEur(financial.totalMonthlyRevenue)}
               </p>
               <p className="text-xs text-emerald-600/70 mt-1">
-                Pro : {fmtEur(financial.proMonthlyRevenue)} · API : {fmtEur(financial.apiRevenue)}
+                {t(language, 'adminFull.planPro')} : {fmtEur(financial.proMonthlyRevenue)} · API : {fmtEur(financial.apiRevenue)}
               </p>
             </div>
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
-                Revenu annuel projeté
+                {t(language, 'adminFull.projectedAnnualRevenue')}
               </p>
               <p className="text-2xl font-bold text-amber-700">
                 {fmtEur(financial.totalAnnualRevenue)}
               </p>
               <p className="text-xs text-amber-600/70 mt-1">
-                Basé sur les abonnements actifs
+                {t(language, 'adminFull.basedOnActiveSubs')}
               </p>
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                Revenu cumulé vie
+                {t(language, 'adminFull.lifetimeRevenue')}
               </p>
               <p className="text-2xl font-bold text-gray-700">
                 {fmtEur(financial.lifetimeRevenue)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Depuis le lancement
+                {t(language, 'adminFull.sinceLaunch')}
               </p>
             </div>
           </div>
@@ -697,25 +703,25 @@ function FinancesTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-emerald-600" />
-            Détail des revenus
+            {t(language, 'adminFull.revenueDetails')}
           </CardTitle>
-          <CardDescription>Décomposition par source et type</CardDescription>
+          <CardDescription>{t(language, 'adminFull.revenueDetailsDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="max-h-96">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Montant</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>{t(language, 'adminFull.thSource')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thAmount')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thType')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {financial.revenueBreakdown.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                      Aucune donnée financière
+                      {t(language, 'adminFull.noFinancialData')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -736,7 +742,7 @@ function FinancesTab({ stats }: { stats: ComprehensiveStats }) {
                               : 'bg-gray-50 text-gray-600 border-gray-200'
                         }
                       >
-                        {revenueTypeLabel(row.type)}
+                        {revenueTypeLabel(row.type, language)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -752,36 +758,37 @@ function FinancesTab({ stats }: { stats: ComprehensiveStats }) {
 
 function JobsTab({ stats }: { stats: ComprehensiveStats }) {
   const { jobs, global, recent } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Briefcase}
-          label="Emplois actifs"
+          label={t(language, 'adminFull.activeJobs')}
           value={fmt(jobs.activeJobs)}
-          sub={`sur ${fmt(jobs.totalJobs)} au total`}
+          sub={`${t(language, 'adminFull.outOf')} ${fmt(jobs.totalJobs)} ${t(language, 'adminFull.inTotal')}`}
           color="emerald"
         />
         <StatCard
           icon={FileCheck2}
-          label="Candidatures totales"
+          label={t(language, 'adminFull.totalApplications')}
           value={fmt(jobs.totalApplications)}
-          sub={`${fmt(jobs.totalEmployers)} employeurs`}
+          sub={`${fmt(jobs.totalEmployers)} ${t(language, 'adminFull.employers')}`}
           color="amber"
         />
         <StatCard
           icon={Globe}
-          label="Offres globales actives"
+          label={t(language, 'adminFull.activeGlobalJobs')}
           value={fmt(global.activeGlobalJobs)}
-          sub={`${fmt(global.totalGlobalJobs)} au total`}
+          sub={`${fmt(global.totalGlobalJobs)} ${t(language, 'adminFull.inTotal')}`}
           color="emerald"
         />
         <StatCard
           icon={Plane}
-          label="Offres avec visa"
+          label={t(language, 'adminFull.visaJobs')}
           value={fmt(global.visaSponsorshipJobs)}
-          sub="Visa Sponsorship"
+          sub={t(language, 'adminFull.visaSponsorship')}
           color="sky"
         />
       </div>
@@ -791,20 +798,20 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
           <CardHeader>
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Globe className="w-5 h-5 text-emerald-600" />
-              Recrutement international
+              {t(language, 'adminFull.internationalRecruitment')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Candidatures globales</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.globalApplications')}</span>
               <span className="font-semibold">{fmt(global.totalGlobalApplications)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Pays supportés</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.supportedCountries')}</span>
               <span className="font-semibold">{global.supportedCountries}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Offres avec relocation</span>
+              <span className="text-sm text-muted-foreground">{t(language, 'adminFull.relocationJobs')}</span>
               <span className="font-semibold">{fmt(global.visaSponsorshipJobs)}</span>
             </div>
           </CardContent>
@@ -814,13 +821,13 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
           <CardHeader>
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Globe className="w-5 h-5 text-emerald-600" />
-              Pays couverts
+              {t(language, 'adminFull.coveredCountries')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {global.countries.length === 0 && (
-                <p className="text-sm text-muted-foreground">Aucun pays configuré</p>
+                <p className="text-sm text-muted-foreground">{t(language, 'adminFull.noCountriesConfigured')}</p>
               )}
               {global.countries.map((c) => (
                 <Badge
@@ -840,7 +847,7 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <FileCheck2 className="w-5 h-5 text-emerald-600" />
-            Candidatures récentes
+            {t(language, 'adminFull.recentApplications')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -848,17 +855,17 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Candidat</TableHead>
-                  <TableHead>Emploi</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>{t(language, 'adminFull.thCandidate')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thJob')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thStatus')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thDate')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recent.applications.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                      Aucune candidature récente
+                      {t(language, 'adminFull.noRecentApplications')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -890,13 +897,13 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
                         }
                       >
                         {a.status === 'accepted'
-                          ? 'Accepté'
+                          ? t(language, 'adminFull.statusAccepted')
                           : a.status === 'rejected'
-                            ? 'Refusé'
+                            ? t(language, 'adminFull.statusRejected')
                             : a.status === 'interview'
-                              ? 'Entretien'
+                              ? t(language, 'adminFull.statusInterview')
                               : a.status === 'pending'
-                                ? 'En attente'
+                                ? t(language, 'adminFull.statusPending')
                                 : a.status}
                       </Badge>
                     </TableCell>
@@ -916,33 +923,34 @@ function JobsTab({ stats }: { stats: ComprehensiveStats }) {
 
 function MobilityTab({ stats }: { stats: ComprehensiveStats }) {
   const { mobility } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={Plane}
-          label="Profils mobilité"
+          label={t(language, 'adminFull.mobilityProfiles')}
           value={fmt(mobility.totalMobilityProfiles)}
-          sub="Profils OCR/NLP créés"
+          sub={t(language, 'adminFull.ocrNlpProfiles')}
           color="emerald"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Profils complétés"
+          label={t(language, 'adminFull.completedProfiles')}
           value={fmt(mobility.completedMobility)}
           sub={
             mobility.totalMobilityProfiles > 0
-              ? `${((mobility.completedMobility / mobility.totalMobilityProfiles) * 100).toFixed(1)}% de complétion`
+              ? `${((mobility.completedMobility / mobility.totalMobilityProfiles) * 100).toFixed(1)}% ${t(language, 'adminFull.completionPct')}`
               : undefined
           }
           color="amber"
         />
         <StatCard
           icon={Activity}
-          label="Ce mois"
+          label={t(language, 'adminFull.thisMonth')}
           value={fmt(mobility.mobilityThisMonth)}
-          sub="Nouveaux profils ce mois"
+          sub={t(language, 'adminFull.newProfilesThisMonth')}
           color="emerald"
         />
       </div>
@@ -951,19 +959,19 @@ function MobilityTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Plane className="w-5 h-5 text-emerald-600" />
-            Pipeline OCR + NLP
+            {t(language, 'adminFull.ocrNlpPipeline')}
           </CardTitle>
           <CardDescription>
-            Statistiques du module de mobilité internationale
+            {t(language, 'adminFull.mobilityModuleStats')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Taux de complétion</p>
+                <p className="text-sm font-medium text-emerald-700">{t(language, 'adminFull.completionRateLabel')}</p>
                 <p className="text-xs text-emerald-600/70 mt-1">
-                  Profils entièrement traités par le pipeline OCR/NLP
+                  {t(language, 'adminFull.fullyProcessedProfiles')}
                 </p>
               </div>
               <span className="text-2xl font-bold text-emerald-700">
@@ -984,7 +992,7 @@ function MobilityTab({ stats }: { stats: ComprehensiveStats }) {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
-                En cours
+                {t(language, 'adminFull.inProgress')}
               </p>
               <p className="text-xl font-bold text-amber-700">
                 {fmt(mobility.totalMobilityProfiles - mobility.completedMobility)}
@@ -992,7 +1000,7 @@ function MobilityTab({ stats }: { stats: ComprehensiveStats }) {
             </div>
             <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
-                Croissance mensuelle
+                {t(language, 'adminFull.monthlyGrowth')}
               </p>
               <p className="text-xl font-bold text-emerald-700">
                 +{fmt(mobility.mobilityThisMonth)}
@@ -1007,36 +1015,37 @@ function MobilityTab({ stats }: { stats: ComprehensiveStats }) {
 
 function ApiTab({ stats }: { stats: ComprehensiveStats }) {
   const { api } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={KeyRound}
-          label="Abonnés API"
+          label={t(language, 'adminFull.apiSubscribers')}
           value={fmt(api.totalApiSubscribers)}
-          sub={`${fmt(api.activeApiSubscribers)} actifs`}
+          sub={`${fmt(api.activeApiSubscribers)} ${t(language, 'adminFull.active')}`}
           color="emerald"
         />
         <StatCard
           icon={Wifi}
-          label="Appels API totaux"
+          label={t(language, 'adminFull.totalApiCalls')}
           value={fmt(api.totalApiCalls)}
-          sub={`${fmt(api.apiCallsThisMonth)} ce mois`}
+          sub={`${fmt(api.apiCallsThisMonth)} ${t(language, 'adminFull.callsThisMonth')}`}
           color="amber"
         />
         <StatCard
           icon={Activity}
-          label="Appels ce mois"
+          label={t(language, 'adminFull.callsThisMonthLabel')}
           value={fmt(api.apiCallsThisMonth)}
-          sub="Volume mensuel"
+          sub={t(language, 'adminFull.monthlyVolume')}
           color="emerald"
         />
         <StatCard
           icon={DollarSign}
-          label="Revenu API"
+          label={t(language, 'adminFull.apiRevenue')}
           value={fmtEur(stats.financial.apiRevenue)}
-          sub="Abonnements API"
+          sub={t(language, 'adminFull.apiSubscriptions')}
           color="sky"
         />
       </div>
@@ -1045,25 +1054,25 @@ function ApiTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-emerald-600" />
-            Plans API
+            {t(language, 'adminFull.apiPlans')}
           </CardTitle>
-          <CardDescription>Détail des forfaits API et leur utilisation</CardDescription>
+          <CardDescription>{t(language, 'adminFull.apiPlansDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="max-h-96">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Abonnés</TableHead>
-                  <TableHead>Appels</TableHead>
+                  <TableHead>{t(language, 'adminFull.thPlan')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thSubscribers')}</TableHead>
+                  <TableHead>{t(language, 'adminFull.thCalls')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {api.apiPlans.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                      Aucun plan API configuré
+                      {t(language, 'adminFull.noApiPlans')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -1085,36 +1094,37 @@ function ApiTab({ stats }: { stats: ComprehensiveStats }) {
 
 function ReferralTab({ stats }: { stats: ComprehensiveStats }) {
   const { referral } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Link2}
-          label="Parrainages totaux"
+          label={t(language, 'adminFull.totalReferrals')}
           value={fmt(referral.totalReferrals)}
-          sub="Toutes les invitations"
+          sub={t(language, 'adminFull.allInvitations')}
           color="emerald"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Parrainages complétés"
+          label={t(language, 'adminFull.completedReferrals')}
           value={fmt(referral.completedReferrals)}
-          sub="Inscriptions confirmées"
+          sub={t(language, 'adminFull.confirmedSignups')}
           color="emerald"
         />
         <StatCard
           icon={Gift}
-          label="Parrainages récompensés"
+          label={t(language, 'adminFull.rewardedReferrals')}
           value={fmt(referral.rewardedReferrals)}
-          sub="Récompenses distribuées"
+          sub={t(language, 'adminFull.rewardsDistributed')}
           color="amber"
         />
         <StatCard
           icon={Clock}
-          label="Parrainages en attente"
+          label={t(language, 'adminFull.pendingReferrals')}
           value={fmt(referral.pendingReferrals)}
-          sub="En cours de validation"
+          sub={t(language, 'adminFull.inValidation')}
           color="sky"
         />
       </div>
@@ -1123,15 +1133,15 @@ function ReferralTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Link2 className="w-5 h-5 text-emerald-600" />
-            Programme de parrainage
+            {t(language, 'adminFull.referralProgram')}
           </CardTitle>
-          <CardDescription>Performance du programme de parrainage</CardDescription>
+          <CardDescription>{t(language, 'adminFull.referralProgramPerf')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
-                Taux de conversion
+                {t(language, 'adminFull.conversionRate')}
               </p>
               <p className="text-2xl font-bold text-emerald-700">
                 {referral.totalReferrals > 0
@@ -1141,7 +1151,7 @@ function ReferralTab({ stats }: { stats: ComprehensiveStats }) {
             </div>
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
-                Taux de récompense
+                {t(language, 'adminFull.rewardRate')}
               </p>
               <p className="text-2xl font-bold text-amber-700">
                 {referral.completedReferrals > 0
@@ -1151,7 +1161,7 @@ function ReferralTab({ stats }: { stats: ComprehensiveStats }) {
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                En attente
+                {t(language, 'adminFull.pending')}
               </p>
               <p className="text-2xl font-bold text-gray-700">
                 {referral.pendingReferrals}
@@ -1166,22 +1176,23 @@ function ReferralTab({ stats }: { stats: ComprehensiveStats }) {
 
 function CampusTab({ stats }: { stats: ComprehensiveStats }) {
   const { campus } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 max-w-2xl">
         <StatCard
           icon={GraduationCap}
-          label="Demandes campus totales"
+          label={t(language, 'adminFull.campusTotalRequests')}
           value={fmt(campus.totalTickets)}
-          sub="Candidatures universités"
+          sub={t(language, 'adminFull.universityApplications')}
           color="emerald"
         />
         <StatCard
           icon={TicketCheck}
-          label="Demandes ouvertes"
+          label={t(language, 'adminFull.openRequests')}
           value={fmt(campus.openTickets)}
-          sub="En attente de traitement"
+          sub={t(language, 'adminFull.awaitingProcessing')}
           color="amber"
         />
       </div>
@@ -1193,16 +1204,16 @@ function CampusTab({ stats }: { stats: ComprehensiveStats }) {
             HireNova IA CAMPUS SaaS
           </CardTitle>
           <CardDescription>
-            Partenariats universitaires et demandes d'accès campus
+            {t(language, 'adminFull.campusPartnerships')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Taux de résolution</p>
+                <p className="text-sm font-medium text-emerald-700">{t(language, 'adminFull.resolutionRate')}</p>
                 <p className="text-xs text-emerald-600/70 mt-1">
-                  Demandes traitées sur le total
+                  {t(language, 'adminFull.processedRequests')}
                 </p>
               </div>
               <span className="text-2xl font-bold text-emerald-700">
@@ -1228,29 +1239,30 @@ function CampusTab({ stats }: { stats: ComprehensiveStats }) {
 
 function SupportTab({ stats }: { stats: ComprehensiveStats }) {
   const { support } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={MessageSquare}
-          label="Tickets ouverts"
+          label={t(language, 'adminFull.openTickets')}
           value={fmt(support.openTickets)}
-          sub="En attente de réponse"
+          sub={t(language, 'adminFull.awaitingResponse')}
           color="amber"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Tickets résolus"
+          label={t(language, 'adminFull.resolvedTickets')}
           value={fmt(support.resolvedTickets)}
-          sub="Support terminé"
+          sub={t(language, 'adminFull.supportCompleted')}
           color="emerald"
         />
         <StatCard
           icon={HeadphonesIcon}
-          label="Tickets totaux"
+          label={t(language, 'adminFull.totalTickets')}
           value={fmt(support.totalTickets)}
-          sub="Toutes les demandes"
+          sub={t(language, 'adminFull.allRequests')}
           color="sky"
         />
       </div>
@@ -1259,16 +1271,16 @@ function SupportTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <HeadphonesIcon className="w-5 h-5 text-emerald-600" />
-            Performance du support
+            {t(language, 'adminFull.supportPerformance')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Taux de résolution</p>
+                <p className="text-sm font-medium text-emerald-700">{t(language, 'adminFull.resolutionRate')}</p>
                 <p className="text-xs text-emerald-600/70 mt-1">
-                  Tickets résolus sur le total
+                  {t(language, 'adminFull.resolvedOverTotal')}
                 </p>
               </div>
               <span className="text-2xl font-bold text-emerald-700">
@@ -1289,13 +1301,13 @@ function SupportTab({ stats }: { stats: ComprehensiveStats }) {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
-                En attente
+                {t(language, 'adminFull.pending')}
               </p>
               <p className="text-xl font-bold text-amber-700">{fmt(support.openTickets)}</p>
             </div>
             <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
               <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
-                Taux d'ouverts
+                {t(language, 'adminFull.openRate')}
               </p>
               <p className="text-xl font-bold text-emerald-700">
                 {support.totalTickets > 0
@@ -1312,29 +1324,30 @@ function SupportTab({ stats }: { stats: ComprehensiveStats }) {
 
 function SecurityTab({ stats }: { stats: ComprehensiveStats }) {
   const { security } = stats
+  const { language } = useCVStore()
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={AlertTriangle}
-          label="Alertes critiques"
+          label={t(language, 'adminFull.criticalAlerts')}
           value={fmt(security.critical)}
-          sub="Nécessitent une action immédiate"
+          sub={t(language, 'adminFull.requiresImmediateAction')}
           color="rose"
         />
         <StatCard
           icon={Shield}
-          label="Alertes élevées"
+          label={t(language, 'adminFull.highAlerts')}
           value={fmt(security.high)}
-          sub="À surveiller"
+          sub={t(language, 'adminFull.toMonitor')}
           color="amber"
         />
         <StatCard
           icon={Shield}
-          label="Total alertes"
+          label={t(language, 'adminFull.totalAlerts')}
           value={fmt(security.total)}
-          sub="Tous niveaux confondus"
+          sub={t(language, 'adminFull.allLevels')}
           color="sky"
         />
       </div>
@@ -1343,7 +1356,7 @@ function SecurityTab({ stats }: { stats: ComprehensiveStats }) {
         <CardHeader>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Shield className="w-5 h-5 text-emerald-600" />
-            Alertes de sécurité récentes
+            {t(language, 'adminFull.recentSecurityAlerts')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1352,7 +1365,7 @@ function SecurityTab({ stats }: { stats: ComprehensiveStats }) {
               <div className="flex flex-col items-center py-12 gap-2">
                 <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                 <p className="text-sm text-muted-foreground">
-                  Aucune alerte de sécurité — tout est normal
+                  {t(language, 'adminFull.noSecurityAlerts')}
                 </p>
               </div>
             )}
@@ -1395,7 +1408,7 @@ function SecurityTab({ stats }: { stats: ComprehensiveStats }) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function AdminDashboardFull() {
-  const { setStep } = useCVStore()
+  const { setStep, language } = useCVStore()
   const [stats, setStats] = useState<ComprehensiveStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -1410,7 +1423,7 @@ export default function AdminDashboardFull() {
       setError(null)
       const res = await fetch('/api/admin/comprehensive-stats')
       if (!res.ok) {
-        throw new Error(`Erreur serveur (${res.status})`)
+        throw new Error(`${t(language, 'adminFull.serverError')} (${res.status})`)
       }
       const data: ComprehensiveStats = await res.json()
       setStats(data)
@@ -1418,12 +1431,12 @@ export default function AdminDashboardFull() {
       setError(
         err instanceof Error
           ? err.message
-          : 'Impossible de charger les données du dashboard.'
+          : t(language, 'adminFull.loadError')
       )
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [language])
 
   useEffect(() => {
     fetchStats()
@@ -1434,7 +1447,7 @@ export default function AdminDashboardFull() {
     try {
       setGrowthLoading(true)
       const res = await fetch('/api/admin/growth-dashboard')
-      if (!res.ok) throw new Error(`Erreur serveur (${res.status})`)
+      if (!res.ok) throw new Error(`${t(language, 'adminFull.serverError')} (${res.status})`)
       const data = await res.json()
       setGrowthData(data)
     } catch {
@@ -1442,7 +1455,7 @@ export default function AdminDashboardFull() {
     } finally {
       setGrowthLoading(false)
     }
-  }, [])
+  }, [language])
 
   useEffect(() => {
     if (activeTab === 'growth') {
@@ -1480,12 +1493,12 @@ export default function AdminDashboardFull() {
                 className="gap-2 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Retour à l'accueil</span>
+                <span className="hidden sm:inline">{t(language, 'adminFull.backToHome')}</span>
               </Button>
               <div className="h-6 w-px bg-emerald-200" />
               <div>
                 <h1 className="text-lg font-bold text-emerald-800 leading-tight">
-                  Dashboard Admin
+                  {t(language, 'adminFull.dashboardAdmin')}
                 </h1>
                 <p className="text-xs text-muted-foreground leading-tight">
                   HireNova — E-Society 2050
@@ -1513,7 +1526,7 @@ export default function AdminDashboardFull() {
                 className="gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Actualiser</span>
+                <span className="hidden sm:inline">{t(language, 'adminFull.refresh')}</span>
               </Button>
             </div>
           </div>
@@ -1553,67 +1566,67 @@ export default function AdminDashboardFull() {
                   value="overview"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Vue d'ensemble
+                  {t(language, 'adminFull.tabOverview')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="users"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Utilisateurs
+                  {t(language, 'adminFull.tabUsers')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="finances"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Finances
+                  {t(language, 'adminFull.tabFinances')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="jobs"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Jobs & Global
+                  {t(language, 'adminFull.tabJobsGlobal')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="mobility"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Mobilité
+                  {t(language, 'adminFull.tabMobility')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="api"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  API
+                  {t(language, 'adminFull.tabApi')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="referral"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Parrainage
+                  {t(language, 'adminFull.tabReferral')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="campus"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Campus
+                  {t(language, 'adminFull.tabCampus')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="support"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Support
+                  {t(language, 'adminFull.tabSupport')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="security"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  Sécurité
+                  {t(language, 'adminFull.tabSecurity')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="growth"
                   className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-800 data-[state=active]:shadow-none rounded-b-none border-b-2 border-transparent data-[state=active]:border-emerald-600 text-sm"
                 >
-                  🎯 Croissance
+                  {t(language, 'adminFull.tabGrowth')}
                 </TabsTrigger>
               </TabsList>
 
@@ -1659,7 +1672,7 @@ export default function AdminDashboardFull() {
                 ) : (
                   <Card>
                     <CardContent className="py-12 text-center">
-                      <p className="text-muted-foreground">Chargement des données de croissance...</p>
+                      <p className="text-muted-foreground">{t(language, 'adminFull.loadingGrowth')}</p>
                     </CardContent>
                   </Card>
                 )}
@@ -1671,7 +1684,7 @@ export default function AdminDashboardFull() {
           {stats && (
             <div className="mt-8 pb-4 text-center">
               <p className="text-xs text-muted-foreground">
-                Dernière mise à jour : {fmtDate(stats.timestamp)}
+                {t(language, 'adminFull.lastUpdate')}{fmtDate(stats.timestamp)}
               </p>
             </div>
           )}

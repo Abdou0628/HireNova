@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Upload, FileText, ScanEye, Brain, CheckCircle2,
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCVStore, type ExtractedProfile } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
 
 const countryFlags: Record<string, string> = {
   France: '🇫🇷', Canada: '🇨🇦', 'Royaume-Uni': '🇬🇧', 'États-Unis': '🇺🇸',
@@ -18,14 +19,13 @@ const countryFlags: Record<string, string> = {
   Australie: '🇦🇺', Belgique: '🇧🇪', Espagne: '🇪🇸', Italie: '🇮🇹', Japon: '🇯🇵',
 }
 
-type ProcessingStage = 'idle' | 'uploading' | 'ocr' | 'analyse' | 'profil' | 'done'
+const countryIdToNameKey: Record<string, string> = {
+  France: 'mobShared.france', Canada: 'mobShared.canada', 'Royaume-Uni': 'mobShared.uk', 'États-Unis': 'mobShared.usa',
+  Allemagne: 'mobShared.germany', 'Émirats Arabes Unis': 'mobShared.uae', Suisse: 'mobShared.switzerland',
+  Australie: 'mobShared.australia', Belgique: 'mobShared.belgium', Espagne: 'mobShared.spain', Italie: 'mobShared.italy', Japon: 'mobShared.japan',
+}
 
-const stages: { key: ProcessingStage; label: string; icon: typeof Upload }[] = [
-  { key: 'uploading', label: 'Upload', icon: Upload },
-  { key: 'ocr', label: 'OCR', icon: ScanEye },
-  { key: 'analyse', label: 'Analyse IA', icon: Brain },
-  { key: 'profil', label: 'Profil', icon: CheckCircle2 },
-]
+type ProcessingStage = 'idle' | 'uploading' | 'ocr' | 'analyse' | 'profil' | 'done'
 
 const stageOrder: ProcessingStage[] = ['uploading', 'ocr', 'analyse', 'profil']
 
@@ -36,7 +36,7 @@ function getStageIndex(stage: ProcessingStage): number {
 }
 
 export default function MobilityUpload() {
-  const { stepData, setStep, setExtractedProfile } = useCVStore()
+  const { stepData, setStep, setExtractedProfile, language } = useCVStore()
   const targetCountry = (stepData.targetCountry as string) || 'France'
   const [stage, setStage] = useState<ProcessingStage>('idle')
   const [isDragging, setIsDragging] = useState(false)
@@ -44,6 +44,13 @@ export default function MobilityUpload() {
   const [error, setError] = useState<string | null>(null)
   const [profile, setProfile] = useState<ExtractedProfile | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const stages = useMemo(() => [
+    { key: 'uploading' as ProcessingStage, label: t(language, 'mobUpload.stageUpload'), icon: Upload },
+    { key: 'ocr' as ProcessingStage, label: t(language, 'mobUpload.stageOcr'), icon: ScanEye },
+    { key: 'analyse' as ProcessingStage, label: t(language, 'mobUpload.stageAnalyse'), icon: Brain },
+    { key: 'profil' as ProcessingStage, label: t(language, 'mobUpload.stageProfile'), icon: CheckCircle2 },
+  ], [language])
 
   const simulateExtraction = useCallback(() => {
     setStage('uploading')
@@ -54,25 +61,25 @@ export default function MobilityUpload() {
     setTimeout(() => {
       setStage('profil')
       const simulated: ExtractedProfile = {
-        fullName: 'Jean Dupont',
+        fullName: t(language, 'mobUpload.demoName'),
         email: 'jean.dupont@email.com',
         phone: '+33 6 12 34 56 78',
-        location: 'Paris, France',
+        location: t(language, 'mobUpload.demoLocation'),
         linkedin: 'linkedin.com/in/jeandupont',
-        summary: 'Développeur full-stack avec 5 ans d\'expérience dans les technologies web modernes.',
+        summary: t(language, 'mobUpload.demoSummary'),
         skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker', 'AWS', 'Git', 'Agile'],
         languages: [
-          { name: 'Français', level: 'Natif' },
-          { name: 'Anglais', level: 'Courant (C1)' },
-          { name: 'Espagnol', level: 'Intermédiaire (B1)' },
+          { name: t(language, 'mobUpload.demoLangFr'), level: t(language, 'mobUpload.demoLangFrLevel') },
+          { name: t(language, 'mobUpload.demoLangEn'), level: t(language, 'mobUpload.demoLangEnLevel') },
+          { name: t(language, 'mobUpload.demoLangEs'), level: t(language, 'mobUpload.demoLangEsLevel') },
         ],
         experience: [
-          { title: 'Développeur Full-Stack Senior', company: 'TechCorp', period: '2021 – Présent', description: 'Lead technique sur des projets React/Node.js' },
-          { title: 'Développeur Web', company: 'StartupXYZ', period: '2019 – 2021', description: 'Développement front-end et back-end' },
+          { title: t(language, 'mobUpload.demoExp1Title'), company: t(language, 'mobUpload.demoExp1Company'), period: t(language, 'mobUpload.demoExp1Period'), description: t(language, 'mobUpload.demoExp1Desc') },
+          { title: t(language, 'mobUpload.demoExp2Title'), company: t(language, 'mobUpload.demoExp2Company'), period: t(language, 'mobUpload.demoExp2Period'), description: t(language, 'mobUpload.demoExp2Desc') },
         ],
         education: [
-          { degree: 'Master Informatique', school: 'Université Paris-Saclay', period: '2017 – 2019', description: 'Spécialisation en génie logiciel' },
-          { degree: 'Licence Informatique', school: 'Université de Paris', period: '2014 – 2017', description: '' },
+          { degree: t(language, 'mobUpload.demoEdu1Degree'), school: t(language, 'mobUpload.demoEdu1School'), period: t(language, 'mobUpload.demoEdu1Period'), description: t(language, 'mobUpload.demoEdu1Desc') },
+          { degree: t(language, 'mobUpload.demoEdu2Degree'), school: t(language, 'mobUpload.demoEdu2School'), period: t(language, 'mobUpload.demoEdu2Period'), description: '' },
         ],
         certifications: ['AWS Solutions Architect', 'Scrum Master'],
         rawText: '',
@@ -82,12 +89,12 @@ export default function MobilityUpload() {
 
       setTimeout(() => setStage('done'), 800)
     }, 3500)
-  }, [setExtractedProfile])
+  }, [setExtractedProfile, language])
 
   const handleFile = useCallback(
     (file: File) => {
       if (!file.type.match(/pdf|png|jpe?g/)) {
-        setError('Format non supporté. Utilisez PDF, PNG ou JPG.')
+        setError(t(language, 'mobUpload.errorFormat'))
         return
       }
       setFileName(file.name)
@@ -101,7 +108,7 @@ export default function MobilityUpload() {
         // Simulation fallback — data already simulated above
       })
     },
-    [targetCountry, simulateExtraction],
+    [targetCountry, simulateExtraction, language],
   )
 
   const onDrop = useCallback(
@@ -144,7 +151,7 @@ export default function MobilityUpload() {
           <div className="flex items-center gap-2">
             <span className="text-2xl">{countryFlags[targetCountry] ?? '🌍'}</span>
             <h1 className="text-lg font-semibold text-emerald-900">
-              CV pour {targetCountry}
+              {t(language, 'mobUpload.headerTitle')} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}
             </h1>
           </div>
         </div>
@@ -162,10 +169,10 @@ export default function MobilityUpload() {
               className="flex flex-col items-center"
             >
               <h2 className="mb-2 text-2xl font-bold text-emerald-900 text-center">
-                Téléchargez votre CV
+                {t(language, 'mobUpload.uploadTitle')}
               </h2>
               <p className="mb-8 text-center text-gray-500">
-                Formats acceptés : PDF, PNG, JPG — Max 10 Mo
+                {t(language, 'mobUpload.formatHint')}
               </p>
 
               <Card
@@ -184,9 +191,9 @@ export default function MobilityUpload() {
                     <Upload className="h-8 w-8 text-emerald-600" />
                   </div>
                   <p className="mb-1 text-base font-semibold text-gray-700">
-                    {isDragging ? 'Déposez votre fichier ici' : 'Glissez-déposez ou cliquez pour sélectionner'}
+                    {isDragging ? t(language, 'mobUpload.dropHere') : t(language, 'mobUpload.dropOrClick')}
                   </p>
-                  <p className="text-sm text-gray-400">PDF, PNG ou JPG</p>
+                  <p className="text-sm text-gray-400">{t(language, 'mobUpload.formatSmall')}</p>
                 </CardContent>
               </Card>
               <input
@@ -225,10 +232,10 @@ export default function MobilityUpload() {
               <div className="mb-8 flex items-center gap-3">
                 <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                 <h2 className="text-xl font-bold text-emerald-900">
-                  {stage === 'uploading' && 'Envoi en cours...'}
-                  {stage === 'ocr' && 'Extraction OCR en cours...'}
-                  {stage === 'analyse' && 'Analyse IA en cours...'}
-                  {stage === 'profil' && 'Profil structuré créé'}
+                  {stage === 'uploading' && t(language, 'mobUpload.stageUploading')}
+                  {stage === 'ocr' && t(language, 'mobUpload.stageOcrProgress')}
+                  {stage === 'analyse' && t(language, 'mobUpload.stageAnalyseProgress')}
+                  {stage === 'profil' && t(language, 'mobUpload.stageProfileDone')}
                 </h2>
               </div>
 
@@ -297,7 +304,7 @@ export default function MobilityUpload() {
             >
               <div className="mb-6 flex items-center gap-2 text-emerald-600">
                 <CheckCircle2 className="h-7 w-7" />
-                <h2 className="text-2xl font-bold text-emerald-900">Profil extrait avec succès</h2>
+                <h2 className="text-2xl font-bold text-emerald-900">{t(language, 'mobUpload.profileExtracted')}</h2>
               </div>
 
               <Card className="w-full max-w-xl border-emerald-200 bg-white shadow-sm">
@@ -306,28 +313,28 @@ export default function MobilityUpload() {
                     <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                       <User className="h-4 w-4 text-emerald-600" />
                       <div>
-                        <p className="text-xs text-gray-400">Nom</p>
+                        <p className="text-xs text-gray-400">{t(language, 'mobUpload.labelName')}</p>
                         <p className="text-sm font-medium text-gray-800">{profile.fullName}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                       <Mail className="h-4 w-4 text-emerald-600" />
                       <div>
-                        <p className="text-xs text-gray-400">Email</p>
+                        <p className="text-xs text-gray-400">{t(language, 'mobUpload.labelEmail')}</p>
                         <p className="text-sm font-medium text-gray-800">{profile.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                       <Phone className="h-4 w-4 text-emerald-600" />
                       <div>
-                        <p className="text-xs text-gray-400">Téléphone</p>
+                        <p className="text-xs text-gray-400">{t(language, 'mobUpload.labelPhone')}</p>
                         <p className="text-sm font-medium text-gray-800">{profile.phone}</p>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-gray-700">Compétences extraites</p>
+                    <p className="mb-2 text-sm font-semibold text-gray-700">{t(language, 'mobUpload.extractedSkills')}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {profile.skills.map((skill) => (
                         <Badge key={skill} variant="secondary" className="bg-emerald-100 text-emerald-700">
@@ -340,11 +347,11 @@ export default function MobilityUpload() {
                   <div className="flex gap-4">
                     <div className="flex items-center gap-1.5 text-sm text-gray-600">
                       <Briefcase className="h-4 w-4 text-emerald-600" />
-                      <span><strong>{profile.experience.length}</strong> expérience(s)</span>
+                      <span><strong>{profile.experience.length}</strong> {t(language, 'mobUpload.experienceCount')}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-gray-600">
                       <GraduationCap className="h-4 w-4 text-emerald-600" />
-                      <span><strong>{profile.education.length}</strong> formation(s)</span>
+                      <span><strong>{profile.education.length}</strong> {t(language, 'mobUpload.educationCount')}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -362,7 +369,7 @@ export default function MobilityUpload() {
                   className="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700"
                 >
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Voir le profil structuré
+                  {t(language, 'mobUpload.viewProfile')}
                 </Button>
               </motion.div>
             </motion.div>

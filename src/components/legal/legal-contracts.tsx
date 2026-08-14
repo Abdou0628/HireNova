@@ -37,7 +37,7 @@ export default function LegalContracts() {
 
   async function handleGenerate() {
     if (!employer.trim() || !employee.trim()) {
-      setError('Please fill in employer and employee names')
+      setError(t(language, 'legalPleaseFillNames'))
       return
     }
     setError('')
@@ -58,7 +58,7 @@ export default function LegalContracts() {
         setGenerated(data.content || '')
       }
     } catch {
-      setError('Failed to generate contract')
+      setError(t(language, 'legalFailedGenContract'))
     } finally {
       setGenerating(false)
     }

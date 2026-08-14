@@ -124,7 +124,7 @@ export default function FreelanceMission() {
           <Button variant="ghost" onClick={() => setStep('freelanceBrowse' as AppStep)} className="cursor-pointer mb-4">
             <ArrowLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} /> {t(language, 'freelanceMissionBackToBrowse')}
           </Button>
-          <p className="text-center text-muted-foreground py-20">Mission not found</p>
+          <p className="text-center text-muted-foreground py-20">{t(language, 'freelanceMissionNotFound')}</p>
         </div>
       </div>
     )
@@ -292,7 +292,7 @@ export default function FreelanceMission() {
                       <span className={`ml-2`}>{t(language, 'freelanceMissionSubmitProposal')}</span>
                     </Button>
                     <Button variant="ghost" onClick={() => setShowForm(false)} className="cursor-pointer">
-                      Cancel
+                      {t(language, 'freelanceCancelBtn')}
                     </Button>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft, User, Mail, Phone, MapPin, Briefcase, GraduationCap,
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCVStore, type ExtractedProfile, type MobilityResult } from '@/store/cv-store'
+import { t } from '@/lib/i18n'
 
 const countryFlags: Record<string, string> = {
   France: '🇫🇷', Canada: '🇨🇦', 'Royaume-Uni': '🇬🇧', 'États-Unis': '🇺🇸',
@@ -18,19 +19,27 @@ const countryFlags: Record<string, string> = {
   Australie: '🇦🇺', Belgique: '🇧🇪', Espagne: '🇪🇸', Italie: '🇮🇹', Japon: '🇯🇵',
 }
 
-const countryNormsData: Record<string, MobilityResult['countryNorms']> = {
-  France: { cvFormat: 'Classique français', requiredSections: ['État civil', 'Formation', 'Expérience', 'Compétences', 'Langues'], forbiddenSections: ['Âge', 'Situation familiale'], photoRequired: true, maxPages: 2, language: 'Français', tips: ['Inclure une photo d\'identité', 'Ordre chronologique inverse'] },
-  Canada: { cvFormat: 'Nord-américain', requiredSections: ['Résumé professionnel', 'Expérience', 'Formation', 'Compétences'], forbiddenSections: ['Photo', 'Âge', 'Nationalité', 'Situation familiale'], photoRequired: false, maxPages: 2, language: 'Anglais / Français', tips: ['Action-oriented bullet points', 'Pas de données personnelles sensibles'] },
-  'Royaume-Uni': { cvFormat: 'UK Standard', requiredSections: ['Personal Profile', 'Employment', 'Education', 'Skills'], forbiddenSections: ['Photo', 'Âge', 'Nationalité', 'Loisirs non pertinents'], photoRequired: false, maxPages: 2, language: 'Anglais', tips: ['Personal profile au début', 'Pas de photo ni données personnelles'] },
-  'États-Unis': { cvFormat: 'US Resume', requiredSections: ['Summary', 'Experience', 'Education', 'Skills'], forbiddenSections: ['Photo', 'Âge', 'Nationalité', 'Adresse complète', 'Statut marital'], photoRequired: false, maxPages: 1, language: 'Anglais', tips: ['1 page max pour < 10 ans exp', 'Bullet points commençant par un verbe d\'action'] },
-  Allemagne: { cvFormat: 'Lebenslauf', requiredSections: ['Persönliche Daten', 'Bildungsweg', 'Beruflicher Werdegang', 'Kenntnisse', 'Hobbys'], forbiddenSections: ['Références sans autorisation'], photoRequired: true, maxPages: 2, language: 'Allemand / Anglais', tips: ['Photo obligatoire (bienséant)', 'Détails personnels étendus'] },
-  'Émirats Arabes Unis': { cvFormat: 'International Moyen-Orient', requiredSections: ['Personal Info', 'Photo', 'Summary', 'Experience', 'Education', 'Skills'], forbiddenSections: [], photoRequired: true, maxPages: 2, language: 'Anglais', tips: ['Photo d\'identité obligatoire', 'Informations personnelles complètes'] },
-  Suisse: { cvFormat: 'Suisse structuré', requiredSections: ['Données personnelles', 'Formation', 'Expérience', 'Compétences', 'Références'], forbiddenSections: [], photoRequired: true, maxPages: 2, language: 'Allemand / Français / Anglais', tips: ['Photo obligatoire', 'Références requises'] },
-  Australie: { cvFormat: 'Aussie Resume', requiredSections: ['Profile', 'Key Skills', 'Employment History', 'Education', 'Referees'], forbiddenSections: ['Photo', 'Âge', 'Nationalité', 'Adresse complète'], photoRequired: false, maxPages: 3, language: 'Anglais', tips: ['Selection Criteria response possible', '2-3 pages acceptable'] },
-  Belgique: { cvFormat: 'Europass', requiredSections: ['Informations personnelles', 'Formation', 'Expérience', 'Compétences', 'Langues'], forbiddenSections: ['Photo (optionnelle)'], photoRequired: false, maxPages: 2, language: 'Français / Néerlandais', tips: ['Format Europass recommandé', 'Photo optionnelle'] },
-  Espagne: { cvFormat: 'Currículum Europass', requiredSections: ['Datos personales', 'Formación', 'Experiencia', 'Competencias'], forbiddenSections: ['Données sensibles'], photoRequired: true, maxPages: 2, language: 'Espagnol', tips: ['Format Europass recommandé', 'Photo généralement incluse'] },
-  Italie: { cvFormat: 'Curriculum Vitae', requiredSections: ['Dati personali', 'Istruzione', 'Esperienza', 'Competenze'], forbiddenSections: ['Données sensibles non pertinentes'], photoRequired: true, maxPages: 2, language: 'Italien', tips: ['Curriculum Europass recommandé', 'Photo incluse'] },
-  Japon: { cvFormat: 'Rirekisho / English Resume', requiredSections: ['Personal Data', 'Education', 'Work Experience', 'Skills'], forbiddenSections: [], photoRequired: true, maxPages: 2, language: 'Japonais / Anglais', tips: ['Format Rirekisho standard', 'Photo obligatoire', 'Structure très codifiée'] },
+const countryIdToNameKey: Record<string, string> = {
+  France: 'mobShared.france', Canada: 'mobShared.canada', 'Royaume-Uni': 'mobShared.uk', 'États-Unis': 'mobShared.usa',
+  Allemagne: 'mobShared.germany', 'Émirats Arabes Unis': 'mobShared.uae', Suisse: 'mobShared.switzerland',
+  Australie: 'mobShared.australia', Belgique: 'mobShared.belgium', Espagne: 'mobShared.spain', Italie: 'mobShared.italy', Japon: 'mobShared.japan',
+}
+
+function buildCountryNormsData(language: Parameters<typeof t>[0]): Record<string, MobilityResult['countryNorms']> {
+  return {
+    France: { cvFormat: t(language, 'mobShared.franceCvFormat'), requiredSections: [t(language, 'mobShared.secEtatCivil'), t(language, 'mobShared.secFormation'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secCompetences'), t(language, 'mobShared.secLangues')], forbiddenSections: [t(language, 'mobShared.forbidAge'), t(language, 'mobShared.forbidFamilyStatus')], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.franceLang'), tips: [t(language, 'mobShared.tipIncludePhotoId'), t(language, 'mobShared.tipReverseChronological')] },
+    Canada: { cvFormat: t(language, 'mobShared.canadaCvFormat'), requiredSections: [t(language, 'mobShared.secResumePro'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secSkills')], forbiddenSections: [t(language, 'mobShared.forbidPhoto'), t(language, 'mobShared.forbidAge'), t(language, 'mobShared.forbidNationality'), t(language, 'mobShared.forbidFamilyStatus')], photoRequired: false, maxPages: 2, language: t(language, 'mobShared.canadaLang'), tips: [t(language, 'mobShared.tipActionOrientedBullets'), t(language, 'mobShared.tipNoSensitiveData')] },
+    'Royaume-Uni': { cvFormat: t(language, 'mobShared.ukCvFormat'), requiredSections: [t(language, 'mobShared.secPersonalProfile'), t(language, 'mobShared.secEmployment'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secSkills')], forbiddenSections: [t(language, 'mobShared.forbidPhoto'), t(language, 'mobShared.forbidAge'), t(language, 'mobShared.forbidNationality'), t(language, 'mobShared.forbidIrrelevantHobbies')], photoRequired: false, maxPages: 2, language: t(language, 'mobShared.ukLang'), tips: [t(language, 'mobShared.tipPersonalProfileFirst'), t(language, 'mobShared.tipNoPhotoOrPersonalData')] },
+    'États-Unis': { cvFormat: t(language, 'mobShared.usaCvFormat'), requiredSections: [t(language, 'mobShared.secSummary'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secSkills')], forbiddenSections: [t(language, 'mobShared.forbidPhoto'), t(language, 'mobShared.forbidAge'), t(language, 'mobShared.forbidNationality'), t(language, 'mobShared.forbidFullAddress'), t(language, 'mobShared.forbidMaritalStatus')], photoRequired: false, maxPages: 1, language: t(language, 'mobShared.usaLang'), tips: [t(language, 'mobShared.tipOnePageMax10yr'), t(language, 'mobShared.tipActionVerbs')] },
+    Allemagne: { cvFormat: t(language, 'mobShared.germanyCvFormat'), requiredSections: [t(language, 'mobShared.secPersonalDataDe'), t(language, 'mobShared.secBildungsweg'), t(language, 'mobShared.secBeruflicherWerdegang'), t(language, 'mobShared.secKenntnisse'), t(language, 'mobShared.secHobbys')], forbiddenSections: [t(language, 'mobShared.forbidUnauthorizedRefs')], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.germanyLang'), tips: [t(language, 'mobShared.tipPhotoRequired'), t(language, 'mobShared.tipExtendedPersonalDetails')] },
+    'Émirats Arabes Unis': { cvFormat: t(language, 'mobShared.uaeCvFormat'), requiredSections: [t(language, 'mobShared.secPersonalInfo'), t(language, 'mobShared.secPhotoSection'), t(language, 'mobShared.secSummary'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secSkills')], forbiddenSections: [], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.uaeLang'), tips: [t(language, 'mobShared.tipIdPhotoRequired'), t(language, 'mobShared.tipCompletePersonalInfo')] },
+    Suisse: { cvFormat: t(language, 'mobShared.switzerlandCvFormat'), requiredSections: [t(language, 'mobShared.secInformationsPersonnelles'), t(language, 'mobShared.secFormation'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secCompetences'), t(language, 'mobShared.secReferences')], forbiddenSections: [], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.switzerlandLang'), tips: [t(language, 'mobShared.tipReferencesRequired'), t(language, 'mobShared.tipPhotoRequired')] },
+    Australie: { cvFormat: t(language, 'mobShared.australiaCvFormat'), requiredSections: [t(language, 'mobShared.secProfile'), t(language, 'mobShared.secKeySkills'), t(language, 'mobShared.secEmploymentHistory'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secReferees')], forbiddenSections: [t(language, 'mobShared.forbidPhoto'), t(language, 'mobShared.forbidAge'), t(language, 'mobShared.forbidNationality'), t(language, 'mobShared.forbidFullAddress')], photoRequired: false, maxPages: 3, language: t(language, 'mobShared.australiaLang'), tips: [t(language, 'mobShared.tipSelectionCriteria'), t(language, 'mobShared.tipTwoThreePages')] },
+    Belgique: { cvFormat: t(language, 'mobShared.belgiumCvFormat'), requiredSections: [t(language, 'mobShared.secInformationsPersonnelles'), t(language, 'mobShared.secFormation'), t(language, 'mobShared.secExperience'), t(language, 'mobShared.secCompetences'), t(language, 'mobShared.secLangues')], forbiddenSections: [t(language, 'mobShared.forbidPhotoOptional')], photoRequired: false, maxPages: 2, language: t(language, 'mobShared.belgiumLang'), tips: [t(language, 'mobShared.tipEuropassFormat'), t(language, 'mobShared.tipPhotoOptional')] },
+    Espagne: { cvFormat: t(language, 'mobShared.spainCvFormat'), requiredSections: [t(language, 'mobShared.secDatosPersonales'), t(language, 'mobShared.secFormacion'), t(language, 'mobShared.secExperiencia'), t(language, 'mobShared.secCompetencias')], forbiddenSections: [t(language, 'mobShared.forbidSensitiveData')], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.spainLang'), tips: [t(language, 'mobShared.tipEuropassFormat'), t(language, 'mobShared.tipPhotoUsuallyIncluded')] },
+    Italie: { cvFormat: t(language, 'mobShared.italyCvFormat'), requiredSections: [t(language, 'mobShared.secDatiPersonali'), t(language, 'mobShared.secIstruzione'), t(language, 'mobShared.secEsperienza'), t(language, 'mobShared.secCompetenze')], forbiddenSections: [t(language, 'mobShared.forbidIrrelevantSensitiveData')], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.italyLang'), tips: [t(language, 'mobShared.tipEuropassCurriculum'), t(language, 'mobShared.tipPhotoIncluded')] },
+    Japon: { cvFormat: t(language, 'mobShared.japanCvFormat'), requiredSections: [t(language, 'mobShared.secPersonalDataEn'), t(language, 'mobShared.secEducation'), t(language, 'mobShared.secWorkExperience'), t(language, 'mobShared.secSkills')], forbiddenSections: [], photoRequired: true, maxPages: 2, language: t(language, 'mobShared.japanLang'), tips: [t(language, 'mobShared.tipRirekishoFormat'), t(language, 'mobShared.tipPhotoIncluded'), t(language, 'mobShared.tipHighlyCodifiedStructure')] },
+  }
 }
 
 function getScoreColor(score: number): string {
@@ -46,17 +55,24 @@ function getScoreBg(score: number): string {
 }
 
 export default function MobilityProfile() {
-  const { stepData, extractedProfile, setStep, setMobilityResult } = useCVStore()
+  const { stepData, extractedProfile, setStep, setMobilityResult, language } = useCVStore()
   const targetCountry = (stepData.targetCountry as string) || 'France'
   const [compatibilityScore] = useState(68)
-  const [skillsGap] = useState<string[]>(['LinkedIn profil détaillé', 'Certification cloud avancée'])
-  const [recommendations] = useState<string[]>([
-    'Supprimer la photo pour le marché canadien',
-    'Ajouter un résumé professionnel de 3 lignes',
-    'Traduire les intitulés de poste en anglais',
-    'Reformuler les descriptions en bullet points orientés action',
-    'Ajouter des mots-clés spécifiques au secteur visé',
-  ])
+
+  const skillsGap = useMemo(() => [
+    t(language, 'mobProfile.skillsGapLinkedin'),
+    t(language, 'mobProfile.skillsGapCloud'),
+  ], [language])
+
+  const recommendations = useMemo(() => [
+    t(language, 'mobProfile.recom1'),
+    t(language, 'mobProfile.recom2'),
+    t(language, 'mobProfile.recom3'),
+    t(language, 'mobProfile.recom4'),
+    t(language, 'mobProfile.recom5'),
+  ], [language])
+
+  const countryNormsData = useMemo(() => buildCountryNormsData(language), [language])
 
   useEffect(() => {
     if (extractedProfile) {
@@ -77,7 +93,7 @@ export default function MobilityProfile() {
         recommendations,
       })
     }
-  }, [extractedProfile, targetCountry, compatibilityScore, skillsGap, recommendations, setMobilityResult])
+  }, [extractedProfile, targetCountry, compatibilityScore, skillsGap, recommendations, setMobilityResult, countryNormsData])
 
   const profile = extractedProfile
   const norms = countryNormsData[targetCountry] ?? countryNormsData['France']
@@ -99,9 +115,9 @@ export default function MobilityProfile() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold text-emerald-900">Profil Structuré</h1>
+          <h1 className="text-lg font-semibold text-emerald-900">{t(language, 'mobProfile.title')}</h1>
           <Badge variant="secondary" className="ml-auto bg-emerald-100 text-emerald-700">
-            {countryFlags[targetCountry] ?? '🌍'} {targetCountry}
+            {countryFlags[targetCountry] ?? '🌍'} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}
           </Badge>
         </div>
       </motion.header>
@@ -116,14 +132,14 @@ export default function MobilityProfile() {
           >
             <h2 className="mb-4 text-lg font-bold text-gray-800">
               <User className="mr-2 inline h-5 w-5 text-emerald-600" />
-              Profil original extrait
+              {t(language, 'mobProfile.originalProfile')}
             </h2>
 
             <Card className="border-emerald-200 bg-white shadow-sm">
               <CardContent className="space-y-5 p-5">
                 {/* Personal info */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Informations personnelles</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">{t(language, 'mobProfile.personalInfo')}</h3>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {[
                       { icon: User, label: profile?.fullName ?? '—' },
@@ -144,7 +160,7 @@ export default function MobilityProfile() {
 
                 {/* Skills */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Compétences</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">{t(language, 'mobProfile.skills')}</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {profile?.skills.map((s) => (
                       <Badge key={s} variant="secondary" className="bg-emerald-50 text-emerald-700">
@@ -157,7 +173,7 @@ export default function MobilityProfile() {
                 {/* Experience */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">
-                    <Briefcase className="mr-1 inline h-3.5 w-3.5" /> Expérience
+                    <Briefcase className="mr-1 inline h-3.5 w-3.5" /> {t(language, 'mobProfile.experience')}
                   </h3>
                   <div className="space-y-3">
                     {profile?.experience.map((exp, i) => (
@@ -173,7 +189,7 @@ export default function MobilityProfile() {
                 {/* Education */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">
-                    <GraduationCap className="mr-1 inline h-3.5 w-3.5" /> Formation
+                    <GraduationCap className="mr-1 inline h-3.5 w-3.5" /> {t(language, 'mobProfile.education')}
                   </h3>
                   <div className="space-y-3">
                     {profile?.education.map((edu, i) => (
@@ -196,23 +212,23 @@ export default function MobilityProfile() {
           >
             <h2 className="mb-4 text-lg font-bold text-gray-800">
               <Globe className="mr-2 inline h-5 w-5 text-teal-600" />
-              Adapté pour {targetCountry}
+              {t(language, 'mobProfile.adaptedFor')} {t(language, countryIdToNameKey[targetCountry] ?? 'mobShared.france')}
             </h2>
 
             {/* Country norms */}
             <Card className="mb-4 border-teal-200 bg-white shadow-sm">
               <CardContent className="p-5">
                 <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                  Normes du pays
+                  {t(language, 'mobProfile.countryNorms')}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2">
                     <FileImage className={`h-4 w-4 ${norms.photoRequired ? 'text-emerald-600' : 'text-gray-400'}`} />
-                    <span className="text-sm text-gray-700">Photo {norms.photoRequired ? 'requise' : 'non requise'}</span>
+                    <span className="text-sm text-gray-700">{t(language, norms.photoRequired ? 'mobProfile.photoRequired' : 'mobProfile.photoNotRequired')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Ruler className="h-4 w-4 text-teal-600" />
-                    <span className="text-sm text-gray-700">{norms.maxPages} page(s) max</span>
+                    <span className="text-sm text-gray-700">{norms.maxPages} {t(language, 'mobProfile.pagesMax')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Languages className="h-4 w-4 text-teal-600" />
@@ -225,7 +241,7 @@ export default function MobilityProfile() {
                 </div>
 
                 <div className="mt-3 space-y-1">
-                  <p className="text-xs font-medium text-emerald-700">Sections requises :</p>
+                  <p className="text-xs font-medium text-emerald-700">{t(language, 'mobProfile.requiredSectionsLabel')}</p>
                   <div className="flex flex-wrap gap-1">
                     {norms.requiredSections.map((s) => (
                       <Badge key={s} variant="outline" className="border-emerald-300 text-xs text-emerald-700">
@@ -236,7 +252,7 @@ export default function MobilityProfile() {
                 </div>
                 {norms.forbiddenSections.length > 0 && (
                   <div className="mt-2 space-y-1">
-                    <p className="text-xs font-medium text-red-600">Sections à éviter :</p>
+                    <p className="text-xs font-medium text-red-600">{t(language, 'mobProfile.forbiddenSectionsLabel')}</p>
                     <div className="flex flex-wrap gap-1">
                       {norms.forbiddenSections.map((s) => (
                         <Badge key={s} variant="outline" className="border-red-300 text-xs text-red-600">
@@ -276,13 +292,13 @@ export default function MobilityProfile() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">Score de compatibilité</p>
+                  <p className="text-sm font-semibold text-gray-800">{t(language, 'mobProfile.compatibilityScore')}</p>
                   <p className="text-xs text-gray-500">
                     {compatibilityScore >= 80
-                      ? 'Votre CV est très bien adapté.'
+                      ? t(language, 'mobProfile.scoreExcellent')
                       : compatibilityScore >= 60
-                        ? 'Quelques ajustements recommandés.'
-                        : 'Des modifications importantes sont nécessaires.'}
+                        ? t(language, 'mobProfile.scoreGood')
+                        : t(language, 'mobProfile.scoreNeedsWork')}
                   </p>
                 </div>
               </CardContent>
@@ -292,7 +308,7 @@ export default function MobilityProfile() {
             <Card className="mb-4 border-amber-200 bg-white shadow-sm">
               <CardContent className="p-5">
                 <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-amber-600">
-                  <AlertTriangle className="h-4 w-4" /> Compétences manquantes
+                  <AlertTriangle className="h-4 w-4" /> {t(language, 'mobProfile.missingSkills')}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
                   {skillsGap.map((s) => (
@@ -308,7 +324,7 @@ export default function MobilityProfile() {
             <Card className="border-emerald-200 bg-white shadow-sm">
               <CardContent className="p-5">
                 <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-emerald-600">
-                  <Lightbulb className="h-4 w-4" /> Recommandations
+                  <Lightbulb className="h-4 w-4" /> {t(language, 'mobProfile.recommendations')}
                 </h3>
                 <ul className="space-y-2">
                   {recommendations.map((rec, i) => (
@@ -336,7 +352,7 @@ export default function MobilityProfile() {
             className="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700"
           >
             <Sparkles className="mr-2 h-5 w-5" />
-            Générer CV & Lettre adaptés
+            {t(language, 'mobProfile.generateCvCl')}
           </Button>
           <Button
             variant="outline"
@@ -345,7 +361,7 @@ export default function MobilityProfile() {
             className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
           >
             <Eye className="mr-2 h-4 w-4" />
-            Modifier
+            {t(language, 'mobProfile.edit')}
           </Button>
         </motion.div>
       </main>

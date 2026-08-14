@@ -56,11 +56,11 @@ const MODULE_PRICES: Record<string, number> = {
 
 // Goal-specific value props
 const GOAL_VALUE_PROPS: Record<UserGoal, { reason: string; savingsPercent: number }> = {
-  create_cv: { reason: 'CV professionnel + analyse ATS', savingsPercent: 38 },
-  find_job: { reason: '7 modules pour maximiser vos chances', savingsPercent: 60 },
-  prepare_interview: { reason: 'Simulation IA + coaching entretien', savingsPercent: 54 },
-  develop_career: { reason: '11 modules pour votre évolution', savingsPercent: 72 },
-  freelance: { reason: 'Marketplace + coaching + formation', savingsPercent: 62 },
+  create_cv: { reason: 'priceGoalReasonCreateCv', savingsPercent: 38 },
+  find_job: { reason: 'priceGoalReasonFindJob', savingsPercent: 60 },
+  prepare_interview: { reason: 'priceGoalReasonPrepareInterview', savingsPercent: 54 },
+  develop_career: { reason: 'priceGoalReasonDevelopCareer', savingsPercent: 72 },
+  freelance: { reason: 'priceGoalReasonFreelance', savingsPercent: 62 },
 }
 
 interface PricingSectionProps {
@@ -131,7 +131,7 @@ const BUNDLES: BundlePlan[] = [
     badgeClass: '',
     icon: Rocket,
     modules: ['CV', 'ATS'],
-    description: 'Créez des CV professionnels et analysez votre compatibilité ATS.',
+    description: 'priceBundleStartDesc',
   },
   {
     id: 'hirenova_career',
@@ -142,11 +142,11 @@ const BUNDLES: BundlePlan[] = [
     bgIcon: 'bg-sky-100',
     iconColor: 'text-sky-600',
     btnClass: 'bg-sky-500 hover:bg-sky-600 text-white',
-    badge: '⭐ Populaire',
+    badge: 'priceBundleCareerBadge',
     badgeClass: 'bg-sky-500 text-white',
     icon: Star,
     modules: ['CV', 'ATS', 'JOBS', 'GLOBAL', 'INTERVIEW', 'LINKEDIN', 'CAREER'],
-    description: 'Tous les outils essentiels pour booster votre recherche d\'emploi.',
+    description: 'priceBundleCareerDesc',
   },
   {
     id: 'hirenova_professional',
@@ -157,11 +157,11 @@ const BUNDLES: BundlePlan[] = [
     bgIcon: 'bg-violet-100',
     iconColor: 'text-violet-600',
     btnClass: 'bg-violet-500 hover:bg-violet-600 text-white',
-    badge: 'Best Value',
+    badge: 'priceBundleProBadge',
     badgeClass: 'bg-violet-500 text-white',
     icon: Crown,
     modules: ['CV', 'ATS', 'JOBS', 'GLOBAL', 'MOBILITY', 'INTERVIEW', 'LINKEDIN', 'CAREER', 'COACH', 'FORMATION', 'FREELANCE', 'Intelligence'],
-    description: 'L\'expérience complète : coaching, formation, freelance et plus.',
+    description: 'priceBundleProDesc',
   },
   {
     id: 'hirenova_ai_power',
@@ -172,11 +172,11 @@ const BUNDLES: BundlePlan[] = [
     bgIcon: 'bg-amber-100',
     iconColor: 'text-amber-600',
     btnClass: 'bg-amber-500 hover:bg-amber-600 text-white',
-    badge: 'Premium',
+    badge: 'priceBundleAiPowerBadge',
     badgeClass: 'bg-amber-500 text-white',
     icon: Sparkles,
     modules: ['CV', 'ATS', 'JOBS', 'GLOBAL', 'MOBILITY', 'INTERVIEW', 'LINKEDIN', 'CAREER', 'COACH', 'FORMATION', 'FREELANCE', 'Intelligence', 'AI Intelligence', 'AI Chatbot Advanced', 'IA avancées'],
-    description: 'La puissance maximale avec tous les modules IA avancés inclus.',
+    description: 'priceBundleAiPowerDesc',
   },
 ]
 
@@ -195,69 +195,69 @@ interface IndividualModule {
 const MODULES: IndividualModule[] = [
   {
     id: 'mod_cv', name: 'CV', monthlyEur: 9.9, icon: FileText,
-    shortDesc: 'Générateur de CV IA professionnel',
-    fullDesc: 'Créez des CV professionnels optimisés pour chaque candidature avec notre intelligence artificielle avancée. Templates modernes, export PDF et Word.',
-    features: ['Templates modernes', 'Export PDF & Word', 'Optimisation IA', 'Aperçu en temps réel', 'Multi-langues'],
+    shortDesc: 'priceModCvShort',
+    fullDesc: 'priceModCvFull',
+    features: ['priceModCvF1', 'priceModCvF2', 'priceModCvF3', 'priceModCvF4', 'priceModCvF5'],
   },
   {
     id: 'mod_ats', name: 'ATS', monthlyEur: 7.9, icon: Shield,
-    shortDesc: 'Analyse de compatibilité ATS',
-    fullDesc: 'Analysez la compatibilité de votre CV avec les systèmes ATS des entreprises. Recevez des recommandations précises pour améliorer votre score.',
-    features: ['Score de compatibilité', 'Recommandations IA', 'Keywords manquants', 'Comparaison par offre'],
+    shortDesc: 'priceModAtsShort',
+    fullDesc: 'priceModAtsFull',
+    features: ['priceModAtsF1', 'priceModAtsF2', 'priceModAtsF3', 'priceModAtsF4'],
   },
   {
     id: 'mod_jobs', name: 'JOBS', monthlyEur: 9.9, icon: Search,
-    shortDesc: 'Marketplace d\'offres d\'emploi',
-    fullDesc: 'Parcourez des milliers d\'offres d\'emploi en France et à l\'international. Filtres avancés, alertes personnalisées et candidature en un clic.',
-    features: ['Offres en temps réel', 'Filtres avancés', 'Alertes email', 'Candidature simplifiée', 'Suivi des candidatures'],
+    shortDesc: 'priceModJobsShort',
+    fullDesc: 'priceModJobsFull',
+    features: ['priceModJobsF1', 'priceModJobsF2', 'priceModJobsF3', 'priceModJobsF4', 'priceModJobsF5'],
   },
   {
     id: 'mod_global', name: 'GLOBAL', monthlyEur: 9.9, icon: Globe,
-    shortDesc: 'Recrutement international',
-    fullDesc: 'Accédez à des opportunités dans le monde entier. Offres internationales, visa, relocation et accompagnement personnalisé.',
-    features: ['Offres mondiales', 'Guide visa & relocation', 'Matching IA international', 'Alertes par pays'],
+    shortDesc: 'priceModGlobalShort',
+    fullDesc: 'priceModGlobalFull',
+    features: ['priceModGlobalF1', 'priceModGlobalF2', 'priceModGlobalF3', 'priceModGlobalF4'],
   },
   {
     id: 'mod_mobility', name: 'MOBILITY', monthlyEur: 12.9, icon: Plane,
-    shortDesc: 'OCR & Analyse de documents',
-    fullDesc: 'Pipeline IA complet pour l\'analyse de vos documents de mobilité. OCR avancé, traitement NLP et scoring automatique.',
-    features: ['OCR haute précision', 'Pipeline NLP', 'Scoring automatique', 'Multi-formats supportés'],
+    shortDesc: 'priceModMobilityShort',
+    fullDesc: 'priceModMobilityFull',
+    features: ['priceModMobilityF1', 'priceModMobilityF2', 'priceModMobilityF3', 'priceModMobilityF4'],
   },
   {
     id: 'mod_interview', name: 'INTERVIEW', monthlyEur: 9.9, icon: UserCheck,
-    shortDesc: 'Simulateur d\'entretien IA',
-    fullDesc: 'Préparez-vous aux entretiens avec notre simulateur IA. Questions personnalisées, feedback en temps réel et coaching vocal.',
-    features: ['Simulation IA réaliste', 'Feedback instantané', 'Entraînement vocal', 'Questions par métier', 'Suivi de progression'],
+    shortDesc: 'priceModInterviewShort',
+    fullDesc: 'priceModInterviewFull',
+    features: ['priceModInterviewF1', 'priceModInterviewF2', 'priceModInterviewF3', 'priceModInterviewF4', 'priceModInterviewF5'],
   },
   {
     id: 'mod_linkedin', name: 'LINKEDIN', monthlyEur: 7.9, icon: Linkedin,
-    shortDesc: 'Optimisation profil LinkedIn',
-    fullDesc: 'Analysez et optimisez votre profil LinkedIn avec l\'IA. Génération de résumés percutants et conseils d\'optimisation.',
-    features: ['Analyse IA du profil', 'Génération de résumé', 'Conseils d\'optimisation', 'Benchmark vs concurrents'],
+    shortDesc: 'priceModLinkedinShort',
+    fullDesc: 'priceModLinkedinFull',
+    features: ['priceModLinkedinF1', 'priceModLinkedinF2', 'priceModLinkedinF3', 'priceModLinkedinF4'],
   },
   {
     id: 'mod_career', name: 'CAREER', monthlyEur: 9.9, icon: Compass,
-    shortDesc: 'Feuille de route de carrière',
-    fullDesc: 'Planifiez votre évolution professionnelle avec des assessments IA, des roadmaps personnalisées et une analyse de vos compétences.',
-    features: ['Assessment IA', 'Roadmap personnalisée', 'Analyse compétences', 'Objectifs de carrière'],
+    shortDesc: 'priceModCareerShort',
+    fullDesc: 'priceModCareerFull',
+    features: ['priceModCareerF1', 'priceModCareerF2', 'priceModCareerF3', 'priceModCareerF4'],
   },
   {
     id: 'mod_coach', name: 'COACH', monthlyEur: 9.9, icon: BookOpen,
-    shortDesc: 'Coach de carrière IA',
-    fullDesc: 'Votre coach de carrière personnel alimenté par l\'IA. Sessions de coaching, définition d\'objectifs et suivi de progression.',
-    features: ['Sessions coaching IA', 'Définition d\'objectifs', 'Historique & suivi', 'Plan d\'action personnalisé'],
+    shortDesc: 'priceModCoachShort',
+    fullDesc: 'priceModCoachFull',
+    features: ['priceModCoachF1', 'priceModCoachF2', 'priceModCoachF3', 'priceModCoachF4'],
   },
   {
     id: 'mod_formation', name: 'FORMATION', monthlyEur: 12.9, icon: GraduationCap,
-    shortDesc: 'Formation & Certification',
-    fullDesc: 'Catalogue de formations et certifications pour développer vos compétences. Parcours personnalisés selon vos objectifs.',
-    features: ['Catalogue riche', 'Parcours personnalisés', 'Certification IA', 'Suivi de progression'],
+    shortDesc: 'priceModFormationShort',
+    fullDesc: 'priceModFormationFull',
+    features: ['priceModFormationF1', 'priceModFormationF2', 'priceModFormationF3', 'priceModFormationF4'],
   },
   {
     id: 'mod_freelance', name: 'FREELANCE', monthlyEur: 9.9, icon: Briefcase,
-    shortDesc: 'Marketplace freelance',
-    fullDesc: 'Trouvez des missions freelance ou recrutez des talents. Matching IA, gestion de contrats et paiement sécurisé.',
-    features: ['Missions freelance', 'Matching IA', 'Gestion contrats', 'Paiement sécurisé', 'Dashboard freelance'],
+    shortDesc: 'priceModFreelanceShort',
+    fullDesc: 'priceModFreelanceFull',
+    features: ['priceModFreelanceF1', 'priceModFreelanceF2', 'priceModFreelanceF3', 'priceModFreelanceF4', 'priceModFreelanceF5'],
   },
 ]
 
@@ -273,40 +273,40 @@ interface B2BTier {
 
 const B2B: Record<string, { label: string; icon: any; tiers: B2BTier[] }> = {
   recruiter: {
-    label: 'Recruteur',
+    label: 'priceB2bRecruiter',
     icon: Building2,
     tiers: [
-      { name: 'Starter', monthlyEur: 99, description: 'Petites entreprises', features: ['5 offres d\'emploi actives', 'Dashboard recruteur', 'Recherche candidats', 'Export CSV'] },
-      { name: 'Professional', monthlyEur: 249, description: 'Agences de recrutement', features: ['25 offres actives', 'Pipeline IA', 'Matching avancé', 'Support prioritaire', 'Multi-utilisateurs'] },
-      { name: 'Business', monthlyEur: 499, description: 'Multi-recruteurs', features: ['Offres illimitées', 'API intégrée', 'SSO', 'Support dédié', 'Rapports avancés'] },
-      { name: 'Enterprise', monthlyEur: null, description: 'Solutions sur mesure', features: ['Tout illimité', 'SLA garanti', 'Intégration custom', 'Account manager dédié', 'Formation équipe'] },
+      { name: 'Starter', monthlyEur: 99, description: 'priceB2bRecStarterDesc', features: ['priceB2bRecStarterF1', 'priceB2bRecStarterF2', 'priceB2bRecStarterF3', 'priceB2bRecStarterF4'] },
+      { name: 'Professional', monthlyEur: 249, description: 'priceB2bRecProDesc', features: ['priceB2bRecProF1', 'priceB2bRecProF2', 'priceB2bRecProF3', 'priceB2bRecProF4', 'priceB2bRecProF5'] },
+      { name: 'Business', monthlyEur: 499, description: 'priceB2bRecBizDesc', features: ['priceB2bRecBizF1', 'priceB2bRecBizF2', 'priceB2bRecBizF3', 'priceB2bRecBizF4', 'priceB2bRecBizF5'] },
+      { name: 'Enterprise', monthlyEur: null, description: 'priceB2bRecEntDesc', features: ['priceB2bRecEntF1', 'priceB2bRecEntF2', 'priceB2bRecEntF3', 'priceB2bRecEntF4', 'priceB2bRecEntF5'] },
     ],
   },
   campus: {
-    label: 'Campus SaaS',
+    label: 'priceB2bCampus',
     icon: GraduationCap,
     tiers: [
-      { name: 'Starter', monthlyEur: 299, description: 'Écoles & universités', features: ['500 étudiants max', 'CV center', 'ATS intégré', 'Statistiques de base'] },
-      { name: 'Professional', monthlyEur: 699, description: 'Grands campus', features: ['2 000 étudiants', 'Job board intégré', 'Analytics avancés', 'Branding custom', 'API access'] },
-      { name: 'Enterprise', monthlyEur: 1499, minMonthlyEur: 1499, description: 'Réseaux d\'écoles', features: ['Étudiants illimités', 'Multi-campus', 'White label partiel', 'SSO & LMS', 'Support dédié 24/7'] },
+      { name: 'Starter', monthlyEur: 299, description: 'priceB2bCampStarterDesc', features: ['priceB2bCampStarterF1', 'priceB2bCampStarterF2', 'priceB2bCampStarterF3', 'priceB2bCampStarterF4'] },
+      { name: 'Professional', monthlyEur: 699, description: 'priceB2bCampProDesc', features: ['priceB2bCampProF1', 'priceB2bCampProF2', 'priceB2bCampProF3', 'priceB2bCampProF4', 'priceB2bCampProF5'] },
+      { name: 'Enterprise', monthlyEur: 1499, minMonthlyEur: 1499, description: 'priceB2bCampEntDesc', features: ['priceB2bCampEntF1', 'priceB2bCampEntF2', 'priceB2bCampEntF3', 'priceB2bCampEntF4', 'priceB2bCampEntF5'] },
     ],
   },
   whitelabel: {
-    label: 'White Label',
+    label: 'priceB2bWhitelabel',
     icon: Store,
     tiers: [
-      { name: 'Starter', monthlyEur: 499, description: 'Marque propre', features: ['Branding complet', 'Domaine custom', 'Modules au choix', 'Support standard'] },
-      { name: 'Pro', monthlyEur: 999, description: 'Déploiement complet', features: ['Tout Starter +', 'API full access', 'Analytics avancés', 'Support prioritaire', 'Formation équipe'] },
-      { name: 'Enterprise', monthlyEur: 2500, minMonthlyEur: 2500, description: 'Solution clé en main', features: ['Tout Pro +', 'Source code access', 'SLA 99.9%', 'Account manager dédié', 'Développement custom'] },
+      { name: 'Starter', monthlyEur: 499, description: 'priceB2bWlStarterDesc', features: ['priceB2bWlStarterF1', 'priceB2bWlStarterF2', 'priceB2bWlStarterF3', 'priceB2bWlStarterF4'] },
+      { name: 'Pro', monthlyEur: 999, description: 'priceB2bWlProDesc', features: ['priceB2bWlProF1', 'priceB2bWlProF2', 'priceB2bWlProF3', 'priceB2bWlProF4', 'priceB2bWlProF5'] },
+      { name: 'Enterprise', monthlyEur: 2500, minMonthlyEur: 2500, description: 'priceB2bWlEntDesc', features: ['priceB2bWlEntF1', 'priceB2bWlEntF2', 'priceB2bWlEntF3', 'priceB2bWlEntF4', 'priceB2bWlEntF5'] },
     ],
   },
   api: {
-    label: 'API',
+    label: 'priceB2bApi',
     icon: Code2,
     tiers: [
-      { name: 'Starter', monthlyEur: 49, description: 'Intégration basique', features: ['1 000 requêtes/mois', 'Endpoints CV', 'Documentation', 'Support email'] },
-      { name: 'Pro', monthlyEur: 149, description: 'Intégration avancée', features: ['10 000 requêtes/mois', 'Tous les endpoints', 'Webhooks', 'Support prioritaire'] },
-      { name: 'Business', monthlyEur: 399, description: 'Volume élevé', features: ['50 000 requêtes/mois', 'Rate limiting custom', 'SLA garanti', 'Account manager', 'Analytics API'] },
+      { name: 'Starter', monthlyEur: 49, description: 'priceB2bApiStarterDesc', features: ['priceB2bApiStarterF1', 'priceB2bApiStarterF2', 'priceB2bApiStarterF3', 'priceB2bApiStarterF4'] },
+      { name: 'Pro', monthlyEur: 149, description: 'priceB2bApiProDesc', features: ['priceB2bApiProF1', 'priceB2bApiProF2', 'priceB2bApiProF3', 'priceB2bApiProF4'] },
+      { name: 'Business', monthlyEur: 399, description: 'priceB2bApiBizDesc', features: ['priceB2bApiBizF1', 'priceB2bApiBizF2', 'priceB2bApiBizF3', 'priceB2bApiBizF4', 'priceB2bApiBizF5'] },
     ],
   },
 }
@@ -315,14 +315,14 @@ const B2B: Record<string, { label: string; icon: any; tiers: B2BTier[] }> = {
 
 const B2B_ANNUAL_MULTIPLIER = 10 // 17% savings
 
-function computeB2BPrice(tier: B2BTier, currency: Currency, billing: BillingPeriod): string {
-  if (tier.monthlyEur === null) return 'Sur devis'
+function computeB2BPrice(tier: B2BTier, currency: Currency, billing: BillingPeriod, language: CVLanguage): string {
+  if (tier.monthlyEur === null) return t(language, 'priceOnQuote')
 
   const rate = CONVERSION[currency]
   const sym = SYMBOLS[currency]
   const multiplier = billing === 'annual' ? B2B_ANNUAL_MULTIPLIER : 1
   const amount = Math.round(tier.monthlyEur * rate * multiplier * 100) / 100
-  const period = billing === 'annual' ? '/an' : '/mois'
+  const period = billing === 'annual' ? t(language, 'pricePerYear') : t(language, 'pricePerMonth')
   const isMin = !!tier.minMonthlyEur
 
   if (currency === 'mad') {
@@ -430,12 +430,12 @@ export default function PricingSection({
       } else if (data.code === 'DEV_PAYMENT' && data.success) {
         setPaymentSuccess(data.data)
         setCheckoutSuccessId(planId)
-        toast.success(`Paiement réussi — ${data.data.planLabel || planId} activé. Facture ${data.data.invoice.number} générée.`)
+        toast.success(`${t(language, 'priceToastPaymentSuccess')} — ${data.data.planLabel || planId} ${t(language, 'priceToastActivated')}. ${t(language, 'priceToastInvoice')} ${data.data.invoice.number} ${t(language, 'priceToastGenerated')}.`)
       } else {
-        toast.error(data.error || 'Erreur lors du paiement')
+        toast.error(data.error || t(language, 'pricePaymentError'))
       }
     } catch {
-      toast.error('Erreur de connexion au serveur de paiement')
+      toast.error(t(language, 'priceConnectionError'))
     } finally {
       setCheckoutLoading(null)
     }
@@ -458,10 +458,10 @@ export default function PricingSection({
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Nos Offres
+            {t(language, 'priceOurOffers')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-            Choisissez le plan qui correspond à vos besoins. Tous les plans incluent un accès complet aux modules sélectionnés.
+            {t(language, 'priceChoosePlanDesc')}
           </p>
 
           {/* Billing Toggle */}
@@ -475,7 +475,7 @@ export default function PricingSection({
                   : 'text-muted-foreground hover:text-foreground',
               ].join(' ')}
             >
-              MENSUEL
+              {t(language, 'priceBillingMonthly')}
             </button>
             <button
               onClick={() => setBillingPeriod('annual')}
@@ -486,9 +486,9 @@ export default function PricingSection({
                   : 'text-muted-foreground hover:text-foreground',
               ].join(' ')}
             >
-              ANNUEL
+              {t(language, 'priceBillingAnnual')}
               <span className="text-xs text-emerald-600 font-medium">
-                — ÉCONOMISEZ JUSQU'À 17%
+                {t(language, 'priceSaveUpTo17')}
               </span>
             </button>
           </div>
@@ -603,13 +603,13 @@ export default function PricingSection({
                     </h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       <span className="font-semibold text-foreground">{valueCalc.bundleName}</span>
-                      {' — '}{valueCalc.reason}
+                      {' — '}{t(language, valueCalc.reason)}
                       {'. '}{valueCalc.moduleCount} {t(language, 'includesModules').toLowerCase()}
                       {' — '}{t(language, 'bundleCost').toLowerCase()}
                       {' '}
                       <span className="font-bold text-emerald-600">{valueCalc.formattedBundle}</span>
-                      {' '}{isAnnual ? '/an' : '/mois'}
-                      {' au lieu de '}
+                      {' '}{isAnnual ? t(language, 'pricePerYear') : t(language, 'pricePerMonth')}
+                      {t(language, 'priceInsteadOf')}
                       <span className="line-through text-muted-foreground">{valueCalc.formattedIndividual}</span>
                       {' — '}
                       <span className="font-bold text-emerald-600">{t(language, 'youSave').toLowerCase()} {valueCalc.savingsPct}%</span>
@@ -619,7 +619,7 @@ export default function PricingSection({
                   <button
                     onClick={() => setSelectedGoal(null)}
                     className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                    aria-label="Close"
+                    aria-label={t(language, 'priceClose')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                   </button>
@@ -666,7 +666,7 @@ export default function PricingSection({
                   {!isGoalRecommended && plan.badge && (
                     <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                       <Badge className={`${plan.badgeClass} px-3 py-0.5 text-[10px] font-semibold rounded-full shadow-sm`}>
-                        {plan.badge}
+                        {t(language, plan.badge)}
                       </Badge>
                     </div>
                   )}
@@ -682,16 +682,16 @@ export default function PricingSection({
                       {isAnnual ? (
                         <div className="flex items-baseline gap-1">
                           <span className="text-3xl font-extrabold text-foreground">{fmtAnnual(plan.monthlyEur, currency)}</span>
-                          <span className="text-muted-foreground text-xs">/an</span>
+                          <span className="text-muted-foreground text-xs">{t(language, 'pricePerYear')}</span>
                         </div>
                       ) : (
                         <div className="flex items-baseline gap-1">
                           <span className="text-3xl font-extrabold text-foreground">{fmtPrice(plan.monthlyEur, currency)}</span>
-                          <span className="text-muted-foreground text-xs">/mois</span>
+                          <span className="text-muted-foreground text-xs">{t(language, 'pricePerMonth')}</span>
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mb-4">{plan.description}</p>
+                    <p className="text-xs text-muted-foreground mb-4">{t(language, plan.description)}</p>
 
                     <div className="space-y-2 mb-6 flex-grow">
                       {plan.modules.map((mod) => (
@@ -715,10 +715,10 @@ export default function PricingSection({
                         <Icon className="mr-1.5 w-3.5 h-3.5" />
                       )}
                       {checkoutSuccessId === plan.id
-                        ? 'ACTIVÉ'
+                        ? t(language, 'priceActivated')
                         : isAnnual
-                          ? `${fmtAnnual(plan.monthlyEur, currency)}/an`
-                          : 'COMMENCER'
+                          ? `${fmtAnnual(plan.monthlyEur, currency)}${t(language, 'pricePerYear')}`
+                          : t(language, 'priceStartBtn')
                       }
                     </Button>
                   </CardContent>
@@ -737,10 +737,10 @@ export default function PricingSection({
           className="mb-16"
         >
           <h3 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-3">
-            Vous préférez choisir vos modules ?
+            {t(language, 'priceChooseModulesTitle')}
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-8 max-w-xl mx-auto">
-            Sélectionnez uniquement les modules dont vous avez besoin. Combinez-les librement.
+            {t(language, 'priceChooseModulesDesc')}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -765,18 +765,18 @@ export default function PricingSection({
                         </div>
                         <div>
                           <h4 className="font-bold text-sm text-foreground">{mod.name}</h4>
-                          <p className="text-[11px] text-muted-foreground line-clamp-1">{mod.shortDesc}</p>
+                          <p className="text-[11px] text-muted-foreground line-clamp-1">{t(language, mod.shortDesc)}</p>
                         </div>
                       </div>
                       <div className="mt-auto flex items-center justify-between">
                         <div className="text-xs text-muted-foreground">
                           {isAnnual
-                            ? <><span className="font-bold text-foreground">{fmtAnnual(mod.monthlyEur, currency)}</span>/an</>
-                            : <><span className="font-bold text-foreground">{fmtPrice(mod.monthlyEur, currency)}</span>/mois</>
+                            ? <><span className="font-bold text-foreground">{fmtAnnual(mod.monthlyEur, currency)}</span>{t(language, 'pricePerYear')}</>
+                            : <><span className="font-bold text-foreground">{fmtPrice(mod.monthlyEur, currency)}</span>{t(language, 'pricePerMonth')}</>
                           }
                         </div>
                         <span className="text-xs font-semibold text-emerald-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                          DÉCOUVRIR <ArrowRight className="w-3 h-3" />
+                          {t(language, 'priceDiscover')} <ArrowRight className="w-3 h-3" />
                         </span>
                       </div>
                     </CardContent>
@@ -795,10 +795,10 @@ export default function PricingSection({
           transition={{ duration: 0.5 }}
         >
           <h3 className="text-2xl sm:text-3xl font-bold text-foreground text-center mb-3">
-            HireNova Business
+            {t(language, 'priceB2bTitle')}
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-8 max-w-xl mx-auto">
-            Solutions professionnelles pour les recruteurs, campus et entreprises.
+            {t(language, 'priceB2bDesc')}
           </p>
 
           <Tabs defaultValue="recruiter" className="w-full">
@@ -808,7 +808,7 @@ export default function PricingSection({
                 return (
                   <TabsTrigger key={key} value={key} className="text-xs sm:text-sm gap-1">
                     <TabIcon className="w-3.5 h-3.5 hidden sm:inline" />
-                    <span className="truncate">{val.label}</span>
+                    <span className="truncate">{t(language, val.label)}</span>
                   </TabsTrigger>
                 )
               })}
@@ -835,17 +835,17 @@ export default function PricingSection({
                               </div>
                               <div>
                                 <h4 className="font-bold text-sm text-foreground">{tier.name}</h4>
-                                <p className="text-[11px] text-muted-foreground">{tier.description}</p>
+                                <p className="text-[11px] text-muted-foreground">{t(language, tier.description)}</p>
                               </div>
                             </div>
                             <div className="mb-4">
-                              <span className="text-2xl font-extrabold text-foreground">{computeB2BPrice(tier, currency, billingPeriod)}</span>
+                              <span className="text-2xl font-extrabold text-foreground">{computeB2BPrice(tier, currency, billingPeriod, language)}</span>
                             </div>
                             <div className="space-y-2 mb-6 flex-grow">
                               {tier.features.map((f) => (
                                 <div key={f} className="flex items-start gap-2 text-xs">
                                   <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                                  <span className="text-muted-foreground">{f}</span>
+                                  <span className="text-muted-foreground">{t(language, f)}</span>
                                 </div>
                               ))}
                             </div>
@@ -854,20 +854,20 @@ export default function PricingSection({
                                 variant="outline"
                                 className="w-full rounded-xl py-2.5 text-sm font-semibold cursor-pointer border-slate-300 text-slate-700 hover:bg-slate-50"
                                 onClick={() => {
-                                  toast.info('Un conseiller vous contactera sous 24h.', { duration: 4000 })
+                                  toast.info(t(language, 'priceB2bToastContact'), { duration: 4000 })
                                 }}
                               >
                                 <Mail className="mr-1.5 w-3.5 h-3.5" />
-                                Nous contacter
+                                {t(language, 'priceB2bContactUs')}
                               </Button>
                             ) : (
                               <Button
                                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 text-sm font-semibold cursor-pointer transition-all"
                                 onClick={() => {
-                                  toast.info('Un conseiller vous contactera sous 24h pour configurer votre abonnement.', { duration: 4000 })
+                                  toast.info(t(language, 'priceB2bToastContactConfig'), { duration: 4000 })
                                 }}
                               >
-                                Demander un devis
+                                {t(language, 'priceB2bRequestQuote')}
                               </Button>
                             )}
                           </CardContent>
@@ -895,19 +895,19 @@ export default function PricingSection({
                   </div>
                   <div>
                     <DialogTitle className="text-lg">{selectedModule.name}</DialogTitle>
-                    <DialogDescription>{selectedModule.shortDesc}</DialogDescription>
+                    <DialogDescription>{t(language, selectedModule.shortDesc)}</DialogDescription>
                   </div>
                 </div>
               </DialogHeader>
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">{selectedModule.fullDesc}</p>
+                <p className="text-sm text-muted-foreground">{t(language, selectedModule.fullDesc)}</p>
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Fonctionnalités incluses :</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{t(language, 'priceIncludedFeatures')}</h4>
                   <div className="space-y-1.5">
                     {selectedModule.features.map((f) => (
                       <div key={f} className="flex items-center gap-2 text-sm">
                         <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span className="text-muted-foreground">{f}</span>
+                        <span className="text-muted-foreground">{t(language, f)}</span>
                       </div>
                     ))}
                   </div>
@@ -915,8 +915,8 @@ export default function PricingSection({
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div className="text-lg font-bold text-foreground">
                     {isAnnual
-                      ? <>{fmtAnnual(selectedModule.monthlyEur, currency)}/an</>
-                      : <>{fmtPrice(selectedModule.monthlyEur, currency)}/mois</>
+                      ? <>{fmtAnnual(selectedModule.monthlyEur, currency)}{t(language, 'pricePerYear')}</>
+                      : <>{fmtPrice(selectedModule.monthlyEur, currency)}{t(language, 'pricePerMonth')}</>
                     }
                   </div>
                   <Button
@@ -932,7 +932,7 @@ export default function PricingSection({
                     ) : checkoutSuccessId === selectedModule.id ? (
                       <Check className="mr-2 w-4 h-4" />
                     ) : null}
-                    {checkoutSuccessId === selectedModule.id ? 'ACTIVÉ' : 'COMMENCER'}
+                    {checkoutSuccessId === selectedModule.id ? t(language, 'priceActivated') : t(language, 'priceStartBtn')}
                   </Button>
                 </div>
               </div>
