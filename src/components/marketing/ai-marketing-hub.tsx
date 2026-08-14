@@ -290,7 +290,7 @@ const i18n: Record<CVLanguage, Record<string, string>> = {
   },
 }
 
-function t(key: string, lang: CVLanguage): string {
+function hubT(key: string, lang: CVLanguage): string {
   return i18n[lang]?.[key] ?? i18n.fr[key] ?? key
 }
 
@@ -464,7 +464,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
       // Fallback to default result
       setResult({
         success: true,
-        bundle: { id: 'hirenova_start', name: 'HireNova Start', price: '€9.90/mois', reason: t('whyThisBundle', language), savings: '' },
+        bundle: { id: 'hirenova_start', name: 'HireNova Start', price: '€9.90/mois', reason: hubT('whyThisBundle', language), savings: '' },
         products: [
           { slug: 'cv', name: 'CV IA', reason: '', priority: 'primary' },
           { slug: 'cover-letter', name: 'Lettre de Motivation', reason: '', priority: 'secondary' },
@@ -512,13 +512,13 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
         >
           <Badge variant="secondary" className="mb-4 px-4 py-1.5 text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0">
             <Brain className="w-3.5 h-3.5 mr-1.5" />
-            {t('liveStats', language)}
+            {hubT('liveStats', language)}
           </Badge>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            {t('hubTitle', language)}
+            {hubT('hubTitle', language)}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t('hubSubtitle', language)}
+            {hubT('hubSubtitle', language)}
           </p>
         </motion.div>
 
@@ -531,10 +531,10 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14"
         >
           {[
-            { value: publicStats.documents, suffix: '+', icon: FileText, label: t('statDocs', language), color: 'text-emerald-600' },
-            { value: publicStats.users, suffix: '+', icon: Users, label: t('statUsers', language), color: 'text-teal-600' },
-            { value: satisfactionPercent, suffix: '%', icon: Star, label: t('statSatisfaction', language), color: 'text-amber-500' },
-            { value: 47, suffix: '+', icon: Globe, label: t('statCountries', language), color: 'text-sky-600' },
+            { value: publicStats.documents, suffix: '+', icon: FileText, label: hubT('statDocs', language), color: 'text-emerald-600' },
+            { value: publicStats.users, suffix: '+', icon: Users, label: hubT('statUsers', language), color: 'text-teal-600' },
+            { value: satisfactionPercent, suffix: '%', icon: Star, label: hubT('statSatisfaction', language), color: 'text-amber-500' },
+            { value: 47, suffix: '+', icon: Globe, label: hubT('statCountries', language), color: 'text-sky-600' },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -601,7 +601,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                 className="inline-flex items-center gap-2 px-8 py-6 text-base font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 rounded-lg cursor-pointer"
               >
                 <Sparkles className="w-5 h-5" />
-                {t('startQuiz', language)}
+                {hubT('startQuiz', language)}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
@@ -619,7 +619,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-muted-foreground font-medium">
-                    {t('stepOf', language)} {quizStep + 1}/4
+                    {hubT('stepOf', language)} {quizStep + 1}/4
                   </span>
                   <span className="text-sm font-semibold text-emerald-600">{Math.round(progressPercent)}%</span>
                 </div>
@@ -687,7 +687,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                       className={isRTL ? 'flex-row-reverse' : ''}
                     >
                       {isRTL ? <ArrowRight className="w-4 h-4 ml-1" /> : <ArrowLeft className="w-4 h-4 mr-1" />}
-                      {t('stepOf', language)} {quizStep}
+                      {hubT('stepOf', language)} {quizStep}
                     </Button>
 
                     {quizStep === 3 && answers.budget ? (
@@ -697,7 +697,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                         className="px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md"
                       >
                         <Sparkles className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                        {t('analyzing', language).replace('...', '')}
+                        {hubT('analyzing', language).replace('...', '')}
                         {!isRTL && <ArrowRight className="w-4 h-4 ml-1" />}
                         {isRTL && <ArrowLeft className="w-4 h-4 mr-1" />}
                       </Button>
@@ -731,8 +731,8 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                   <Brain className="w-10 h-10 text-emerald-600" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">{t('analyzing', language)}</h3>
-              <p className="text-muted-foreground">{t('analyzingDesc', language)}</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">{hubT('analyzing', language)}</h3>
+              <p className="text-muted-foreground">{hubT('analyzingDesc', language)}</p>
             </motion.div>
           )}
 
@@ -755,13 +755,13 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                   >
                     <Badge variant="outline" className="px-3 py-1.5 text-sm font-semibold border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300">
                       <Target className="w-3.5 h-3.5 mr-1.5" />
-                      {t('resultFor', language)} {result.profileLabel}
+                      {hubT('resultFor', language)} {result.profileLabel}
                     </Badge>
                   </motion.div>
                 )}
                 <Button variant="ghost" size="sm" onClick={startQuiz} className="text-muted-foreground hover:text-foreground">
                   <RefreshCw className={`w-3.5 h-3.5 ${isRTL ? 'ml-1.5' : 'mr-1.5'}`} />
-                  {t('retakeQuiz', language)}
+                  {hubT('retakeQuiz', language)}
                 </Button>
               </div>
 
@@ -796,13 +796,13 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-2">
                         <Crown className="w-5 h-5 text-emerald-600" />
-                        <CardTitle className="text-lg font-bold">{t('recommendedBundle', language)}</CardTitle>
+                        <CardTitle className="text-lg font-bold">{hubT('recommendedBundle', language)}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Confidence badge */}
                         <Badge variant="secondary" className="bg-white/80 dark:bg-black/20 text-xs">
                           <Brain className="w-3 h-3 mr-1" />
-                          {t('confidence', language)} {result.confidenceScore}%
+                          {hubT('confidence', language)} {result.confidenceScore}%
                         </Badge>
                       </div>
                     </div>
@@ -830,7 +830,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                           }}
                           className="px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md whitespace-nowrap"
                         >
-                          {t('getStarted', language)}
+                          {hubT('getStarted', language)}
                           {!isRTL && <ArrowRight className="w-4 h-4 ml-2" />}
                           {isRTL && <ArrowLeft className="w-4 h-4 mr-2" />}
                         </Button>
@@ -842,7 +842,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                           }}
                           className="text-muted-foreground whitespace-nowrap"
                         >
-                          {t('viewPricing', language)}
+                          {hubT('viewPricing', language)}
                         </Button>
                       </div>
                     </div>
@@ -858,7 +858,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
               >
                 <h4 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-emerald-600" />
-                  {t('yourProducts', language)}
+                  {hubT('yourProducts', language)}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {result.products.map((product, i) => {
@@ -883,7 +883,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                                   <h5 className="font-semibold text-sm text-foreground truncate">{product.name}</h5>
                                   {isPrimary && (
                                     <Badge className="text-[10px] px-1.5 py-0 bg-emerald-600 text-white border-0">
-                                      {t('primary', language)}
+                                      {hubT('primary', language)}
                                     </Badge>
                                   )}
                                 </div>
@@ -909,7 +909,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                 >
                   <h4 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                     <Star className="w-5 h-5 text-amber-500" />
-                    {t('whatTheySay', language)}
+                    {hubT('whatTheySay', language)}
                   </h4>
                   <div className="relative overflow-hidden">
                     <AnimatePresence mode="wait">
