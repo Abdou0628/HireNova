@@ -141,7 +141,7 @@ export default function WhiteLabelPricing() {
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                       <Badge className={`${badgeClass(plan.accent, plan.popular)} px-4 py-1 text-xs font-semibold`}>
                         <Star className="w-3 h-3 mr-1" />
-                        POPULAR
+                        {t(language, 'lot4_whiteLabelPricing_popular')}
                       </Badge>
                     </div>
                   )}
@@ -206,14 +206,14 @@ export default function WhiteLabelPricing() {
         <Card className="border-slate-200">
           <CardContent className="p-6 sm:p-8">
             <h2 className="text-xl font-bold text-foreground mb-6 text-center">
-              {isRTL ? 'مقارنة الميزات' : language === 'es' ? 'Comparativa de funciones' : language === 'en' ? 'Feature Comparison' : 'Comparatif des fonctionnalités'}
+              {t(language, 'lot4_whiteLabelPricing_featureComparison')}
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="text-start text-xs font-medium text-muted-foreground uppercase tracking-wide pb-3 pr-4">
-                      {isRTL ? 'الميزة' : language === 'es' ? 'Función' : language === 'en' ? 'Feature' : 'Fonctionnalité'}
+                      {t(language, 'lot4_whiteLabelPricing_feature')}
                     </th>
                     <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide pb-3 px-4">{t(language, 'whiteLabelPlanStarter')}</th>
                     <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide pb-3 px-4">{t(language, 'whiteLabelPlanBusiness')}</th>

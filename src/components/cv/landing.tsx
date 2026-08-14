@@ -261,7 +261,7 @@ export default function Landing() {
       if (provider === 'paymob') {
         // PayMob: poll status endpoint until payment is confirmed
         setPaymobPolling(true)
-        toast.info('Vérification du paiement en cours...', { duration: 3000 })
+        toast.info(t(language, 'lot5_landing_paymentVerifying'), { duration: 3000 })
         let attempts = 0
         const maxAttempts = 20
         const interval = setInterval(async () => {
@@ -272,7 +272,7 @@ export default function Landing() {
             if (data.status === 'paid') {
               clearInterval(interval)
               setPaymobPolling(false)
-              toast.success(`🎉 Paiement réussi ! Plan ${data.plan} activé. Bienvenue !`, { duration: 6000 })
+              toast.success(`🎉 ${t(language, 'lot5_landing_paymentSuccess')} ${data.plan}`, { duration: 6000 })
               if (data.invoice && data.receipt) {
                 setPaymentSuccess({
                   plan: data.plan,
@@ -286,23 +286,23 @@ export default function Landing() {
             } else if (data.status === 'expired') {
               clearInterval(interval)
               setPaymobPolling(false)
-              toast.error('La session de paiement a expiré. Veuillez réessayer.', { duration: 5000 })
+              toast.error(t(language, 'lot5_landing_paymentExpired'), { duration: 5000 })
               window.history.replaceState({}, '', window.location.pathname)
             } else if (attempts >= maxAttempts) {
               clearInterval(interval)
               setPaymobPolling(false)
-              toast.info('Le paiement est encore en cours de traitement. Actualisez la page dans quelques instants.', { duration: 6000 })
+              toast.info(t(language, 'lot5_landing_paymentPending'), { duration: 6000 })
             }
           } catch {
             // Silently retry
           }
         }, 3000) // poll every 3 seconds
       } else {
-        toast.success(`🎉 Paiement réussi ! Plan ${plan} activé. Bienvenue !`, { duration: 5000 })
+        toast.success(`🎉 ${t(language, 'lot5_landing_paymentSuccess')} ${plan}`, { duration: 5000 })
         window.history.replaceState({}, '', window.location.pathname)
       }
     } else if (checkoutStatus === 'canceled') {
-      toast.info('Paiement annulé. Vous pouvez réessayer à tout moment.', { duration: 4000 })
+      toast.info(t(language, 'lot5_landing_paymentCancelled'), { duration: 4000 })
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [])
@@ -322,7 +322,7 @@ export default function Landing() {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
-      toast.error('Erreur lors du téléchargement')
+      toast.error(t(language, 'lot5_landing_downloadError'))
     }
   }
 
@@ -515,7 +515,7 @@ export default function Landing() {
             >
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{liveStats.documents}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{{ fr: 'Documents générés', en: 'Documents generated', ar: 'مستندات تم إنشاؤها', es: 'Documentos generados' }[language]}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">{t(language, 'lot5_landing_documentsGenerated')}</div>
               </div>
               {staticStats.map((stat) => (
                 <div key={stat.value} className="text-center">
@@ -694,7 +694,7 @@ export default function Landing() {
             >
               <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-emerald-200">
                 <Brain className="w-4 h-4" />
-                <span>IA Avancée</span>
+                <span>{t(language, 'lot5_landing_advancedAI')}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-3">
                 {t(language, 'copilotTitle')}

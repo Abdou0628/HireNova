@@ -133,7 +133,7 @@ export default function CoachHistory() {
                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{session.summary}</p>
                       )}
                       <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                        <span className="flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{msgCount} messages</span>
+                        <span className="flex items-center gap-0.5"><MessageSquare className="w-3 h-3" />{msgCount} {t(language, 'lot4_coachHistory_messages')}</span>
                       </div>
                     </CardContent>
                   </Card>

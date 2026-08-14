@@ -97,7 +97,7 @@ export default function WhiteLabelHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4">
-              {isRTL ? 'كيف تبدأ' : language === 'es' ? '¿Cómo empezar?' : language === 'en' ? 'How It Works' : 'Comment ça marche'}
+              {t(language, 'lot4_whiteLabelHome_howItWorks')}
             </h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

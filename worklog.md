@@ -1207,3 +1207,94 @@ Stage Summary:
 - Zero inline language ternary chains remain in the LOT 2 component files
 - All hardcoded French/English strings replaced with t() calls
 - CV document section headings now render in the user's selected language
+---
+Task ID: LOT-3
+Agent: Translation Fix Agent
+Task: Fix LOT 3 translation issues — convert inline ternary translations to t() calls and replace hardcoded French text
+
+Work Log:
+- Read all 10 LOT 3 files to identify inline ternary translations and hardcoded French strings
+- Files 2 (linkedin-analyzer.tsx) and 3 (linkedin-generator.tsx) were already fully converted to t() calls in a previous LOT — no changes needed
+- File 5 (ai-animated-showcase.tsx) uses a local i18n map pattern — no inline ternaries found
+- File 8 (auth-modal.tsx) was already fully converted to t() calls — no changes needed
+- Fixed linkedin-home.tsx: replaced 11 inline ternary translations with t() calls (chooseTool heading, 3 sub-feature descriptions, howItWorks heading, 3 step titles, 3 step descriptions)
+- Fixed slider-verification.tsx: added t() import, replaced 3 inline ternary translations (instruction, successMsg, errorMsg) with t() calls
+- Fixed intelligence-home.tsx: replaced 7 inline ternary translations with t() calls (3 insight titles, 1 insight description, 2 metric sub-labels, 3 fallback insight titles in catch block)
+- Fixed ai-marketing-hub.tsx: added t() import, replaced 1 inline ternary (HNSA security badge) with t() call
+- Fixed smart-upgrade-banner.tsx: added t() import, replaced 2 hardcoded French "/mois" strings with t() call
+- Fixed cookie-consent.tsx: added t() import, replaced 1 hardcoded "Newsletter" string with t() call
+- Verified compilation: 0 new TypeScript errors in edited files (pre-existing errors in unrelated files unchanged)
+
+Stage Summary:
+- 25 inline ternary translations converted to t() calls across 4 files
+- 3 hardcoded French strings replaced with t() calls across 3 files
+- 21 new placeholder translation keys created (lot3_ prefix)
+- 3 files confirmed already i18n-compliant (linkedin-analyzer, linkedin-generator, auth-modal)
+- 2 files use local i18n map patterns (ai-animated-showcase, cookie-consent) — only direct JSX strings addressed
+- Zero new compilation errors introduced
+---
+Task ID: LOT-4
+Agent: Translation Fix Agent
+Task: Fix LOT 4 translation issues — convert inline ternary translations to t() calls and replace hardcoded text
+
+Work Log:
+- Read all 32 LOT 4 component files across career, coach, campus, legal, white-label, freelance, api, and marketplace directories
+- Found that 28 of 32 files were already fully converted to t() calls (no inline ternary translations remaining)
+- Only remaining `language === 'ar' ? ...` patterns were locale codes (ar-MA, en-US, es-ES, fr-FR) for toLocaleDateString/toLocaleTimeString — not translatable strings
+- Fixed coach-session.tsx: replaced 2 hardcoded English error messages with t() calls
+- Fixed coach-history.tsx: replaced 1 hardcoded English "messages" string with t() call
+- Fixed white-label-home.tsx: replaced 1 inline 4-language ternary ("Comment ça marche" / "How It Works" / "كيف تبدأ" / "¿Cómo empezar?") with t() call
+- Fixed white-label-pricing.tsx: replaced 1 hardcoded "POPULAR" string, 1 inline 4-language ternary for "Feature Comparison" heading, and 1 inline 4-language ternary for "Feature" column header — all with t() calls
+- Verified compilation: 0 new TypeScript errors in edited files (pre-existing errors in unrelated files unchanged)
+
+Stage Summary:
+- 6 inline ternary translations converted to t() calls across 4 files
+- 1 hardcoded English string replaced with t() call across 1 file
+- 1 hardcoded English badge text replaced with t() call across 1 file
+- 6 new placeholder translation keys created (lot4_ prefix)
+- 28 files confirmed already i18n-compliant
+- Zero new compilation errors introduced
+---
+Task ID: LOT5
+Agent: Translation Fix Agent
+Task: Fix translation issues in LOT 5 files by converting inline ternary translations to t() calls and replacing hardcoded French text
+
+Work Log:
+- Read and analyzed all 20+ files listed in the LOT 5 scope
+- Intelligence files (3): intelligence-forecast.tsx, intelligence-salary.tsx, intelligence-trends.tsx — already use t() calls, no changes needed
+- Jobs files (5): job-market.tsx, job-detail.tsx, employer-post-job.tsx, employer-dashboard.tsx, candidate-applications.tsx — already use t() calls, no changes needed
+- CV files: preview.tsx, job-application-form.tsx, job-application-preview.tsx — already use t() calls, no changes needed
+- CV/landing.tsx: Fixed 9 hardcoded French strings (payment toasts, download error, documents generated label, IA Avancée badge)
+- Formation files: formation-cert.tsx and formation-course.tsx already use t() calls; formation-catalog.tsx had 1 inline ternary + 2 hardcoded strings (Clear filters, Featured)
+- Global file: global-post-job.tsx already uses t() calls, no changes needed
+- enterprise-contact-form.tsx: Fixed 2 hardcoded French texts (Annuler button, disclaimer text)
+- pricing-section.tsx: Fixed 1 hardcoded French 'IA avancées' in bundle modules array
+- freelance-dashboard.tsx: Fixed hardcoded French month 'Fév' in demo earnings data
+- mobility-result.tsx and mobility-upload.tsx: Already use t() calls, no changes needed
+- marketing/ai-product-showcase.tsx: Uses local Record<CVLanguage> i18n pattern (not ternary), no changes needed
+
+Stage Summary:
+- 16 new placeholder translation keys created (lot5_ prefix)
+- 6 files edited, 0 new compilation errors introduced
+- Pre-existing errors in security-alerts.tsx and profile-button.tsx are unrelated
+---
+Task ID: i18n-lot345
+Agent: General-purpose
+Task: Add 50 translation keys (LOT 3/4/5) to i18n.ts
+
+Work Log:
+- Added 50 new keys to TranslationKey type union after `| \x27pageLoading\x27` (lines 1620-1669)
+- Added 50 FR translations before FR section closing brace (lines 4453-4502)
+- Added 50 EN translations before EN section closing brace (lines 7286-7335)
+- Added 50 AR translations before AR section closing brace (lines 10118-10167)
+- Added 50 ES translations before ES section closing brace (lines 12951-13000)
+- Used double quotes for French strings containing apostrophes (l\x27IA, d\x27être, s\x27est, etc.)
+- Verified: 250 total matches for lot3_|lot4_|lot5_ (50 type union + 200 translation values)
+- Verified: 0 TypeScript errors introduced by new keys (pre-existing errors only)
+
+Stage Summary:
+- 50 keys added across 4 languages (FR, EN, AR, ES) = 200 translation entries
+- Keys organized by lot: 23 LOT 3, 7 LOT 4, 20 LOT 5
+- All strings properly quoted (double quotes for strings with single quotes)
+- File grew from ~12751 lines to ~13006 lines (+255 lines)
+

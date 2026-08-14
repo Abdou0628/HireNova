@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react'
+import { t } from '@/lib/i18n'
 
 interface SliderVerificationProps {
   lang: string
@@ -81,32 +82,11 @@ export default function SliderVerification({ lang, onVerified, onError }: Slider
     }
   }, [isDragging, handleMove, handleEnd])
 
-  const instruction =
-    lang === 'ar'
-      ? 'اسحب الشريط لإكمال الصورة'
-      : lang === 'en'
-        ? 'Slide to complete the puzzle'
-        : lang === 'es'
-          ? 'Desliza para completar el rompecabezas'
-          : 'Faites glisser pour compléter le puzzle'
+  const instruction = t(lang as 'fr' | 'en' | 'ar' | 'es', 'lot3_sliderVerification_instruction')
 
-  const successMsg =
-    lang === 'ar'
-      ? 'تم التحقق بنجاح'
-      : lang === 'en'
-        ? 'Verified successfully'
-        : lang === 'es'
-          ? 'Verificado con éxito'
-          : 'Vérifié avec succès'
+  const successMsg = t(lang as 'fr' | 'en' | 'ar' | 'es', 'lot3_sliderVerification_success')
 
-  const errorMsg =
-    lang === 'ar'
-      ? 'فشل التحقق، حاول مرة أخرى'
-      : lang === 'en'
-        ? 'Verification failed, try again'
-        : lang === 'es'
-          ? 'Verificación fallida, inténtalo de nuevo'
-          : 'Échec de la vérification, réessayez'
+  const errorMsg = t(lang as 'fr' | 'en' | 'ar' | 'es', 'lot3_sliderVerification_error')
 
   const thumbStyle: React.CSSProperties = {
     left: `calc(${sliderPosition}% - 22px)`,

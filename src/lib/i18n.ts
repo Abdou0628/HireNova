@@ -1616,6 +1616,57 @@ export type TranslationKey =
   | 'pageVerifyExpired'
   | 'pageVerifyInvalid'
   | 'pageLoading'
+  // LOT 3/4/5 — component i18n fixes
+  | 'lot3_linkedinHome_chooseTool'
+  | 'lot3_linkedinHome_analysisDesc'
+  | 'lot3_linkedinHome_generatorDesc'
+  | 'lot3_linkedinHome_scoreDesc'
+  | 'lot3_linkedinHome_howItWorks'
+  | 'lot3_linkedinHome_step1Title'
+  | 'lot3_linkedinHome_step2Title'
+  | 'lot3_linkedinHome_step3Title'
+  | 'lot3_linkedinHome_step1Desc'
+  | 'lot3_linkedinHome_step2Desc'
+  | 'lot3_linkedinHome_step3Desc'
+  | 'lot3_sliderVerification_instruction'
+  | 'lot3_sliderVerification_success'
+  | 'lot3_sliderVerification_error'
+  | 'lot3_intelligenceHome_growingSkills'
+  | 'lot3_intelligenceHome_avgSalary'
+  | 'lot3_intelligenceHome_marketOutlook'
+  | 'lot3_intelligenceHome_marketOutlookDesc'
+  | 'lot3_intelligenceHome_yoy'
+  | 'lot3_intelligenceHome_excellent'
+  | 'lot3_marketingHub_securedByHnsa'
+  | 'lot3_smartUpgradeBanner_month'
+  | 'lot3_cookieConsent_newsletter'
+  | 'lot4_coachSession_errorMsg'
+  | 'lot4_coachSession_connectionError'
+  | 'lot4_coachHistory_messages'
+  | 'lot4_whiteLabelHome_howItWorks'
+  | 'lot4_whiteLabelPricing_popular'
+  | 'lot4_whiteLabelPricing_featureComparison'
+  | 'lot4_whiteLabelPricing_feature'
+  | 'lot5_landing_paymentVerifying'
+  | 'lot5_landing_paymentSuccess'
+  | 'lot5_landing_paymentExpired'
+  | 'lot5_landing_paymentPending'
+  | 'lot5_landing_paymentCancelled'
+  | 'lot5_landing_downloadError'
+  | 'lot5_landing_documentsGenerated'
+  | 'lot5_landing_advancedAI'
+  | 'lot5_formationCatalog_courses'
+  | 'lot5_formationCatalog_clearFilters'
+  | 'lot5_formationCatalog_featured'
+  | 'lot5_enterprise_cancel'
+  | 'lot5_enterprise_disclaimer'
+  | 'lot5_pricing_advancedAi'
+  | 'lot5_freelance_jan'
+  | 'lot5_freelance_feb'
+  | 'lot5_freelance_mar'
+  | 'lot5_freelance_apr'
+  | 'lot5_freelance_may'
+  | 'lot5_freelance_jun'
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
     siteTitle: 'HireNova',
@@ -4398,6 +4449,57 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   pageVerifyExpired: 'Le lien de vérification a expiré. Veuillez demander un nouveau lien.',
   pageVerifyInvalid: 'Lien de vérification invalide. Veuillez réessayer.',
   pageLoading: 'Chargement...',
+  // LOT 3/4/5 — component i18n fixes
+  lot3_linkedinHome_chooseTool: 'Choisissez un outil',
+  lot3_linkedinHome_analysisDesc: "Obtenez une analyse approfondie de votre profil et découvrez vos forces et faiblesses",
+  lot3_linkedinHome_generatorDesc: "Générez des headlines, résumés et points d'expérience optimisés",
+  lot3_linkedinHome_scoreDesc: 'Obtenez un score complet de votre profil avec des recommandations concrètes',
+  lot3_linkedinHome_howItWorks: 'Comment ça marche ?',
+  lot3_linkedinHome_step1Title: "Entrez le contenu de votre profil",
+  lot3_linkedinHome_step2Title: "Analyse par l'IA",
+  lot3_linkedinHome_step3Title: 'Obtenez des résultats',
+  lot3_linkedinHome_step1Desc: "Collez votre URL ou le contenu directement",
+  lot3_linkedinHome_step2Desc: "L'IA analyse chaque section et fournit une évaluation complète",
+  lot3_linkedinHome_step3Desc: 'Recevez des conseils spécifiques et actionnables pour améliorer votre profil',
+  lot3_sliderVerification_instruction: 'Faites glisser pour compléter le puzzle',
+  lot3_sliderVerification_success: 'Vérifié avec succès',
+  lot3_sliderVerification_error: 'Échec de la vérification, réessayez',
+  lot3_intelligenceHome_growingSkills: 'Compétences en forte croissance',
+  lot3_intelligenceHome_avgSalary: 'Salaire moyen global',
+  lot3_intelligenceHome_marketOutlook: 'Perspectives marché Q4',
+  lot3_intelligenceHome_marketOutlookDesc: 'Positif — croissance soutenue dans le tech',
+  lot3_intelligenceHome_yoy: 'an',
+  lot3_intelligenceHome_excellent: 'Excellent',
+  lot3_marketingHub_securedByHnsa: 'Sécurisé par HNSA Security · 8 piliers',
+  lot3_smartUpgradeBanner_month: 'mois',
+  lot3_cookieConsent_newsletter: 'Newsletter',
+  lot4_coachSession_errorMsg: "Désolé, une erreur s'est produite. Veuillez réessayer.",
+  lot4_coachSession_connectionError: 'Erreur de connexion. Veuillez réessayer.',
+  lot4_coachHistory_messages: 'messages',
+  lot4_whiteLabelHome_howItWorks: 'Comment ça marche',
+  lot4_whiteLabelPricing_popular: 'POPULAIRE',
+  lot4_whiteLabelPricing_featureComparison: 'Comparatif des fonctionnalités',
+  lot4_whiteLabelPricing_feature: 'Fonctionnalité',
+  lot5_landing_paymentVerifying: 'Vérification du paiement en cours...',
+  lot5_landing_paymentSuccess: 'Paiement réussi ! Plan',
+  lot5_landing_paymentExpired: 'La session de paiement a expiré. Veuillez réessayer.',
+  lot5_landing_paymentPending: 'Le paiement est encore en cours de traitement. Actualisez la page dans quelques instants.',
+  lot5_landing_paymentCancelled: 'Paiement annulé. Vous pouvez réessayer à tout moment.',
+  lot5_landing_downloadError: 'Erreur lors du téléchargement',
+  lot5_landing_documentsGenerated: 'Documents générés',
+  lot5_landing_advancedAI: 'IA Avancée',
+  lot5_formationCatalog_courses: 'cours',
+  lot5_formationCatalog_clearFilters: 'Réinitialiser les filtres',
+  lot5_formationCatalog_featured: 'À la une',
+  lot5_enterprise_cancel: 'Annuler',
+  lot5_enterprise_disclaimer: "En soumettant ce formulaire, vous acceptez d'être recontacté par l'équipe Enterprise HireNova. Vos données ne seront pas partagées avec des tiers.",
+  lot5_pricing_advancedAi: 'IA avancées',
+  lot5_freelance_jan: 'Jan',
+  lot5_freelance_feb: 'Fév',
+  lot5_freelance_mar: 'Mar',
+  lot5_freelance_apr: 'Avr',
+  lot5_freelance_may: 'Mai',
+  lot5_freelance_jun: 'Jun',
   },
   en: {
     siteTitle: 'HireNova',
@@ -7180,6 +7282,57 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   pageVerifyExpired: 'The verification link has expired. Please request a new link.',
   pageVerifyInvalid: 'Invalid verification link. Please try again.',
   pageLoading: 'Loading...',
+  // LOT 3/4/5 — component i18n fixes
+  lot3_linkedinHome_chooseTool: 'Choose a tool',
+  lot3_linkedinHome_analysisDesc: 'Get a deep analysis of your profile and discover strengths and weaknesses',
+  lot3_linkedinHome_generatorDesc: 'Generate optimized headlines, summaries, and experience bullets',
+  lot3_linkedinHome_scoreDesc: 'Get a comprehensive profile score with actionable recommendations',
+  lot3_linkedinHome_howItWorks: 'How it works',
+  lot3_linkedinHome_step1Title: 'Enter your profile content',
+  lot3_linkedinHome_step2Title: 'AI analysis',
+  lot3_linkedinHome_step3Title: 'Get results',
+  lot3_linkedinHome_step1Desc: 'Paste your profile URL or content directly',
+  lot3_linkedinHome_step2Desc: 'The AI analyzes each section and provides a comprehensive evaluation',
+  lot3_linkedinHome_step3Desc: 'Receive specific, actionable tips to improve your profile',
+  lot3_sliderVerification_instruction: 'Slide to complete the puzzle',
+  lot3_sliderVerification_success: 'Verified successfully',
+  lot3_sliderVerification_error: 'Verification failed, try again',
+  lot3_intelligenceHome_growingSkills: 'Fast-Growing Skills',
+  lot3_intelligenceHome_avgSalary: 'Global Average Salary',
+  lot3_intelligenceHome_marketOutlook: 'Q4 Market Outlook',
+  lot3_intelligenceHome_marketOutlookDesc: 'Positive — sustained growth in tech sector',
+  lot3_intelligenceHome_yoy: 'YoY',
+  lot3_intelligenceHome_excellent: 'Excellent',
+  lot3_marketingHub_securedByHnsa: 'Secured by HNSA Security · 8 pillars',
+  lot3_smartUpgradeBanner_month: 'month',
+  lot3_cookieConsent_newsletter: 'Newsletter',
+  lot4_coachSession_errorMsg: 'Sorry, I encountered an error. Please try again.',
+  lot4_coachSession_connectionError: 'Connection error. Please try again.',
+  lot4_coachHistory_messages: 'messages',
+  lot4_whiteLabelHome_howItWorks: 'How It Works',
+  lot4_whiteLabelPricing_popular: 'POPULAR',
+  lot4_whiteLabelPricing_featureComparison: 'Feature Comparison',
+  lot4_whiteLabelPricing_feature: 'Feature',
+  lot5_landing_paymentVerifying: 'Verifying payment...',
+  lot5_landing_paymentSuccess: 'Payment successful! Plan',
+  lot5_landing_paymentExpired: 'Payment session expired. Please try again.',
+  lot5_landing_paymentPending: 'Payment is still processing. Refresh the page in a moment.',
+  lot5_landing_paymentCancelled: 'Payment cancelled. You can try again at any time.',
+  lot5_landing_downloadError: 'Download error',
+  lot5_landing_documentsGenerated: 'Documents generated',
+  lot5_landing_advancedAI: 'Advanced AI',
+  lot5_formationCatalog_courses: 'courses',
+  lot5_formationCatalog_clearFilters: 'Clear filters',
+  lot5_formationCatalog_featured: 'Featured',
+  lot5_enterprise_cancel: 'Cancel',
+  lot5_enterprise_disclaimer: 'By submitting this form, you agree to be contacted by the HireNova Enterprise team. Your data will not be shared with third parties.',
+  lot5_pricing_advancedAi: 'Advanced AI',
+  lot5_freelance_jan: 'Jan',
+  lot5_freelance_feb: 'Feb',
+  lot5_freelance_mar: 'Mar',
+  lot5_freelance_apr: 'Apr',
+  lot5_freelance_may: 'May',
+  lot5_freelance_jun: 'Jun',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -9961,6 +10114,57 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   pageVerifyExpired: 'انتهت صلاحية رابط التحقق. يرجى طلب رابط جديد.',
   pageVerifyInvalid: 'رابط تحقق غير صالح. يرجى المحاولة مرة أخرى.',
   pageLoading: 'جارٍ التحميل...',
+  // LOT 3/4/5 — component i18n fixes
+  lot3_linkedinHome_chooseTool: 'اختر أداة',
+  lot3_linkedinHome_analysisDesc: 'ليلق نظرة معمقة على ملفك الشخصي واكتشف نقاط القوة والضعف',
+  lot3_linkedinHome_generatorDesc: 'أنشئ عناوين وملخصات ونقاط خبرة محسّنة',
+  lot3_linkedinHome_scoreDesc: 'احصل على درجة شاملة لملفك مع توصيات عملية',
+  lot3_linkedinHome_howItWorks: 'كيف يعمل؟',
+  lot3_linkedinHome_step1Title: 'أدخل محتوى ملفك',
+  lot3_linkedinHome_step2Title: 'تحليل الذكاء الاصطناعي',
+  lot3_linkedinHome_step3Title: 'احصل على نتائج',
+  lot3_linkedinHome_step1Desc: 'الصق رابط ملفك أو محتواه مباشرة',
+  lot3_linkedinHome_step2Desc: 'يحلل الذكاء الاصطناعي كل قسم ويقدم تقييماً شاملاً',
+  lot3_linkedinHome_step3Desc: 'تلقّى نصائح محددة وقابلة للتنفيذ لتحسين ملفك',
+  lot3_sliderVerification_instruction: 'اسحب الشريط لإكمال الصورة',
+  lot3_sliderVerification_success: 'تم التحقق بنجاح',
+  lot3_sliderVerification_error: 'فشل التحقق، حاول مرة أخرى',
+  lot3_intelligenceHome_growingSkills: 'مهارات سريعة النمو',
+  lot3_intelligenceHome_avgSalary: 'متوسط الرواتب',
+  lot3_intelligenceHome_marketOutlook: 'توقعات السوق',
+  lot3_intelligenceHome_marketOutlookDesc: 'إيجابي — نمو مستمر في القطاع التكنولوجي',
+  lot3_intelligenceHome_yoy: 'سنوياً',
+  lot3_intelligenceHome_excellent: 'ممتاز',
+  lot3_marketingHub_securedByHnsa: 'محمي بـ HNSA Security · 8 أعمدة',
+  lot3_smartUpgradeBanner_month: 'شهر',
+  lot3_cookieConsent_newsletter: 'النشرة الإخبارية',
+  lot4_coachSession_errorMsg: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.',
+  lot4_coachSession_connectionError: 'خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+  lot4_coachHistory_messages: 'رسائل',
+  lot4_whiteLabelHome_howItWorks: 'كيف تبدأ',
+  lot4_whiteLabelPricing_popular: 'الأكثر شعبية',
+  lot4_whiteLabelPricing_featureComparison: 'مقارنة الميزات',
+  lot4_whiteLabelPricing_feature: 'الميزة',
+  lot5_landing_paymentVerifying: 'جارٍ التحقق من الدفع...',
+  lot5_landing_paymentSuccess: 'نجح الدفع! خطة',
+  lot5_landing_paymentExpired: 'انتهت صلاحية جلسة الدفع. يرجى المحاولة مرة أخرى.',
+  lot5_landing_paymentPending: 'لا يزال الدفع قيد المعالجة. حدث الصفحة بعد قليل.',
+  lot5_landing_paymentCancelled: 'تم إلغاء الدفع. يمكنك المحاولة في أي وقت.',
+  lot5_landing_downloadError: 'خطأ في التحميل',
+  lot5_landing_documentsGenerated: 'مستندات تم إنشاؤها',
+  lot5_landing_advancedAI: 'ذكاء اصطناعي متقدم',
+  lot5_formationCatalog_courses: 'دورات',
+  lot5_formationCatalog_clearFilters: 'مسح الفلاتر',
+  lot5_formationCatalog_featured: 'مميز',
+  lot5_enterprise_cancel: 'إلغاء',
+  lot5_enterprise_disclaimer: 'بتقديم هذا النموذج، فإنك توافق على أن يتواصل معك فريق HireNova Enterprise. لن يتم مشاركة بياناتك مع أطراف ثالثة.',
+  lot5_pricing_advancedAi: 'ذكاء اصطناعي متقدم',
+  lot5_freelance_jan: 'يناير',
+  lot5_freelance_feb: 'فبراير',
+  lot5_freelance_mar: 'مارس',
+  lot5_freelance_apr: 'أبريل',
+  lot5_freelance_may: 'مايو',
+  lot5_freelance_jun: 'يونيو',
   },
   es: {
     siteTitle: 'HireNova',
@@ -12743,6 +12947,57 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   pageVerifyExpired: 'El enlace de verificación ha expirado. Por favor solicita un nuevo enlace.',
   pageVerifyInvalid: 'Enlace de verificación inválido. Por favor intenta de nuevo.',
   pageLoading: 'Cargando...',
+  // LOT 3/4/5 — component i18n fixes
+  lot3_linkedinHome_chooseTool: 'Elige una herramienta',
+  lot3_linkedinHome_analysisDesc: 'Obtén un análisis profundo de tu perfil y descubre fortalezas y debilidades',
+  lot3_linkedinHome_generatorDesc: 'Genera titulares, resúmenes y puntos de experiencia optimizados',
+  lot3_linkedinHome_scoreDesc: 'Obtén una puntuación completa de tu perfil con recomendaciones prácticas',
+  lot3_linkedinHome_howItWorks: '¿Cómo funciona?',
+  lot3_linkedinHome_step1Title: 'Ingresa el contenido de tu perfil',
+  lot3_linkedinHome_step2Title: 'Análisis con IA',
+  lot3_linkedinHome_step3Title: 'Obtén resultados',
+  lot3_linkedinHome_step1Desc: 'Pega tu URL o el contenido directamente',
+  lot3_linkedinHome_step2Desc: 'La IA analiza cada sección y proporciona una evaluación completa',
+  lot3_linkedinHome_step3Desc: 'Recibe consejos específicos y accionables para mejorar tu perfil',
+  lot3_sliderVerification_instruction: 'Desliza para completar el rompecabezas',
+  lot3_sliderVerification_success: 'Verificado con éxito',
+  lot3_sliderVerification_error: 'Verificación fallida, inténtalo de nuevo',
+  lot3_intelligenceHome_growingSkills: 'Habilidades de rápido crecimiento',
+  lot3_intelligenceHome_avgSalary: 'Salario medio global',
+  lot3_intelligenceHome_marketOutlook: 'Perspectivas Q4',
+  lot3_intelligenceHome_marketOutlookDesc: 'Positivo — crecimiento continuo en tecnología',
+  lot3_intelligenceHome_yoy: 'anual',
+  lot3_intelligenceHome_excellent: 'Excelente',
+  lot3_marketingHub_securedByHnsa: 'Protegido por HNSA Security · 8 pilares',
+  lot3_smartUpgradeBanner_month: 'mes',
+  lot3_cookieConsent_newsletter: 'Boletín',
+  lot4_coachSession_errorMsg: 'Lo sentimos, ocurrió un error. Inténtalo de nuevo.',
+  lot4_coachSession_connectionError: 'Error de conexión. Inténtalo de nuevo.',
+  lot4_coachHistory_messages: 'mensajes',
+  lot4_whiteLabelHome_howItWorks: '¿Cómo empezar?',
+  lot4_whiteLabelPricing_popular: 'POPULAR',
+  lot4_whiteLabelPricing_featureComparison: 'Comparativa de funciones',
+  lot4_whiteLabelPricing_feature: 'Función',
+  lot5_landing_paymentVerifying: 'Verificando pago...',
+  lot5_landing_paymentSuccess: '¡Pago exitoso! Plan',
+  lot5_landing_paymentExpired: 'La sesión de pago expiró. Inténtelo de nuevo.',
+  lot5_landing_paymentPending: 'El pago aún se está procesando. Actualice la página en un momento.',
+  lot5_landing_paymentCancelled: 'Pago cancelado. Puede intentarlo en cualquier momento.',
+  lot5_landing_downloadError: 'Error de descarga',
+  lot5_landing_documentsGenerated: 'Documentos generados',
+  lot5_landing_advancedAI: 'IA Avanzada',
+  lot5_formationCatalog_courses: 'cursos',
+  lot5_formationCatalog_clearFilters: 'Borrar filtros',
+  lot5_formationCatalog_featured: 'Destacado',
+  lot5_enterprise_cancel: 'Cancelar',
+  lot5_enterprise_disclaimer: 'Al enviar este formulario, acepta ser contactado por el equipo HireNova Enterprise. Sus datos no se compartirán con terceros.',
+  lot5_pricing_advancedAi: 'IA Avanzada',
+  lot5_freelance_jan: 'Ene',
+  lot5_freelance_feb: 'Feb',
+  lot5_freelance_mar: 'Mar',
+  lot5_freelance_apr: 'Abr',
+  lot5_freelance_may: 'May',
+  lot5_freelance_jun: 'Jun',
   }
 }
 

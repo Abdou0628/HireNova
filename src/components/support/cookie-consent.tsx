@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sheet'
 import { useCVStore } from '@/store/cv-store'
 import type { CVLanguage } from '@/lib/i18n'
+import { t } from '@/lib/i18n'
 
 const STORAGE_KEY = 'hirenova_cookie_consent'
 
@@ -218,7 +219,7 @@ export function CookieConsent() {
 
             {/* Separator */}
             <div className="border-t pt-4">
-              <p className="mb-4 text-sm font-semibold text-foreground">Newsletter</p>
+              <p className="mb-4 text-sm font-semibold text-foreground">{t(language, 'lot3_cookieConsent_newsletter')}</p>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3">

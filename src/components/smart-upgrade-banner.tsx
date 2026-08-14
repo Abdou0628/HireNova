@@ -10,6 +10,7 @@ import { X, Sparkles, ArrowRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -178,7 +179,7 @@ export function SmartUpgradeBanner({
   const targetPlan = data?.upgradePath?.targetPlan || 'hirenova_career'
   const cost = data?.upgradePath?.additionalCost || 19.90
   const planName = PLAN_DISPLAY_NAMES[targetPlan]?.[language] || targetPlan
-  const ctaLabel = data?.cta || `${CTA_SEE_PLAN[language]} ${planName} — €${cost.toFixed(2)}/mois`
+  const ctaLabel = data?.cta || `${CTA_SEE_PLAN[language]} ${planName} — €${cost.toFixed(2)}/${t(language, 'lot3_smartUpgradeBanner_month')}`
 
   // Handle dismiss
   function handleDismiss() {
@@ -228,7 +229,7 @@ export function SmartUpgradeBanner({
               {message}
             </p>
             <p className="mt-0.5 text-xs text-emerald-700/70 dark:text-emerald-300/70">
-              {planName} — €{cost.toFixed(2)}/mois
+              {planName} — €{cost.toFixed(2)}/{t(language, 'lot3_smartUpgradeBanner_month')}
             </p>
           </div>
         </div>

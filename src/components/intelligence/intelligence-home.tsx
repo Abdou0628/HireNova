@@ -54,16 +54,16 @@ export default function IntelligenceHome() {
         // Generate featured insights
         const growingSkills = (Array.isArray(trends) ? trends : []).filter((t: { growthRate: number }) => t.growthRate > 20).slice(0, 2).map((t: { skill: string; growthRate: number }) => `${t.skill} (+${t.growthRate}%)`)
         setInsights([
-          { title: isRTL ? 'مهارات سريعة النمو' : language === 'es' ? 'Habilidades de rápido crecimiento' : language === 'en' ? 'Fast-Growing Skills' : 'Compétences en forte croissance', description: growingSkills.join(', ') || 'IA, Green Tech', type: 'growing' },
-          { title: isRTL ? 'متوسط الرواتب' : language === 'es' ? 'Salario medio global' : language === 'en' ? 'Global Average Salary' : 'Salaire moyen global', description: `${(salaryData.avgGlobal || 55000).toLocaleString()} EUR`, type: 'salary' },
-          { title: isRTL ? 'توقعات السوق' : language === 'es' ? 'Perspectivas Q4' : language === 'en' ? 'Q4 Market Outlook' : 'Perspectives marché Q4', description: isRTL ? 'إيجابي — نمو مستمر في القطاع التكنولوجي' : language === 'es' ? 'Positivo — crecimiento continuo en tecnología' : language === 'en' ? 'Positive — sustained growth in tech sector' : 'Positif — croissance soutenue dans le tech', type: 'forecast' },
+          { title: t(language, 'lot3_intelligenceHome_growingSkills'), description: growingSkills.join(', ') || 'IA, Green Tech', type: 'growing' },
+          { title: t(language, 'lot3_intelligenceHome_avgSalary'), description: `${(salaryData.avgGlobal || 55000).toLocaleString()} EUR`, type: 'salary' },
+          { title: t(language, 'lot3_intelligenceHome_marketOutlook'), description: t(language, 'lot3_intelligenceHome_marketOutlookDesc'), type: 'forecast' },
         ])
       } catch {
         setMetrics({ salaryIndex: 55000, marketGrowth: 21.8, topSkills: ['IA', 'Data Science', 'Cybersécurité', 'Green Tech', 'Cloud'], marketHealth: 82 })
         setInsights([
-          { title: 'Compétences en forte croissance', description: 'IA (+34%), Green Tech (+31%)', type: 'growing' },
-          { title: 'Salaire moyen global', description: '55 000 EUR', type: 'salary' },
-          { title: 'Perspectives marché Q4', description: 'Positif — croissance soutenue dans le tech', type: 'forecast' },
+          { title: t(language, 'lot3_intelligenceHome_growingSkills'), description: 'IA (+34%), Green Tech (+31%)', type: 'growing' },
+          { title: t(language, 'lot3_intelligenceHome_avgSalary'), description: '55 000 EUR', type: 'salary' },
+          { title: t(language, 'lot3_intelligenceHome_marketOutlook'), description: t(language, 'lot3_intelligenceHome_marketOutlookDesc'), type: 'forecast' },
         ])
       } finally {
         setLoading(false)
@@ -113,9 +113,9 @@ export default function IntelligenceHome() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {[
                 { icon: DollarSign, label: t(language, 'intelligenceSalaryIndex'), value: `${(metrics.salaryIndex / 1000).toFixed(0)}K`, sub: 'EUR', color: 'emerald' },
-                { icon: TrendingUp, label: t(language, 'intelligenceMarketGrowth'), value: `+${metrics.marketGrowth}%`, sub: isRTL ? 'سنوياً' : language === 'es' ? 'anual' : language === 'en' ? 'YoY' : 'an', color: 'violet' },
+                { icon: TrendingUp, label: t(language, 'intelligenceMarketGrowth'), value: `+${metrics.marketGrowth}%`, sub: t(language, 'lot3_intelligenceHome_yoy'), color: 'violet' },
                 { icon: Target, label: t(language, 'intelligenceTopSkills'), value: String(metrics.topSkills.length), sub: metrics.topSkills.slice(0, 3).join(', '), color: 'amber' },
-                { icon: Activity, label: t(language, 'intelligenceMarketHealth'), value: `${metrics.marketHealth}/100`, sub: isRTL ? 'ممتاز' : language === 'es' ? 'Excelente' : language === 'en' ? 'Excellent' : 'Excellent', color: 'teal' },
+                { icon: Activity, label: t(language, 'intelligenceMarketHealth'), value: `${metrics.marketHealth}/100`, sub: t(language, 'lot3_intelligenceHome_excellent'), color: 'teal' },
               ].map((metric, i) => (
                 <motion.div
                   key={metric.label}

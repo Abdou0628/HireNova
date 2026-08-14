@@ -81,10 +81,10 @@ export default function CoachSession() {
           setMessages(prev => [...prev, { role: 'assistant', content: data.reply, timestamp: new Date().toISOString() }])
         }
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.', timestamp: new Date().toISOString() }])
+        setMessages(prev => [...prev, { role: 'assistant', content: t(language, 'lot4_coachSession_errorMsg'), timestamp: new Date().toISOString() }])
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error. Please try again.', timestamp: new Date().toISOString() }])
+      setMessages(prev => [...prev, { role: 'assistant', content: t(language, 'lot4_coachSession_connectionError'), timestamp: new Date().toISOString() }])
     } finally {
       setIsLoading(false)
     }

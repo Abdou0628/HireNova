@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useCVStore } from '@/store/cv-store'
 import type { CVLanguage } from '@/lib/i18n'
+import { t } from '@/lib/i18n'
 import { toast } from 'sonner'
 import { events } from '@/lib/analytics'
 
@@ -982,7 +983,7 @@ export default function AIMarketingHub({ onScrollToPricing }: { onScrollToPricin
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
                   <Shield className="w-4 h-4 text-emerald-600" />
                   <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                    {language === 'fr' ? 'Sécurisé par HNSA Security · 8 piliers' : language === 'en' ? 'Secured by HNSA Security · 8 pillars' : language === 'ar' ? 'محمي بـ HNSA Security · 8 أعمدة' : 'Protegido por HNSA Security · 8 pilares'}
+                    {t(language, 'lot3_marketingHub_securedByHnsa')}
                   </span>
                 </div>
               </motion.div>

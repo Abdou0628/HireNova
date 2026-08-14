@@ -227,7 +227,7 @@ export default function FormationCatalog() {
                 {hasActiveFilters && (
                   <Button variant="ghost" size="sm" className="mt-3 text-muted-foreground" onClick={clearFilters}>
                     <X className="w-3 h-3 mr-1" />
-                    Clear filters
+                    {t(language, 'lot5_formationCatalog_clearFilters')}
                   </Button>
                 )}
               </CardContent>
@@ -238,7 +238,7 @@ export default function FormationCatalog() {
         {/* Results count */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {filteredCourses.length} {language === 'fr' ? 'cours' : language === 'ar' ? 'دورة' : language === 'es' ? 'cursos' : 'courses'}
+            {filteredCourses.length} {t(language, 'lot5_formationCatalog_courses')}
           </p>
         </div>
 
@@ -266,7 +266,7 @@ export default function FormationCatalog() {
                     <BookOpen className="w-14 h-14 text-white/80" />
                     {course.featured && (
                       <Badge className="absolute top-3 right-3 bg-white/90 text-gray-900 text-xs">
-                        ★ Featured
+                        ★ {t(language, 'lot5_formationCatalog_featured')}
                       </Badge>
                     )}
                   </div>

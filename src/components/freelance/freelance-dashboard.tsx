@@ -33,13 +33,12 @@ const statusKeyMap: Record<string, string> = {
 }
 
 // Demo data for dashboard stats (simulated)
-const demoEarnings = [
-  { month: 'Jan', amount: 800 }, { month: 'Fév', amount: 1200 },
-  { month: 'Mar', amount: 600 }, { month: 'Avr', amount: 1800 },
-  { month: 'Mai', amount: 1500 }, { month: 'Jun', amount: 2400 },
+const demoEarningsData = [
+  { monthKey: 'lot5_freelance_jan', amount: 800 }, { monthKey: 'lot5_freelance_feb', amount: 1200 },
+  { monthKey: 'lot5_freelance_mar', amount: 600 }, { monthKey: 'lot5_freelance_apr', amount: 1800 },
+  { monthKey: 'lot5_freelance_may', amount: 1500 }, { monthKey: 'lot5_freelance_jun', amount: 2400 },
 ]
-
-const maxEarning = Math.max(...demoEarnings.map(e => e.amount))
+const maxEarning = Math.max(...demoEarningsData.map(e => e.amount))
 
 export default function FreelanceDashboard() {
   const { language, setStep } = useCVStore()
@@ -214,9 +213,9 @@ export default function FreelanceDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {demoEarnings.map(entry => (
-                    <div key={entry.month} className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground w-8 shrink-0">{entry.month}</span>
+                  {demoEarningsData.map(entry => (
+                    <div key={entry.monthKey} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-8 shrink-0">{t(language, entry.monthKey as any)}</span>
                       <div className="flex-1 h-8 bg-muted rounded-md overflow-hidden relative">
                         <motion.div
                           initial={{ width: 0 }}
@@ -231,7 +230,7 @@ export default function FreelanceDashboard() {
                 </div>
                 <div className="mt-4 pt-4 border-t flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{t(language, 'freelanceDashTotalEarned')}</span>
-                  <span className="text-lg font-bold text-orange-600">{demoEarnings.reduce((s, e) => s + e.amount, 0).toLocaleString()} €</span>
+                  <span className="text-lg font-bold text-orange-600">{demoEarningsData.reduce((s, e) => s + e.amount, 0).toLocaleString()} €</span>
                 </div>
               </CardContent>
             </Card>

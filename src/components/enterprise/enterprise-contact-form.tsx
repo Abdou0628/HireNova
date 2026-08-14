@@ -395,7 +395,7 @@ export default function EnterpriseContactForm({ isOpen, onClose }: EnterpriseCon
                 disabled={loading}
                 className="cursor-pointer"
               >
-                Annuler
+                {t(language, 'lot5_enterprise_cancel')}
               </Button>
               <Button
                 type="submit"
@@ -418,7 +418,7 @@ export default function EnterpriseContactForm({ isOpen, onClose }: EnterpriseCon
 
             <p className="text-[10px] text-muted-foreground text-center pt-1">
               <AlertCircle className="w-3 h-3 inline mr-1" />
-              En soumettant ce formulaire, vous acceptez d&apos;être recontacté par l&apos;équipe Enterprise HireNova. Vos données ne seront pas partagées avec des tiers.
+              {t(language, 'lot5_enterprise_disclaimer')}
             </p>
           </form>
         )}

@@ -175,7 +175,7 @@ const BUNDLES: BundlePlan[] = [
     badge: 'priceBundleAiPowerBadge',
     badgeClass: 'bg-amber-500 text-white',
     icon: Sparkles,
-    modules: ['CV', 'ATS', 'JOBS', 'GLOBAL', 'MOBILITY', 'INTERVIEW', 'LINKEDIN', 'CAREER', 'COACH', 'FORMATION', 'FREELANCE', 'Intelligence', 'AI Intelligence', 'AI Chatbot Advanced', 'IA avancées'],
+    modules: ['CV', 'ATS', 'JOBS', 'GLOBAL', 'MOBILITY', 'INTERVIEW', 'LINKEDIN', 'CAREER', 'COACH', 'FORMATION', 'FREELANCE', 'Intelligence', 'AI Intelligence', 'AI Chatbot Advanced', 'lot5_pricing_advancedAi'],
     description: 'priceBundleAiPowerDesc',
   },
 ]
@@ -697,7 +697,7 @@ export default function PricingSection({
                       {plan.modules.map((mod) => (
                         <div key={mod} className="flex items-start gap-2 text-xs">
                           <Check className={`w-3.5 h-3.5 ${plan.iconColor} mt-0.5 shrink-0`} />
-                          <span className="text-muted-foreground">{mod}</span>
+                          <span className="text-muted-foreground">{mod.startsWith('lot5_') ? t(language, mod as any) : mod}</span>
                         </div>
                       ))}
                     </div>

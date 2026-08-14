@@ -146,7 +146,7 @@ export default function LinkedInHome() {
         {/* Sub-features cards */}
         <motion.section {...fadeUp} className="mb-12">
           <h3 className="mb-6 text-center text-2xl font-bold text-sky-900">
-            {language === 'ar' ? 'اختر أداة' : language === 'es' ? 'Elige una herramienta' : language === 'en' ? 'Choose a tool' : 'Choisissez un outil'}
+            {t(language, 'lot3_linkedinHome_chooseTool')}
           </h3>
           <div className="grid gap-6 sm:grid-cols-3">
             {subFeatures.map((item, i) => {
@@ -169,10 +169,10 @@ export default function LinkedInHome() {
                       <h4 className="mb-2 text-lg font-semibold text-gray-900">{t(language, item.titleKey)}</h4>
                       <p className="mb-4 text-sm text-gray-500">
                         {item.desc === 'analysis'
-                          ? (language === 'ar' ? 'ليلق نظرة معمقة على ملفك الشخصي واكتشف نقاط القوة والضعف' : language === 'es' ? 'Obtén un análisis profundo de tu perfil y descubre fortalezas y debilidades' : language === 'en' ? 'Get a deep analysis of your profile and discover strengths and weaknesses' : 'Obtenez une analyse approfondie de votre profil et découvrez vos forces et faiblesses')
+                          ? t(language, 'lot3_linkedinHome_analysisDesc')
                           : item.desc === 'generator'
-                          ? (language === 'ar' ? 'أنشئ عناوين وملخصات ونقاط خبرة محسّنة' : language === 'es' ? 'Genera titulares, resúmenes y puntos de experiencia optimizados' : language === 'en' ? 'Generate optimized headlines, summaries, and experience bullets' : 'Générez des headlines, résumés et points d\'expérience optimisés')
-                          : (language === 'ar' ? 'احصل على درجة شاملة لملفك مع توصيات عملية' : language === 'es' ? 'Obtén una puntuación completa de tu perfil con recomendaciones prácticas' : language === 'en' ? 'Get a comprehensive profile score with actionable recommendations' : 'Obtenez un score complet de votre profil avec des recommandations concrètes')}
+                          ? t(language, 'lot3_linkedinHome_generatorDesc')
+                          : t(language, 'lot3_linkedinHome_scoreDesc')}
                       </p>
                       <Button
                         className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white cursor-pointer"
@@ -191,19 +191,19 @@ export default function LinkedInHome() {
         {/* How it works */}
         <motion.section {...fadeUp} className="mb-8">
           <h3 className="mb-8 text-center text-2xl font-bold text-sky-900">
-            {language === 'ar' ? 'كيف يعمل؟' : language === 'es' ? '¿Cómo funciona?' : language === 'en' ? 'How it works' : 'Comment ça marche ?'}
+            {t(language, 'lot3_linkedinHome_howItWorks')}
           </h3>
           <div className="grid gap-6 sm:grid-cols-3">
             {[Search, FileText, Sparkles].map((Icon, i) => {
               const titles = [
-                language === 'ar' ? 'أدخل محتوى ملفك' : language === 'es' ? 'Ingresa el contenido de tu perfil' : language === 'en' ? 'Enter your profile content' : 'Entrez le contenu de votre profil',
-                language === 'ar' ? 'تحليل الذكاء الاصطناعي' : language === 'es' ? 'Análisis con IA' : language === 'en' ? 'AI analysis' : 'Analyse par l\'IA',
-                language === 'ar' ? 'احصل على نتائج' : language === 'es' ? 'Obtén resultados' : language === 'en' ? 'Get results' : 'Obtenez des résultats',
+                t(language, 'lot3_linkedinHome_step1Title'),
+                t(language, 'lot3_linkedinHome_step2Title'),
+                t(language, 'lot3_linkedinHome_step3Title'),
               ]
               const descs = [
-                language === 'ar' ? 'الصق رابط ملفك أو محتواه مباشرة' : language === 'es' ? 'Pega tu URL o el contenido directamente' : language === 'en' ? 'Paste your profile URL or content directly' : 'Collez votre URL ou le contenu directement',
-                language === 'ar' ? 'يحلل الذكاء الاصطناعي كل قسم ويقدم تقييماً شاملاً' : language === 'es' ? 'La IA analiza cada sección y proporciona una evaluación completa' : language === 'en' ? 'The AI analyzes each section and provides a comprehensive evaluation' : "L'IA analyse chaque section et fournit une évaluation complète",
-                language === 'ar' ? 'تلقّى نصائح محددة وقابلة للتنفيذ لتحسين ملفك' : language === 'es' ? 'Recibe consejos específicos y accionables para mejorar tu perfil' : language === 'en' ? 'Receive specific, actionable tips to improve your profile' : 'Recevez des conseils spécifiques et actionnables pour améliorer votre profil',
+                t(language, 'lot3_linkedinHome_step1Desc'),
+                t(language, 'lot3_linkedinHome_step2Desc'),
+                t(language, 'lot3_linkedinHome_step3Desc'),
               ]
               return (
                 <motion.div
