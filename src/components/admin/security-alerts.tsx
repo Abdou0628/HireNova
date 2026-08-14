@@ -101,9 +101,9 @@ function formatTime(dateStr: string, language: CVLanguage): string {
   const diffMin = Math.floor(diffMs / 60000)
   const diffHour = Math.floor(diffMs / 3600000)
 
-  if (diffMin < 1) return t(language, 'adminSec.justNow)
-  if (diffMin < 60) return `${diffMin}${t(language, 'adminSec.minutesAgo)}`
-  if (diffHour < 24) return `${diffHour}${t(language, 'adminSec.hoursAgo)}`
+  if (diffMin < 1) return t(language, 'adminSec.justNow')
+  if (diffMin < 60) return `${diffMin}${t(language, 'adminSec.minutesAgo')}`
+  if (diffHour < 24) return `${diffHour}${t(language, 'adminSec.hoursAgo')}`
   return date.toLocaleDateString()
 }
 

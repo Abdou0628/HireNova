@@ -50,14 +50,14 @@ export default function GlobalJobDetailView() {
   }, [jobId])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full" /></div>
-  if (!job) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">{t(language, 'gJobDetailNotFound)}</p></div>
+  if (!job) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">{t(language, 'gJobDetailNotFound')}</p></div>
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-teal-50/30">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="sm" onClick={() => setStep('globalMarket')} className="cursor-pointer">
-            <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gJobDetailBack)}
+            <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gJobDetailBack')}
           </Button>
           <Globe className="text-teal-600 w-6 h-6" />
         </div>
@@ -78,17 +78,17 @@ export default function GlobalJobDetailView() {
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-6">
             <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100">{job.type}</Badge>
-            {job.visaSponsorship && <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Shield className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailVisaSponsorship)}</Badge>}
-            {job.relocationPackage && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100"><Plane className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailRelocationPackage)}</Badge>}
-            {job.isRemote && <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100"><Wifi className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailRemote)}</Badge>}
+            {job.visaSponsorship && <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Shield className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailVisaSponsorship')}</Badge>}
+            {job.relocationPackage && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100"><Plane className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailRelocationPackage')}</Badge>}
+            {job.isRemote && <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100"><Wifi className="w-3 h-3 mr-1" /> {t(language, 'gJobDetailRemote')}</Badge>}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             {[
-              { icon: DollarSign, label: t(language, 'gJobDetailSalary), value: job.salaryMin && job.salaryMax ? `${job.salaryMin}-${job.salaryMax} ${job.currency}` : t(language, 'gJobDetailNotSpecified) },
-              { icon: Briefcase, label: t(language, 'gJobDetailType), value: job.type },
-              { icon: Users, label: t(language, 'gJobDetailApplications), value: String(job.applicationsCount) },
-              { icon: Clock, label: t(language, 'gJobDetailLanguage), value: job.language.toUpperCase() }
+              { icon: DollarSign, label: t(language, 'gJobDetailSalary'), value: job.salaryMin && job.salaryMax ? `${job.salaryMin}-${job.salaryMax} ${job.currency}` : t(language, 'gJobDetailNotSpecified') },
+              { icon: Briefcase, label: t(language, 'gJobDetailType'), value: job.type },
+              { icon: Users, label: t(language, 'gJobDetailApplications'), value: String(job.applicationsCount) },
+              { icon: Clock, label: t(language, 'gJobDetailLanguage'), value: job.language.toUpperCase() }
             ].map((s, i) => (
               <Card key={i}><CardContent className="p-3 text-center">
                 <s.icon className="w-4 h-4 mx-auto text-teal-600 mb-1" />
@@ -102,13 +102,13 @@ export default function GlobalJobDetailView() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardContent className="p-5">
-                  <h2 className="font-semibold mb-3">{t(language, 'gJobDetailDescription)}</h2>
+                  <h2 className="font-semibold mb-3">{t(language, 'gJobDetailDescription')}</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{job.description}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-5">
-                  <h2 className="font-semibold mb-3">{t(language, 'gJobDetailRequirements)}</h2>
+                  <h2 className="font-semibold mb-3">{t(language, 'gJobDetailRequirements')}</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{job.requirements}</p>
                 </CardContent>
               </Card>
@@ -117,7 +117,7 @@ export default function GlobalJobDetailView() {
               {job.skills && (
                 <Card>
                   <CardContent className="p-5">
-                    <h2 className="font-semibold mb-3 text-sm">{t(language, 'gJobDetailSkills)}</h2>
+                    <h2 className="font-semibold mb-3 text-sm">{t(language, 'gJobDetailSkills')}</h2>
                     <div className="flex flex-wrap gap-1.5">
                       {job.skills.split(',').map((s, i) => (
                         <Badge key={i} variant="outline" className="text-xs">{s.trim()}</Badge>
@@ -129,9 +129,9 @@ export default function GlobalJobDetailView() {
               <Card className="bg-teal-50 border-teal-200">
                 <CardContent className="p-5 text-center space-y-3">
                   <CheckCircle2 className="w-8 h-8 mx-auto text-teal-600" />
-                  <p className="font-semibold text-sm">{t(language, 'gJobDetailReadyToApply)}</p>
+                  <p className="font-semibold text-sm">{t(language, 'gJobDetailReadyToApply')}</p>
                   <Button className="w-full bg-teal-600 hover:bg-teal-700 cursor-pointer" onClick={() => setStep('globalApply', { jobId: job.id })}>
-                    {t(language, 'gJobDetailApplyNow)}
+                    {t(language, 'gJobDetailApplyNow')}
                   </Button>
                 </CardContent>
               </Card>

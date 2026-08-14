@@ -44,10 +44,10 @@ export default function GlobalEmployerDashboardView() {
   }, [])
 
   const statCards = [
-    { icon: Briefcase, label: t(language, 'gEmployerStatPublished), value: stats.totalJobs, color: 'text-teal-600' },
-    { icon: Users, label: t(language, 'gEmployerStatApplications), value: stats.totalApplications, color: 'text-emerald-600' },
-    { icon: Eye, label: t(language, 'gEmployerStatViews), value: stats.totalViews, color: 'text-blue-600' },
-    { icon: TrendingUp, label: t(language, 'gEmployerStatAvgScore), value: `${stats.avgMatchScore}%`, color: 'text-purple-600' },
+    { icon: Briefcase, label: t(language, 'gEmployerStatPublished'), value: stats.totalJobs, color: 'text-teal-600' },
+    { icon: Users, label: t(language, 'gEmployerStatApplications'), value: stats.totalApplications, color: 'text-emerald-600' },
+    { icon: Eye, label: t(language, 'gEmployerStatViews'), value: stats.totalViews, color: 'text-blue-600' },
+    { icon: TrendingUp, label: t(language, 'gEmployerStatAvgScore'), value: `${stats.avgMatchScore}%`, color: 'text-purple-600' },
   ]
 
   return (
@@ -56,17 +56,17 @@ export default function GlobalEmployerDashboardView() {
         <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setStep('landing')} className="cursor-pointer">
-              <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gEmployerBack)}
+              <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gEmployerBack')}
             </Button>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Globe className="text-teal-600" /> {t(language, 'gEmployerDashboardTitle)}
+                <Globe className="text-teal-600" /> {t(language, 'gEmployerDashboardTitle')}
               </h1>
-              <p className="text-sm text-muted-foreground">{t(language, 'gEmployerDashboardSubtitle)}</p>
+              <p className="text-sm text-muted-foreground">{t(language, 'gEmployerDashboardSubtitle')}</p>
             </div>
           </div>
           <Button className="bg-teal-600 hover:bg-teal-700 cursor-pointer" onClick={() => setStep('globalPostJob')}>
-            <PlusCircle className="w-4 h-4 mr-2" /> {t(language, 'gEmployerNewJob)}
+            <PlusCircle className="w-4 h-4 mr-2" /> {t(language, 'gEmployerNewJob')}
           </Button>
         </div>
 
@@ -87,9 +87,9 @@ export default function GlobalEmployerDashboardView() {
         ) : jobs.length === 0 ? (
           <Card className="p-8 text-center">
             <Briefcase className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="font-medium text-muted-foreground">{t(language, 'gEmployerNoJobs)}</p>
+            <p className="font-medium text-muted-foreground">{t(language, 'gEmployerNoJobs')}</p>
             <Button className="mt-4 bg-teal-600 hover:bg-teal-700 cursor-pointer" onClick={() => setStep('globalPostJob')}>
-              {t(language, 'gEmployerPublishFirst)}
+              {t(language, 'gEmployerPublishFirst')}
             </Button>
           </Card>
         ) : (
@@ -99,12 +99,12 @@ export default function GlobalEmployerDashboardView() {
                 <table className="w-full text-sm">
                   <thead className="border-b bg-muted/50">
                     <tr>
-                      <th className="text-left p-3 font-medium">{t(language, 'gEmployerTablePosition)}</th>
-                      <th className="text-left p-3 font-medium hidden sm:table-cell">{t(language, 'gEmployerTableLocation)}</th>
-                      <th className="text-left p-3 font-medium hidden md:table-cell">{t(language, 'gEmployerTableRegion)}</th>
-                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableApplications)}</th>
-                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableViews)}</th>
-                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableStatus)}</th>
+                      <th className="text-left p-3 font-medium">{t(language, 'gEmployerTablePosition')}</th>
+                      <th className="text-left p-3 font-medium hidden sm:table-cell">{t(language, 'gEmployerTableLocation')}</th>
+                      <th className="text-left p-3 font-medium hidden md:table-cell">{t(language, 'gEmployerTableRegion')}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableApplications')}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableViews')}</th>
+                      <th className="text-center p-3 font-medium">{t(language, 'gEmployerTableStatus')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -119,7 +119,7 @@ export default function GlobalEmployerDashboardView() {
                         <td className="p-3 text-center">{j.viewsCount}</td>
                         <td className="p-3 text-center">
                           <Badge className={`text-xs ${j.status === 'active' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-100'}`}>
-                            {j.status === 'active' ? t(language, 'gEmployerStatusActive) : j.status}
+                            {j.status === 'active' ? t(language, 'gEmployerStatusActive') : j.status}
                           </Badge>
                         </td>
                       </tr>

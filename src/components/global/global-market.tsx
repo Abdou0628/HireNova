@@ -75,13 +75,13 @@ export default function GlobalMarketView() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="sm" onClick={() => setStep('landing')} className="cursor-pointer">
-            <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gMarketBack)}
+            <ArrowLeft className="w-4 h-4 mr-1" /> {t(language, 'gMarketBack')}
           </Button>
           <div className="flex items-center gap-2">
             <Globe className="text-teal-600 w-7 h-7" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">{t(language, 'gMarketTitle)}</h1>
-              <p className="text-muted-foreground text-sm">{t(language, 'gMarketSubtitle)}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t(language, 'gMarketTitle')}</h1>
+              <p className="text-muted-foreground text-sm">{t(language, 'gMarketSubtitle')}</p>
             </div>
           </div>
         </div>
@@ -89,9 +89,9 @@ export default function GlobalMarketView() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { val: total, label: t(language, 'gMarketStatOffers), icon: Briefcase },
-            { val: '40+', label: t(language, 'gMarketStatCountries), icon: MapPin },
-            { val: '6', label: t(language, 'gMarketStatRegions), icon: Globe }
+            { val: total, label: t(language, 'gMarketStatOffers'), icon: Briefcase },
+            { val: '40+', label: t(language, 'gMarketStatCountries'), icon: MapPin },
+            { val: '6', label: t(language, 'gMarketStatRegions'), icon: Globe }
           ].map((s, i) => (
             <Card key={i} className="border-teal-100">
               <CardContent className="p-4 flex items-center gap-3">
@@ -117,14 +117,14 @@ export default function GlobalMarketView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder={t(language, 'gMarketKeywordPlaceholder)} value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1) }} className="pl-9" />
+            <Input placeholder={t(language, 'gMarketKeywordPlaceholder')} value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1) }} className="pl-9" />
           </div>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder={t(language, 'gMarketCountryPlaceholder)} value={country} onChange={e => { setCountry(e.target.value); setPage(1) }} className="pl-9" />
+            <Input placeholder={t(language, 'gMarketCountryPlaceholder')} value={country} onChange={e => { setCountry(e.target.value); setPage(1) }} className="pl-9" />
           </div>
           <Button variant="outline" size="sm" onClick={() => { setKeyword(''); setCountry(''); setRegion('Monde'); setPage(1) }}>
-            <Filter className="w-4 h-4 mr-1" /> {t(language, 'gMarketReset)}
+            <Filter className="w-4 h-4 mr-1" /> {t(language, 'gMarketReset')}
           </Button>
         </div>
 
@@ -133,13 +133,13 @@ export default function GlobalMarketView() {
         {!loading && jobs.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
             <Globe className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">{t(language, 'gMarketNoResults)}</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">{t(language, 'gMarketNoResultsHint)}</p>
+            <p className="text-lg font-medium text-muted-foreground">{t(language, 'gMarketNoResults')}</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">{t(language, 'gMarketNoResultsHint')}</p>
           </motion.div>
         )}
         {!loading && jobs.length > 0 && (
           <>
-            <p className="text-sm text-muted-foreground mb-4">{t(language, (total > 1 ? 'gMarketResultPlural' : 'gMarketResultSingular').replace('{count}', String(total))}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t(language, (total > 1 ? 'gMarketResultPlural' : 'gMarketResultSingular').replace('{count}', String(total)))}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job, i) => (
                 <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -164,14 +164,14 @@ export default function GlobalMarketView() {
                           </p>
                         )}
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {job.visaSponsorship && <Badge className="text-xs bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Shield className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketVisa)}</Badge>}
-                          {job.relocationPackage && <Badge className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-100"><Plane className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketRelocation)}</Badge>}
-                          {job.isRemote && <Badge className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-100"><Wifi className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketRemote)}</Badge>}
+                          {job.visaSponsorship && <Badge className="text-xs bg-emerald-100 text-emerald-700 hover:bg-emerald-100"><Shield className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketVisa')}</Badge>}
+                          {job.relocationPackage && <Badge className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-100"><Plane className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketRelocation')}</Badge>}
+                          {job.isRemote && <Badge className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-100"><Wifi className="w-2.5 h-2.5 mr-0.5" /> {t(language, 'gMarketRemote')}</Badge>}
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                        <span className="text-xs text-muted-foreground">{job.applicationsCount} {t(language, (job.applicationsCount > 1 ? 'gMarketApplicationPlural' : 'gMarketApplicationSingular')}</span>
-                        <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs cursor-pointer">{t(language, 'gMarketViewOffer)}</Button>
+                        <span className="text-xs text-muted-foreground">{job.applicationsCount} {t(language, (job.applicationsCount > 1 ? 'gMarketApplicationPlural' : 'gMarketApplicationSingular'))}</span>
+                        <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs cursor-pointer">{t(language, 'gMarketViewOffer')}</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -181,7 +181,7 @@ export default function GlobalMarketView() {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8">
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-                <span className="text-sm text-muted-foreground">{t(language, 'gMarketPage)} {page} / {totalPages}</span>
+                <span className="text-sm text-muted-foreground">{t(language, 'gMarketPage')} {page} / {totalPages}</span>
                 <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}><ChevronRight className="w-4 h-4" /></Button>
               </div>
             )}

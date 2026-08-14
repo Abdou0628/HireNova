@@ -233,7 +233,7 @@ export default function InterviewSimulator() {
           </p>
         </div>
 
-        {/* Progress bar during interview */
+        {/* Progress bar during interview */}
         {['question', 'evaluating', 'feedback'].includes(screen) && questions.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
@@ -517,7 +517,7 @@ export default function InterviewSimulator() {
                     </div>
                   )}
 
-                  {/* Follow-up */
+                  {/* Follow-up */}
                   {result.followUp && (
                     <div className="p-3 rounded-lg bg-slate-50 border">
                       <p className="text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
@@ -528,7 +528,7 @@ export default function InterviewSimulator() {
                     </div>
                   )}
 
-                  {/* Next button */
+                  {/* Next button */}
                   <Button
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3 text-sm font-semibold cursor-pointer"
                     onClick={nextQuestion}

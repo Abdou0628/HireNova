@@ -178,7 +178,7 @@ export default function ProfileButton() {
                   {isAdmin && (
                     <Badge className="text-xs bg-amber-500 text-white">
                       <Shield className="w-3 h-3 mr-1" />
-                      {t(lang, 'profileAdmin")}
+                      {t(lang, 'profileAdmin"')}
                     </Badge>
                   )}
                 </div>
@@ -232,7 +232,7 @@ export default function ProfileButton() {
             onSelect={(e) => { e.preventDefault(); setStep('apiDocs') }}
           >
             <Code2 className="w-4 h-4 mr-2 text-emerald-600" />
-            {t(lang, 'profileApiDocs")}
+            {t(lang, 'profileApiDocs"')}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="px-3 py-2.5 text-sm focus:bg-emerald-50 cursor-pointer"
@@ -281,7 +281,7 @@ export default function ProfileButton() {
                 }}
               >
                 <Shield className="w-4 h-4 mr-2" />
-                {t(lang, 'profileDashboardAdmin")}
+                {t(lang, 'profileDashboardAdmin"')}
               </DropdownMenuItem>
             </>
           )}
