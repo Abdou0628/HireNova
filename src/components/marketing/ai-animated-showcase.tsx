@@ -75,8 +75,8 @@ const SPEECH_LANG: Record<CVLanguage, string> = {
 const getImageSrc = (slug: string, lang: CVLanguage) => `/showcase/images/${lang}/${slug}.png`
 
 // Voice gender matchers
-const FEMALE_KEYWORDS = ['female', 'woman', 'zira', 'samantha', 'amelie', 'helena', 'paulina', 'alice']
-const MALE_KEYWORDS = ['male', 'man', 'david', 'thomas', 'daniel', 'jorge', 'paul', 'james']
+const FEMALE_KEYWORDS = ['female', 'woman', 'zira', 'samantha', 'amelie', 'helena', 'paulina', 'alice', 'hoda', 'laila', 'salma', 'maryam', 'fatima', 'nora', 'maha']
+const MALE_KEYWORDS = ['male', 'man', 'david', 'thomas', 'daniel', 'jorge', 'paul', 'james', 'naayf', 'tarik', 'mohammed', 'ahmed', 'omar', 'youssef']
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
@@ -191,7 +191,7 @@ export default function AIAnimatedShowcase() {
 
       const langCode = SPEECH_LANG[lang].split('-')[0]
       const localeVariants: Record<string, string[]> = {
-        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar'],
+        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar-XA', 'ar'],
         fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
         en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
         es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
@@ -241,9 +241,56 @@ export default function AIAnimatedShowcase() {
     setSpeechProgress(0)
   }, [])
 
+  // ─── Backend TTS fallback for languages without browser voices ──
+  const speakWithBackend = useCallback(
+    async (text: string, lang: CVLanguage) => {
+      try {
+        setIsSpeaking(true)
+        setSpeechProgress(5)
+        const res = await fetch('/api/marketing/speech?XTransformPort=3000', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, language: lang, gender: voiceGender }),
+        })
+        if (!res.ok) throw new Error(`TTS API error: ${res.status}`)
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const audio = new Audio(url)
+        // Simulate progress
+        const estimatedDuration = text.length * 60
+        const progressInterval = setInterval(() => {
+          setSpeechProgress((prev) => (prev >= 95 ? prev : prev + 2))
+        }, estimatedDuration / 50)
+        audio.onended = () => {
+          setIsSpeaking(false)
+          setSpeechProgress(100)
+          clearInterval(progressInterval)
+          URL.revokeObjectURL(url)
+        }
+        audio.onerror = () => {
+          setIsSpeaking(false)
+          setSpeechProgress(0)
+          clearInterval(progressInterval)
+          URL.revokeObjectURL(url)
+        }
+        await audio.play()
+        console.log(`[Speech] Using backend TTS for ${SPEECH_LANG[lang]}`)
+      } catch (err) {
+        console.warn('[Speech] Backend TTS also failed:', err)
+        setIsSpeaking(false)
+        setSpeechProgress(0)
+      }
+    },
+    [voiceGender]
+  )
+
   const speak = useCallback(
     (text: string, lang: CVLanguage) => {
-      if (typeof window === 'undefined' || !window.speechSynthesis) return
+      if (typeof window === 'undefined' || !window.speechSynthesis) {
+        // No browser speech at all — try backend
+        speakWithBackend(text, lang)
+        return
+      }
 
       stopSpeech()
 
@@ -267,7 +314,7 @@ export default function AIAnimatedShowcase() {
         console.log(`[Speech] Using voice: ${matchedVoice.name} (${matchedVoice.lang}), gender: ${voiceGender}`)
       } else {
         utterance.pitch = voiceGender === 'female' ? 1.1 : 0.85
-        console.warn(`[Speech] No voice found for ${SPEECH_LANG[lang]}. Using pitch fallback.`)
+        console.warn(`[Speech] No voice found for ${SPEECH_LANG[lang]}. Trying browser fallback then backend TTS.`)
       }
 
       // Track voice play
@@ -300,12 +347,15 @@ export default function AIAnimatedShowcase() {
         setIsSpeaking(false)
         setSpeechProgress(0)
         if (progressInterval) clearInterval(progressInterval)
+        // Fallback to backend TTS when browser speech fails (especially Arabic)
+        console.warn(`[Speech] Browser TTS failed for ${SPEECH_LANG[lang]}. Falling back to backend TTS.`)
+        speakWithBackend(text, lang)
       }
 
       utteranceRef.current = utterance
       window.speechSynthesis.speak(utterance)
     },
-    [stopSpeech, voiceGender, pickVoiceByGender, activeProduct.slug]
+    [stopSpeech, voiceGender, pickVoiceByGender, activeProduct.slug, speakWithBackend]
   )
 
   const toggleSpeech = useCallback(() => {
