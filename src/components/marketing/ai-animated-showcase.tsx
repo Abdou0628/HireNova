@@ -9,6 +9,11 @@ import React, {
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText,
+  Mail,
+  MessageSquare,
+  Linkedin,
+  Compass,
+  Plane,
   Sparkles,
   Volume2,
   VolumeX,
@@ -17,50 +22,105 @@ import {
   Play,
   Pause,
   BrainCircuit,
-  User,
-  UserCheck,
-  Loader2,
-  Mic,
 } from 'lucide-react'
-import * as LucideIcons from 'lucide-react'
 import { useCVStore, type CVLanguage } from '@/store/cv-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { t } from '@/lib/i18n'
-import { track } from '@/lib/analytics'
-import { marketingProducts } from '@/lib/marketing/products'
 import { toast } from 'sonner'
 
-// ─── Dynamic icon resolver ────────────────────────────────────────────────
+// ─── Product definitions ───────────────────────────────────────────────────
 
-function getIcon(iconName: string): React.ElementType {
-  return (LucideIcons as Record<string, React.ElementType>)[iconName] || FileText
-}
+const PRODUCTS = [
+  { slug: 'cv', icon: FileText, color: 'emerald' as const },
+  { slug: 'cover-letter', icon: Mail, color: 'blue' as const },
+  { slug: 'interview', icon: MessageSquare, color: 'violet' as const },
+  { slug: 'linkedin', icon: Linkedin, color: 'sky' as const },
+  { slug: 'career', icon: Compass, color: 'amber' as const },
+  { slug: 'mobility', icon: Plane, color: 'rose' as const },
+]
 
-// ─── Product colors (expanded for all 15 products) ────────────────────────
-
-type ProductColor =
-  | 'emerald' | 'violet' | 'sky' | 'amber' | 'rose' | 'blue'
-  | 'teal' | 'orange' | 'indigo' | 'pink' | 'cyan' | 'lime'
-  | 'fuchsia' | 'yellow' | 'red'
+type ProductColor = 'emerald' | 'blue' | 'violet' | 'sky' | 'amber' | 'rose'
 
 const colorMap: Record<ProductColor, { bg: string; text: string; ring: string; glow: string }> = {
   emerald: { bg: 'bg-emerald-100', text: 'text-emerald-600', ring: 'ring-emerald-400', glow: 'shadow-emerald-400/50' },
+  blue:    { bg: 'bg-blue-100', text: 'text-blue-600', ring: 'ring-blue-400', glow: 'shadow-blue-400/50' },
   violet:  { bg: 'bg-violet-100', text: 'text-violet-600', ring: 'ring-violet-400', glow: 'shadow-violet-400/50' },
   sky:     { bg: 'bg-sky-100', text: 'text-sky-600', ring: 'ring-sky-400', glow: 'shadow-sky-400/50' },
   amber:   { bg: 'bg-amber-100', text: 'text-amber-600', ring: 'ring-amber-400', glow: 'shadow-amber-400/50' },
   rose:    { bg: 'bg-rose-100', text: 'text-rose-600', ring: 'ring-rose-400', glow: 'shadow-rose-400/50' },
-  blue:    { bg: 'bg-blue-100', text: 'text-blue-600', ring: 'ring-blue-400', glow: 'shadow-blue-400/50' },
-  teal:    { bg: 'bg-teal-100', text: 'text-teal-600', ring: 'ring-teal-400', glow: 'shadow-teal-400/50' },
-  orange:  { bg: 'bg-orange-100', text: 'text-orange-600', ring: 'ring-orange-400', glow: 'shadow-orange-400/50' },
-  indigo:  { bg: 'bg-indigo-100', text: 'text-indigo-600', ring: 'ring-indigo-400', glow: 'shadow-indigo-400/50' },
-  pink:    { bg: 'bg-pink-100', text: 'text-pink-600', ring: 'ring-pink-400', glow: 'shadow-pink-400/50' },
-  cyan:    { bg: 'bg-cyan-100', text: 'text-cyan-600', ring: 'ring-cyan-400', glow: 'shadow-cyan-400/50' },
-  lime:    { bg: 'bg-lime-100', text: 'text-lime-600', ring: 'ring-lime-400', glow: 'shadow-lime-400/50' },
-  fuchsia: { bg: 'bg-fuchsia-100', text: 'text-fuchsia-600', ring: 'ring-fuchsia-400', glow: 'shadow-fuchsia-400/50' },
-  yellow:  { bg: 'bg-yellow-100', text: 'text-yellow-600', ring: 'ring-yellow-400', glow: 'shadow-yellow-400/50' },
-  red:     { bg: 'bg-red-100', text: 'text-red-600', ring: 'ring-red-400', glow: 'shadow-red-400/50' },
+}
+
+// ─── Static product data ────────────────────────────────────────────────────
+
+const PRODUCT_NAMES: Record<CVLanguage, Record<string, string>> = {
+  fr: {
+    cv: 'CV IA Professionnel',
+    'cover-letter': 'Lettre de Motivation IA',
+    interview: 'Simulateur Entretien IA',
+    linkedin: 'Optimiseur LinkedIn IA',
+    career: 'Plan de Carrière IA',
+    mobility: 'Mobilité Internationale',
+  },
+  en: {
+    cv: 'Professional AI Resume',
+    'cover-letter': 'AI Cover Letter',
+    interview: 'AI Interview Simulator',
+    linkedin: 'LinkedIn AI Optimizer',
+    career: 'AI Career Roadmap',
+    mobility: 'International Mobility',
+  },
+  ar: {
+    cv: 'سيرة ذاتية احترافية IA',
+    'cover-letter': 'رسالة تحفيزية IA',
+    interview: 'محاكي مقابلة IA',
+    linkedin: 'محسّن لينكدإن IA',
+    career: 'خطة مسار مهني IA',
+    mobility: 'التنقل الدولي',
+  },
+  es: {
+    cv: 'CV Profesional IA',
+    'cover-letter': 'Carta de Presentación IA',
+    interview: 'Simulador de Entrevista IA',
+    linkedin: 'Optimizador LinkedIn IA',
+    career: 'Plan de Carrera IA',
+    mobility: 'Movilidad Internacional',
+  },
+}
+
+const DESCRIPTIONS: Record<CVLanguage, Record<string, string>> = {
+  fr: {
+    cv: 'Découvrez le CV IA Professionnel de HireNova. En quelques clics, notre intelligence artificielle crée pour vous un CV optimisé pour les ATS, moderne et percutant. Votre carrière mérite un CV qui sort du lot.',
+    'cover-letter': 'Découvrez la Lettre de Motivation IA de HireNova. Notre IA rédige pour vous des lettres de motivation personnalisées et percutantes, parfaitement adaptées à chaque offre. Marquez les recruteurs dès la première ligne.',
+    interview: 'Le Simulateur d\'Entretien IA de HireNova vous permet de pratiquer vos entretiens avec un coach intelligent. Recevez des retours en temps réel et améliorez vos réponses. Soyez prêt le jour J.',
+    linkedin: 'L\'Optimiseur LinkedIn IA de HireNova analyse et améliore votre profil pour attirer les recruteurs. Optimisez votre visibilité et décrochez plus d\'opportunités professionnelles.',
+    career: 'Le Plan de Carrière IA de HireNova vous trace une feuille de route personnalisée pour atteindre vos objectifs professionnels. Identifiez vos forces et construisez votre avenir.',
+    mobility: 'La Mobilité Internationale de HireNova ouvre les portes du monde. Trouvez des opportunités de carrière à l\'international et gérez votre parcours de mobilité simplement.',
+  },
+  en: {
+    cv: 'Discover HireNova Professional AI Resume. Our artificial intelligence creates an ATS-optimized, modern and impactful resume for you in just a few clicks. Your career deserves a resume that stands out.',
+    'cover-letter': 'Discover HireNova AI Cover Letter. Our AI writes personalized and compelling cover letters perfectly tailored to each job posting. Impress recruiters from the very first line.',
+    interview: 'HireNova AI Interview Simulator lets you practice interviews with an intelligent coach. Get real-time feedback and improve your answers. Be ready on the big day.',
+    linkedin: 'HireNova LinkedIn AI Optimizer analyzes and improves your profile to attract recruiters. Boost your visibility and unlock more professional opportunities.',
+    career: 'HireNova AI Career Roadmap creates a personalized plan to reach your professional goals. Identify your strengths and build your future with confidence.',
+    mobility: 'HireNova International Mobility opens doors to the world. Find global career opportunities and manage your mobility journey with ease.',
+  },
+  ar: {
+    cv: 'اكتشف السيرة الذاتية الاحترافية من HireNova. في نقرات قليلة، تخلق ذكاؤنا الاصطناعي سيرة ذاتية محسنة ومذهلة لمسيرتك المهنية. مسيرتك المهنية تستحق سيرة ذاتية استثنائية.',
+    'cover-letter': 'اكتشف رسالة التحفيز من HireNova. يكتب ذكاؤنا الاصطناعي رسائل تحفيزية مخصصة ومؤثرة لكل فرصة عمل. أبهج مسؤولي التوظيف من السطر الأول.',
+    interview: 'يتيح لك محاكي المقابلات من HireNova التدرب مع مدرب ذكي وتلقي ملاحظات فورية لتحسين إجاباتك. كن مستعدا في اليوم المحدد.',
+    linkedin: 'يحلل محسن لينكدإن من HireNova ويحسن ملفك لجذب أصحاب العمل. عزز ظهورك واحصل على فرص مهنية أكثر.',
+    career: 'يضع خطة المسار المهني من HireNova خطة مخصصة لتحقيق أهدافك المهنية. حدد نقاط قوتك وابن مستقبلك بثقة.',
+    mobility: 'تفتح التنقل الدولي من HireNova أبواب العالم. اعثر على فرص عمل دولية وأدر رحلتك بسهولة.',
+  },
+  es: {
+    cv: 'Descubre el CV Profesional IA de HireNova. Nuestra IA crea un currículum optimizado y moderno en pocos clics. Tu carrera merece un CV que destaque.',
+    'cover-letter': 'Descubre la Carta de Presentación IA de HireNova. Nuestra IA redacta cartas personalizadas y adaptadas a cada oferta. Impresiona desde la primera línea.',
+    interview: 'El Simulador de Entrevistas IA de HireNova te permite practicar con un coach inteligente. Recibe retroalimentación en tiempo real y mejora tus respuestas.',
+    linkedin: 'El Optimizador LinkedIn IA de HireNova analiza y mejora tu perfil para atraer reclutadores y desbloquear más oportunidades profesionales.',
+    career: 'El Plan de Carrera IA de HireNova crea una ruta personalizada para alcanzar tus objetivos profesionales con confianza.',
+    mobility: 'La Movilidad Internacional de HireNova abre las puertas del mundo. Encuentra oportunidades globales y gestiona tu trayectoria con facilidad.',
+  },
 }
 
 // Web Speech API language codes
@@ -74,15 +134,53 @@ const SPEECH_LANG: Record<CVLanguage, string> = {
 // Language-specific image paths: /showcase/images/{lang}/{slug}.png
 const getImageSrc = (slug: string, lang: CVLanguage) => `/showcase/images/${lang}/${slug}.png`
 
-// Voice gender matchers
-const FEMALE_KEYWORDS = ['female', 'woman', 'zira', 'samantha', 'amelie', 'helena', 'paulina', 'alice', 'hoda', 'laila', 'salma', 'maryam', 'fatima', 'nora', 'maha']
-const MALE_KEYWORDS = ['male', 'man', 'david', 'thomas', 'daniel', 'jorge', 'paul', 'james', 'naayf', 'tarik', 'mohammed', 'ahmed', 'omar', 'youssef']
+// ─── UI Labels ─────────────────────────────────────────────────────────────
+
+const LABELS: Record<CVLanguage, Record<string, string>> = {
+  fr: {
+    title: 'Découvrez nos produits avec l\'IA',
+    subtitle: 'L\'intelligence artificielle vous présente chaque outil en détail',
+    playVoice: 'Écouter la présentation',
+    stopVoice: 'Arrêter',
+    next: 'Suivant',
+    prev: 'Précédent',
+    autoPlay: 'Lecture auto',
+  },
+  en: {
+    title: 'Discover our products with AI',
+    subtitle: 'Artificial intelligence presents each tool in detail',
+    playVoice: 'Listen to presentation',
+    stopVoice: 'Stop',
+    next: 'Next',
+    prev: 'Previous',
+    autoPlay: 'Auto play',
+  },
+  ar: {
+    title: 'اكتشف منتجاتنا بالذكاء الاصطناعي',
+    subtitle: 'الذكاء الاصطناعي يقدم كل أداة بالتفصيل',
+    playVoice: 'استمع للعرض',
+    stopVoice: 'إيقاف',
+    next: 'التالي',
+    prev: 'السابق',
+    autoPlay: 'تشغيل تلقائي',
+  },
+  es: {
+    title: 'Descubre nuestros productos con IA',
+    subtitle: 'La inteligencia artificial presenta cada herramienta en detalle',
+    playVoice: 'Escuchar presentación',
+    stopVoice: 'Detener',
+    next: 'Siguiente',
+    prev: 'Anterior',
+    autoPlay: 'Reproducción auto',
+  },
+}
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default function AIAnimatedShowcase() {
   const { language } = useCVStore()
   const isRTL = language === 'ar'
+  const labels = LABELS[language]
 
   const [activeIndex, setActiveIndex] = useState(0)
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -92,28 +190,17 @@ export default function AIAnimatedShowcase() {
   const [speechProgress, setSpeechProgress] = useState(0)
   const [speechSupported, setSpeechSupported] = useState(true)
   const [voiceReady, setVoiceReady] = useState(false)
-  const [voiceGender, setVoiceGender] = useState<'male' | 'female'>('female')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [aiDescriptions, setAiDescriptions] = useState<Record<string, Record<CVLanguage, string>>>({})
 
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const backendAudioRef = useRef<HTMLAudioElement | null>(null)
   const voicesRef = useRef<SpeechSynthesisVoice[]>([])
 
-  const activeProduct = marketingProducts[activeIndex]
-  const colors = colorMap[activeProduct.color as ProductColor]
-  const ActiveIcon = getIcon(activeProduct.icon)
-  const description = (aiDescriptions[activeProduct.slug]?.[language])
-    || activeProduct.descriptions[language]
-
-  // ─── Analytics: track product view ─────────────────────────────────────
-  useEffect(() => {
-    track('marketing_product_view', {
-      product_slug: activeProduct.slug,
-      language,
-    })
-  }, [activeIndex, activeProduct.slug, language])
+  const activeProduct = PRODUCTS[activeIndex]
+  const colors = colorMap[activeProduct.color]
+  const description = DESCRIPTIONS[language][activeProduct.slug]
+  const imageSrc = getImageSrc(activeProduct.slug, language)
 
   // ─── Check speech support + preload voices ─────────────────────────────
   useEffect(() => {
@@ -181,82 +268,39 @@ export default function AIAnimatedShowcase() {
     [clearTyping, language]
   )
 
-  // ─── Voice gender matching helper ──────────────────────────────────────
-
-  const pickVoiceByGender = useCallback(
-    (lang: CVLanguage, gender: 'male' | 'female'): SpeechSynthesisVoice | undefined => {
-      const voices = voicesRef.current.length > 0
-        ? voicesRef.current
-        : (typeof window !== 'undefined' && window.speechSynthesis ? window.speechSynthesis.getVoices() : [])
-
-      const langCode = SPEECH_LANG[lang].split('-')[0]
-      const localeVariants: Record<string, string[]> = {
-        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar-XA', 'ar'],
-        fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
-        en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
-        es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
-      }
-      const variants = localeVariants[langCode] || [langCode]
-      const keywords = gender === 'female' ? FEMALE_KEYWORDS : MALE_KEYWORDS
-
-      // Build candidate voices: first locale match, then prefix match
-      let candidates: SpeechSynthesisVoice[] = []
-      for (const variant of variants) {
-        const match = voices.find((v) => v.lang === variant && v.localService)
-        if (match) { candidates.push(match); break }
-      }
-      if (candidates.length === 0) {
-        const match = voices.find((v) => v.lang.startsWith(langCode) && v.localService)
-        if (match) candidates.push(match)
-      }
-      if (candidates.length === 0) {
-        for (const variant of variants) {
-          const match = voices.find((v) => v.lang === variant)
-          if (match) { candidates.push(match); break }
-        }
-      }
-      if (candidates.length === 0) {
-        const match = voices.find((v) => v.lang.startsWith(langCode))
-        if (match) candidates.push(match)
-      }
-
-      // Try to find one that matches gender keywords in name
-      for (const candidate of candidates) {
-        const nameLower = candidate.name.toLowerCase()
-        if (keywords.some((k) => nameLower.includes(k))) return candidate
-      }
-      // Fallback to first candidate
-      return candidates[0]
-    },
-    []
-  )
-
   // ─── Speech control (Web Speech API) ────────────────────────────────────
 
   const stopSpeech = useCallback(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel()
     }
+    if (backendAudioRef.current) {
+      backendAudioRef.current.pause()
+      backendAudioRef.current.currentTime = 0
+      backendAudioRef.current = null
+    }
     setIsSpeaking(false)
     setSpeechProgress(0)
   }, [])
 
-  // ─── Backend TTS fallback for languages without browser voices ──
+  // ─── Backend TTS fallback (for Arabic and when browser TTS fails) ──
   const speakWithBackend = useCallback(
     async (text: string, lang: CVLanguage) => {
       try {
+        stopSpeech()
         setIsSpeaking(true)
         setSpeechProgress(5)
-        const res = await fetch('/api/marketing/speech?XTransformPort=3000', {
+        const res = await fetch('/api/marketing/speech', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, language: lang, gender: voiceGender }),
+          body: JSON.stringify({ text, language: lang, gender: 'female' }),
         })
         if (!res.ok) throw new Error(`TTS API error: ${res.status}`)
         const blob = await res.blob()
+        if (blob.size === 0) throw new Error('Empty audio response')
         const url = URL.createObjectURL(blob)
         const audio = new Audio(url)
-        // Simulate progress
+        backendAudioRef.current = audio
         const estimatedDuration = text.length * 60
         const progressInterval = setInterval(() => {
           setSpeechProgress((prev) => (prev >= 95 ? prev : prev + 2))
@@ -266,28 +310,38 @@ export default function AIAnimatedShowcase() {
           setSpeechProgress(100)
           clearInterval(progressInterval)
           URL.revokeObjectURL(url)
+          backendAudioRef.current = null
         }
         audio.onerror = () => {
           setIsSpeaking(false)
           setSpeechProgress(0)
           clearInterval(progressInterval)
           URL.revokeObjectURL(url)
+          backendAudioRef.current = null
+          toast.error(lang === 'ar' ? 'تعذر تشغيل الصوت' : 'Audio playback failed')
         }
         await audio.play()
-        console.log(`[Speech] Using backend TTS for ${SPEECH_LANG[lang]}`)
+        console.log(`[Speech] Backend TTS playing for ${SPEECH_LANG[lang]}`)
       } catch (err) {
-        console.warn('[Speech] Backend TTS also failed:', err)
+        console.warn('[Speech] Backend TTS failed:', err)
         setIsSpeaking(false)
         setSpeechProgress(0)
+        toast.error(lang === 'ar' ? 'تعذر تشغيل الصوت. يرجى المحاولة مرة أخرى.' : 'Audio unavailable. Please try again.')
       }
     },
-    [voiceGender]
+    [stopSpeech]
   )
 
   const speak = useCallback(
     (text: string, lang: CVLanguage) => {
+      // Arabic: use backend TTS directly (browser TTS unreliable for Arabic)
+      if (lang === 'ar') {
+        console.log('[Speech] Arabic → backend TTS')
+        speakWithBackend(text, lang)
+        return
+      }
+
       if (typeof window === 'undefined' || !window.speechSynthesis) {
-        // No browser speech at all — try backend
         speakWithBackend(text, lang)
         return
       }
@@ -296,35 +350,45 @@ export default function AIAnimatedShowcase() {
 
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = SPEECH_LANG[lang]
-      utterance.rate = lang === 'ar' ? 0.85 : 0.95
+      utterance.rate = 0.95
+      utterance.pitch = 1.0
 
-      // Voice gender pitch adjustment
-      const matchedVoice = pickVoiceByGender(lang, voiceGender)
-      if (matchedVoice) {
-        utterance.voice = matchedVoice
-        const nameLower = matchedVoice.name.toLowerCase()
-        const genderKeywords = voiceGender === 'female' ? FEMALE_KEYWORDS : MALE_KEYWORDS
-        const isGenderMatch = genderKeywords.some((k) => nameLower.includes(k))
-        // Only adjust pitch if no gender match was found in voice name
-        if (!isGenderMatch) {
-          utterance.pitch = voiceGender === 'female' ? 1.1 : 0.85
-        } else {
-          utterance.pitch = 1.0
+      const voices = voicesRef.current.length > 0
+        ? voicesRef.current
+        : window.speechSynthesis.getVoices()
+
+      const langCode = SPEECH_LANG[lang].split('-')[0]
+      const localeVariants: Record<string, string[]> = {
+        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar'],
+        fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
+        en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
+        es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
+      }
+      const variants = localeVariants[langCode] || [langCode]
+
+      let matchedVoice: SpeechSynthesisVoice | undefined
+      for (const variant of variants) {
+        matchedVoice = voices.find((v) => v.lang === variant && v.localService)
+        if (matchedVoice) break
+      }
+      if (!matchedVoice) {
+        matchedVoice = voices.find((v) => v.lang.startsWith(langCode) && v.localService)
+      }
+      if (!matchedVoice) {
+        for (const variant of variants) {
+          matchedVoice = voices.find((v) => v.lang === variant)
+          if (matchedVoice) break
         }
-        console.log(`[Speech] Using voice: ${matchedVoice.name} (${matchedVoice.lang}), gender: ${voiceGender}`)
-      } else {
-        utterance.pitch = voiceGender === 'female' ? 1.1 : 0.85
-        console.warn(`[Speech] No voice found for ${SPEECH_LANG[lang]}. Trying browser fallback then backend TTS.`)
+      }
+      if (!matchedVoice) {
+        matchedVoice = voices.find((v) => v.lang.startsWith(langCode))
       }
 
-      // Track voice play
-      track('marketing_voice_play', {
-        product_slug: activeProduct.slug,
-        language: lang,
-        voice_gender: voiceGender,
-      })
+      if (matchedVoice) {
+        utterance.voice = matchedVoice
+        console.log(`[Speech] Using voice: ${matchedVoice.name} (${matchedVoice.lang})`)
+      }
 
-      // Simulate progress during speech
       const estimatedDuration = text.length * 60
       let progressInterval: ReturnType<typeof setInterval> | null = null
 
@@ -332,10 +396,7 @@ export default function AIAnimatedShowcase() {
         setIsSpeaking(true)
         setSpeechProgress(0)
         progressInterval = setInterval(() => {
-          setSpeechProgress((prev) => {
-            if (prev >= 95) return prev
-            return prev + 2
-          })
+          setSpeechProgress((prev) => (prev >= 95 ? prev : prev + 2))
         }, estimatedDuration / 50)
       }
       utterance.onend = () => {
@@ -347,15 +408,15 @@ export default function AIAnimatedShowcase() {
         setIsSpeaking(false)
         setSpeechProgress(0)
         if (progressInterval) clearInterval(progressInterval)
-        // Fallback to backend TTS when browser speech fails (especially Arabic)
-        console.warn(`[Speech] Browser TTS failed for ${SPEECH_LANG[lang]}. Falling back to backend TTS.`)
+        // Fallback to backend when browser TTS fails
+        console.warn(`[Speech] Browser TTS failed for ${SPEECH_LANG[lang]}, trying backend`)
         speakWithBackend(text, lang)
       }
 
       utteranceRef.current = utterance
       window.speechSynthesis.speak(utterance)
     },
-    [stopSpeech, voiceGender, pickVoiceByGender, activeProduct.slug, speakWithBackend]
+    [stopSpeech, speakWithBackend]
   )
 
   const toggleSpeech = useCallback(() => {
@@ -365,52 +426,6 @@ export default function AIAnimatedShowcase() {
       speak(description, language)
     }
   }, [isSpeaking, stopSpeech, speak, description, language])
-
-  // ─── AI Generate ───────────────────────────────────────────────────────
-
-  const handleAIGenerate = useCallback(async () => {
-    if (isGenerating) return
-    setIsGenerating(true)
-
-    track('marketing_ai_generate', {
-      product_slug: activeProduct.slug,
-      language,
-    })
-
-    try {
-      const res = await fetch('/api/marketing/generate?XTransformPort=3000', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product: activeProduct.slug,
-          language,
-          tone: 'premium',
-          objective: 'conversion',
-        }),
-      })
-
-      if (!res.ok) throw new Error(`API error: ${res.status}`)
-
-      const data = await res.json()
-      if (data?.description) {
-        setAiDescriptions((prev) => ({
-          ...prev,
-          [activeProduct.slug]: {
-            ...prev[activeProduct.slug],
-            [language]: data.description,
-          },
-        }))
-        toast.success(t(language, 'mktShowcaseAiGenerate'))
-      } else {
-        throw new Error('No description in response')
-      }
-    } catch (err) {
-      console.warn('[AI Generate] Failed:', err)
-      toast.error(t(language, 'mktShowcaseStaticMode'))
-    } finally {
-      setIsGenerating(false)
-    }
-  }, [isGenerating, activeProduct.slug, language])
 
   // ─── Auto-play timer ──────────────────────────────────────────────────
 
@@ -425,7 +440,7 @@ export default function AIAnimatedShowcase() {
 
   const goTo = useCallback(
     (index: number) => {
-      const clamped = ((index % marketingProducts.length) + marketingProducts.length) % marketingProducts.length
+      const clamped = ((index % PRODUCTS.length) + PRODUCTS.length) % PRODUCTS.length
       setActiveIndex(clamped)
       setImageLoaded(false)
       stopSpeech()
@@ -451,18 +466,16 @@ export default function AIAnimatedShowcase() {
   // ─── When activeIndex changes, start typing ────────────────────────────
 
   useEffect(() => {
-    const product = marketingProducts[activeIndex]
-    const desc = (aiDescriptions[product.slug]?.[language]) || product.descriptions[language]
+    const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
     startTyping(desc)
-  }, [activeIndex, language, startTyping, aiDescriptions])
+  }, [activeIndex, language, startTyping])
 
   // ─── Auto-play: after typing finishes + 2s, go next ────────────────────
 
   useEffect(() => {
     if (!autoPlay || isSpeaking) return
 
-    const product = marketingProducts[activeIndex]
-    const desc = (aiDescriptions[product.slug]?.[language]) || product.descriptions[language]
+    const desc = DESCRIPTIONS[language][PRODUCTS[activeIndex].slug]
     if (displayedText.length < desc.length) return
 
     clearAutoPlayTimer()
@@ -471,7 +484,7 @@ export default function AIAnimatedShowcase() {
     }, 2500)
 
     return clearAutoPlayTimer
-  }, [autoPlay, isSpeaking, displayedText.length, activeIndex, language, goNext, clearAutoPlayTimer, aiDescriptions])
+  }, [autoPlay, isSpeaking, displayedText.length, activeIndex, language, goNext, clearAutoPlayTimer])
 
   // ─── Cleanup on unmount ────────────────────────────────────────────────
 
@@ -513,10 +526,10 @@ export default function AIAnimatedShowcase() {
           </Badge>
         </div>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-          {t(language, 'mktShowcaseTitle')}
+          {labels.title}
         </h2>
         <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-          {t(language, 'mktShowcaseSubtitle')}
+          {labels.subtitle}
         </p>
       </motion.header>
 
@@ -525,11 +538,11 @@ export default function AIAnimatedShowcase() {
 
         {/* ── Left: Product Carousel ───────────────────────────────────── */}
         <div className="lg:col-span-4">
-          <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 lg:max-h-[520px] lg:overflow-y-auto">
-            {marketingProducts.map((product, idx) => {
+          <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+            {PRODUCTS.map((product, idx) => {
               const isActive = idx === activeIndex
-              const c = colorMap[product.color as ProductColor]
-              const Icon = getIcon(product.icon)
+              const c = colorMap[product.color]
+              const Icon = product.icon
 
               return (
                 <motion.button
@@ -566,7 +579,7 @@ export default function AIAnimatedShowcase() {
                     'text-sm font-medium truncate',
                     isActive ? 'text-foreground' : 'text-muted-foreground'
                   )}>
-                    {product.names[language]}
+                    {PRODUCT_NAMES[language][product.slug]}
                   </span>
 
                   {isActive && (
@@ -586,53 +599,32 @@ export default function AIAnimatedShowcase() {
         <div className="lg:col-span-8">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 flex flex-col gap-4">
 
-            {/* Product badge + AI generate button */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Product badge */}
+            <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
                 className={cn('text-xs font-semibold px-3 py-1', colors.bg, colors.text, 'border-current/10')}
               >
-                {activeProduct.names[language]}
+                {PRODUCT_NAMES[language][activeProduct.slug]}
               </Badge>
               <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
                 AI Powered
               </Badge>
-              {aiDescriptions[activeProduct.slug]?.[language] && (
-                <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-emerald-300 text-emerald-600">
-                  <Sparkles className="w-3 h-3 mr-1" /> AI
-                </Badge>
-              )}
-              <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAIGenerate}
-                disabled={isGenerating}
-                className="gap-1.5 text-xs cursor-pointer"
-              >
-                {isGenerating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5" />
-                )}
-                {isGenerating
-                  ? t(language, 'mktShowcaseGenerating')
-                  : t(language, 'mktShowcaseAiGenerate')}
-              </Button>
             </div>
 
             {/* Image area */}
             <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted/30">
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={`${activeIndex}-${getImageSrc(activeProduct.slug, language)}`}
-                  src={getImageSrc(activeProduct.slug, language)}
-                  alt={activeProduct.names[language]}
+                  key={`${activeIndex}-${imageSrc}`}
+                  src={imageSrc}
+                  alt={PRODUCT_NAMES[language][activeProduct.slug]}
                   initial={{ opacity: 0, y: 20, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.98 }}
                   transition={{ duration: 0.5 }}
                   onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageLoaded(true)}
                   className={cn(
                     'w-full h-full object-cover transition-opacity duration-300',
                     imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -641,7 +633,9 @@ export default function AIAnimatedShowcase() {
               </AnimatePresence>
               {!imageLoaded && (
                 <div className="absolute inset-0 bg-muted/50 animate-pulse flex items-center justify-center">
-                  <ActiveIcon className={cn('w-10 h-10 animate-pulse', colors.text)} />
+                  {React.createElement(activeProduct.icon, {
+                    className: cn('w-10 h-10 animate-pulse', colors.text),
+                  })}
                 </div>
               )}
             </div>
@@ -666,25 +660,6 @@ export default function AIAnimatedShowcase() {
             {/* Audio player bar — Web Speech API */}
             {speechSupported && (
               <div dir="ltr" className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-                {/* Voice gender toggle */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setVoiceGender((g) => g === 'female' ? 'male' : 'female')}
-                  className="h-9 w-9 rounded-full flex-shrink-0 hover:bg-muted"
-                  aria-label={voiceGender === 'female'
-                    ? t(language, 'mktShowcaseFemaleVoice')
-                    : t(language, 'mktShowcaseMaleVoice')}
-                  title={voiceGender === 'female'
-                    ? t(language, 'mktShowcaseFemaleVoice')
-                    : t(language, 'mktShowcaseMaleVoice')}
-                >
-                  {voiceGender === 'female'
-                    ? <User className="w-4 h-4 text-pink-500" />
-                    : <UserCheck className="w-4 h-4 text-blue-500" />}
-                </Button>
-
-                {/* Play/Stop button */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -695,9 +670,7 @@ export default function AIAnimatedShowcase() {
                       ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
                       : 'hover:bg-muted'
                   )}
-                  aria-label={isSpeaking
-                    ? t(language, 'mktShowcaseStopVoice')
-                    : t(language, 'mktShowcasePlayVoice')}
+                  aria-label={isSpeaking ? labels.stopVoice : labels.playVoice}
                 >
                   {isSpeaking ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
@@ -744,12 +717,6 @@ export default function AIAnimatedShowcase() {
               </div>
             )}
 
-            {/* TTS backend indicator */}
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
-              <Mic className="w-3 h-3" />
-              <span>Web Speech API {voiceReady && '· ' + (voiceGender === 'female' ? '♀' : '♂')}</span>
-            </div>
-
           </div>
 
           {/* ── Navigation bar ──────────────────────────────────────────── */}
@@ -761,19 +728,19 @@ export default function AIAnimatedShowcase() {
               className="gap-1.5 cursor-pointer"
             >
               {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-              {t(language, 'mktShowcasePrev')}
+              {labels.prev}
             </Button>
 
             {/* Dot indicators */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center">
-              {marketingProducts.map((_, idx) => (
+            <div className="flex items-center gap-2">
+              {PRODUCTS.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => goTo(idx)}
                   className={cn(
                     'rounded-full transition-all duration-300 cursor-pointer',
                     idx === activeIndex
-                      ? 'w-5 h-2 bg-emerald-500'
+                      ? 'w-6 h-2 bg-emerald-500'
                       : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
                   )}
                 />
@@ -786,7 +753,7 @@ export default function AIAnimatedShowcase() {
               onClick={goNext}
               className="gap-1.5 cursor-pointer"
             >
-              {t(language, 'mktShowcaseNext')}
+              {labels.next}
               {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </Button>
           </div>
@@ -814,7 +781,7 @@ export default function AIAnimatedShowcase() {
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               </motion.div>
-              {t(language, 'mktShowcaseAutoPlay')}
+              {labels.autoPlay}
             </button>
           </div>
         </div>

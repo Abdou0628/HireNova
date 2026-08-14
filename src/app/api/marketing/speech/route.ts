@@ -4,14 +4,14 @@
  * POST /api/marketing/speech
  *
  * Generates TTS audio from text using the z-ai-web-dev-sdk TTS client.
- * Returns an audio/mpeg (MP3) stream.
+ * Returns audio/wav stream.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { TTS } from 'z-ai-web-dev-sdk'
-import { CVLanguage } from '@/lib/i18n'
 
 // ===== Types =====
+
+type CVLanguage = 'fr' | 'en' | 'ar' | 'es'
 
 interface SpeechRequest {
   text: string
@@ -21,18 +21,41 @@ interface SpeechRequest {
 
 // ===== Constants =====
 
-/** Maps app language codes to TTS speech locale codes */
-const SPEECH_CODE_MAP: Record<CVLanguage, string> = {
-  fr: 'fr-FR',
-  en: 'en-US',
-  ar: 'ar-SA',
-  es: 'es-ES',
+const VOICE_NAME_MAP: Record<'male' | 'female', string> = {
+  female: 'tongtong',
+  male: 'jam',
 }
 
-/** Maps gender to TTS voice names */
-const VOICE_NAME_MAP: Record<'male' | 'female', string> = {
-  female: 'alloy',
-  male: 'onyx',
+const MAX_TTS_CHARS = 1000
+
+function splitTextIntoChunks(text: string, maxLength = MAX_TTS_CHARS): string[] {
+  const chunks: string[] = []
+  const sentences = text.match(/[^.!؟?\n]+[.!؟?\n]+/g) || [text]
+
+  let currentChunk = ''
+  for (const sentence of sentences) {
+    if ((currentChunk + sentence).length <= maxLength) {
+      currentChunk += sentence
+    } else {
+      if (currentChunk) chunks.push(currentChunk.trim())
+      if (sentence.length > maxLength) {
+        const words = sentence.split(' ')
+        currentChunk = ''
+        for (const word of words) {
+          if ((currentChunk + ' ' + word).length > maxLength) {
+            if (currentChunk) chunks.push(currentChunk.trim())
+            currentChunk = word
+          } else {
+            currentChunk += (currentChunk ? ' ' : '') + word
+          }
+        }
+      } else {
+        currentChunk = sentence
+      }
+    }
+  }
+  if (currentChunk.trim()) chunks.push(currentChunk.trim())
+  return chunks
 }
 
 // ===== Route Handler =====
@@ -42,33 +65,21 @@ export async function POST(request: NextRequest) {
     const body: SpeechRequest = await request.json()
     const { text, language, gender = 'female' } = body
 
-    // Validate required fields
     if (!text || !language) {
       return NextResponse.json(
-        { error: 'Missing required fields: text and language are required' },
+        { error: 'Missing required fields: text and language' },
         { status: 400 }
       )
     }
 
-    // Validate language
     const validLanguages: CVLanguage[] = ['fr', 'en', 'ar', 'es']
     if (!validLanguages.includes(language)) {
       return NextResponse.json(
-        { error: `Invalid language. Must be one of: ${validLanguages.join(', ')}` },
+        { error: `Invalid language: ${language}` },
         { status: 400 }
       )
     }
 
-    // Validate gender
-    const validGenders: Array<'male' | 'female'> = ['male', 'female']
-    if (!validGenders.includes(gender)) {
-      return NextResponse.json(
-        { error: 'Invalid gender. Must be one of: male, female' },
-        { status: 400 }
-      )
-    }
-
-    // Trim and validate text length
     const trimmedText = text.trim()
     if (trimmedText.length === 0) {
       return NextResponse.json(
@@ -77,74 +88,64 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (trimmedText.length > 5000) {
+    const voiceName = VOICE_NAME_MAP[gender]
+    const chunks = splitTextIntoChunks(trimmedText)
+    let audioBuffers: Buffer[] = []
+
+    try {
+      const ZAI = (await import('z-ai-web-dev-sdk')).default
+      const zai = await ZAI.create()
+
+      for (const chunk of chunks) {
+        const response = await zai.audio.tts.create({
+          input: chunk,
+          voice: voiceName,
+          speed: 1.0,
+          response_format: 'wav',
+          stream: false,
+        })
+
+        const arrayBuffer = await response.arrayBuffer()
+        const buffer = Buffer.from(new Uint8Array(arrayBuffer))
+        audioBuffers.push(buffer)
+      }
+    } catch (ttsError) {
+      console.error('[/api/marketing/speech] TTS SDK failed:', ttsError)
       return NextResponse.json(
-        { error: 'Text too long. Maximum 5000 characters allowed.' },
-        { status: 400 }
+        { error: 'TTS service unavailable' },
+        { status: 500 }
       )
     }
 
-    const speechCode = SPEECH_CODE_MAP[language]
-    const voiceName = VOICE_NAME_MAP[gender]
+    // Concatenate WAV chunks
+    let finalBuffer: Buffer
+    if (audioBuffers.length === 1) {
+      finalBuffer = audioBuffers[0]
+    } else {
+      const WAV_HEADER_SIZE = 44
+      const header = audioBuffers[0].subarray(0, WAV_HEADER_SIZE)
+      const pcmParts = audioBuffers.map((buf) => buf.subarray(WAV_HEADER_SIZE))
+      const totalPCMSize = pcmParts.reduce((sum, p) => sum + p.length, 0)
 
-    let audioBuffer: Buffer
+      const updatedHeader = Buffer.from(header)
+      updatedHeader.writeUInt32LE(36 + totalPCMSize, 4)
+      updatedHeader.writeUInt32LE(totalPCMSize, 40)
 
-    try {
-      // Use the z-ai-web-dev-sdk TTS client
-      const tts = new TTS()
-      const result = await tts.generate({
-        text: trimmedText,
-        lang: speechCode,
-        voice: voiceName,
-      })
-
-      audioBuffer = Buffer.from(result)
-    } catch (ttsError) {
-      console.error('[/api/marketing/speech] TTS SDK failed, trying fallback:', ttsError)
-
-      // Fallback: attempt to use a simple system TTS via child_process if available
-      try {
-        const { execSync } = await import('child_process')
-        const escapedText = trimmedText.replace(/'/g, "'\\''")
-
-        // Try espeak-ng (common on Linux) as a last-resort fallback
-        const tmpFile = `/tmp/hirenova-tts-${Date.now()}.mp3`
-        execSync(
-          `espeak-ng -v ${speechCode} -w ${tmpFile} '${escapedText}' 2>/dev/null || ` +
-          `espeak -v ${speechCode} -w ${tmpFile} '${escapedText}' 2>/dev/null || true`,
-          { timeout: 15000 }
-        )
-
-        const { readFileSync, existsSync, unlinkSync } = await import('fs')
-
-        if (existsSync(tmpFile)) {
-          audioBuffer = readFileSync(tmpFile)
-          unlinkSync(tmpFile).catch(() => {}) // Cleanup temp file
-        } else {
-          throw new Error('Fallback TTS (espeak) not available on this system')
-        }
-      } catch (fallbackError) {
-        console.error('[/api/marketing/speech] Fallback TTS also failed:', fallbackError)
-        return NextResponse.json(
-          { error: 'Failed to generate speech audio. Both primary SDK and fallback are unavailable.' },
-          { status: 500 }
-        )
-      }
+      finalBuffer = Buffer.concat([updatedHeader, ...pcmParts])
     }
 
-    // Return the audio buffer as MP3
-    return new NextResponse(audioBuffer, {
+    return new NextResponse(finalBuffer, {
       status: 200,
       headers: {
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': String(audioBuffer.length),
-        'Cache-Control': 'public, max-age=86400', // Cache for 24h
+        'Content-Type': 'audio/wav',
+        'Content-Length': String(finalBuffer.length),
+        'Cache-Control': 'public, max-age=86400',
       },
     })
   } catch (error) {
     console.error('[/api/marketing/speech] Error:', error)
     return NextResponse.json(
-      { error: 'Internal server error while generating speech audio' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
