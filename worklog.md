@@ -1298,3 +1298,106 @@ Stage Summary:
 - All strings properly quoted (double quotes for strings with single quotes)
 - File grew from ~12751 lines to ~13006 lines (+255 lines)
 
+---
+Task ID: marketing-products-db
+Agent: General-purpose
+Task: Create complete marketing product database for all 15 HireNova modules
+
+Work Log:
+- Created directory src/lib/marketing/
+- Created src/lib/marketing/products.ts with full MarketingProduct interface and marketingProducts array
+- Exported MarketingProduct interface with fields: slug, icon, color, names, headlines, descriptions, cta, voiceScript, targetAudience, bundle
+- Imported CVLanguage from @/lib/i18n for type-safe Record<CVLanguage, string> fields
+- Populated all 15 products with 4-language translations (FR, EN, AR, ES):
+  1. cv (emerald) — Professional AI Resume
+  2. ats (violet) — ATS Scanner
+  3. cover-letter (sky) — AI Cover Letter
+  4. jobs (amber) — Job Market
+  5. global (rose) — Global Opportunities
+  6. interview (blue) — AI Interview Simulator
+  7. linkedin (teal) — AI LinkedIn Optimizer
+  8. career (orange) — AI Career Plan
+  9. coach (indigo) — AI Career Coach
+  10. formation (pink) — Certified Training
+  11. freelance (cyan) — Freelance Missions
+  12. mobility (lime) — International Mobility
+  13. recruiter (fuchsia) — Recruiter Hub
+  14. intelligence (yellow) — Market Intelligence
+  15. white-label (red) — White Label Solution
+- Each product has: icon (lucide name), color (tailwind), 5 i18n text fields (names, headlines, descriptions, cta, voiceScript)
+- Arabic text written in proper Modern Standard Arabic (MSA)
+- voiceScript kept shorter than descriptions (15-20 words) for TTS usage
+- Colors are all unique across 15 products as specified
+- Bundle assignments: essential (cv, ats, cover-letter, jobs), pro (global, interview, linkedin, career, coach, formation), business (freelance, mobility, recruiter, intelligence), enterprise (white-label)
+- targetAudience: job_seeker (10), freelancer (1), employer (4)
+- Lint: 0 new errors in marketing/products.ts (pre-existing 13 errors in other files unchanged)
+
+Stage Summary:
+- Complete marketing product database with 15 products × 4 languages = 300 translation strings
+- Professional, persuasive marketing copy in all languages
+- Ready for use in product showcase, pricing pages, and TTS voiceovers
+---
+Task ID: marketing-api-engine
+Agent: Marketing API Agent
+Task: Create AI Marketing Engine API routes — /api/marketing/generate and /api/marketing/speech
+
+Work Log:
+- Created directory structure: src/app/api/marketing/generate/ and src/app/api/marketing/speech/
+- Created src/app/api/marketing/generate/route.ts (POST) — AI marketing copy generator
+  - Accepts: { product, language, tone?, objective? }
+  - Looks up product slug in marketingProducts database (@/lib/marketing/products)
+  - Builds LLM prompt in the requested language using tone (premium/friendly/urgent) and objective (conversion/awareness/retention)
+  - Uses `import { LLM } from 'z-ai-web-dev-sdk'` with `new LLM()` and `llm.chat()`
+  - LLM enhances base copy (headline, description, voiceScript, cta) while preserving product identity
+  - Graceful fallback to static product data if LLM fails or times out
+  - Handles markdown code fences in LLM response
+  - Duration estimated at ~60ms per character of voiceScript
+  - Default animation: 'slide-up', default voice: 'female'
+  - Full input validation for product, language, tone, objective
+  - Returns 404 for unknown products, 400 for invalid params
+- Created src/app/api/marketing/speech/route.ts (POST) — TTS audio generator
+  - Accepts: { text, language, gender }
+  - Uses `import { TTS } from 'z-ai-web-dev-sdk'` with `new TTS()` and `tts.generate()`
+  - Language mapping: fr→fr-FR, en→en-US, ar→ar-SA, es→es-ES
+  - Voice mapping: female→alloy, male→onyx
+  - Returns audio/mpeg stream with Content-Length and Cache-Control (24h) headers
+  - Fallback to espeak-ng via child_process if SDK fails (Linux systems)
+  - Text length validation (max 5000 chars)
+  - Full input validation for text, language, gender
+- Lint: 0 new errors (pre-existing 13 errors, 333 warnings in bundled third-party code)
+
+Stage Summary:
+- Two new API routes ready for the AI Marketing Engine
+- /api/marketing/generate: Enhances static product copy with LLM based on tone and objective, with static fallback
+- /api/marketing/speech: Generates MP3 audio from text using TTS SDK with espeak-ng fallback
+- Both routes support all 4 languages (fr, en, ar, es)
+- Both routes validate all inputs and handle errors gracefully
+---
+Task ID: MKT-SHOWCASE-UPGRADE
+Agent: Fullstack Dev Agent
+Task: Rewrite ai-animated-showcase.tsx for full AI Marketing Engine showcase
+
+Work Log:
+- Replaced hardcoded 6-product PRODUCTS array with `marketingProducts` import from `@/lib/marketing/products` (all 15 products)
+- Replaced hardcoded PRODUCT_NAMES and DESCRIPTIONS with product.names[language] and product.descriptions[language]
+- Replaced static LABELS object with `t(language, key)` calls from `@/lib/i18n` using new i18n keys (mktShowcaseTitle, mktShowcaseSubtitle, mktShowcasePlayVoice, mktShowcaseStopVoice, mktShowcaseNext, mktShowcasePrev, mktShowcaseAutoPlay, mktShowcaseMaleVoice, mktShowcaseFemaleVoice, mktShowcaseAiGenerate, mktShowcaseGenerating, mktShowcaseStaticMode)
+- Expanded colorMap from 6 to 15 colors: emerald, violet, sky, amber, rose, blue, teal, orange, indigo, pink, cyan, lime, fuchsia, yellow, red
+- Added dynamic icon resolution via `import * as LucideIcons from 'lucide-react'` with `getIcon()` helper using icon name string from product data
+- Added voice gender selection (male/female toggle) with `voiceGender` state, `FEMALE_KEYWORDS`/`MALE_KEYWORDS` voice matching, and pitch fallback (female: 1.1, male: 0.85)
+- Added AI Generate button that POSTs to `/api/marketing/generate?XTransformPort=3000` with product, language, tone='premium', objective='conversion'
+- AI-generated descriptions stored in `aiDescriptions` state (per-product, per-language) and used as override when available
+- Added loading spinner (Loader2) during AI generation, toast success/error via sonner
+- Added analytics tracking: `marketing_product_view`, `marketing_voice_play`, `marketing_ai_generate` via `track()` from `@/lib/analytics`
+- Added TTS backend indicator showing Web Speech API + voice gender symbol
+- Preserved all existing features: typing effect (char-by-char for LTR, word-by-word for Arabic), auto-play timer, speech progress bar with waveform, image carousel, RTL support, `dir="ltr"` on audio bar, framer-motion animations
+- Added `lg:max-h-[520px] lg:overflow-y-auto` on product list for 15-product scroll
+- Reduced dot indicator size (w-5 h-2 active) to fit 15 dots
+- Lint: 0 new errors from this file (pre-existing 13 errors in other files)
+
+Stage Summary:
+- Component now showcases all 15 HireNova products from database
+- Voice gender toggle lets users switch between male/female TTS voices
+- AI Generate button fetches premium marketing copy from LLM API
+- All user-facing strings use i18n `t()` function
+- Analytics events fire for product views, voice plays, and AI generation
+- RTL Arabic support fully preserved including word-by-word typing

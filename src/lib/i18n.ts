@@ -1667,6 +1667,18 @@ export type TranslationKey =
   | 'lot5_freelance_apr'
   | 'lot5_freelance_may'
   | 'lot5_freelance_jun'
+  // Marketing Showcase
+  | 'mktShowcaseTitle'
+  | 'mktShowcaseSubtitle'
+  | 'mktShowcasePlayVoice'
+  | 'mktShowcaseStopVoice'
+  | 'mktShowcaseNext'
+  | 'mktShowcasePrev'
+  | 'mktShowcaseAutoPlay'
+  | 'mktShowcaseMaleVoice'
+  | 'mktShowcaseFemaleVoice'
+  | 'mktShowcaseAiGenerate'
+  | 'mktShowcaseGenerating'
 const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   fr: {
     siteTitle: 'HireNova',
@@ -4500,6 +4512,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   lot5_freelance_apr: 'Avr',
   lot5_freelance_may: 'Mai',
   lot5_freelance_jun: 'Jun',
+  // Marketing Showcase
+  mktShowcaseTitle: "Découvrez nos produits avec l'IA",
+  mktShowcaseSubtitle: "L'intelligence artificielle vous présente chaque outil en détail",
+  mktShowcasePlayVoice: 'Écouter la présentation',
+  mktShowcaseStopVoice: 'Arrêter',
+  mktShowcaseNext: 'Suivant',
+  mktShowcasePrev: 'Précédent',
+  mktShowcaseAutoPlay: 'Lecture auto',
+  mktShowcaseMaleVoice: 'Voix masculine',
+  mktShowcaseFemaleVoice: 'Voix féminine',
+  mktShowcaseAiGenerate: "Générer avec l'IA",
+  mktShowcaseGenerating: 'Génération en cours...',
   },
   en: {
     siteTitle: 'HireNova',
@@ -7333,6 +7357,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   lot5_freelance_apr: 'Apr',
   lot5_freelance_may: 'May',
   lot5_freelance_jun: 'Jun',
+  // Marketing Showcase
+  mktShowcaseTitle: 'Discover our products with AI',
+  mktShowcaseSubtitle: 'Artificial intelligence presents each tool in detail',
+  mktShowcasePlayVoice: 'Listen to presentation',
+  mktShowcaseStopVoice: 'Stop',
+  mktShowcaseNext: 'Next',
+  mktShowcasePrev: 'Previous',
+  mktShowcaseAutoPlay: 'Auto play',
+  mktShowcaseMaleVoice: 'Male voice',
+  mktShowcaseFemaleVoice: 'Female voice',
+  mktShowcaseAiGenerate: 'Generate with AI',
+  mktShowcaseGenerating: 'Generating...',
   },
   ar: {
     siteTitle: 'HireNova',
@@ -10165,6 +10201,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   lot5_freelance_apr: 'أبريل',
   lot5_freelance_may: 'مايو',
   lot5_freelance_jun: 'يونيو',
+  // Marketing Showcase
+  mktShowcaseTitle: 'اكتشف منتجاتنا بالذكاء الاصطناعي',
+  mktShowcaseSubtitle: 'الذكاء الاصطناعي يقدم كل أداة بالتفصيل',
+  mktShowcasePlayVoice: 'استمع للعرض',
+  mktShowcaseStopVoice: 'إيقاف',
+  mktShowcaseNext: 'التالي',
+  mktShowcasePrev: 'السابق',
+  mktShowcaseAutoPlay: 'تشغيل تلقائي',
+  mktShowcaseMaleVoice: 'صوت ذكوري',
+  mktShowcaseFemaleVoice: 'صوت أنثوي',
+  mktShowcaseAiGenerate: 'توليد بالذكاء الاصطناعي',
+  mktShowcaseGenerating: 'جارٍ التوليد...',
   },
   es: {
     siteTitle: 'HireNova',
@@ -12998,6 +13046,18 @@ const translations: Record<CVLanguage, Record<TranslationKey, string>> = {
   lot5_freelance_apr: 'Abr',
   lot5_freelance_may: 'May',
   lot5_freelance_jun: 'Jun',
+  // Marketing Showcase
+  mktShowcaseTitle: 'Descubre nuestros productos con IA',
+  mktShowcaseSubtitle: 'La inteligencia artificial presenta cada herramienta en detalle',
+  mktShowcasePlayVoice: 'Escuchar presentación',
+  mktShowcaseStopVoice: 'Detener',
+  mktShowcaseNext: 'Siguiente',
+  mktShowcasePrev: 'Anterior',
+  mktShowcaseAutoPlay: 'Reproducción auto',
+  mktShowcaseMaleVoice: 'Voz masculina',
+  mktShowcaseFemaleVoice: 'Voz femenina',
+  mktShowcaseAiGenerate: 'Generar con IA',
+  mktShowcaseGenerating: 'Generando...',
   }
 }
 
