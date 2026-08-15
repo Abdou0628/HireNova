@@ -1,7 +1,8 @@
 #!/bin/bash
-cd /home/z/my-project
 while true; do
-  bun run dev >> /home/z/my-project/dev.log 2>&1
-  echo "[keepalive] Server died, restarting in 2s..." >> /home/z/my-project/dev.log
+  echo "[$(date '+%H:%M:%S')] Starting dev server..."
+  bun run dev > dev.log 2>&1
+  EXIT_CODE=$?
+  echo "[$(date '+%H:%M:%S')] Dev server exited with code $EXIT_CODE, restarting in 2s..."
   sleep 2
 done
