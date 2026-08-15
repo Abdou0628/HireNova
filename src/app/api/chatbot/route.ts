@@ -1,6 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import OpenAI from 'openai'
 import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
+
+// ─── Dual-mode LLM Backend ────────────────────────────────────────────────
+// Z.ai env → z-ai-web-dev-sdk (free)
+// Localhost → OpenAI API (user provides OPENAI_API_KEY in .env.local)
+
+function getOpenAIClient(): OpenAI | null {
+  const key = process.env.OPENAI_API_KEY
+  if (!key || key === 'sk-your-key-here') return null
+  return new OpenAI({ apiKey: key })
+}
+
+async function callLLM(messages: { role: string; content: string }[]): Promise<string | null> {
+  // 1) Try Z.ai SDK first
+  try {
+    const zai = await ZAI.create()
+    const res = await zai.chat.completions.create({
+      model: 'deepseek-chat',
+      messages: messages as any,
+      temperature: 0.7,
+      max_tokens: 800,
+    })
+    const text = res.choices?.[0]?.message?.content?.trim()
+    if (text) {
+      console.log('[chatbot] LLM via Z.ai SDK')
+      return text
+    }
+  } catch (err) {
+    console.log('[chatbot] Z.ai SDK unavailable, trying OpenAI...')
+  }
+
+  // 2) Fallback to OpenAI
+  const openai = getOpenAIClient()
+  if (openai) {
+    try {
+      const res = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: messages as any,
+        temperature: 0.7,
+        max_tokens: 800,
+      })
+      const text = res.choices?.[0]?.message?.content?.trim()
+      if (text) {
+        console.log('[chatbot] LLM via OpenAI API')
+        return text
+      }
+    } catch (err) {
+      console.error('[chatbot] OpenAI error:', err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  return null
+}
 
 type Lang = 'fr' | 'en' | 'ar' | 'es'
 type Mode = 'advisor' | 'support' | 'products'
@@ -749,42 +802,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 2) Fallback to LLM via ZAI SDK
-    try {
-      const zai = await ZAI.create()
-      const systemPrompt = KB_PRODUCTS[lang] + MODE_PROMPTS[lang][safeMode]
+    // 2) Fallback to LLM (Z.ai SDK or OpenAI)
+    const systemPrompt = KB_PRODUCTS[lang] + MODE_PROMPTS[lang][safeMode]
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory.slice(-10).map((m: any) => ({ role: m.role as string, content: m.content })),
+      { role: 'user', content: message }
+    ]
 
-      const messages = [
-        { role: 'system' as const, content: systemPrompt },
-        ...conversationHistory.slice(-10).map((m: any) => ({ role: m.role as string, content: m.content })),
-        { role: 'user' as const, content: message }
-      ]
-
-      const res = await zai.chat.completions.create({
-        model: 'deepseek-chat',
-        messages,
-        temperature: 0.7,
-        max_tokens: 800
-      })
-
-      const response = res.choices?.[0]?.message?.content?.trim()
-      if (response) {
-        // --- HNSA AI Output Validation ---
-        const outputCheck = validateAIOutput(response, userId)
-        if (outputCheck.hasPII) {
-          logAIEvent({
-            userId,
-            eventType: 'PII_IN_OUTPUT',
-            input: message,
-            output: response,
-            blocked: false,
-            details: { piiTypes: outputCheck.piiTypes, path: '/api/chatbot' },
-          }).catch(() => {})
-        }
-        return NextResponse.json({ success: true, response, source: 'llm', lang })
+    const response = await callLLM(messages)
+    if (response) {
+      // --- HNSA AI Output Validation ---
+      const outputCheck = validateAIOutput(response, userId)
+      if (outputCheck.hasPII) {
+        logAIEvent({
+          userId,
+          eventType: 'PII_IN_OUTPUT',
+          input: message,
+          output: response,
+          blocked: false,
+          details: { piiTypes: outputCheck.piiTypes, path: '/api/chatbot' },
+        }).catch(() => {})
       }
-    } catch (sdkErr) {
-      console.error('[chatbot] SDK error:', sdkErr instanceof Error ? sdkErr.message : String(sdkErr))
+      return NextResponse.json({ success: true, response, source: 'llm', lang })
     }
 
     // 3) Final graceful fallback
