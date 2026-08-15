@@ -21,9 +21,12 @@ interface SpeechRequest {
 
 // ===== Constants =====
 
-const VOICE_NAME_MAP: Record<'male' | 'female', string> = {
-  female: 'tongtong',
-  male: 'jam',
+// Language-aware voice mapping
+const VOICE_BY_LANG_GENDER: Record<CVLanguage, Record<'male' | 'female', string>> = {
+  fr: { female: 'tongtong', male: 'jam' },
+  en: { female: 'tongtong', male: 'jam' },
+  es: { female: 'tongtong', male: 'jam' },
+  ar: { female: 'kazi', male: 'douji' },
 }
 
 const MAX_TTS_CHARS = 1000
@@ -88,7 +91,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const voiceName = VOICE_NAME_MAP[gender]
+    const voiceName = VOICE_BY_LANG_GENDER[language]?.[gender] || 'kazi'
+    console.log(`[/api/marketing/speech] lang=${language} gender=${gender} voice=${voiceName} textLen=${trimmedText.length}`)
     const chunks = splitTextIntoChunks(trimmedText)
     let audioBuffers: Buffer[] = []
 
@@ -96,17 +100,20 @@ export async function POST(request: NextRequest) {
       const ZAI = (await import('z-ai-web-dev-sdk')).default
       const zai = await ZAI.create()
 
-      for (const chunk of chunks) {
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i]
+        console.log(`[/api/marketing/speech] Chunk ${i + 1}/${chunks.length} (${chunk.length} chars, voice=${voiceName})`)
         const response = await zai.audio.tts.create({
           input: chunk,
           voice: voiceName,
-          speed: 1.0,
+          speed: language === 'ar' ? 0.85 : 1.0,
           response_format: 'wav',
           stream: false,
         })
 
         const arrayBuffer = await response.arrayBuffer()
         const buffer = Buffer.from(new Uint8Array(arrayBuffer))
+        console.log(`[/api/marketing/speech] Chunk ${i + 1} audio size: ${buffer.length} bytes`)
         audioBuffers.push(buffer)
       }
     } catch (ttsError) {
@@ -115,6 +122,13 @@ export async function POST(request: NextRequest) {
         { error: 'TTS service unavailable' },
         { status: 500 }
       )
+    }
+
+    // Validate we got non-trivial audio
+    const totalSize = audioBuffers.reduce((s, b) => s + b.length, 0)
+    console.log(`[/api/marketing/speech] Total audio size: ${totalSize} bytes across ${audioBuffers.length} chunks`)
+    if (totalSize < 100) {
+      console.warn('[/api/marketing/speech] Audio seems too small, may be empty')
     }
 
     // Concatenate WAV chunks

@@ -190,11 +190,13 @@ export default function AIAnimatedShowcase() {
   const [speechProgress, setSpeechProgress] = useState(0)
   const [speechSupported, setSpeechSupported] = useState(true)
   const [voiceReady, setVoiceReady] = useState(false)
+  const [useBackendTTS, setUseBackendTTS] = useState(false)
 
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const voicesRef = useRef<SpeechSynthesisVoice[]>([])
+  const backendAudioRef = useRef<HTMLAudioElement | null>(null)
 
   const activeProduct = PRODUCTS[activeIndex]
   const colors = colorMap[activeProduct.color]
@@ -203,8 +205,11 @@ export default function AIAnimatedShowcase() {
 
   // ─── Check speech support + preload voices ─────────────────────────────
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
-      setSpeechSupported(false)
+    if (typeof window === 'undefined') return
+    // Always keep speechSupported = true (we have backend TTS fallback)
+    if (!window.speechSynthesis) {
+      // No browser TTS at all — backend will handle everything
+      setUseBackendTTS(true)
       return
     }
     const loadVoices = () => {
@@ -272,6 +277,11 @@ export default function AIAnimatedShowcase() {
   const stopSpeech = useCallback(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel()
+    }
+    if (backendAudioRef.current) {
+      backendAudioRef.current.pause()
+      backendAudioRef.current.currentTime = 0
+      backendAudioRef.current = null
     }
     setIsSpeaking(false)
     setSpeechProgress(0)
@@ -379,17 +389,107 @@ export default function AIAnimatedShowcase() {
     [findVoice]
   )
 
+  // ─── Speak with backend TTS (for languages without browser voice) ──
+  const speakWithBackend = useCallback(
+    async (text: string, lang: CVLanguage) => {
+      try {
+        stopSpeech()
+        console.log(`[Speech] Backend TTS for ${lang}, text length: ${text.length}`)
+
+        const res = await fetch('/api/marketing/speech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, language: lang, gender: 'female' }),
+        })
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => null)
+          console.warn(`[Speech] Backend TTS error: ${res.status}`, errData)
+          toast.error(lang === 'ar' ? 'فشل في إنشاء الصوت' : 'Failed to generate speech')
+          return
+        }
+
+        const blob = await res.blob()
+        console.log(`[Speech] Backend TTS received audio blob: ${blob.size} bytes`)
+
+        if (blob.size < 100) {
+          console.warn('[Speech] Backend TTS returned very small audio, may be empty')
+          toast.error(lang === 'ar' ? 'الصوت الناتج فارغ' : 'Audio is empty')
+          return
+        }
+
+        const audioUrl = URL.createObjectURL(blob)
+        const audio = new Audio(audioUrl)
+        backendAudioRef.current = audio
+
+        const estimatedDuration = text.length * 80
+        let progressInterval: ReturnType<typeof setInterval> | null = null
+
+        audio.onplay = () => {
+          setIsSpeaking(true)
+          setSpeechProgress(0)
+          progressInterval = setInterval(() => {
+            setSpeechProgress((prev) => {
+              if (prev >= 95) return prev
+              return prev + 2
+            })
+          }, estimatedDuration / 50)
+        }
+
+        audio.onended = () => {
+          setIsSpeaking(false)
+          setSpeechProgress(100)
+          if (progressInterval) clearInterval(progressInterval)
+          URL.revokeObjectURL(audioUrl)
+          backendAudioRef.current = null
+        }
+
+        audio.onerror = (e) => {
+          console.error('[Speech] Backend audio play error:', e)
+          setIsSpeaking(false)
+          setSpeechProgress(0)
+          if (progressInterval) clearInterval(progressInterval)
+          URL.revokeObjectURL(audioUrl)
+          backendAudioRef.current = null
+          toast.error(lang === 'ar' ? 'خطأ في تشغيل الصوت' : 'Audio playback error')
+        }
+
+        await audio.play()
+      } catch (err) {
+        console.error('[Speech] speakWithBackend error:', err)
+        setIsSpeaking(false)
+      }
+    },
+    [stopSpeech]
+  )
+
   const speak = useCallback(
     (text: string, lang: CVLanguage) => {
+      // For Arabic: check if browser has an Arabic voice
+      // If not, use backend TTS as fallback
+      if (lang === 'ar') {
+        const hasArabicVoice = !!findVoice('ar')
+        console.log(`[Speech] Arabic voice available in browser: ${hasArabicVoice}`)
+        if (!hasArabicVoice) {
+          console.log('[Speech] Arabic → backend TTS (no browser voice)')
+          setUseBackendTTS(true)
+          speakWithBackend(text, lang)
+          return
+        }
+      }
+
       if (typeof window === 'undefined' || !window.speechSynthesis) {
-        toast.error(lang === 'ar' ? 'التصويت غير مدعوم في هذا المتصفح' : 'Speech not supported in this browser')
+        // Browser TTS not available at all, try backend for any language
+        setUseBackendTTS(true)
+        speakWithBackend(text, lang)
         return
       }
 
+      setUseBackendTTS(false)
       stopSpeech()
       speakWithBrowser(text, lang)
     },
-    [stopSpeech, speakWithBrowser]
+    [stopSpeech, speakWithBrowser, findVoice, speakWithBackend]
   )
 
   const toggleSpeech = useCallback(() => {
