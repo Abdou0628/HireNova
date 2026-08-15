@@ -465,17 +465,12 @@ export default function AIAnimatedShowcase() {
 
   const speak = useCallback(
     (text: string, lang: CVLanguage) => {
-      // For Arabic: check if browser has an Arabic voice
-      // If not, use backend TTS as fallback
+      // Arabic ALWAYS uses backend TTS (browser Arabic voices produce silence in most environments)
       if (lang === 'ar') {
-        const hasArabicVoice = !!findVoice('ar')
-        console.log(`[Speech] Arabic voice available in browser: ${hasArabicVoice}`)
-        if (!hasArabicVoice) {
-          console.log('[Speech] Arabic → backend TTS (no browser voice)')
-          setUseBackendTTS(true)
-          speakWithBackend(text, lang)
-          return
-        }
+        console.log('[Speech] Arabic → backend TTS (forced)')
+        setUseBackendTTS(true)
+        speakWithBackend(text, lang)
+        return
       }
 
       if (typeof window === 'undefined' || !window.speechSynthesis) {
@@ -489,13 +484,14 @@ export default function AIAnimatedShowcase() {
       stopSpeech()
       speakWithBrowser(text, lang)
     },
-    [stopSpeech, speakWithBrowser, findVoice, speakWithBackend]
+    [stopSpeech, speakWithBrowser, speakWithBackend]
   )
 
   const toggleSpeech = useCallback(() => {
     if (isSpeaking) {
       stopSpeech()
     } else {
+      console.log(`[Speech] toggleSpeech: lang=${language} descLen=${description.length}`)
       speak(description, language)
     }
   }, [isSpeaking, stopSpeech, speak, description, language])
