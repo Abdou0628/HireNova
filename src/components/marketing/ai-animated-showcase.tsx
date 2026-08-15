@@ -194,7 +194,6 @@ export default function AIAnimatedShowcase() {
   const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
-  const backendAudioRef = useRef<HTMLAudioElement | null>(null)
   const voicesRef = useRef<SpeechSynthesisVoice[]>([])
 
   const activeProduct = PRODUCTS[activeIndex]
@@ -274,125 +273,72 @@ export default function AIAnimatedShowcase() {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel()
     }
-    if (backendAudioRef.current) {
-      backendAudioRef.current.pause()
-      backendAudioRef.current.currentTime = 0
-      backendAudioRef.current = null
-    }
     setIsSpeaking(false)
     setSpeechProgress(0)
   }, [])
 
-  // ─── Backend TTS fallback (for Arabic and when browser TTS fails) ──
-  const speakWithBackend = useCallback(
-    async (text: string, lang: CVLanguage) => {
-      try {
-        stopSpeech()
-        setIsSpeaking(true)
-        setSpeechProgress(5)
-        const res = await fetch('/api/marketing/speech', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, language: lang, gender: 'female' }),
-        })
-        if (!res.ok) throw new Error(`TTS API error: ${res.status}`)
-        const blob = await res.blob()
-        if (blob.size === 0) throw new Error('Empty audio response')
-        const url = URL.createObjectURL(blob)
-        const audio = new Audio(url)
-        backendAudioRef.current = audio
-        const estimatedDuration = text.length * 60
-        const progressInterval = setInterval(() => {
-          setSpeechProgress((prev) => (prev >= 95 ? prev : prev + 2))
-        }, estimatedDuration / 50)
-        audio.onended = () => {
-          setIsSpeaking(false)
-          setSpeechProgress(100)
-          clearInterval(progressInterval)
-          URL.revokeObjectURL(url)
-          backendAudioRef.current = null
-        }
-        audio.onerror = () => {
-          setIsSpeaking(false)
-          setSpeechProgress(0)
-          clearInterval(progressInterval)
-          URL.revokeObjectURL(url)
-          backendAudioRef.current = null
-          toast.error(lang === 'ar' ? 'تعذر تشغيل الصوت' : 'Audio playback failed')
-        }
-        await audio.play()
-        console.log(`[Speech] Backend TTS playing for ${SPEECH_LANG[lang]}`)
-      } catch (err) {
-        console.warn('[Speech] Backend TTS failed:', err)
-        setIsSpeaking(false)
-        setSpeechProgress(0)
-        toast.error(lang === 'ar' ? 'تعذر تشغيل الصوت. يرجى المحاولة مرة أخرى.' : 'Audio unavailable. Please try again.')
-      }
-    },
-    [stopSpeech]
-  )
+  // ─── Voice matching helper ────────────────────────────────────────
 
-  const speak = useCallback(
-    (text: string, lang: CVLanguage) => {
-      // Arabic: use backend TTS directly (browser TTS unreliable for Arabic)
-      if (lang === 'ar') {
-        console.log('[Speech] Arabic → backend TTS')
-        speakWithBackend(text, lang)
-        return
-      }
+  const findVoice = useCallback((lang: CVLanguage): SpeechSynthesisVoice | undefined => {
+    const voices = voicesRef.current.length > 0
+      ? voicesRef.current
+      : (typeof window !== 'undefined' && window.speechSynthesis ? window.speechSynthesis.getVoices() : [])
 
-      if (typeof window === 'undefined' || !window.speechSynthesis) {
-        speakWithBackend(text, lang)
-        return
-      }
+    const langCode = SPEECH_LANG[lang].split('-')[0]
+    const localeVariants: Record<string, string[]> = {
+      ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar'],
+      fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
+      en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
+      es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
+    }
+    const variants = localeVariants[langCode] || [langCode]
 
-      stopSpeech()
+    // 1. Exact locale + local service
+    for (const v of variants) {
+      const match = voices.find((voice) => voice.lang === v && voice.localService)
+      if (match) return match
+    }
+    // 2. Prefix + local service
+    let match = voices.find((v) => v.lang.startsWith(langCode) && v.localService)
+    if (match) return match
+    // 3. Exact locale (any service)
+    for (const v of variants) {
+      match = voices.find((voice) => voice.lang === v)
+      if (match) return match
+    }
+    // 4. Prefix (any service)
+    match = voices.find((v) => v.lang.startsWith(langCode))
+    return match
+  }, [])
+
+  // ─── Speak with browser TTS (with Chrome bug workarounds) ──
+  const speakWithBrowser = useCallback(
+    (text: string, lang: CVLanguage, retryCount = 0) => {
+      if (typeof window === 'undefined' || !window.speechSynthesis) return false
+
+      // Chrome workaround: cancel before speaking
+      window.speechSynthesis.cancel()
 
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = SPEECH_LANG[lang]
-      utterance.rate = 0.95
+      utterance.rate = lang === 'ar' ? 0.85 : 0.95
       utterance.pitch = 1.0
+      utterance.volume = 1.0
 
-      const voices = voicesRef.current.length > 0
-        ? voicesRef.current
-        : window.speechSynthesis.getVoices()
-
-      const langCode = SPEECH_LANG[lang].split('-')[0]
-      const localeVariants: Record<string, string[]> = {
-        ar: ['ar-SA', 'ar-AE', 'ar-EG', 'ar-KW', 'ar-QA', 'ar-BH', 'ar-OM', 'ar-JO', 'ar-LB', 'ar-SY', 'ar-IQ', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-YE', 'ar'],
-        fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH', 'fr'],
-        en: ['en-US', 'en-GB', 'en-AU', 'en-IN', 'en-CA', 'en'],
-        es: ['es-ES', 'es-MX', 'es-AR', 'es-CO', 'es-CL', 'es'],
-      }
-      const variants = localeVariants[langCode] || [langCode]
-
-      let matchedVoice: SpeechSynthesisVoice | undefined
-      for (const variant of variants) {
-        matchedVoice = voices.find((v) => v.lang === variant && v.localService)
-        if (matchedVoice) break
-      }
-      if (!matchedVoice) {
-        matchedVoice = voices.find((v) => v.lang.startsWith(langCode) && v.localService)
-      }
-      if (!matchedVoice) {
-        for (const variant of variants) {
-          matchedVoice = voices.find((v) => v.lang === variant)
-          if (matchedVoice) break
-        }
-      }
-      if (!matchedVoice) {
-        matchedVoice = voices.find((v) => v.lang.startsWith(langCode))
+      const voice = findVoice(lang)
+      if (voice) {
+        utterance.voice = voice
+        console.log(`[Speech] Voice: ${voice.name} (${voice.lang})`)
+      } else {
+        console.warn(`[Speech] No voice for ${SPEECH_LANG[lang]}, letting browser choose`)
       }
 
-      if (matchedVoice) {
-        utterance.voice = matchedVoice
-        console.log(`[Speech] Using voice: ${matchedVoice.name} (${matchedVoice.lang})`)
-      }
-
-      const estimatedDuration = text.length * 60
+      let started = false
       let progressInterval: ReturnType<typeof setInterval> | null = null
+      const estimatedDuration = text.length * 60
 
       utterance.onstart = () => {
+        started = true
         setIsSpeaking(true)
         setSpeechProgress(0)
         progressInterval = setInterval(() => {
@@ -404,19 +350,46 @@ export default function AIAnimatedShowcase() {
         setSpeechProgress(100)
         if (progressInterval) clearInterval(progressInterval)
       }
-      utterance.onerror = () => {
+      utterance.onerror = (e) => {
+        console.warn(`[Speech] onerror for ${SPEECH_LANG[lang]}:`, e.error)
         setIsSpeaking(false)
         setSpeechProgress(0)
         if (progressInterval) clearInterval(progressInterval)
-        // Fallback to backend when browser TTS fails
-        console.warn(`[Speech] Browser TTS failed for ${SPEECH_LANG[lang]}, trying backend`)
-        speakWithBackend(text, lang)
       }
 
       utteranceRef.current = utterance
       window.speechSynthesis.speak(utterance)
+
+      // Chrome workaround: if onstart doesn't fire within 2s, cancel and retry once
+      if (retryCount < 1) {
+        setTimeout(() => {
+          if (!started) {
+            console.warn(`[Speech] No onstart after 2s for ${SPEECH_LANG[lang]}, retrying...`)
+            window.speechSynthesis.cancel()
+            // Small delay before retry
+            setTimeout(() => {
+              speakWithBrowser(text, lang, retryCount + 1)
+            }, 200)
+          }
+        }, 2000)
+      }
+
+      return started
     },
-    [stopSpeech, speakWithBackend]
+    [findVoice]
+  )
+
+  const speak = useCallback(
+    (text: string, lang: CVLanguage) => {
+      if (typeof window === 'undefined' || !window.speechSynthesis) {
+        toast.error(lang === 'ar' ? 'التصويت غير مدعوم في هذا المتصفح' : 'Speech not supported in this browser')
+        return
+      }
+
+      stopSpeech()
+      speakWithBrowser(text, lang)
+    },
+    [stopSpeech, speakWithBrowser]
   )
 
   const toggleSpeech = useCallback(() => {
