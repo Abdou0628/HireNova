@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
-import OpenAI from 'openai'
 import { withAuth, secureAIInput, validateAIOutput, checkAIAbuseLimit, logAIEvent } from '@/lib/hnsa'
+import OpenAI from 'openai'
 
 // ─── Dual-mode LLM Backend ────────────────────────────────────────────────
 // Z.ai env → z-ai-web-dev-sdk (free)
